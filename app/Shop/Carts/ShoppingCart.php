@@ -46,8 +46,7 @@ class ShoppingCart extends Cart {
 
         $grandTotal = $total + $shipping;
 
-        if (!empty($voucherAmount) && $voucherAmount > 0
-        //&& $grandTotal > $voucherAmount
+        if (!empty($voucherAmount) && $voucherAmount > 0 && $grandTotal > $voucherAmount
         ) {
             $grandTotal -= $voucherAmount;
         }

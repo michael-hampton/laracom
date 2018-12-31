@@ -1,7 +1,5 @@
 @extends('layouts.front.app')
 
-Mike 1
-
 @section('content')
     <!-- Main content -->
     <section class="container content">
