@@ -109,17 +109,21 @@ class RefundController extends Controller {
      * @param CreateRefundRequest $request
      */
     public function doRefund(CreateRefundRequest $request) {
-        $this->orderProductRepo->updateOrderProduct(
-                [
-            'status' => $request->status
-                ], $request->lineId
-        );
+
+        $orderProduct = $this->orderProductRepo->findOrderProductById($request->lineId);
+        $orderProductRepo = new OrderProductRepository($orderProduct);
 
         $data = $request->except('_token', '_method');
         $data['date_refunded'] = date('Y-m-d'); //add request
 
         $this->refundRepo->createRefund($data);
-        
+
+        $orderProductRepo->updateOrderProduct(
+                [
+            'status' => $request->status
+                ], $request->lineId
+        );
+
         $request->session()->flash('message', 'Creation successful');
     }
 

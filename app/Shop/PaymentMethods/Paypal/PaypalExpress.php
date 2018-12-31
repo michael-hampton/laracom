@@ -5,8 +5,6 @@ namespace App\Shop\PaymentMethods\Paypal;
 use App\Shop\Addresses\Address;
 use App\Shop\Carts\ShoppingCart;
 use App\Shop\PaymentMethods\Paypal\Exceptions\PaypalRequestError;
-use App\Shop\Products\Product;
-use Gloudemans\Shoppingcart\CartItem;
 use Illuminate\Support\Collection;
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
@@ -30,8 +28,8 @@ use PayPal\Rest\ApiContext;
  *
  * @todo Make a test for this
  */
-class PaypalExpress
-{
+class PaypalExpress {
+
     private $apiContext;
     private $payer;
     private $amount;
@@ -39,23 +37,21 @@ class PaypalExpress
     private $itemList;
     private $others;
 
-    public function __construct($clientId, $clientSecret, $mode, $url) {
+    public function __construct($clientId, $clientSecret, $mode) {
         $apiContext = new ApiContext(
-            new OAuthTokenCredential($clientId, $clientSecret)
+                new OAuthTokenCredential($clientId, $clientSecret)
         );
-
         $apiContext->setConfig(
-            array(
-                'mode' => $mode,
-                'log.LogEnabled' => env('APP_DEBUG'),
-                'log.FileName' => storage_path('logs/paypal.log'),
-                'log.LogLevel' => env('APP_LOG_LEVEL'),
-                'cache.enabled' => true,
-                'cache.FileName' => storage_path('logs/paypal.cache'),
-                'http.CURLOPT_SSLVERSION' => CURL_SSLVERSION_TLSv1
-            )
+                array(
+                    'mode' => $mode,
+                    'log.LogEnabled' => env('APP_DEBUG'),
+                    'log.FileName' => storage_path('logs/paypal.log'),
+                    'log.LogLevel' => env('APP_LOG_LEVEL'),
+                    'cache.enabled' => true,
+                    'cache.FileName' => storage_path('logs/paypal.cache'),
+                    'http.CURLOPT_SSLVERSION' => CURL_SSLVERSION_TLSv1
+                )
         );
-
         $this->apiContext = $apiContext;
     }
 
@@ -64,13 +60,11 @@ class PaypalExpress
      *
      * @return ApiContext
      */
-    public function getApiContext()
-    {
+    public function getApiContext() {
         return $this->apiContext;
     }
 
-    public function setPayer()
-    {
+    public function setPayer() {
         $payer = new Payer();
         $payer->setPaymentMethod('paypal');
         $this->payer = $payer;
@@ -79,75 +73,71 @@ class PaypalExpress
     /**
      * @param Collection $products
      */
-    public function setItems(Collection $products)
-    {
+    public function setItems(Collection $products) {
         $items = [];
         foreach ($products as $product) {
             $item = new Item();
             $item->setName($product->name)
-                ->setDescription($product->description)
-                ->setQuantity($product->qty)
-                ->setCurrency(ShoppingCart::$defaultCurrency)
-                ->setPrice($product->price);
+                    ->setDescription($product->description)
+                    ->setQuantity($product->qty)
+                    ->setCurrency(ShoppingCart::$defaultCurrency)
+                    ->setPrice($product->price);
             $items[] = $item;
         }
-
         $itemList = new ItemList();
         $itemList->setItems($items);
-
         $this->itemList = $itemList;
     }
 
-    public function setOtherFees($subtotal, $tax = 0, $shipping)
-    {
+    /**
+     * @param $subtotal
+     * @param int $tax
+     * @param $shipping
+     */
+    public function setOtherFees($subtotal, $tax = 0, $shipping, $voucherAmount = 0) {
         $details = new Details();
         $details->setTax($tax)
-            ->setSubtotal($subtotal)
-            ->setShipping($shipping);
-
+                ->setSubtotal($subtotal)
+                ->setShipping($shipping);
         $this->others = $details;
     }
 
-    public function setAmount($amt)
-    {
+    /**
+     * @param $amt
+     */
+    public function setAmount($amt) {
         $amount = new Amount();
         $amount->setCurrency(ShoppingCart::$defaultCurrency)
-            ->setTotal($amt)
-            ->setDetails($this->others);
-
+                ->setTotal($amt)
+                ->setDetails($this->others);
         $this->amount = $amount;
     }
 
-    public function setTransactions()
-    {
+    public function setTransactions() {
         $transaction = new Transaction();
         $transaction->setAmount($this->amount)
-            ->setItemList($this->itemList)
-            ->setDescription('Payment via Paypal')
-            ->setInvoiceNumber(uniqid());
-
+                ->setItemList($this->itemList)
+                ->setDescription('Payment via Paypal')
+                ->setInvoiceNumber(uniqid());
         $this->transactions = $transaction;
     }
 
     /**
      * @param string $returnUrl
      * @param string $cancelUrl
+     *
      * @return Payment
      */
-    public function createPayment(string $returnUrl, string $cancelUrl)
-    {
+    public function createPayment(string $returnUrl, string $cancelUrl) {
         $payment = new Payment();
         $payment->setIntent('sale')
-            ->setPayer($this->payer)
-            ->setTransactions([$this->transactions]);
-
+                ->setPayer($this->payer)
+                ->setTransactions([$this->transactions]);
         $redirectUrls = new RedirectUrls();
         $redirectUrls
-            ->setReturnUrl($returnUrl)
-            ->setCancelUrl($cancelUrl);
-
+                ->setReturnUrl($returnUrl)
+                ->setCancelUrl($cancelUrl);
         $payment->setRedirectUrls($redirectUrls);
-
         try {
             return $payment->create($this->apiContext);
         } catch (PayPalConnectionException $e) {
@@ -159,8 +149,7 @@ class PaypalExpress
      * @param string $payerID
      * @return PaymentExecution
      */
-    public function setPayerId(string $payerID)
-    {
+    public function setPayerId(string $payerID) {
         $execution = new PaymentExecution();
         $execution->setPayerId($payerID);
         return $execution;
@@ -170,20 +159,14 @@ class PaypalExpress
      * @param Address $address
      * @return InvoiceAddress
      */
-    public function setBillingAddress(Address $address)
-    {
+    public function setBillingAddress(Address $address) {
         $billingAddress = new InvoiceAddress();
         $billingAddress->line1 = $address->address_1;
         $billingAddress->line2 = $address->address_2;
-        if (!is_null($address->city)) {
-            $billingAddress->city = $address->city->name;
-        }
-        if (!is_null($address->province)) {
-            $billingAddress->state = $address->province->name;
-        }
+        $billingAddress->city = $address->city;
+        $billingAddress->state = $address->state_code;
         $billingAddress->postal_code = $address->zip;
         $billingAddress->country_code = $address->country->iso;
-
         return $billingAddress;
     }
 
@@ -191,20 +174,15 @@ class PaypalExpress
      * @param Address $address
      * @return ShippingAddress
      */
-    public function setShippingAddress(Address $address)
-    {
+    public function setShippingAddress(Address $address) {
         $shipping = new ShippingAddress();
         $shipping->line1 = $address->address_1;
         $shipping->line2 = $address->address_2;
-        if (!is_null($address->city)) {
-            $shipping->city = $address->city->name;
-        }
-        if (!is_null($address->province)) {
-            $shipping->state = $address->province->name;
-        }
+        $shipping->city = $address->city;
+        $shipping->state = $address->state_code;
         $shipping->postal_code = $address->zip;
         $shipping->country_code = $address->country->iso;
-
         return $shipping;
     }
+
 }

@@ -11,10 +11,15 @@ interface PayPalExpressCheckoutRepositoryInterface {
 
     /**
      * 
-     * @param type $shippingFee
+     * @param type $shippingFee#
+     * @param type $voucherAmount
      * @param Request $request
      */
-    public function process($shippingFee, Request $request);
+    public function process($shippingFee, $voucherAmount, Request $request);
 
+    /**
+     * 
+     * @param Request $request
+     */
     public function execute(Request $request);
 }

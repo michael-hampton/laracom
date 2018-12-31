@@ -107,9 +107,10 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
      * 
      * @param Order $order
      * @param Order $newOrder
+     * @param array $lineIds
      * @return boolean
      */
-    public function cloneOrderLines(Order $order, Order $newOrder) {
+    public function cloneOrderLines(Order $order, Order $newOrder, array $lineIds = []) {
 
         $lines = $this->listOrderProducts()->where('order_id', $order->id);
 
@@ -122,6 +123,11 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
 
         foreach ($lines as $line) {
 
+            if (!empty($lineIds) && !in_array($line->id, $lineIds)) {
+
+                continue;
+            }
+
             $data = [
                 'order_id' => $orderId,
                 'product_id' => $line->product_id,
@@ -133,12 +139,12 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
                 'status' => 9
             ];
 
-            if(!$this->createOrderProduct($data)) {
-                
+            if (!$this->createOrderProduct($data)) {
+
                 return false;
             }
         }
-        
+
         return true;
     }
 

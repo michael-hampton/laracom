@@ -7,6 +7,7 @@ use App\Shop\Carts\Exceptions\ProductInCartNotFoundException;
 use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Carts\ShoppingCart;
 use App\Shop\Couriers\Courier;
+use App\Shop\Vouchers\Voucher;
 use App\Shop\Customers\Customer;
 use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\ProductRepository;
@@ -79,10 +80,11 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
      *
      * @param int $decimals
      * @param float $shipping
+     * @param float $voucherAmount
      * @return float
      */
-    public function getTotal(int $decimals = 2, $shipping = 0.00) {
-        return $this->model->total($decimals, '.', '', $shipping);
+    public function getTotal(int $decimals = 2, $shipping = 0.00, $voucherAmount = 0.00) {
+        return $this->model->total($decimals, '.', '', $shipping, $voucherAmount);
     }
 
     /**
@@ -120,6 +122,16 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
      */
     public function getShippingFee(Courier $courier) {
         return number_format($courier->cost, 2);
+    }
+    
+    /**
+     * 
+     * @param \App\Shop\Carts\Repositories\VoucherCode $voucherCode
+     * @return type
+     */
+    public function getVoucherAmount(Voucher $voucher) {
+        
+        return number_format($voucher->amount, 2);
     }
 
     /**

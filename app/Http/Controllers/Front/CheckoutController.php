@@ -8,6 +8,7 @@ use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Carts\Requests\PayPalCheckoutExecutionRequest;
 use App\Shop\Carts\Requests\StripeExecutionRequest;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
+use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Customers\Customer;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
@@ -40,6 +41,11 @@ class CheckoutController extends Controller {
      * @var CourierRepositoryInterface
      */
     private $courierRepo;
+    
+    /**
+     * @var VoucherRepositoryInterface
+     */
+    private $voucherRepo;
 
     /**
      * @var AddressRepositoryInterface
@@ -72,7 +78,7 @@ class CheckoutController extends Controller {
     private $shippingRepo;
 
     public function __construct(
-    CartRepositoryInterface $cartRepository, CourierRepositoryInterface $courierRepository, AddressRepositoryInterface $addressRepository, CustomerRepositoryInterface $customerRepository, ProductRepositoryInterface $productRepository, OrderRepositoryInterface $orderRepository, ShippingInterface $shipping
+    CartRepositoryInterface $cartRepository, CourierRepositoryInterface $courierRepository, AddressRepositoryInterface $addressRepository, CustomerRepositoryInterface $customerRepository, ProductRepositoryInterface $productRepository, OrderRepositoryInterface $orderRepository, ShippingInterface $shipping, VoucherRepositoryInterface $voucherRepository
     ) {
         $this->cartRepo = $cartRepository;
         $this->courierRepo = $courierRepository;
@@ -82,6 +88,7 @@ class CheckoutController extends Controller {
         $this->orderRepo = $orderRepository;
         $this->payPal = new PayPalExpressCheckoutRepository;
         $this->shippingRepo = $shipping;
+        $this->voucherRepo = $voucherRepository;
     }
 
     /**
@@ -105,15 +112,18 @@ class CheckoutController extends Controller {
                 $rates = $shipment->rates;
             }
         }
+
+         
         // Get payment gateways
         $paymentGateways = collect(explode(',', config('payees.name')))->transform(function ($name) {
                     return config($name);
                 })->all();
 
         $billingAddress = $customer->addresses()->first();
-
-
-
+        
+        $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+        $voucherAmount = $this->cartRepo->getVoucherAmount($voucher);
+        
         return view('front.checkout', [
             'customer' => $customer,
             'billingAddress' => $billingAddress,
@@ -121,7 +131,7 @@ class CheckoutController extends Controller {
             'products' => $this->cartRepo->getCartItems(),
             'subtotal' => $this->cartRepo->getSubTotal(),
             'tax' => $this->cartRepo->getTax(),
-            'total' => $this->cartRepo->getTotal(2),
+            'total' => $this->cartRepo->getTotal(2, 0.00, $voucherAmount),
             'payments' => $paymentGateways,
             'cartItems' => $this->cartRepo->getCartItemsTransformed(),
             'shipment_object_id' => $shipment_object_id,
@@ -140,10 +150,14 @@ class CheckoutController extends Controller {
      * @codeCoverageIgnore
      */
     public function store(CartCheckoutRequest $request) {
+        
         $shippingFee = 0;
+        $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+        $voucherAmount = $this->cartRepo->getVoucherAmount($voucher);
+
         switch ($request->input('payment')) {
             case 'paypal':
-                return $this->payPal->process($shippingFee, $request);
+                return $this->payPal->process($shippingFee, $voucherAmount, $request);
                 break;
             case 'stripe':
                 $details = [
@@ -152,7 +166,7 @@ class CheckoutController extends Controller {
                 ];
                 $customer = $this->customerRepo->findCustomerById(auth()->id());
                 $customerRepo = new CustomerRepository($customer);
-                $customerRepo->charge($this->cartRepo->getTotal(2, $shippingFee), $details);
+                $customerRepo->charge($this->cartRepo->getTotal(2, $shippingFee, $voucherAmount), $details);
                 break;
             default:
         }
@@ -165,6 +179,7 @@ class CheckoutController extends Controller {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function executePayPalPayment(PayPalCheckoutExecutionRequest $request) {
+
         try {
             $this->payPal->execute($request);
             $this->cartRepo->clearCart();

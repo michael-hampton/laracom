@@ -11,10 +11,12 @@
             {{ $payment['description'] }}
         @endif
     </td>
+
     <td>
         <form action="{{ route('bank-transfer.index') }}">
             <input type="hidden" class="billing_address" name="billing_address" value="">
             <input type="hidden" class="rate" name="rate" value="">
+            <input type="hidden" class="voucherCode" name="voucherCode" value="{{ Session::get('voucherCode') }}">
             <input type="hidden" name="shipment_obj_id" value="{{ $shipment_object_id }}">
             <button type="submit" class="btn btn-warning pull-right">Pay with {{ ucwords($payment['name']) }} <i class="fa fa-bank"></i></button>
         </form>

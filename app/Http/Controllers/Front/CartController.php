@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Shop\Carts\Requests\AddToCartRequest;
 use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
+use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Products\Repositories\ProductRepository;
@@ -26,20 +27,31 @@ class CartController extends Controller {
      * @var ProductRepositoryInterface
      */
     private $productRepo;
+
+    /**
+     * @var CourierRepositoryInterface
+     */
     private $courierRepo;
+
+    /**
+     * @var VoucherRepositoryInterface
+     */
+    private $voucherRepo;
 
     /**
      * CartController constructor.
      * @param CartRepositoryInterface $cartRepository
      * @param ProductRepositoryInterface $productRepository
      * @param CourierRepositoryInterface $courierRepository
+     * @param \App\Http\Controllers\Front\VoucherRepositoryInterface $voucherRepository
      */
     public function __construct(
-    CartRepositoryInterface $cartRepository, ProductRepositoryInterface $productRepository, CourierRepositoryInterface $courierRepository
+    CartRepositoryInterface $cartRepository, ProductRepositoryInterface $productRepository, CourierRepositoryInterface $courierRepository, VoucherRepositoryInterface $voucherRepository
     ) {
         $this->cartRepo = $cartRepository;
         $this->productRepo = $productRepository;
         $this->courierRepo = $courierRepository;
+        $this->voucherRepo = $voucherRepository;
     }
 
     /**
@@ -56,15 +68,21 @@ class CartController extends Controller {
             return $item;
         });
 
+        // to be removed
+        request()->session()->put('voucherCode', 62);
+
         $courier = $this->courierRepo->findCourierById(request()->session()->get('courierId', 1));
         $shippingFee = $this->cartRepo->getShippingFee($courier);
+
+        $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+        $voucherAmount = $this->cartRepo->getVoucherAmount($voucher);
 
         return view('front.carts.cart', [
             'products' => $cartProducts,
             'subtotal' => $this->cartRepo->getSubTotal(),
             'tax' => $this->cartRepo->getTax(),
             'shippingFee' => $shippingFee,
-            'total' => $this->cartRepo->getTotal(2, $shippingFee)
+            'total' => $this->cartRepo->getTotal(2, $shippingFee, $voucherAmount)
         ]);
     }
 
