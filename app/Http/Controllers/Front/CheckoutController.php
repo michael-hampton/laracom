@@ -104,9 +104,9 @@ class CheckoutController extends Controller {
 
         $rates = null;
         $shipment_object_id = null;
+
         if (env('ACTIVATE_SHIPPING') == 1) {
             $shipment = $this->createShippingProcess($customer, $products);
-
             if (!is_null($shipment)) {
                 $shipment_object_id = $shipment->object_id;
                 $rates = $shipment->rates;
@@ -120,7 +120,7 @@ class CheckoutController extends Controller {
                 })->all();
 
         $billingAddress = $customer->addresses()->first();
-        
+
         $voucher = null;
 
         if (request()->session()->has('voucherCode')) {
@@ -156,11 +156,11 @@ class CheckoutController extends Controller {
 
         $shippingFee = 0;
         $voucher = null;
-        
+
         if (request()->session()->has('voucherCode')) {
-             $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+            $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
         }
-        
+
         switch ($request->input('payment')) {
             case 'paypal':
                 return $this->payPal->process($shippingFee, $voucher, $request);
@@ -187,7 +187,12 @@ class CheckoutController extends Controller {
     public function executePayPalPayment(PayPalCheckoutExecutionRequest $request) {
 
         try {
-            $this->payPal->execute($request);
+
+            if (request()->session()->has('voucherCode')) {
+                $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+            }
+
+            $this->payPal->execute($request, $voucher);
             $this->cartRepo->clearCart();
             return redirect()->route('checkout.success');
         } catch (PayPalConnectionException $e) {
@@ -203,6 +208,11 @@ class CheckoutController extends Controller {
      */
     public function charge(StripeExecutionRequest $request) {
         try {
+
+            if (request()->session()->has('voucherCode')) {
+                $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+            }
+
             $customer = $this->customerRepo->findCustomerById(auth()->id());
             $stripeRepo = new StripeRepository($customer);
             $stripeRepo->execute(
@@ -245,7 +255,6 @@ class CheckoutController extends Controller {
         if ($customerRepo->findAddresses()->count() > 0 && $products->count() > 0) {
             $this->shippingRepo->setPickupAddress();
             $deliveryAddress = $customerRepo->findAddresses()->first();
-
             $this->shippingRepo->setDeliveryAddress($deliveryAddress);
             $this->shippingRepo->readyParcel($this->cartRepo->getCartItems());
             return $this->shippingRepo->readyShipment();

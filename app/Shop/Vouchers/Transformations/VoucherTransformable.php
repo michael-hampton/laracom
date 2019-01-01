@@ -16,8 +16,12 @@ trait VoucherTransformable {
      */
     public function transformVoucher(\App\Shop\Vouchers\Voucher $voucher) {
                 
-        $channelRepo = new ChannelRepository(new Channel);
-        $channel = $channelRepo->findChannelById($voucher->channel);
+        $channel = null;
+        
+        if(!empty($voucher->channel)) {
+            $channelRepo = new ChannelRepository(new Channel);
+            $channel = $channelRepo->findChannelById($voucher->channel);
+        }   
         
         $obj = new Voucher;
         $obj->id = $voucher->id;
@@ -29,7 +33,7 @@ trait VoucherTransformable {
         $obj->start_date = $voucher->start_date;
         $obj->status = $voucher->status;
         $obj->channel = $voucher->channel;
-        $obj->channel_name = $channel->name;
+        $obj->channel_name = !is_null($channel) ? $channel->name : 'NO CHANNEL';
         $obj->scope_type = $voucher->scope_type;
         $obj->scope_value = $voucher->scope_value;
         

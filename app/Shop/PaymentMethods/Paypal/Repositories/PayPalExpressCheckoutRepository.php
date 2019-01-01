@@ -3,6 +3,7 @@
 namespace App\Shop\PaymentMethods\Paypal\Repositories;
 
 use App\Shop\Addresses\Address;
+use App\Shop\Orders\Order;
 use App\Shop\Addresses\Repositories\AddressRepository;
 use App\Shop\Carts\Repositories\CartRepository;
 use App\Shop\Carts\ShoppingCart;
@@ -26,6 +27,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * PayPalExpressCheckoutRepository constructor.
      */
     public function __construct() {
+        
         $payment = new Payment(new PaypalExpress(
                 config('paypal.client_id'), config('paypal.client_secret'), config('paypal.mode'), config('paypal.api_url')
         ));
@@ -49,13 +51,19 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
     public function process($shippingFee, $voucher, Request $request) {
         $cartRepo = new CartRepository(new ShoppingCart());
         $items = $cartRepo->getCartItemsTransformed();
+        
+        if (request()->session()->has('discount_amount')) {
+            $discountedAmount = request()->session()->get('discount_amount', 1);
+             $items->first()->price -= $discountedAmount;
+        }
+        
         $addressRepo = new AddressRepository(new Address());
         $this->payPal->setPayer();
         $this->payPal->setItems($items);
         $this->payPal->setOtherFees(
                 $cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
         );
-        $this->payPal->setAmount($cartRepo->getTotal(2, $shippingFee, $voucher));
+        $this->payPal->setAmount($cartRepo->getTotal(2, $shippingFee));
         $this->payPal->setTransactions();
         $billingAddress = $addressRepo->findAddressById($request->input('billing_address'));
         $this->payPal->setBillingAddress($billingAddress);
@@ -63,6 +71,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             $shippingAddress = $addressRepo->findAddressById($request->input('shipping_address'));
             $this->payPal->setShippingAddress($shippingAddress);
         }
+        
         try {
             $response = $this->payPal->createPayment(
                     route('checkout.execute', $request->except('_token', '_method')), route('checkout.cancel')
@@ -82,7 +91,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      *
      * @throws \Exception
      */
-    public function execute(Request $request) {
+    public function execute(Request $request, $voucher = null) {
         $payment = PayPalPayment::get($request->input('paymentId'), $this->payPal->getApiContext());
         $execution = $this->payPal->setPayerId($request->input('PayerID'));
         $trans = $payment->execute($execution, $this->payPal->getApiContext());
@@ -97,7 +106,8 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 'address_id' => $request->input('billing_address'),
                 'order_status_id' => 1,
                 'payment' => $request->input('payment'),
-                'discounts' => 0,
+                'discounts' => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
+                'voucher_id' => $voucher,
                 'total_products' => $cartRepo->getSubTotal(),
                 'total' => $cartRepo->getTotal(),
                 'total_paid' => $transaction->getAmount()->getTotal(),
@@ -105,6 +115,15 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             ]);
         }
         $cartRepo->clearCart();
+    }
+    
+    /**
+     * 
+     * @param Order $order
+     */
+    public function doRefund(Order $order) {
+        
+        die('do refund');
     }
 
 }

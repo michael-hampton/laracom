@@ -26,16 +26,20 @@ class Order extends Model implements Auditable {
     protected $fillable = [
         'reference',
         'courier_id',
+        'courier',
         'customer_id',
         'address_id',
         'order_status_id',
-        'payment_method_id',
+        'payment',
         'discounts',
         'total_products',
         'total',
         'tax',
         'total_paid',
         'invoice',
+        'label_url',
+        'tracking_number',
+        'total_shipping',
         'customer_ref',
         'voucher_code',
         'is_priority',
@@ -74,11 +78,11 @@ class Order extends Model implements Auditable {
         return $this->belongsTo(PaymentMethod::class);
     }
 
-     /**
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
-    public function comments()
-    {
+    public function comments() {
         return $this->morphMany(Comment::class, 'commentable');
     }
+
 }

@@ -168,7 +168,7 @@ class BankTransferController extends Controller {
         'address_id' => $request->input('billing_address'),
         'order_status_id' => $os->id,
         'payment' => strtolower(config('bank-transfer.name')),
-        'discounts' => 0,
+        'discounts' => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
         'voucher_id' => $this->voucherId,
         'total_products' => $this->cartRepo->getSubTotal(),
         'total' => $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId),

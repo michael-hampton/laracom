@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin\Refunds;
 
 use App\Shop\Refunds\Refund;
 use App\Shop\Refunds\Repositories\RefundRepository;
+use App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository;
+use App\Shop\PaymentMethods\Stripe\StripeRepository;
 use App\Shop\Refunds\Repositories\Interfaces\RefundRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
@@ -11,6 +13,7 @@ use App\Shop\Refunds\Requests\CreateRefundRequest;
 use App\Shop\Refunds\Requests\UpdateRefundRequest;
 use App\Shop\Refunds\Transformations\RefundTransformable;
 use App\Shop\Orders\Order;
+use App\Shop\Customers\Customer;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
 use App\Http\Controllers\Controller;
@@ -115,6 +118,25 @@ class RefundController extends Controller {
 
         $data = $request->except('_token', '_method');
         $data['date_refunded'] = date('Y-m-d'); //add request
+
+        $order = $this->orderRepo->findOrderById($request->order_id);
+        $customer = (new \App\Shop\Customers\Repositories\CustomerRepository(new Customer()))->findCustomerById($order->customer_id);
+
+        switch ($order->payment) {
+            case 'paypal':
+
+                if (!(new PayPalExpressCheckoutRepository())->doRefund($order)) {
+
+                    die('cant do refund');
+                }
+                break;
+
+            case 'stripe':
+                if (!(new StripeRepository($customer))->doRefund($order)) {
+                    die('Cant do refund');
+                }
+                break;
+        }
 
         $this->refundRepo->createRefund($data);
 

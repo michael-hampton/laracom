@@ -11,23 +11,10 @@
         <form action="{{ route('admin.vouchers.update', $voucher->id) }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
+                
                 <input type="hidden" name="_method" value="put">
-
-                @if(empty($selectedChannel) && !$channels->isEmpty())
-                <div class="form-group">
-                    <label for="channel">Channel </label>
-                    <select name="channel" id="channel" class="form-control select2">
-                        <option value=""></option>
-                        @foreach($channels as $channel)
-                        <option @if($channel->id == $voucher->channel) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @else;
                 <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
-                @endif;
-
-                <input type="hidden" name="scope_value" id="scope_value">
+                <input type="hidden" name="scope_value" id="scope_value" value="{{ $voucher->scope_value ?: old('scope_value') }}">
 
                 <div class="form-group">
                     <label for="amount_type">Amount Type </label>
@@ -50,12 +37,12 @@
 
                 <div class="form-group">
                     <label for="expiry_date">Start Date </label>
-                    <input type="text" name="start_date" id="start_date" placeholder="Start Date" class="form-control" value="{{ $voucher->start_date ?: old('start_date') }}">
+                    <input type="text" name="start_date" id="start_date" placeholder="Start Date" class="form-control" value="{{ date('m-d-Y', strtotime($voucher->start_date)) ?: old('start_date') }}">
                 </div>
 
                 <div class="form-group">
                     <label for="expiry_date">Expiry Date </label>
-                    <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ $voucher->expiry_date ?: old('expiry_date') }}">
+                    <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ date('m-d-Y', strtotime($voucher->expiry_date)) ?: old('expiry_date') }}">
                 </div>
 
                 @if(!empty($scopes))

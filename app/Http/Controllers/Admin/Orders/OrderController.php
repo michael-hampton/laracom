@@ -11,6 +11,7 @@ use App\Shop\Customers\Customer;
 use App\Shop\Comments\Comment;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
+use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\Products\Repositories\ProductRepository;
@@ -46,6 +47,11 @@ class OrderController extends Controller {
     private $refundRepo;
 
     /**
+     * @var VoucherRepositoryInterface
+     */
+    private $voucherRepo;
+
+    /**
      * @var ChannelRepositoryInterface
      */
     private $channelRepo;
@@ -74,22 +80,14 @@ class OrderController extends Controller {
      * @var OrderStatusRepositoryInterface
      */
     private $orderStatusRepo;
-    
-     /**
+
+    /**
      * @var ProductRepositoryInterface
      */
     private $productRepo;
 
     public function __construct(
-            OrderRepositoryInterface $orderRepository, 
-            CourierRepositoryInterface $courierRepository, 
-            AddressRepositoryInterface $addressRepository, 
-            CustomerRepositoryInterface $customerRepository, 
-            OrderStatusRepositoryInterface $orderStatusRepository, 
-            RefundRepositoryInterface $refundRepository, 
-            ChannelRepositoryInterface $channelRepository, 
-            OrderProductRepositoryInterface $orderProductRepository,
-            ProductRepositoryInterface $productRepository
+    OrderRepositoryInterface $orderRepository, CourierRepositoryInterface $courierRepository, AddressRepositoryInterface $addressRepository, CustomerRepositoryInterface $customerRepository, OrderStatusRepositoryInterface $orderStatusRepository, RefundRepositoryInterface $refundRepository, ChannelRepositoryInterface $channelRepository, OrderProductRepositoryInterface $orderProductRepository, ProductRepositoryInterface $productRepository, VoucherRepositoryInterface $voucherRepository
     ) {
         $this->orderRepo = $orderRepository;
         $this->courierRepo = $courierRepository;
@@ -100,6 +98,7 @@ class OrderController extends Controller {
         $this->channelRepo = $channelRepository;
         $this->orderProductRepo = $orderProductRepository;
         $this->productRepo = $productRepository;
+        $this->voucherRepo = $voucherRepository;
 
         //$this->middleware(['permission:update-order, guard:employee'], ['only' => ['edit', 'update']]);
     }
@@ -174,9 +173,16 @@ class OrderController extends Controller {
         $order->address = $this->addressRepo->findAddressById($order->address_id);
         $orderRepo = new OrderRepository($order);
         $items = $this->orderProductRepo->listOrderProducts()->where('order_id', $orderId);
-        
+
+        $voucher = null;
+
+        if (!empty($order->voucher_code)) {
+
+            $voucher = $this->voucherRepo->findVoucherById($order->voucher_code);
+        }
+
         $arrProducts = $this->productRepo->listProducts();
-        
+
         $arrAudits = $order->audits;
 
         $list = (new OrderCommentRepository($order))->listComments();
@@ -198,6 +204,7 @@ class OrderController extends Controller {
             'payment' => $order->payment,
             'user' => auth()->guard('admin')->user(),
             'audits' => $arrAudits,
+            'voucher' => $voucher,
             'comments' => $comments
         ]);
     }
@@ -302,29 +309,29 @@ class OrderController extends Controller {
 
         return redirect()->route('admin.orders.edit', $request->order_id);
     }
-    
+
     /**
      * 
      * @param type $orderId
      */
     public function cloneOrder($orderId) {
-        
+
         $channel = env('CHANNEL');
         $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
         $order = $this->orderRepo->findOrderById($orderId);
-        
+
         $newOrder = $this->orderRepo->cloneOrder($order, $channel);
-        
-        if(!$newOrder) {
-            
+
+        if (!$newOrder) {
+
             die('failed to crate new order');
         }
-        
-        if(!$this->orderProductRepo->cloneOrderLines($order, $newOrder)) {
-            
+
+        if (!$this->orderProductRepo->cloneOrderLines($order, $newOrder)) {
+
             die('failed to create lines');
         }
-        
+
         die('good');
     }
 

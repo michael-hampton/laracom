@@ -137,7 +137,7 @@ class VoucherController extends Controller {
         $scopes = !empty(env('VOUCHER_SCOPES')) ? explode(',', env('VOUCHER_SCOPES')) : [];
 
         return view('admin.vouchers.create', [
-            'selectedChannel' => $channel->id,
+            'selectedChannel' => isset($channel) ? $channel->id : null,
             'channels' => $channels,
             'scopes' => $scopes,
             'products' => $products,
@@ -182,19 +182,17 @@ class VoucherController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(int $id, $channel = null) {
+    public function edit(int $id) {
 
         $voucher = $this->voucherRepo->findVoucherById($id);
-        $channels = $this->channelRepo->listChannels();
+        $channel = $voucher->channel;
 
-        if (!is_null($channel)) {
-            $channels = null;
-            $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
-            $repo = new ChannelRepository($channel);
+        if (!empty($channel)) {
+            $objChannel = $this->channelRepo->findChannelById($channel);
+            $repo = new ChannelRepository($objChannel);
 
             $products = $repo->findProducts()->where('status', 1)->all();
         } else {
-            $channels = $this->channelRepo->listChannels();
             $products = $this->productRepo->listProducts()->where('status', 1);
         }
 
@@ -202,8 +200,7 @@ class VoucherController extends Controller {
 
         return view('admin.vouchers.edit', [
             'voucher' => $voucher,
-            'selectedChannel' => $channel->id,
-            'channels' => $channels,
+            'selectedChannel' => $channel,
             'scopes' => $scopes,
             'products' => $products,
             'brands' => $this->brandRepo->listBrands(),

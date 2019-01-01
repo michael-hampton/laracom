@@ -17,7 +17,7 @@ class ShoppingCart extends Cart {
         $this->event = $this->getEvents();
         parent::__construct($this->session, $this->event);
 
-        self::$defaultCurrency = config('cart.currency');
+        self::$defaultCurrency = strtoupper(config('cart.currency'));
     }
 
     public function getSession() {
@@ -28,15 +28,15 @@ class ShoppingCart extends Cart {
         return app()->make('events');
     }
 
-   /**
-    * Get the total price of the items in the cart.
-    * @param type $decimals
-    * @param type $decimalPoint
-    * @param type $thousandSeparator
-    * @param type $shipping
-    * @param \App\Shop\Carts\Voucher $voucher
-    * @return type
-    */
+    /**
+     * Get the total price of the items in the cart.
+     * @param type $decimals
+     * @param type $decimalPoint
+     * @param type $thousandSeparator
+     * @param type $shipping
+     * @param \App\Shop\Carts\Voucher $voucher
+     * @return type
+     */
     public function total($decimals = null, $decimalPoint = null, $thousandSeparator = null, $shipping = 0.00, Voucher $voucher = null) {
         $content = $this->getContent();
 
@@ -45,18 +45,18 @@ class ShoppingCart extends Cart {
         }, 0);
 
         $grandTotal = $total + $shipping;
-       
-        if(!is_null($voucher)){
+
+        if (!is_null($voucher)) {
             $newTotal = $this->calculateVoucherAmount($voucher, $grandTotal);
-        
-            if($newTotal !== false) {
+
+            if ($newTotal !== false) {
                 $grandTotal = $newTotal;
             }
         }
 
         return number_format($grandTotal, $decimals, $decimalPoint, $thousandSeparator);
     }
-    
+
     /**
      * 
      * @param \App\Shop\Carts\Voucher $voucher
@@ -64,26 +64,28 @@ class ShoppingCart extends Cart {
      * @return boolean
      */
     public function calculateVoucherAmount(Voucher $voucher, $grandTotal) {
-        
+
+        $voucher->amount = number_format($voucher->amount, 2);
+
         if (empty($voucher->amount) || $voucher->amount <= 0) {
-        return false;
-            
+            return false;
         }
-        
-        if(strtolower($voucher->amount_type) === 'percent') {
-            $newprice = $grandTotal - ($grandTotal * ($voucher->amount/100));
-            
+
+        if (strtolower($voucher->amount_type) === 'percentage') {
+
+            $newprice = $grandTotal - ($grandTotal * ($voucher->amount / 100));
+            $reducedAmount = $grandTotal - $newprice;
+            request()->session()->put('discount_amount', number_format($reducedAmount, 2));
         } else {
-                        
+
             $newprice = $grandTotal -= $voucher->amount;
- 
         }
-        
+
 //        if($newprice < 0) {
 //            
 //            return false;
 //        }
-        
+
         return $newprice;
     }
 

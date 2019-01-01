@@ -18,9 +18,7 @@ class CreateVoucherRequest extends BaseFormRequest {
             'expiry_date' => ['required', 'date'],
             'start_date' => ['required', 'date'],
             'status' => ['required'],
-            'channel' => ['required'],
-            'scope_type' => ['required'],
-            'scope_value' => ['required']
+            'scope_type' => ['required']
         ];
     }
 

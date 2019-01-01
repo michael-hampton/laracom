@@ -125,6 +125,7 @@
                     <tr>
                         <td>{{ $item->product_sku }}</td>
                         <td>
+                            @if($item->status != 8)
                             <select order-id="{{ $order->id }}" quantity="{{ $item->quantity }}" line-id="{{ $item->id }}" class="productSelect" class="form-control">
                                 @foreach($products as $product)
                                 @if($product->name == $item->product_name)
@@ -134,12 +135,14 @@
                                 @endif
                                 @endforeach
                             </select>
+                            @endif
 
                         </td>
                         <td>{!! $item->product_description !!}</td>
                         <td>{{ $item->quantity }}</td>
                         <td>{{ $item->product_price }}</td>
                         <td>
+                            @if($item->status != 8)
                             <div class="input-group">
                                 <select name="line_status_id" order-id="{{ $order->id }}" line-id="{{ $item->id }}" class="line_status_id form-control select2">
                                     @foreach($statuses as $status)
@@ -147,6 +150,7 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @endif;
                         </td>
 
                         @if($item->status != 8)
@@ -163,10 +167,13 @@
             </table>
         </div>
         @endif
+    </div>
+
+    <div class="box">
         <div class="box-body">
             <div class="row">
-                <div class="col-md-6">
-                    <h4> <i class="fa fa-truck"></i> Courier</h4>
+                <div class="col-md-12">
+                    <h4> <i class="fa fa-truck"></i> Shipping</h4>
                     <table class="table">
                         <thead>
                         <th class="col-md-3">Name</th>
@@ -182,7 +189,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <h4> <i class="fa fa-map-marker"></i> Address</h4>
                     <table class="table">
                         <thead>
@@ -214,6 +221,35 @@
             </div>
         </div>
     </div>
+    
+      @if(!empty($voucher))
+    <div class="box">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <h4> <i class="fa fa-calculator"></i> Voucher</h4>
+                    <table class="table">
+                        <thead>
+                        <th class="col-md-3">Voucher Code</th>
+                        <th class="col-md-4">Amount Redeemed</th>
+                        <th class="col-md-5">Scope</th>
+                        <th class="col-md-5">Type</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ $voucher->id }}</td>
+                                <td>{{ $order->discounts }}</td>
+                                <td>{{ $voucher->scope_type }}</td>
+                                <td>{{ $voucher->amount_type }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+      @endif
 
     <div class="box">
         @if(!$audits->isEmpty())

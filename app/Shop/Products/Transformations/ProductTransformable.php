@@ -20,10 +20,14 @@ trait ProductTransformable {
         $channelRepo = new ChannelRepository(new \App\Shop\Channels\Channel);
         $channel = $channelRepo->listChannels()->where('name', env('CHANNEL'))->first();
 
-        $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
-        $channelPrice = $channelPriceRepo->listChannelPrices()->where('product_id', $product->id)->where('channel_id', $channel->id);
+        if (!empty($channel) && !empty($channel->id)) {
+            $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
+            $channelPrice = $channelPriceRepo->listChannelPrices()->where('product_id', $product->id)->where('channel_id', $channel->id);
+            $price = !empty($channelPrice[0]) ? $channelPrice[0]->price : $product->price;
+        }
 
-        $price = !$channelPrice->isEmpty() ?  $channelPrice[0]->price : $product->price;
+
+
 
         $prod = new Product;
         $prod->id = (int) $product->id;
@@ -33,7 +37,7 @@ trait ProductTransformable {
         $prod->description = $product->description;
         $prod->cover = asset("storage/$product->cover");
         $prod->quantity = $product->quantity;
-        $prod->price = $price;
+        $prod->price = isset($price) ? $price : $product->price;
         $prod->status = $product->status;
         $prod->weight = (float) $product->weight;
         $prod->mass_unit = $product->mass_unit;

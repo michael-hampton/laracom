@@ -60,6 +60,11 @@ class CartController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
+        
+        //request()->session()->forget('voucherCode');
+        
+        request()->session()->put('voucherCode', 71);
+        
         $cartProducts = $this->cartRepo->getCartItems()->map(function (CartItem $item) {
             $productRepo = new ProductRepository(new Product());
             $product = $productRepo->findProductById($item->id);

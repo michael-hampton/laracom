@@ -22,7 +22,7 @@ class CheckoutRepository {
             'reference' => $data['reference'],
             'courier_id' => $data['courier_id'],
             'customer_id' => $data['customer_id'],
-            'voucher_code' => !empty($data['voucher_id']) ? $data['voucher_id'] : null,
+            'voucher_code' => !empty($data['voucher_id']) ? $data['voucher_id']->id : null,
             'address_id' => $data['address_id'],
             'order_status_id' => $data['order_status_id'],
             'payment' => $data['payment'],

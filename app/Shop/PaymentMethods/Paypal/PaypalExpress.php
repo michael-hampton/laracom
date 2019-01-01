@@ -74,6 +74,7 @@ class PaypalExpress {
      * @param Collection $products
      */
     public function setItems(Collection $products) {
+        
         $items = [];
         foreach ($products as $product) {
             $item = new Item();
@@ -129,6 +130,7 @@ class PaypalExpress {
      * @return Payment
      */
     public function createPayment(string $returnUrl, string $cancelUrl) {
+        
         $payment = new Payment();
         $payment->setIntent('sale')
                 ->setPayer($this->payer)
@@ -138,6 +140,7 @@ class PaypalExpress {
                 ->setReturnUrl($returnUrl)
                 ->setCancelUrl($cancelUrl);
         $payment->setRedirectUrls($redirectUrls);
+        
         try {
             return $payment->create($this->apiContext);
         } catch (PayPalConnectionException $e) {
