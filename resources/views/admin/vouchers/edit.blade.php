@@ -55,7 +55,8 @@
                     <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ $voucher->expiry_date ?: old('expiry_date') }}">
                 </div>
                 
-                                <div class="form-group" style="display:none;">
+                @if(!$products->isEmpty())
+                <div class="form-group" style="display:none;">
                     <label for="product">Product</label>
                     <select name="product" id="product" class="form-control select2">
                         <option value="">--Select--</option>
