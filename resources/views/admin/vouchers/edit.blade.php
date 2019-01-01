@@ -55,6 +55,18 @@
                     <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ $voucher->expiry_date ?: old('expiry_date') }}">
                 </div>
                 
+                @if(!$scopes->isEmpty())
+                <div class="form-group">
+                    <label for="channel">Scope</label>
+                    <select name="scope_type" id="scope_type" class="form-control select2">
+                        <option value="order">Order</option>
+                        @foreach($scopes as $scope)
+                        <option @if(old('scope_type') == $scope) selected="selected" @endif value="{{ $scope }}">{{ $scope }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                
                 @if(!$products->isEmpty())
                 <div class="form-group" style="display:none;">
                     <label for="product">Product</label>
