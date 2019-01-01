@@ -30,7 +30,7 @@ class CheckoutRepository {
             'total_products' => $data['total_products'],
             'total' => $data['total'],
             'total_paid' => $data['total_paid'],
-            'channel' => $data['channel'],
+            'channel' => isset($data['channel']) ? $data['channel'] : [],
             'tax' => $data['tax']
         ]);
         $orderRepo = new OrderRepository($order);
