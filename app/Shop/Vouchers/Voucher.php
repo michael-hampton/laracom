@@ -21,6 +21,8 @@ class Voucher extends Model {
         'coupon_code',
         'amount',
         'amount_type',
+        'scope_type',
+        'scope_value',
         'expiry_date',
         'start_date',
         'status',
