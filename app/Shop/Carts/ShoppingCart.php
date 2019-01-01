@@ -37,7 +37,7 @@ class ShoppingCart extends Cart {
      * @param float $voucherAmount
      * @return string
      */
-    public function total($decimals = null, $decimalPoint = null, $thousandSeparator = null, $shipping = 0.00, $voucherAmount = 0.00) {
+    public function total($decimals = null, $decimalPoint = null, $thousandSeparator = null, $shipping = 0.00, $voucher = null) {
         $content = $this->getContent();
 
         $total = $content->reduce(function ($total, CartItem $cartItem) {
@@ -45,13 +45,38 @@ class ShoppingCart extends Cart {
         }, 0);
 
         $grandTotal = $total + $shipping;
-
-        if (!empty($voucherAmount) && $voucherAmount > 0 && $grandTotal > $voucherAmount
-        ) {
-            $grandTotal -= $voucherAmount;
+       
+        if(!is_null($voucher)){
+            $newTotal = $this->calculateVoucherAmount($voucher, $grandTotal);
+        
+            if($newTotal !== false) {
+                $grandTotal = $newTotal;
+            }
         }
 
         return number_format($grandTotal, $decimals, $decimalPoint, $thousandSeparator);
+    }
+    
+    public function calculateVoucherAmount(Voucher $voucher, $grandTotal) {
+        
+        if (empty($voucher->amount) || $voucher->amount <= 0) {
+        return false;
+            
+        }
+        
+        if(strtolower($voucher->amount_type) === 'percent') {
+            $newprice = $grandTotal - ($grandTotal * ($voucher->amount/100));
+            
+        } else {
+            $newprice = $grandTotal -= $voucherAmount;
+        }
+        
+        if($newprice < 0) {
+            
+            return false;
+        }
+        
+        return $newprice;
     }
 
 }
