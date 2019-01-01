@@ -94,7 +94,7 @@ class PaypalExpress {
      * @param int $tax
      * @param $shipping
      */
-    public function setOtherFees($subtotal, $tax = 0, $shipping, $voucherAmount = 0) {
+    public function setOtherFees($subtotal, $tax = 0, $shipping) {
         $details = new Details();
         $details->setTax($tax)
                 ->setSubtotal($subtotal)

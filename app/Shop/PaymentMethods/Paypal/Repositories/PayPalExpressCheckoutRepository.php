@@ -46,7 +46,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * @return \Illuminate\Http\RedirectResponse
      * @throws \App\Shop\Addresses\Exceptions\AddressNotFoundException
      */
-    public function process($shippingFee, $voucherAmount, Request $request) {
+    public function process($shippingFee, $voucher, Request $request) {
         $cartRepo = new CartRepository(new ShoppingCart());
         $items = $cartRepo->getCartItemsTransformed();
         $addressRepo = new AddressRepository(new Address());
@@ -55,7 +55,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
         $this->payPal->setOtherFees(
                 $cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
         );
-        $this->payPal->setAmount($cartRepo->getTotal(2, $shippingFee, $voucherAmount));
+        $this->payPal->setAmount($cartRepo->getTotal(2, $shippingFee, $voucher));
         $this->payPal->setTransactions();
         $billingAddress = $addressRepo->findAddressById($request->input('billing_address'));
         $this->payPal->setBillingAddress($billingAddress);

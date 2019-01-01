@@ -41,7 +41,7 @@ class CheckoutController extends Controller {
      * @var CourierRepositoryInterface
      */
     private $courierRepo;
-    
+
     /**
      * @var VoucherRepositoryInterface
      */
@@ -113,7 +113,7 @@ class CheckoutController extends Controller {
             }
         }
 
-         
+
         // Get payment gateways
         $paymentGateways = collect(explode(',', config('payees.name')))->transform(function ($name) {
                     return config($name);
@@ -121,9 +121,12 @@ class CheckoutController extends Controller {
 
         $billingAddress = $customer->addresses()->first();
         
-        $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
-        $voucherAmount = $this->cartRepo->getVoucherAmount($voucher);
-        
+        $voucher = null;
+
+        if (request()->session()->has('voucherCode')) {
+            $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+        }
+
         return view('front.checkout', [
             'customer' => $customer,
             'billingAddress' => $billingAddress,
@@ -131,7 +134,7 @@ class CheckoutController extends Controller {
             'products' => $this->cartRepo->getCartItems(),
             'subtotal' => $this->cartRepo->getSubTotal(),
             'tax' => $this->cartRepo->getTax(),
-            'total' => $this->cartRepo->getTotal(2, 0.00, $voucherAmount),
+            'total' => $this->cartRepo->getTotal(2, 0.00, $voucher),
             'payments' => $paymentGateways,
             'cartItems' => $this->cartRepo->getCartItemsTransformed(),
             'shipment_object_id' => $shipment_object_id,
@@ -150,14 +153,17 @@ class CheckoutController extends Controller {
      * @codeCoverageIgnore
      */
     public function store(CartCheckoutRequest $request) {
-        
-        $shippingFee = 0;
-        $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
-        $voucherAmount = $this->cartRepo->getVoucherAmount($voucher);
 
+        $shippingFee = 0;
+        $voucher = null;
+        
+        if (request()->session()->has('voucherCode')) {
+             $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+        }
+        
         switch ($request->input('payment')) {
             case 'paypal':
-                return $this->payPal->process($shippingFee, $voucherAmount, $request);
+                return $this->payPal->process($shippingFee, $voucher, $request);
                 break;
             case 'stripe':
                 $details = [
@@ -166,7 +172,7 @@ class CheckoutController extends Controller {
                 ];
                 $customer = $this->customerRepo->findCustomerById(auth()->id());
                 $customerRepo = new CustomerRepository($customer);
-                $customerRepo->charge($this->cartRepo->getTotal(2, $shippingFee, $voucherAmount), $details);
+                $customerRepo->charge($this->cartRepo->getTotal(2, $shippingFee, $voucher), $details);
                 break;
             default:
         }
@@ -239,7 +245,7 @@ class CheckoutController extends Controller {
         if ($customerRepo->findAddresses()->count() > 0 && $products->count() > 0) {
             $this->shippingRepo->setPickupAddress();
             $deliveryAddress = $customerRepo->findAddresses()->first();
-            
+
             $this->shippingRepo->setDeliveryAddress($deliveryAddress);
             $this->shippingRepo->readyParcel($this->cartRepo->getCartItems());
             return $this->shippingRepo->readyShipment();

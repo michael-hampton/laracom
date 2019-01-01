@@ -15,7 +15,7 @@ interface PayPalExpressCheckoutRepositoryInterface {
      * @param type $voucherAmount
      * @param Request $request
      */
-    public function process($shippingFee, $voucherAmount, Request $request);
+    public function process($shippingFee, $voucher, Request $request);
 
     /**
      * 

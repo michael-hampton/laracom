@@ -77,14 +77,13 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
 
     /**
      * Get the final total of all the items in the cart minus tax
-     *
      * @param int $decimals
-     * @param float $shipping
-     * @param float $voucherAmount
-     * @return float
+     * @param type $shipping
+     * @param type $voucher
+     * @return type
      */
-    public function getTotal(int $decimals = 2, $shipping = 0.00, $voucherAmount = 0.00) {
-        return $this->model->total($decimals, '.', '', $shipping, $voucherAmount);
+    public function getTotal(int $decimals = 2, $shipping = 0.00, Voucher $voucher = null) {
+        return $this->model->total($decimals, '.', '', $shipping, $voucher);
     }
 
     /**

@@ -69,12 +69,6 @@ class BankTransferController extends Controller {
      *
      * @var type 
      */
-    private $voucherAmount;
-
-    /**
-     *
-     * @var type 
-     */
     private $voucherId = 0;
 
     /**
@@ -120,9 +114,14 @@ class BankTransferController extends Controller {
         $this->voucherRepo = $voucherRepository;
 
         if ($request->has('voucherCode')) {
-            $voucher = $this->voucherRepo->findVoucherById($request->input('voucherCode'));
-            $this->voucherId = $request->input('voucherCode');
-            $this->voucherAmount = $this->cartRepo->getVoucherAmount($voucher);
+            
+            $voucherCode = $request->input('voucherCode');
+                    
+            $this->voucherId = null;      
+            
+            if(!empty($voucherCode)) {
+                $this->voucherId = $this->voucherRepo->findVoucherById($voucherCode);
+            }
         }
 
         $this->shippingFee = $fee;
@@ -140,7 +139,7 @@ class BankTransferController extends Controller {
             'subtotal' => $this->cartRepo->getSubTotal(),
             'shipping' => $this->shippingFee,
             'tax' => $this->cartRepo->getTax(),
-            'total' => $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherAmount),
+            'total' => $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId),
             'rateObjectId' => $this->rateObjectId,
             'shipmentObjId' => $this->shipmentObjId,
             'billingAddress' => $this->billingAddress
@@ -172,7 +171,7 @@ class BankTransferController extends Controller {
         'discounts' => 0,
         'voucher_id' => $this->voucherId,
         'total_products' => $this->cartRepo->getSubTotal(),
-        'total' => $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherAmount),
+        'total' => $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId),
         'total_shipping' => $this->shippingFee,
         'total_paid' => 0,
         'channel' => $objChannel,

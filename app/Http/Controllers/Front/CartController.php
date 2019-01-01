@@ -68,21 +68,24 @@ class CartController extends Controller {
             return $item;
         });
 
+        $voucher = null;
+
         // to be removed
         request()->session()->put('voucherCode', 62);
 
+        if (request()->session()->has('voucherCode')) {
+            $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+        }
+
         $courier = $this->courierRepo->findCourierById(request()->session()->get('courierId', 1));
         $shippingFee = $this->cartRepo->getShippingFee($courier);
-
-        $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
-        $voucherAmount = $this->cartRepo->getVoucherAmount($voucher);
 
         return view('front.carts.cart', [
             'products' => $cartProducts,
             'subtotal' => $this->cartRepo->getSubTotal(),
             'tax' => $this->cartRepo->getTax(),
             'shippingFee' => $shippingFee,
-            'total' => $this->cartRepo->getTotal(2, $shippingFee, $voucherAmount)
+            'total' => $this->cartRepo->getTotal(2, $shippingFee, $voucher)
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace App\Shop\Carts;
 
 use Gloudemans\Shoppingcart\Cart;
 use Gloudemans\Shoppingcart\CartItem;
+use App\Shop\Vouchers\Voucher;
 
 class ShoppingCart extends Cart {
 
@@ -27,17 +28,16 @@ class ShoppingCart extends Cart {
         return app()->make('events');
     }
 
-    /**
-     * Get the total price of the items in the cart.
-     *
-     * @param int $decimals
-     * @param string $decimalPoint
-     * @param string $thousandSeparator
-     * @param float $shipping
-     * @param float $voucherAmount
-     * @return string
-     */
-    public function total($decimals = null, $decimalPoint = null, $thousandSeparator = null, $shipping = 0.00, $voucher = null) {
+   /**
+    * Get the total price of the items in the cart.
+    * @param type $decimals
+    * @param type $decimalPoint
+    * @param type $thousandSeparator
+    * @param type $shipping
+    * @param \App\Shop\Carts\Voucher $voucher
+    * @return type
+    */
+    public function total($decimals = null, $decimalPoint = null, $thousandSeparator = null, $shipping = 0.00, Voucher $voucher = null) {
         $content = $this->getContent();
 
         $total = $content->reduce(function ($total, CartItem $cartItem) {
@@ -57,6 +57,12 @@ class ShoppingCart extends Cart {
         return number_format($grandTotal, $decimals, $decimalPoint, $thousandSeparator);
     }
     
+    /**
+     * 
+     * @param \App\Shop\Carts\Voucher $voucher
+     * @param type $grandTotal
+     * @return boolean
+     */
     public function calculateVoucherAmount(Voucher $voucher, $grandTotal) {
         
         if (empty($voucher->amount) || $voucher->amount <= 0) {
@@ -68,13 +74,15 @@ class ShoppingCart extends Cart {
             $newprice = $grandTotal - ($grandTotal * ($voucher->amount/100));
             
         } else {
-            $newprice = $grandTotal -= $voucherAmount;
+                        
+            $newprice = $grandTotal -= $voucher->amount;
+ 
         }
         
-        if($newprice < 0) {
-            
-            return false;
-        }
+//        if($newprice < 0) {
+//            
+//            return false;
+//        }
         
         return $newprice;
     }
