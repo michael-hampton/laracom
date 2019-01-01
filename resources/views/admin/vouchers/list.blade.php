@@ -15,9 +15,11 @@
                     <tr>
                         <td class="col-md-2">Amount</td>
                         <td class="col-md-1">Amount Type</td>
+                        <td class="col-md-2">Start Date</td>
                         <td class="col-md-2">Expiry Date</td>
+                        <td class="col-md-2">Scope Type</td>
                         <td class="col-md-1">Status</td>
-                         <td class="col-md-1">Channel</td>
+                        <td class="col-md-1">Channel</td>
                         <td class="col-md-1">View Codes</td>
                         <td class="col-md-3">Actions</td>
                     </tr>
@@ -27,15 +29,17 @@
                     <tr>
                         <td>{{ $voucher->amount }}</td>
                         <td>{{ $voucher->amount_type }}</td>
+                        <td>{{ $voucher->start_date }}</td>
                         <td>{{ $voucher->expiry_date }}</td>
+                        <td>{{ $voucher->scope_type }}</td>
                         <td>@include('layouts.status', ['status' => $voucher->status])</td>
-                        <td>{{ $voucher->channel }}</td>
+                        <td>{{ $voucher->channel_name }}</td>
                         <td>
                             <form action="{{ route('admin.vouchers.destroy', $voucher->id) }}" method="post" class="form-horizontal">
                                 {{ csrf_field() }}
                                 <input type="hidden" name="_method" value="delete">
                                 <div class="btn-group">
-                                    <a href="{{ route('admin.vouchers.edit', $voucher->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i> Edit</a>
+                                    <a href="{{ route('admin.vouchers.edit', ['id' => $voucher->id, 'channel' => $voucher->channel_name]) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i> Edit</a>
                                     <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
                                 </div>
                             </form>

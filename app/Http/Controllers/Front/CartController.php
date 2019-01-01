@@ -70,9 +70,6 @@ class CartController extends Controller {
 
         $voucher = null;
 
-        // to be removed
-        request()->session()->put('voucherCode', 62);
-
         if (request()->session()->has('voucherCode')) {
             $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
         }

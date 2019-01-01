@@ -18,7 +18,9 @@ class UpdateVoucherRequest extends BaseFormRequest {
             'start_date' => ['required', 'date'],
             'expiry_date' => ['required', 'date'],
             'status' => ['required'],
-            'channel' => ['required']
+            'channel' => ['required'],
+            'scope_type' => ['required'],
+            'scope_value' => ['required']
         ];
     }
 

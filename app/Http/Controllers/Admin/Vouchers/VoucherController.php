@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Admin\Vouchers;
 
 use App\Shop\Vouchers\Voucher;
+use App\Shop\Brands\Repositories\BrandRepository;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Shop\Vouchers\VoucherGenerator;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
+use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Shop\Brands\Repositories\Interfaces\BrandRepositoryInteface;
+use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
+use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Vouchers\Requests\CreateVoucherRequest;
 use App\Shop\Vouchers\Requests\UpdateVoucherRequest;
 use App\Shop\Vouchers\Transformations\VoucherTransformable;
@@ -24,6 +29,24 @@ class VoucherController extends Controller {
 
     /**
      *
+     * @var BrandRepositoryInterface $channelRepo 
+     */
+    private $brandRepo;
+
+    /**
+     *
+     * @var CategoryRepositoryInterface $channelRepo 
+     */
+    private $categoryRepo;
+
+    /**
+     *
+     * @var ProductRepositoryInterface $channelRepo 
+     */
+    private $productRepo;
+
+    /**
+     *
      * @var ChannelRepositoryInterface $channelRepo 
      */
     private $channelRepo;
@@ -32,12 +55,18 @@ class VoucherController extends Controller {
      * 
      * @param VoucherRepositoryInterface $voucherRepository
      * @param ChannelRepositoryInterface $channelRepository
+     * @param BrandRepository $brandRepository
+     * @param \App\Http\Controllers\Admin\Vouchers\CategoryRepositoryInterface $categoryRepository
+     * @param \App\Http\Controllers\Admin\Vouchers\ProductRepositoryInterface $productRepository
      */
     public function __construct(
-    VoucherRepositoryInterface $voucherRepository, ChannelRepositoryInterface $channelRepository
+    VoucherRepositoryInterface $voucherRepository, ChannelRepositoryInterface $channelRepository, BrandRepository $brandRepository, CategoryRepositoryInterface $categoryRepository, ProductRepositoryInterface $productRepository
     ) {
         $this->voucherRepo = $voucherRepository;
         $this->channelRepo = $channelRepository;
+        $this->brandRepo = $brandRepository;
+        $this->categoryRepo = $categoryRepository;
+        $this->productRepo = $productRepository;
     }
 
     /**
@@ -46,6 +75,7 @@ class VoucherController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
+
         $list = $this->voucherRepo->listVoucher('expiry_date', 'desc');
 
         if (request()->has('q')) {
@@ -87,14 +117,34 @@ class VoucherController extends Controller {
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param type $channel
+     * @return type
      */
-    public function create() {
+    public function create($channel = null) {
 
-        $channels = $this->channelRepo->listChannels();
 
-        return view('admin.vouchers.create', ['channels' => $channels]);
+        if (!is_null($channel)) {
+            $channels = null;
+            $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
+            $repo = new ChannelRepository($channel);
+
+            $products = $repo->findProducts()->where('status', 1)->all();
+        } else {
+            $channels = $this->channelRepo->listChannels();
+            $products = $this->productRepo->listProducts()->where('status', 1);
+        }
+
+        $scopes = !empty(env('VOUCHER_SCOPES')) ? explode(',', env('VOUCHER_SCOPES')) : [];
+
+        return view('admin.vouchers.create', [
+            'selectedChannel' => $channel->id,
+            'channels' => $channels,
+            'scopes' => $scopes,
+            'products' => $products,
+            'brands' => $this->brandRepo->listBrands(),
+            'categories' => $this->categoryRepo->listCategories('parent_id', 1)
+                ]
+        );
     }
 
     /**
@@ -132,14 +182,32 @@ class VoucherController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(int $id) {
+    public function edit(int $id, $channel = null) {
 
         $voucher = $this->voucherRepo->findVoucherById($id);
         $channels = $this->channelRepo->listChannels();
 
+        if (!is_null($channel)) {
+            $channels = null;
+            $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
+            $repo = new ChannelRepository($channel);
+
+            $products = $repo->findProducts()->where('status', 1)->all();
+        } else {
+            $channels = $this->channelRepo->listChannels();
+            $products = $this->productRepo->listProducts()->where('status', 1);
+        }
+
+        $scopes = !empty(env('VOUCHER_SCOPES')) ? explode(',', env('VOUCHER_SCOPES')) : [];
+
         return view('admin.vouchers.edit', [
             'voucher' => $voucher,
-            'channels' => $channels
+            'selectedChannel' => $channel->id,
+            'channels' => $channels,
+            'scopes' => $scopes,
+            'products' => $products,
+            'brands' => $this->brandRepo->listBrands(),
+            'categories' => $this->categoryRepo->listCategories('parent_id', 1)
         ]);
     }
 
@@ -159,6 +227,8 @@ class VoucherController extends Controller {
     public function update(UpdateVoucherRequest $request, $id) {
         $voucher = $this->voucherRepo->findVoucherById($id);
 
+        $channel = $this->channelRepo->findChannelById($voucher->channel);
+
         $request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
         $request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
 
@@ -166,7 +236,7 @@ class VoucherController extends Controller {
         $update->updateVoucher($request->except('_method', '_token'));
 
         $request->session()->flash('message', 'Update successful');
-        return redirect()->route('admin.vouchers.edit', $id);
+        return redirect()->route('admin.vouchers.edit', array('id' => $id, 'channel' => $channel->name));
     }
 
     /**

@@ -10,12 +10,19 @@ use App\Shop\VoucherCodes\Requests\CreateVoucherCodeRequest;
 use App\Shop\VoucherCodes\Requests\UpdateVoucherCodeRequest;
 use App\Shop\VoucherCodes\Transformations\VoucherCodeTransformable;
 use App\Shop\Channels\Repositories\ChannelRepository;
+use App\Shop\Products\Repositories\ProductRepository;
+use App\Shop\Products\Product;
+use App\Shop\Products\Transformations\ProductTransformable;
+use Gloudemans\Shoppingcart\CartItem;
+use App\Shop\Carts\Repositories\CartRepository;
+use App\Shop\Carts\ShoppingCart;
 use App\Shop\Channels\Channel;
 use App\Http\Controllers\Controller;
 
 class VoucherCodeController extends Controller {
 
     use VoucherCodeTransformable;
+    use ProductTransformable;
 
     private $voucherCodeRepo;
 
@@ -159,12 +166,22 @@ class VoucherCodeController extends Controller {
      * @param type $voucherCode
      */
     public function validateVoucherCode($voucherCode) {
+        
+        $cartRepo = new CartRepository(new ShoppingCart);
+        
+         $cartProducts = $cartRepo->getCartItems()->map(function (CartItem $item) {
+            $productRepo = new ProductRepository(new Product());
+            $product = $productRepo->findProductById($item->id);
+            $item->product = $this->transformProduct($product);
+            $item->cover = $product->cover;
+            return $item;
+        });
 
         $channel = env('CHANNEL');
         $channelRepo = new ChannelRepository(new Channel);
         $channel = $channelRepo->listChannels()->where('name', $channel)->first();
 
-        $result = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode);
+        $result = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts);
 
         if (!$result) {
            request()->session()->flash('message', 'Voucher could not be found');

@@ -40,6 +40,7 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
      * @return \Illuminate\Support\Collection
      */
     public function getCartItems(): Collection {
+        
         return $this->model->content();
     }
 

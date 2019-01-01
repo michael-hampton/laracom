@@ -42,12 +42,12 @@ class Voucher extends Model {
      */
     protected $dates = ['deleted_at', 'expiry_date', 'start_date'];
     
-    public function getStartDateAttribute($value) {
-        return date('m-d-Y', strtotime($value));
-    }
-    
-     public function getExpiryDateAttribute($value) {
-        return date('m-d-Y', strtotime($value));
-    }
+//    public function getStartDateAttribute($value) {
+//        return date('m-d-Y', strtotime($value));
+//    }
+//    
+//     public function getExpiryDateAttribute($value) {
+//        return date('m-d-Y', strtotime($value));
+//    }
 
 }

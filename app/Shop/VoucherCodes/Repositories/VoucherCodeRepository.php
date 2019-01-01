@@ -122,7 +122,7 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
      * @param string $voucherCode
      * @return boolean
      */
-    public function validateVoucherCode(Channel $channel, string $voucherCode) {
+    public function validateVoucherCode(Channel $channel, string $voucherCode, $cartProducts) {
 
         $results = DB::select(DB::raw("SELECT * 
                                         FROM voucher_codes vc
@@ -143,8 +143,70 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
 
             return false;
         }
+
+        if(!$this->validateVoucherScopes($results, $cartProducts)) {
+            
+            return false;
+        }
         
-        return true
+        request()->session()->put('voucherCode', $results[0]->id);
+
+        return true;
+    }
+
+    /**
+     * 
+     * @param type $results
+     * @param type $cartProducts
+     * @return boolean
+     */
+    private function validateVoucherScopes($results, $cartProducts) {
+        $scopeType = $results[0]->scope_type;
+        $scopeValue = (int) $results[0]->scope_value;
+
+        foreach ($cartProducts as $cartProduct) {
+
+            switch ($scopeType) {
+
+                case 'Brand':
+                    if (empty($cartProduct->product->brand_id)) {
+
+                        return false;
+                    }
+
+                    if ((int) $cartProduct->product->brand_id !== $scopeValue) {
+
+                        return false;
+                    }
+
+                    break;
+
+                case 'Product':
+
+                    if (empty($cartProduct->product->id)) {
+
+                        return false;
+                    }
+
+                    if ((int) $cartProduct->product->id !== $scopeValue) {
+
+                        return false;
+                    }
+
+                    break;
+
+                case 'Category':
+
+                    $categoryIds = $cartProduct->product->categories()->pluck('category_id')->all();
+
+                    if (!in_array($scopeValue, $categoryIds)) {
+
+                        return false;
+                    }
+            }
+        }
+
+        return true;
     }
 
 }
