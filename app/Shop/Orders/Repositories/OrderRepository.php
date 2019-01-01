@@ -48,12 +48,14 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function createOrder(array $params): Order {
         try {
 
+            if(isset($params['channel'])){
             $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
             $blPriority = $params['channel']->has_priority;
 
             $params['customer_ref'] = $customer_ref;
             $params['is_priority'] = $blPriority;
             $params['channel'] = $params['channel']->id;
+            }
 
             $order = $this->create($params);
 
