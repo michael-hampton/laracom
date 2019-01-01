@@ -54,6 +54,54 @@
                     <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ old('expiry_date') }}">
                 </div>
                 
+                @if(!$scopes->isEmpty())
+                <div class="form-group">
+                    <label for="channel">Scope</label>
+                    <select name="scope_type" id="scope_type" class="form-control select2">
+                        <option value="order">Order</option>
+                        @foreach($scopes as $scope)
+                        <option @if(old('scope_type') == $scope) selected="selected" @endif value="{{ $scope }}">{{ $scope }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                
+                @if(!$products->isEmpty())
+                <div class="form-group" style="display:none;">
+                    <label for="product">Product</label>
+                    <select name="product" id="product" class="form-control select2">
+                        <option value="">--Select--</option>
+                        @foreach($products as $product)
+                        <option @if(old('product') == $product->id) selected="selected" @endif value="{{ $product->id }}">{{ $product->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                
+                @if(!$brands->isEmpty())
+                <div class="form-group" style="display:none;">
+                    <label for="brand">Brand</label>
+                    <select name="brand" id="brand" class="form-control select2">
+                        <option value="">--Select--</option>
+                        @foreach($brands as $brand)
+                        <option @if(old('brand') == $brand->id) selected="selected" @endif value="{{ $brand->id }}">{{ $brand->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                
+                @if(!$categories->isEmpty())
+                <div class="form-group" style="display:none;">
+                    <label for="category">Category</label>
+                    <select name="category" id="category" class="form-control select2">
+                        <option value="">--Select--</option>
+                        @foreach($categories as $category)
+                        <option @if(old('category') == $category->id) selected="selected" @endif value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                
                 <div class="form-group">
                     <label for="status">Status </label>
                     <select name="status" id="status" class="form-control">
