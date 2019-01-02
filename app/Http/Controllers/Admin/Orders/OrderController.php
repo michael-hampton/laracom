@@ -280,10 +280,12 @@ class OrderController extends Controller {
      */
     public function store(CreateOrderRequest $request) {
         $customer = $this->customerRepo->findCustomerById($request->customer);
+        $customerRepo = new CustomerRepository();
+        $deliveryAddress = $customerRepo->findAddresses()->first();
         //$request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
         //$request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
-        $voucher = $this->voucherRepo->createVoucher($request->except('_token', '_method'));
-        (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
+        //$voucher = $this->voucherRepo->createVoucher($request->except('_token', '_method'));
+        //(new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.vouchers.index');
     }
