@@ -9,6 +9,23 @@
         <form action="{{ route('admin.products.store') }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
+                
+                @if(empty($selectedChannel) && !$channels->isEmpty())
+                    <div class="form-group">
+                    <label for="channel">Channel</label>
+                    <select name="channel" id="channel" class="form-control select2">
+                        <option value="">--Select--</option>
+                        @foreach($channels as $channel)
+                        <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @else;
+                <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
+                @endif;
+
+                <input type="hidden" name="total" id="total">
+
                 <div class="col-md-8">
                     <h2>Product</h2>
                     <div class="form-group">
