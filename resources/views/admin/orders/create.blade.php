@@ -25,70 +25,32 @@
                 @endif;
 
                 <input type="hidden" name="total" id="total">
+                
+                @if(!empty($scopes))
+                <div class="form-group">
+                    <label for="channel">Scope</label>
+                    <select name="scope_type" id="scope_type" class="form-control select2 scope">
+                        <option value="order">Order</option>
+                        @foreach($scopes as $scope)
+                        <option @if(old('scope_type') == $scope) selected="selected" @endif value="{{ $scope }}">{{ $scope }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
 
-                <div class="col-md-8">
-                    <h2>Product</h2>
-                    <div class="form-group">
-                        <label for="sku">SKU <span class="text-danger">*</span></label>
-                        <input type="text" name="sku" id="sku" placeholder="xxxxx" class="form-control" value="{{ old('sku') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" id="name" placeholder="Name" class="form-control" value="{{ old('name') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description </label>
-                        <textarea class="form-control" name="description" id="description" rows="5" placeholder="Description">{{ old('description') }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="cover">Cover </label>
-                        <input type="file" name="cover" id="cover" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="image">Images</label>
-                        <input type="file" name="image[]" id="image" class="form-control" multiple>
-                        <small class="text-warning">You can use ctr (cmd) to select multiple images</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="quantity">Quantity <span class="text-danger">*</span></label>
-                        <input type="text" name="quantity" id="quantity" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="price">Price <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-addon">PHP</span>
-                            <input type="text" name="price" id="price" placeholder="Price" class="form-control" value="{{ old('price') }}">
-                        </div>
-                    </div>
-                    @if(!$brands->isEmpty())
-                    <div class="form-group">
-                        <label for="brand_id">Brand </label>
-                        <select name="brand_id" id="brand_id" class="form-control select2">
-                            <option value=""></option>
-                            @foreach($brands as $brand)
-                            <option @if(old('brand_id') == $brand->id) selected="selected" @endif value="{{ $brand->id }}">{{ $brand->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
-                    @if(!$channels->isEmpty())
-                    <div class="form-group">
-                        <label for="brand_id">Channels </label>
-                        <select name="channels[]" id="channels" multiple="multiple" class="form-control select2">
-                            <option value=""></option>
-                            @foreach($channels as $channel)
-                            <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
-                    @include('admin.shared.status-select', ['status' => 0])
-                    @include('admin.shared.attribute-select', [compact('default_weight')])
+                @if(!empty($products))
+                <div class="form-group products scope-type" style="display:none;">
+                    <label for="product">Product</label>
+                    <select name="product" id="product" class="form-control select2 scope-select">
+                        <option value="">--Select--</option>
+                        @foreach($products as $product)
+                        <option @if(old('product') == $product->id) selected="selected" @endif value="{{ $product->id }}">{{ $product->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <div class="col-md-4">
-                    <h2>Categories</h2>
-                    @include('admin.shared.categories', ['categories' => $categories, 'selectedIds' => []])
-                </div>
+                @endif
+                
+                 <input type="hidden" name="price" id="price">
             </div>
             <!-- /.box-body -->
             <div class="box-footer">
