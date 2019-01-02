@@ -289,6 +289,24 @@ class OrderController extends Controller {
         //$request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
         //$voucher = $this->voucherRepo->createVoucher($request->except('_token', '_method'));
         //(new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
+        $orderRepo = new OrderRepository(new Order);
+                
+        $order = $orderRepo->createOrder([
+            'reference' => $data['reference'],
+            'courier_id' => $data['courier_id'],
+            'customer_id' => $data['customer_id'],
+            'voucher_code' => !empty($data['voucher_id']) ? $data['voucher_id']->id : null,
+            'address_id' => $data['address_id'],
+            'order_status_id' => $data['order_status_id'],
+            'payment' => $data['payment'],
+            'discounts' => $data['discounts'],
+            'total_products' => $data['total_products'],
+            'total' => $data['total'],
+            'total_paid' => $data['total_paid'],
+            'channel' => isset($data['channel']) ? $data['channel'] : [],
+            'tax' => $data['tax']
+        ]);
+        
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.vouchers.index');
     }
