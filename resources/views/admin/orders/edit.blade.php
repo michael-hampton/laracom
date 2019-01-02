@@ -15,27 +15,24 @@
                         <small>reference: <strong>{{$order->reference}}</strong></small>
                     </h2>
                 </div>
-                <div class="col-md-3 col-md-offset-3">
-                    <h2><a href="{{route('admin.orders.invoice.generate', $order['id'])}}" class="btn btn-primary btn-block">Download Invoice</a></h2>
+                <div class="col-md-1">
+                    <a href="{{route('admin.orders.invoice.generate', $order['id'])}}">Download Invoice</a>
                 </div>
-                
-                  
-                @if($item->status != 8)
-                <div class="col-md-3 col-md-offset-3">
-                    <h2><a href="#" class="do-refund" order-id="{{ $order->id }}">Refund</a></h2>
+
+                <div class="col-md-1">
+                    <a href="#" class="do-refund" order-id="{{ $order->id }}">Refund</a>
                 </div>
-                @endif;
-                
-                <div class="col-md-3 col-md-offset-3">
-                    <h2><a href="#" class="do-clone" order-id="{{ $order->id }}">Clone</a></h2>
+
+                <div class="col-md-1">
+                    <a href="{{route('admin.orders.cloneOrder', $order['id'])}}" class="do-clone" order-id="{{ $order->id }}">Clone</a>
                 </div>
-                
-                <div class="col-md-3 col-md-offset-3">
-                    <h2><a href="#" class="do-swap">Swap Product</a></h2>
+
+                <div class="col-md-1">
+                    <a href="#" class="do-swap">Swap Product</a>
                 </div>
-                
-                <div class="col-md-3 col-md-offset-3">
-                    <h2><a href="{{route('admin.orders.invoice.generate', $order['id'])}}" class="btn btn-primary btn-block">Cancel Order</a></h2>
+
+                <div class="col-md-1">
+                    <a href="#" class="cancel-order" order-id="{{ $order->id }}">Cancel Order</a>
                 </div>
             </div>
         </div>
@@ -115,10 +112,10 @@
     </div>
     @if($order)
     @if(($order->payment == 'bank transfer' && 
-        strtotime($order['created_at']) < strtotime('-30days') && 
-        $order->total != $order->total_paid) || 
-        ($order->payment != 'bank transfer' &&
-        $order->total != $order->total_paid))
+    strtotime($order['created_at']) < strtotime('-30days') && 
+    $order->total != $order->total_paid) || 
+    ($order->payment != 'bank transfer' &&
+    $order->total != $order->total_paid))
     <p class="alert alert-danger">
         Ooops, there is discrepancy in the total amount of the order and the amount paid. <br />
         Total order amount: <strong>{{ config('cart.currency') }} {{ $order->total }}</strong> <br>
@@ -176,11 +173,12 @@
                             @endif;
                         </td>
 
-                 
+
 
                         <td>
+                            @if($item->status != 8)
                             <input type="checkbox" class="cb" name="services[]" value="{{ $item->id }}">
-                            
+                            @endif;
                         </td>
                     </tr>
                     @endforeach
@@ -242,8 +240,8 @@
             </div>
         </div>
     </div>
-    
-      @if(!empty($voucher))
+
+    @if(!empty($voucher))
     <div class="box">
         <div class="box-body">
             <div class="row">
@@ -266,11 +264,11 @@
                         </tbody>
                     </table>
                 </div>
-                
+
             </div>
         </div>
     </div>
-      @endif
+    @endif
 
     <div class="box">
         @if(!$audits->isEmpty())
@@ -363,26 +361,47 @@
 
             return false;
         });
-        
-        $('.do-swap').on('click', function () {
-              $('.productSelect').prop('disabled', false);
+
+        $('.cancel-order').on('click', function () {
+
+            var orderId = $(this).attr('order-id');
+
+            $.ajax({
+                type: "POST",
+                url: '/admin/orders/destroy/' + orderId,
+                data: {
+                    order_id: orderId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (msg) {
+                    alert(msg);
+                }
+            });
+
+            //$('#line-status-form').submit();
+
+            return false;
         });
-        
+
+        $('.do-swap').on('click', function () {
+            $('.productSelect').prop('disabled', false);
+        });
+
         $('.do-refund').on('click', function () {
-            
+
             var status = 8;
             var orderId = $(this).attr('order-id');
 
-            if($('.cb:checked').length == 0)
+            if ($('.cb:checked').length == 0)
             {
                 alert('Please select atleast one checkbox');
                 return false;
             }
 
-             var cb = [];
-             $.each($('.cb:checked'), function() {
-                 cb.push($(this).val()); 
-             });
+            var cb = [];
+            $.each($('.cb:checked'), function () {
+                cb.push($(this).val());
+            });
 
             $.ajax({
                 type: "POST",
@@ -390,7 +409,7 @@
                 data: {
                     order_id: orderId,
                     status: status,
-                    lineIds:cb
+                    lineIds: cb,
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (msg) {
@@ -402,26 +421,26 @@
         });
 
         $('.do-clone').on('click', function () {
-        
+
             var orderId = $(this).attr('order-id');
-        
-            if($('.cb:checked').length == 0)
+
+            if ($('.cb:checked').length == 0)
             {
                 alert('Please select atleast one checkbox');
                 return false;
             }
 
-             var cb = [];
-             $.each($('.cb:checked'), function() {
-                 cb.push($(this).val()); 
-             });
-        
+            var cb = [];
+            $.each($('.cb:checked'), function () {
+                cb.push($(this).val());
+            });
+
             $.ajax({
                 type: "POST",
                 url: '/admin/orders/cloneOrder',
                 data: {
                     order_id: orderId,
-                    lineIds:cb
+                    lineIds: cb,
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (msg) {

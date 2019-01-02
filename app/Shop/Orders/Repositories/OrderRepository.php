@@ -48,13 +48,13 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function createOrder(array $params): Order {
         try {
 
-            if(isset($params['channel']) && !empty($params['channel'])) {
-            $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
-            $blPriority = $params['channel']->has_priority;
+            if (isset($params['channel']) && !empty($params['channel'])) {
+                $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
+                $blPriority = $params['channel']->has_priority;
 
-            $params['customer_ref'] = $customer_ref;
-            $params['is_priority'] = $blPriority;
-            $params['channel'] = $params['channel']->id;
+                $params['customer_ref'] = $customer_ref;
+                $params['is_priority'] = $blPriority;
+                $params['channel'] = $params['channel']->id;
             }
 
             $order = $this->create($params);
@@ -167,29 +167,31 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function searchOrder(Request $request): Collection {
 
         $q = Order::query()
+                ->select('orders.*')
                 ->join('customers', 'orders.customer_id', '=', 'customers.id')
                 ->join('order_product', 'orders.id', '=', 'order_product.order_id')
                 ->join('products', 'products.id', '=', 'order_product.product_id')
-                ->join('voucher_codes', 'orders.voucher_code', '=', 'voucher_codes.voucher_id');
+                ->leftJoin('voucher_codes', 'orders.voucher_code', '=', 'voucher_codes.voucher_id');
 
         if ($request->has('q') && count($request->q)) {
+
             $q->where('customer_ref', 'like', '%' . $request->q . '%');
         }
 
         if ($request->has('name') && count($request->name)) {
             $q->where('customers.name', 'like', '%' . $request->name . '%');
         }
-        
+
         if ($request->has('email') && count($request->email)) {
             $q->where('customers.email', 'like', '%' . $request->email . '%');
         }
-        
+
         if ($request->has('voucher_code') && count($request->voucher_code)) {
             $q->where('voucher_codes.voucher_code', 'like', '%' . $request->voucher_code . '%');
         }
-        
+
         if ($request->has('product_name') && count($request->product_name)) {
-            $q->where('products.name', 'like', '%' . $request->product_name . '%');
+            $q->where('products.sku', 'like', '%' . $request->product_name . '%');
         }
 
         if ($request->has('status') && count($request->status)) {
@@ -199,9 +201,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         if ($request->has('channel') && count($request->channel)) {
             $q->where('channel', $request->channel);
         }
-        
+
         $q->groupBy('orders.id');
-        $q->orderBy('orders.order_date', 'DESC')->orderBy('is_priority', 'ASC');
+        $q->orderBy('orders.created_at', 'DESC')->orderBy('is_priority', 'ASC');
 
         return $q->get();
     }
@@ -259,6 +261,21 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return true;
     }
 
+    /**
+     * 
+     * @param array $items
+     * @return boolean
+     */
+    public function buildOrderLinesForManualOrder(array $items) {
+        foreach ($items as $item) {
+            $productRepo = new ProductRepository(new Product);
+            $product = $productRepo->find($item['id']);
+            $this->associateProduct($product, $item['quantity']);
+        }
+
+        return true;
+    }
+
     public function cloneOrder(Order $order, Channel $channel) {
 
         return $this->createOrder([
@@ -276,6 +293,16 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     'tax' => $order->tax,
                     'channel' => $channel
         ]);
+    }
+
+    /**
+     * Delete the order
+     *
+     * @param Order $order
+     * @return bool
+     */
+    public function deleteOrder(Order $order): bool {
+        return $order->delete();
     }
 
 }

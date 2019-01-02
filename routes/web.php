@@ -44,13 +44,13 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::post('orderLine/update', 'OrderLineController@update')->name('orderLine.update');
             Route::resource('order-statuses', 'OrderStatusController');
             Route::get('orders/{id}/invoice', 'OrderController@generateInvoice')->name('orders.invoice.generate');
-            Route::post('orders/clone', 'OrderController@cloneOrder')->name('orders.cloneOrder');
-            
         });
-        
+
         Route::post('orders/search/{page?}', 'Orders\OrderController@search')->name('orders.search');
         Route::post('orders/saveComment/', 'Orders\OrderController@saveComment')->name('orders.saveComment');
         Route::post('refunds/doRefund/', 'Refunds\RefundController@doRefund')->name('refunds.doRefund');
+        Route::post('orders/cloneOrder/', 'Orders\OrderController@cloneOrder')->name('orders.cloneOrder');
+        Route::post('orders/destroy/{id}', 'Orders\OrderController@destroy')->name('orders.destroy');
 
         Route::resource('employees', 'EmployeeController');
         Route::get('employees/{id}/profile', 'EmployeeController@getProfile')->name('employee.profile');
@@ -65,6 +65,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('voucher-codes/validate/{code}', 'VoucherCodes\VoucherCodeController@validateVoucherCode')->name('voucher-codes.validateVoucherCode');
         Route::get('vouchers/get/{channel}', 'Vouchers\VoucherController@getVouchersByChannel')->name('vouchers.getByChannel');
         Route::get('vouchers/create/{channel?}', 'Vouchers\VoucherController@create')->name('vouchers.create');
+        Route::get('orders/create/{channel?}', 'Orders\OrderController@create')->name('orders.create');
         Route::get('voucher-codes/add/{id}', 'VoucherCodes\VoucherCodeController@create')->name('voucher-codes.add');
         Route::resource('channels', 'Channels\ChannelController');
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');

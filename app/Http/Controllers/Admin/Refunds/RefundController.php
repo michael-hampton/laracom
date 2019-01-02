@@ -13,7 +13,9 @@ use App\Shop\Refunds\Requests\CreateRefundRequest;
 use App\Shop\Refunds\Requests\UpdateRefundRequest;
 use App\Shop\Refunds\Transformations\RefundTransformable;
 use App\Shop\Orders\Order;
+use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\Customers\Customer;
+use Illuminate\Http\Request;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
 use App\Http\Controllers\Controller;
@@ -113,56 +115,7 @@ class RefundController extends Controller {
      */
     public function doRefund(Request $request) {
 
-        $refundAmount = 0;
-        $order = $this->orderRepo->findOrderById($request->order_id);
-        
-        foreach($request->lineIds as $lineId) {
-            $orderProduct = $this->orderProductRepo->findOrderProductById($lineId);
-        
-            $refundAmount += $orderProduct->product_price;
-            
-            $orderProductRepo = new OrderProductRepository($orderProduct);
-
-            $data = [];
-            $data['date_refunded'] = date('Y-m-d'); //add request
-            $data['quantity'] = $orderProduct->quantity;
-            $data['lineId'] = $lineId;
-            $data['orderId'] = $request->order_id;
-            $data['status'] = $request->status;
-            $data['amount'] = $orderProduct->product_price;
-            
-            $this->refundRepo->createRefund($data);
-
-            $orderProductRepo->updateOrderProduct(
-                    [
-                        'status' => $request->status
-                    ], $request->lineId
-            );
-        }
-        
-        
-        $customer = (new \App\Shop\Customers\Repositories\CustomerRepository(new Customer()))->findCustomerById($order->customer_id);
-        $totalPaid = $order->total_paid - $refundAmount;
-        
-        $orderRepo = new OrderRepository($order);
-        
-        $orderRepo->updateOrder(['total_paid' => $totalPaid, 'amount_refunded' => $refundAmount]);
-        
-        switch ($order->payment) {
-            case 'paypal':
-
-                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount)) {
-
-                    die('cant do refund');
-                }
-                break;
-
-            case 'stripe':
-                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount)) {
-                    die('Cant do refund');
-                }
-                break;
-        }
+        $this->refundRepo->refundLinesForOrder($request);
 
         $request->session()->flash('message', 'Creation successful');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Shop\Orders;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Shop\Addresses\Address;
 use App\Shop\Couriers\Courier;
 use App\Shop\Customers\Customer;
@@ -16,6 +17,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 class Order extends Model implements Auditable {
 
     use \OwenIt\Auditing\Auditable;
+    use SoftDeletes;
     use Eloquence;
 
     /**
@@ -43,7 +45,7 @@ class Order extends Model implements Auditable {
         'customer_ref',
         'voucher_code',
         'is_priority',
-        'refund_amount',
+        'amount_refunded',
         'channel'
     ];
 

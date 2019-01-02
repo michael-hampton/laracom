@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin\Orders;
 
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Addresses\Transformations\AddressTransformable;
+use App\Shop\Orders\Requests\CreateOrderRequest;
 use App\Shop\Couriers\Courier;
 use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Customers\Customer;
 use App\Shop\Comments\Comment;
 use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
@@ -248,8 +250,8 @@ class OrderController extends Controller {
                 ]
         );
     }
-    
-     /**
+
+    /**
      * Show the form for creating a new resource.
      * @param type $channel
      * @return type
@@ -264,9 +266,9 @@ class OrderController extends Controller {
             $channels = $this->channelRepo->listChannels();
             $products = $this->productRepo->listProducts()->where('status', 1);
         }
-        
+
         $customers = $this->customerRepo->listCustomers();
-        
+
         return view('admin.orders.create', [
             'selectedChannel' => isset($channel) ? $channel->id : null,
             'channels' => $channels,
@@ -275,38 +277,43 @@ class OrderController extends Controller {
                 ]
         );
     }
+
     /**
      *  Store a newly created resource in storage.
      * 
-     * @param CreateVoucherRequest $request
+     * @param CreateOrderRequest $request
      * @return type
      */
     public function store(CreateOrderRequest $request) {
+
         $customer = $this->customerRepo->findCustomerById($request->customer);
-        $customerRepo = new CustomerRepository();
+
+        $customerRepo = new CustomerRepository($customer);
         $deliveryAddress = $customerRepo->findAddresses()->first();
-        //$request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
-        //$request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
-        //$voucher = $this->voucherRepo->createVoucher($request->except('_token', '_method'));
-        //(new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
+
+        $channel = $this->channelRepo->findChannelById($request->channel);
+
         $orderRepo = new OrderRepository(new Order);
-                
+
         $order = $orderRepo->createOrder([
-            'reference' => $data['reference'],
-            'courier_id' => $data['courier_id'],
-            'customer_id' => $data['customer_id'],
-            'voucher_code' => !empty($data['voucher_id']) ? $data['voucher_id']->id : null,
-            'address_id' => $data['address_id'],
-            'order_status_id' => $data['order_status_id'],
-            'payment' => $data['payment'],
-            'discounts' => $data['discounts'],
-            'total_products' => $data['total_products'],
-            'total' => $data['total'],
-            'total_paid' => $data['total_paid'],
-            'channel' => isset($data['channel']) ? $data['channel'] : [],
-            'tax' => $data['tax']
+            'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
+            'courier_id' => 1,
+            'customer_id' => $customer->id,
+            'voucher_code' => null,
+            'address_id' => $deliveryAddress->id,
+            'order_status_id' => 10,
+            'payment' => 'import',
+            'discounts' => 0,
+            'total_products' => 1,
+            'total' => $request->total,
+            'total_paid' => $request->total,
+            'channel' => $channel,
+            'tax' => 0
         ]);
-        
+
+        $orderRepo = new OrderRepository($order);
+        $orderRepo->buildOrderLinesForManualOrder($request->products);
+
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.vouchers.index');
     }
@@ -376,11 +383,11 @@ class OrderController extends Controller {
      * 
      * @param type $orderId
      */
-    public function cloneOrder($orderId) {
+    public function cloneOrder(Request $request) {
 
         $channel = env('CHANNEL');
         $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
-        $order = $this->orderRepo->findOrderById($orderId);
+        $order = $this->orderRepo->findOrderById($request->order_id);
 
         $newOrder = $this->orderRepo->cloneOrder($order, $channel);
 
@@ -389,12 +396,26 @@ class OrderController extends Controller {
             die('failed to crate new order');
         }
 
-        if (!$this->orderProductRepo->cloneOrderLines($order, $newOrder)) {
+        if (!$this->orderProductRepo->cloneOrderLines($order, $newOrder, $request->lineIds)) {
 
             die('failed to create lines');
         }
 
         die('good');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id) {
+
+        $this->orderRepo->delete($id);
+
+        request()->session()->flash('message', 'Delete successful');
+        return redirect()->route('admin.channels.index');
     }
 
 }
