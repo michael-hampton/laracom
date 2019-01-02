@@ -29,6 +29,10 @@
                 <div class="col-md-3 col-md-offset-3">
                     <h2><a href="#" class="do-clone" order-id="{{ $order->id }}">Clone</a></h2>
                 </div>
+                
+                <div class="col-md-3 col-md-offset-3">
+                    <h2><a href="{{route('admin.orders.invoice.generate', $order['id'])}}" class="btn btn-primary btn-block">Cancel Order</a></h2>
+                </div>
             </div>
         </div>
     </div>
