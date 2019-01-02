@@ -144,6 +144,10 @@ class RefundController extends Controller {
         $customer = (new \App\Shop\Customers\Repositories\CustomerRepository(new Customer()))->findCustomerById($order->customer_id);
         $totalPaid = $order->total_paid - $refundAmount;
         
+        $orderRepo = new OrderRepository($order);
+        
+        $orderRepo->updateOrder(['total_paid' => $totalPaid, 'amount_refunded' => $refundAmount]);
+        
         switch ($order->payment) {
             case 'paypal':
 
