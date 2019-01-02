@@ -44,7 +44,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::post('orderLine/update', 'OrderLineController@update')->name('orderLine.update');
             Route::resource('order-statuses', 'OrderStatusController');
             Route::get('orders/{id}/invoice', 'OrderController@generateInvoice')->name('orders.invoice.generate');
-            Route::get('orders/clone/{id}', 'OrderController@cloneOrder')->name('orders.cloneOrder');
+            Route::post('orders/clone', 'OrderController@cloneOrder')->name('orders.cloneOrder');
             
         });
         
