@@ -127,6 +127,8 @@ class RefundController extends Controller {
             $data['date_refunded'] = date('Y-m-d'); //add request
             $data['quantity'] = $orderProduct->quantity;
             $data['lineId'] = $lineId;
+            $data['orderId'] = $request->order_id;
+            $data['status'] = $request->status;
             $data['amount'] = $orderProduct->product_price;
             
             $this->refundRepo->createRefund($data);
