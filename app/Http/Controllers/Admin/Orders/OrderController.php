@@ -278,7 +278,8 @@ class OrderController extends Controller {
      * @param CreateVoucherRequest $request
      * @return type
      */
-    public function store(CreateVoucherRequest $request) {
+    public function store(CreateOrderRequest $request) {
+        $customer = $this->customerRepo->findCustomerById($request->customer);
         //$request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
         //$request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
         $voucher = $this->voucherRepo->createVoucher($request->except('_token', '_method'));
