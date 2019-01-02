@@ -28,6 +28,24 @@
                             <input type="text" name="name" class="form-control" placeholder="Customer Name" value="{{ old('q')}}">
                         </div>
                     </div>
+                    
+                    <div class="pull-left col-lg-3">
+                        <div class="input-group">
+                            <input type="text" name="email" class="form-control" placeholder="Customer Email" value="{{ old('email')}}">
+                        </div>
+                    </div>
+                    
+                    <div class="pull-left col-lg-3">
+                        <div class="input-group">
+                            <input type="text" name="voucher_code" class="form-control" placeholder="Voucher Code" value="{{ old('voucher_code')}}">
+                        </div>
+                    </div>
+                    
+                    <div class="pull-left col-lg-3">
+                        <div class="input-group">
+                            <input type="text" name="product_name" class="form-control" placeholder="Product Name" value="{{ old('product_name')}}">
+                        </div>
+                    </div>
 
                     <div class="pull-left col-lg-2">
                         @if(!$channels->isEmpty())
