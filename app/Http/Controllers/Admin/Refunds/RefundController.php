@@ -111,30 +111,31 @@ class RefundController extends Controller {
      * 
      * @param CreateRefundRequest $request
      */
-    public function doRefund(CreateRefundRequest $request) {
+    public function doRefund(Request $request) {
 
         $refundAmount = 0;
         $order = $this->orderRepo->findOrderById($request->order_id);
         
         foreach($request->lineIds as $lineId) {
-        $orderProduct = $this->orderProductRepo->findOrderProductById($lineId);
+            $orderProduct = $this->orderProductRepo->findOrderProductById($lineId);
         
-        $refundAmount += $orderProduct->product_price;
+            $refundAmount += $orderProduct->product_price;
             
-        $orderProductRepo = new OrderProductRepository($orderProduct);
+            $orderProductRepo = new OrderProductRepository($orderProduct);
 
-        $data = $request->except('_token', '_method');
-        $data['date_refunded'] = date('Y-m-d'); //add request
+            $data = [];
+            $data['date_refunded'] = date('Y-m-d'); //add request
+            $data['quantity'] = $orderProduct->quantity;
+            $data['lineId'] = $lineId;
+            $data['amount'] = $orderProduct->product_price;
+            
+            $this->refundRepo->createRefund($data);
 
-        
-
-        $this->refundRepo->createRefund($data);
-
-        $orderProductRepo->updateOrderProduct(
-                [
-            'status' => $request->status
-                ], $request->lineId
-        );
+            $orderProductRepo->updateOrderProduct(
+                    [
+                        'status' => $request->status
+                    ], $request->lineId
+            );
         }
         
         
