@@ -95,7 +95,7 @@
         <!-- /.box-body -->
     </div>
     @if($order)
-    @if($order->total != $order->total_paid)
+    @if(($order->payment == 'bank transfer' && strtotime($order['created_at']) < strtotime('-30days')) || ($order->payment != 'bank transfer' && $order->total != $order->total_paid))
     <p class="alert alert-danger">
         Ooops, there is discrepancy in the total amount of the order and the amount paid. <br />
         Total order amount: <strong>{{ config('cart.currency') }} {{ $order->total }}</strong> <br>
