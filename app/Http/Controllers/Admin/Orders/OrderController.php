@@ -249,22 +249,42 @@ class OrderController extends Controller {
         );
     }
     
-     /**
+         /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param type $channel
+     * @return type
      */
     public function create($channel = null) {
-        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
-        $channels = $this->channelRepo->listChannels('name', 'asc');
-        return view('admin.products.create', [
-            'categories' => $categories,
+        if (!is_null($channel)) {
+            $channels = null;
+            $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
+            $repo = new ChannelRepository($channel);
+            $products = $repo->findProducts()->where('status', 1)->all();
+        } else {
+            $channels = $this->channelRepo->listChannels();
+            $products = $this->productRepo->listProducts()->where('status', 1);
+        }
+        //$scopes = !empty(env('VOUCHER_SCOPES')) ? explode(',', env('VOUCHER_SCOPES')) : [];
+        return view('admin.orders.create', [
+            'selectedChannel' => isset($channel) ? $channel->id : null,
             'channels' => $channels,
-            'brands' => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
-            'default_weight' => env('SHOP_WEIGHT'),
-            'weight_units' => (new Product())->MASS_UNIT,
-            'product' => new Product
-        ]);
+            'products' => $products
+                ]
+        );
+    }
+    /**
+     *  Store a newly created resource in storage.
+     * 
+     * @param CreateVoucherRequest $request
+     * @return type
+     */
+    public function store(CreateVoucherRequest $request) {
+        //$request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
+        //$request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
+        $voucher = $this->voucherRepo->createVoucher($request->except('_token', '_method'));
+        (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
+        $request->session()->flash('message', 'Creation successful');
+        return redirect()->route('admin.vouchers.index');
     }
 
     /**
