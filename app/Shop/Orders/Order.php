@@ -43,6 +43,7 @@ class Order extends Model implements Auditable {
         'customer_ref',
         'voucher_code',
         'is_priority',
+        'refund_amount',
         'channel'
     ];
 
