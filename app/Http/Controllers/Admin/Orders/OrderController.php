@@ -249,7 +249,7 @@ class OrderController extends Controller {
         );
     }
     
-         /**
+     /**
      * Show the form for creating a new resource.
      * @param type $channel
      * @return type
@@ -264,11 +264,14 @@ class OrderController extends Controller {
             $channels = $this->channelRepo->listChannels();
             $products = $this->productRepo->listProducts()->where('status', 1);
         }
-        //$scopes = !empty(env('VOUCHER_SCOPES')) ? explode(',', env('VOUCHER_SCOPES')) : [];
+        
+        $customers = $this->customerRepo->listCustomers();
+        
         return view('admin.orders.create', [
             'selectedChannel' => isset($channel) ? $channel->id : null,
             'channels' => $channels,
-            'products' => $products
+            'products' => $products,
+            'customers' => $customers
                 ]
         );
     }
