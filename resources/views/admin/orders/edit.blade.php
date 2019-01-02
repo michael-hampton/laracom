@@ -18,6 +18,17 @@
                 <div class="col-md-3 col-md-offset-3">
                     <h2><a href="{{route('admin.orders.invoice.generate', $order['id'])}}" class="btn btn-primary btn-block">Download Invoice</a></h2>
                 </div>
+                
+                  
+                @if($item->status != 8)
+                <div class="col-md-3 col-md-offset-3">
+                    <h2><a href="#" class="do-refund" order-id="{{ $order->id }}">Refund</a></h2>
+                </div>
+                @endif;
+                
+                <div class="col-md-3 col-md-offset-3">
+                    <h2><a href="#" class="do-clone" order-id="{{ $order->id }}">Clone</a></h2>
+                </div>
             </div>
         </div>
     </div>
@@ -157,14 +168,12 @@
                             @endif;
                         </td>
 
-                        @if($item->status != 8)
+                 
 
                         <td>
-                            <a href="#" class="do-refund" order-id="{{ $order->id }}" amount="{{ $item->product_price }}" quantity="{{ $item->quantity }}" line-id="{{ $item->id }}">Refund
-                            </a>
+                            <input type="checkbox" class="cb" name="services[]" value="{{ $item->id }}">
+                            
                         </td>
-
-                        @endif
                     </tr>
                     @endforeach
                 </tbody>
