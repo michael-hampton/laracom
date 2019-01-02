@@ -185,7 +185,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         }
         
         if ($request->has('voucher_code') && count($request->voucher_code)) {
-            $q->where('voucher_codes.coupon_code', 'like', '%' . $request->voucher_code . '%');
+            $q->where('voucher_codes.voucher_code', 'like', '%' . $request->voucher_code . '%');
         }
         
         if ($request->has('product_name') && count($request->product_name)) {
