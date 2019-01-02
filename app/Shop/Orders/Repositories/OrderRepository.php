@@ -167,7 +167,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function searchOrder(Request $request): Collection {
 
         $q = Order::query()
-                ->join('customers', 'orders.customer_id', '=', 'customers.id');
+                ->join('customers', 'orders.customer_id', '=', 'customers.id')
+                ->join('order_product', 'orders.id', '=', 'order_product.order_id')
+                ->join('products', 'products.id', '=', 'order_product.product_id')
+                ->join('voucher_codes', 'orders.voucher_code', '=', 'voucher_codes.voucher_id');
 
         if ($request->has('q') && count($request->q)) {
             $q->where('customer_ref', 'like', '%' . $request->q . '%');
