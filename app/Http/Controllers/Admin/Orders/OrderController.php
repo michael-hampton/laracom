@@ -248,6 +248,24 @@ class OrderController extends Controller {
                 ]
         );
     }
+    
+     /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create($channel = null) {
+        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
+        $channels = $this->channelRepo->listChannels('name', 'asc');
+        return view('admin.products.create', [
+            'categories' => $categories,
+            'channels' => $channels,
+            'brands' => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
+            'default_weight' => env('SHOP_WEIGHT'),
+            'weight_units' => (new Product())->MASS_UNIT,
+            'product' => new Product
+        ]);
+    }
 
     /**
      * Generate order invoice
