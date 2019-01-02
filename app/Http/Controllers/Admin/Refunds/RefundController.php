@@ -113,7 +113,13 @@ class RefundController extends Controller {
      */
     public function doRefund(CreateRefundRequest $request) {
 
-        $orderProduct = $this->orderProductRepo->findOrderProductById($request->lineId);
+        $refundAmount = 0;
+        
+        foreach($request->lineIds as $lineId) {
+        $orderProduct = $this->orderProductRepo->findOrderProductById($lineId);
+        
+        $refundAmount += $orderProduct->product_price;
+            
         $orderProductRepo = new OrderProductRepository($orderProduct);
 
         $data = $request->except('_token', '_method');
