@@ -184,6 +184,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         if ($request->has('channel') && count($request->channel)) {
             $q->where('channel', $request->channel);
         }
+        
+        $q->groupBy('orders.id');
+        $q->orderBy('orders.order_date', 'DESC')->orderBy('is_priority', 'ASC');
 
         return $q->get();
     }
