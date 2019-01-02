@@ -358,23 +358,40 @@
 
         $('.do-refund').on('click', function () {
 
-            var lineId = $(this).attr('line-id');
-            var quantity = $(this).attr('quantity');
+            //var lineId = $(this).attr('line-id');
+            //var quantity = $(this).attr('quantity');
             var status = 8;
             var orderId = $(this).attr('order-id');
-            var amount = $(this).attr('amount');
+            //var amount = $(this).attr('amount');
+
+             var cb = [];
+             $.each($('.cb:checked'), function() {
+                 cb.push($(this).val()); 
+             });
 
             $.ajax({
                 type: "POST",
                 url: '/admin/refunds/doRefund',
                 data: {
-                    lineId: lineId,
-                    quantity: quantity,
-                    amount: amount,
+                    //lineId: lineId,
+                    //quantity: quantity,
+                    //amount: amount,
                     order_id: orderId,
                     status: status,
+                    lineIds:cb
                     _token: '{{ csrf_token() }}'
                 },
+                success: function (msg) {
+                    alert(msg);
+                }
+            });
+
+            return false;
+        });
+
+            $.ajax({
+                type: "GET",
+                url: '/admin/orders/doRefund',
                 success: function (msg) {
                     alert(msg);
                 }
