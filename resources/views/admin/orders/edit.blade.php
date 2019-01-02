@@ -389,6 +389,7 @@
             return false;
         });
 
+        $('.do-clone').on('click', function () {
             $.ajax({
                 type: "GET",
                 url: '/admin/orders/doRefund',
