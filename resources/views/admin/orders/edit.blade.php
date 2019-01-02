@@ -357,12 +357,15 @@
         });
 
         $('.do-refund').on('click', function () {
-
-            //var lineId = $(this).attr('line-id');
-            //var quantity = $(this).attr('quantity');
+            
             var status = 8;
             var orderId = $(this).attr('order-id');
-            //var amount = $(this).attr('amount');
+
+            if($('.cb:checked').length == 0)
+            {
+                alert('Please select atleast one checkbox');
+                return false;
+            }
 
              var cb = [];
              $.each($('.cb:checked'), function() {
@@ -373,9 +376,6 @@
                 type: "POST",
                 url: '/admin/refunds/doRefund',
                 data: {
-                    //lineId: lineId,
-                    //quantity: quantity,
-                    //amount: amount,
                     order_id: orderId,
                     status: status,
                     lineIds:cb
@@ -390,9 +390,28 @@
         });
 
         $('.do-clone').on('click', function () {
+        
+            var orderId = $(this).attr('order-id');
+        
+            if($('.cb:checked').length == 0)
+            {
+                alert('Please select atleast one checkbox');
+                return false;
+            }
+
+             var cb = [];
+             $.each($('.cb:checked'), function() {
+                 cb.push($(this).val()); 
+             });
+        
             $.ajax({
-                type: "GET",
-                url: '/admin/orders/doRefund',
+                type: "POST",
+                url: '/admin/orders/cloneOrder',
+                data: {
+                    order_id: orderId,
+                    lineIds:cb
+                    _token: '{{ csrf_token() }}'
+                },
                 success: function (msg) {
                     alert(msg);
                 }
