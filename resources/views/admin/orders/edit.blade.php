@@ -31,6 +31,10 @@
                 </div>
                 
                 <div class="col-md-3 col-md-offset-3">
+                    <h2><a href="#" class="do-swap">Swap Product</a></h2>
+                </div>
+                
+                <div class="col-md-3 col-md-offset-3">
                     <h2><a href="{{route('admin.orders.invoice.generate', $order['id'])}}" class="btn btn-primary btn-block">Cancel Order</a></h2>
                 </div>
             </div>
@@ -145,7 +149,7 @@
                         <td>{{ $item->product_sku }}</td>
                         <td>
                             @if($item->status != 8)
-                            <select order-id="{{ $order->id }}" quantity="{{ $item->quantity }}" line-id="{{ $item->id }}" class="productSelect" class="form-control">
+                            <select disabled="disabled" order-id="{{ $order->id }}" quantity="{{ $item->quantity }}" line-id="{{ $item->id }}" class="productSelect" class="form-control">
                                 @foreach($products as $product)
                                 @if($product->name == $item->product_name)
                                 <option selected="selected" value="{{ $product->id }}">{{ str_limit($product->name, 20, '...') }}</option>
@@ -359,7 +363,11 @@
 
             return false;
         });
-
+        
+        $('.do-swap').on('click', function () {
+              $('.productSelect').prop('disabled', false);
+        });
+        
         $('.do-refund').on('click', function () {
             
             var status = 8;
