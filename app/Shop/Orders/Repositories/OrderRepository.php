@@ -179,6 +179,18 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         if ($request->has('name') && count($request->name)) {
             $q->where('customers.name', 'like', '%' . $request->name . '%');
         }
+        
+        if ($request->has('email') && count($request->email)) {
+            $q->where('customers.email', 'like', '%' . $request->email . '%');
+        }
+        
+        if ($request->has('voucher_code') && count($request->voucher_code)) {
+            $q->where('voucher_codes.coupon_code', 'like', '%' . $request->voucher_code . '%');
+        }
+        
+        if ($request->has('product_name') && count($request->product_name)) {
+            $q->where('products.name', 'like', '%' . $request->product_name . '%');
+        }
 
         if ($request->has('status') && count($request->status)) {
             $q->where('order_status_id', $request->status);
