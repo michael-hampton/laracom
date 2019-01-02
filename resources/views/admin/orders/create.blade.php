@@ -41,7 +41,7 @@
                 @if(!empty($products))
                 <div class="form-group products scope-type" style="display:none;">
                     <label for="product">Product</label>
-                    <select name="product" id="product" class="form-control select2 scope-select">
+                    <select name="products[0][id]" id="product" class="form-control select2 scope-select">
                         <option value="">--Select--</option>
                         @foreach($products as $product)
                         <option @if(old('product') == $product->id) selected="selected" @endif value="{{ $product->id }}">{{ $product->name }}</option>
