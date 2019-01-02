@@ -26,13 +26,13 @@
 
                 <input type="hidden" name="total" id="total">
                 
-                @if(!empty($scopes))
+                @if(!empty($customers))
                 <div class="form-group">
-                    <label for="channel">Scope</label>
-                    <select name="scope_type" id="scope_type" class="form-control select2 scope">
-                        <option value="order">Order</option>
-                        @foreach($scopes as $scope)
-                        <option @if(old('scope_type') == $scope) selected="selected" @endif value="{{ $scope }}">{{ $scope }}</option>
+                    <label for="customer">Customer</label>
+                    <select name="customer" id="customer" class="form-control select2 scope">
+                        
+                        @foreach($customers as $customer)
+                        <option @if(old('customer') == $customer->id) selected="selected" @endif value="{{ $customer->id }}">{{ $customer->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -49,6 +49,13 @@
                     </select>
                 </div>
                 @endif
+                
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input name="products[0][quantity]" id="quantity" class="form-control">
+                        
+                </div>
+                
                 
                  <input type="hidden" name="price" id="price">
             </div>
