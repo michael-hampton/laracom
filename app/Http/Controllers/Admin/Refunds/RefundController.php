@@ -114,6 +114,7 @@ class RefundController extends Controller {
     public function doRefund(CreateRefundRequest $request) {
 
         $refundAmount = 0;
+        $order = $this->orderRepo->findOrderById($request->order_id);
         
         foreach($request->lineIds as $lineId) {
         $orderProduct = $this->orderProductRepo->findOrderProductById($lineId);
@@ -125,24 +126,7 @@ class RefundController extends Controller {
         $data = $request->except('_token', '_method');
         $data['date_refunded'] = date('Y-m-d'); //add request
 
-        $order = $this->orderRepo->findOrderById($request->order_id);
-        $customer = (new \App\Shop\Customers\Repositories\CustomerRepository(new Customer()))->findCustomerById($order->customer_id);
-
-        switch ($order->payment) {
-            case 'paypal':
-
-                if (!(new PayPalExpressCheckoutRepository())->doRefund($order)) {
-
-                    die('cant do refund');
-                }
-                break;
-
-            case 'stripe':
-                if (!(new StripeRepository($customer))->doRefund($order)) {
-                    die('Cant do refund');
-                }
-                break;
-        }
+        
 
         $this->refundRepo->createRefund($data);
 
@@ -151,6 +135,26 @@ class RefundController extends Controller {
             'status' => $request->status
                 ], $request->lineId
         );
+        }
+        
+        
+        $customer = (new \App\Shop\Customers\Repositories\CustomerRepository(new Customer()))->findCustomerById($order->customer_id);
+
+        switch ($order->payment) {
+            case 'paypal':
+
+                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount)) {
+
+                    die('cant do refund');
+                }
+                break;
+
+            case 'stripe':
+                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount)) {
+                    die('Cant do refund');
+                }
+                break;
+        }
 
         $request->session()->flash('message', 'Creation successful');
     }
