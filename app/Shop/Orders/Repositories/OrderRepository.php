@@ -165,7 +165,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function sendRefundEmailToCustomer() {
         return true;
         Mail::to($this->model->customer)
-                ->send(new SendOrderToCustomerMailable($this->findOrderById($this->model->id)));
+                ->send(new SendRefundToCustomerMailable($this->findOrderById($this->model->id)));
     }
     /**
      * Send email notification to the admin
