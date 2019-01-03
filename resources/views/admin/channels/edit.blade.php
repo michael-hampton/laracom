@@ -183,7 +183,7 @@ function buildcheckBox($value, $label) {
 
                         <div class="form-group">
                             <label for="status">Strict validation </label>
-                            <select name="send_dispatched_email" id="send_dispatched_email" class="form-control">
+                            <select name="strict_validation" id="send_dispatched_email" class="form-control">
                                 <option value="1" {{ $channel->send_dispatched_email === 1 ? 'selected="selected"' : '' }}>Yes</option>
                                 <option value="0" {{ $channel->send_dispatched_email === 0 ? 'selected="selected"' : '' }}>No</option>
                             </select>
@@ -191,7 +191,7 @@ function buildcheckBox($value, $label) {
                         
                          <div class="form-group">
                             <label for="status">Partial Shipment </label>
-                            <select name="send_dispatched_email" id="send_dispatched_email" class="form-control">
+                            <select name="partial_shipment" id="send_dispatched_email" class="form-control">
                                 <option value="1" {{ $channel->send_dispatched_email === 1 ? 'selected="selected"' : '' }}>Yes</option>
                                 <option value="0" {{ $channel->send_dispatched_email === 0 ? 'selected="selected"' : '' }}>No</option>
                             </select>
