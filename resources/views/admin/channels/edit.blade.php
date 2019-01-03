@@ -6,15 +6,7 @@ function buildcheckBox($value, $label) {
 
     $checked = $value == 1 ? 'checked' : '';
 
-    echo '<div class="switch">
-    <div class="onoffswitch">
-        <input type="checkbox" ' . $checked . ' class="onoffswitch-checkbox" id="' . $label . '">
-        <label class="onoffswitch-label" for="' . $label . '">
-            <span class="onoffswitch-inner"></span>
-            <span class="onoffswitch-switch"></span>
-        </label>
-    </div>
-</div>';
+    echo '<input type="checkbox" ' . $checked . ' class="test" id="' . $label . '">';
 }
 ?>
 
