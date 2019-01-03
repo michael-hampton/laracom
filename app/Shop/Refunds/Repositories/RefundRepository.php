@@ -9,6 +9,7 @@ use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Customer;
 use App\Shop\Orders\Repositories\OrderRepository;
+use App\Events\OrderCreateEvent;
 use App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository;
 use App\Shop\PaymentMethods\Stripe\StripeRepository;
 use Illuminate\Http\Request;
