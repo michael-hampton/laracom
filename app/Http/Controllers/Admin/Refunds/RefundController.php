@@ -4,17 +4,15 @@ namespace App\Http\Controllers\Admin\Refunds;
 
 use App\Shop\Refunds\Refund;
 use App\Shop\Refunds\Repositories\RefundRepository;
-use App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository;
-use App\Shop\PaymentMethods\Stripe\StripeRepository;
 use App\Shop\Refunds\Repositories\Interfaces\RefundRepositoryInterface;
-use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\Refunds\Requests\CreateRefundRequest;
 use App\Shop\Refunds\Requests\UpdateRefundRequest;
 use App\Shop\Refunds\Transformations\RefundTransformable;
 use App\Shop\Orders\Order;
 use App\Shop\Orders\Repositories\OrderRepository;
-use App\Shop\Customers\Customer;
+use App\Shop\Channels\Channel;
+use App\Shop\Channels\Repositories\ChannelRepository;
 use Illuminate\Http\Request;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
@@ -114,8 +112,12 @@ class RefundController extends Controller {
      * @param CreateRefundRequest $request
      */
     public function doRefund(Request $request) {
+        
+         $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
+         
+         $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
 
-        $this->refundRepo->refundLinesForOrder($request);
+        $this->refundRepo->refundLinesForOrder($request, $order, $channel);
 
         $request->session()->flash('message', 'Creation successful');
     }

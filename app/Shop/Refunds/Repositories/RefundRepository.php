@@ -9,6 +9,7 @@ use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Customer;
+use App\Shop\Channels\Channel;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Events\OrderCreateEvent;
 use App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository;
@@ -98,8 +99,8 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
 
             $arrRefunds[$objRefund->line_id] = $objRefund;
         }
-        
-        
+
+
 
         return $arrRefunds;
     }
@@ -129,19 +130,24 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
                     'amount_type' => 10
                 ])->get();
     }
-    
-    public function refundLinesForOrder(Request $request) {
-        
+
+    /**
+     * 
+     * @param Request $request
+     * @param Order $order
+     * @param Channel $channel
+     * @return boolean
+     */
+    public function refundLinesForOrder(Request $request, Order $order, Channel $channel) {
+
         $refundAmount = 0;
-                
-        $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
-        
-        foreach($request->lineIds as $lineId) {
-            
+
+        foreach ($request->lineIds as $lineId) {
+
             $orderProduct = (new OrderProductRepository(new OrderProduct))->findOrderProductById($lineId);
-            
+
             $refundAmount += $orderProduct->product_price;
-            
+
             $orderProductRepo = new OrderProductRepository($orderProduct);
 
             $data = [];
@@ -151,24 +157,26 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             $data['order_id'] = $request->order_id;
             $data['status'] = $request->status;
             $data['amount'] = $orderProduct->product_price;
-            
+
             $this->createRefund($data);
 
-            $orderProductRepo->updateOrderProduct(
-                    [
-                        'status' => $request->status
-                    ], $request->lineId
-            );
+            $orderProductRepo->updateStatus($order, $channel, 8);
         }
-        
-        
+       
         $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
         $totalPaid = $order->total_paid - $refundAmount;
-        
+        $refundAmount = $order->amount_refunded + $refundAmount;
+
         $orderRepo = new OrderRepository($order);
-        
-        $orderRepo->updateOrder(['total_paid' => $totalPaid, 'amount_refunded' => $refundAmount]);
-        
+
+        $orderRepo->updateOrder(
+                [
+                    'total_paid' => $totalPaid,
+                    'amount_refunded' => $refundAmount,
+                    'order_status_id' => $order->status
+                ]
+        );
+
         switch ($order->payment) {
             case 'paypal':
 
@@ -184,9 +192,9 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
                 }
                 break;
         }
-        
+
         //event(new RefundsCreateEvent($order));
-        
+
         return true;
     }
 

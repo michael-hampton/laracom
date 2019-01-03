@@ -10,6 +10,7 @@ use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterfa
 use App\Shop\Orders\Order;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\Products\Product;
+use App\Shop\Channels\Channel;
 use Illuminate\Support\Collection;
 use App\Shop\OrderProducts\Transformations\OrderProductTransformable;
 
@@ -163,25 +164,50 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
             throw new ProductCreateErrorException($e);
         }
     }
-   
-    public function updateStatusWithCheck(Order $order) {
-        
+
+    /**
+     * 
+     * @param Order $order
+     * @param \App\Shop\OrderProducts\Repositories\Channel $channel
+     * @param type $blReject
+     */
+    public function updateStatus(Order $order, Channel $channel, int $status, bool $blReject = false) {
+        return $this->checkStatuses($order, $channel, $status, $blReject);
     }
-    
-    private function checkStatuses(Order $order) {
-        
+
+    /**
+     * 
+     * @param Order $order
+     * @param Channel $channel
+     * @param int $status
+     * @param bool $blReject
+     */
+    private function checkStatuses(Order $order, Channel $channel, int $status, bool $blReject = false) {
+
         $orderProducts = $this->listOrderProducts()->where('order_id', $order->id);
-        
+
         $notSameStatus = 0;
-        $status = 0;
-        
-        
-        foreach($orderProducts as $orderProduct) {
-            
-            if($orderProduct->status !== $status) {
+
+        foreach ($orderProducts as $orderProduct) {
+
+            if ((int) $orderProduct->status !== $status) {
                 $notSameStatus++;
             }
         }
+        
+        if ($notSameStatus === 1) {
+            $order->status = $status;
+            $this->updateOrderProduct(['status' => $status]);
+
+            return true;
+        }
+
+        if ((int) $channel->partial_shipment === 1 || $blReject === false) {
+            $this->updateOrderProduct(['status' => $status]);
+            return true;
+        }
+
+        return false;
     }
 
 }
