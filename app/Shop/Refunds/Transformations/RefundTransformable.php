@@ -16,6 +16,7 @@ trait RefundTransformable {
         $obj = new Refund;
         $obj->id = $refund->id;
         $obj->order_id = $refund->order_id;
+        $obj->line_id = $refund->line_id;
         $obj->quantity = $refund->quantity;
         $obj->amount = $refund->amount;
         $obj->date_refunded = $refund->date_refunded;
