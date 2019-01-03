@@ -229,11 +229,33 @@ function buildcheckBox($value, $label) {
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
+    
+    ('.test').bootstrapSwitch();
+
+$('.test').on('switchChange.bootstrapSwitch', function () {
+
+    if ($('input#isAdmin').bootstrapSwitch('state')) {
+        alert($(this).attr('id') + 'I am true');
+         $(this).val("1"); 
+  	} else {
+    	alert($(this).attr('id') + 'I am false');
+       $(this).val("0"); 
+    }
+});
+
+var arr = {};
+$('.test').each(function(){
+    arr.push({
+         $(this).attr('id'): $(this).val()              
+     });
+});
+
+console.log(arr);
         
-        $(".onoffswitch-inner").off();
+        /*$(".onoffswitch-inner").off();
          $(".onoffswitch-inner").click(function() {
              alert('Mike');
-         });
+         });*/
     });
 </script>
 @endsection
