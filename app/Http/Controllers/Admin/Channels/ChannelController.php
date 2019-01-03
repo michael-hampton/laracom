@@ -188,6 +188,11 @@ class ChannelController extends Controller {
         request()->session()->flash('message', 'Image delete successful');
         return redirect()->back();
     }
+    
+    public function updateChannelAttribute(Request $request) {
+        
+        die('mike');
+    }
 
     /**
      * @param Request $request
