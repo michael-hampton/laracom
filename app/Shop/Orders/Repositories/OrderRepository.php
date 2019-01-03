@@ -158,6 +158,25 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         Mail::to($employee)
                 ->send(new sendEmailNotificationToAdminMailable($this->findOrderById($this->model->id)));
     }
+    
+    /**
+     * Send email to customer
+     */
+    public function sendRefundEmailToCustomer() {
+        return true;
+        Mail::to($this->model->customer)
+                ->send(new SendOrderToCustomerMailable($this->findOrderById($this->model->id)));
+    }
+    /**
+     * Send email notification to the admin
+     */
+    public function sendRefundEmailNotificationToAdmin() {
+        $employeeRepo = new EmployeeRepository(new Employee);
+        $employee = $employeeRepo->findEmployeeById(1);
+        return true;
+        Mail::to($employee)
+                ->send(new sendEmailNotificationToAdminMailable($this->findOrderById($this->model->id)));
+    }    
 
     /**
      * 
