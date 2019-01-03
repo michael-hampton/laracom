@@ -18,7 +18,7 @@ function buildcheckBox($value, $label) {
     @include('layouts.errors-and-messages')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap2/bootstrap-switch.min.css" rel="stylesheet" type="text/css">
     <div class="box">
-        <form action="{{ route('admin.channels.update', $channel->id) }}" method="post" class="form" enctype="multipart/form-data">
+        <form id="channelForm" action="{{ route('admin.channels.update', $channel->id) }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 <div class="row">
                     {{ csrf_field() }}
@@ -158,8 +158,9 @@ $('.test').on('switchChange.bootstrapSwitch', function () {
     }
 });
 
-('.mike').on('click', function () {
- 	var arr = [{'name':'test'}];
+('#channelForm').on('submit', function () {
+ 	var arr = $(this).serializeArray();
+	
 	$('.test').each(function(){
 	  
 	  var id = $(this).attr('id');
