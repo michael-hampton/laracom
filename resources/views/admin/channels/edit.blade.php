@@ -161,6 +161,19 @@ $('.test').on('switchChange.bootstrapSwitch', function () {
     
     var id = $(this).attr('id');
     
+    $.ajax({
+                type: "POST",
+                url: '/admin/orderLine/updateLineStatus',
+                data: {line_id: lineId,
+                    order_id: orderId,
+                    status: status,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (msg) {
+                    alert(msg);
+                }
+            });
+    
     alert(val + ' ' + id);
 });
 
