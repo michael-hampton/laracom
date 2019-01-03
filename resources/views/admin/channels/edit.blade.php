@@ -10,10 +10,13 @@ function buildcheckBox($value, $label) {
 }
 ?>
 
+
+
 @section('content')
 <!-- Main content -->
 <section class="content">
     @include('layouts.errors-and-messages')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap2/bootstrap-switch.min.css" rel="stylesheet" type="text/css">
     <div class="box">
         <form action="{{ route('admin.channels.update', $channel->id) }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
@@ -138,6 +141,7 @@ function buildcheckBox($value, $label) {
 @endsection
 
 @section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
     
