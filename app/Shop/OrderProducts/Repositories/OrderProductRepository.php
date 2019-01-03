@@ -163,5 +163,25 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
             throw new ProductCreateErrorException($e);
         }
     }
+   
+    public function updateStatusWithCheck(Order $order) {
+        
+    }
+    
+    private function checkStatuses(Order $order) {
+        
+        $orderProducts = $this->listOrderProducts()->where('order_id', $order->id);
+        
+        $notSameStatus = 0;
+        $status = 0;
+        
+        
+        foreach($orderProducts as $orderProduct) {
+            
+            if($orderProduct->status !== $status) {
+                $notSameStatus++;
+            }
+        }
+    }
 
 }
