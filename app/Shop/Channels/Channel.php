@@ -38,7 +38,9 @@ class Channel extends Model {
         'send_received_email',
         'send_dispatched_email',
         'status',
-        'has_priority'
+        'has_priority',
+        'partial_shipment',
+        'strict_validation'
     ];
 
     /**
