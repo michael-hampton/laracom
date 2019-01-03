@@ -14,6 +14,7 @@
                         <thead>
                             <tr>
                                 <td class="col-md-1">Order Id</td>
+                                <td class="col-md-1">Line Id</td>
                                 <td class="col-md-2">Quantity</td>
                                 <td class="col-md-1">Amount</td>
                                 <td class="col-md-2">Date Refunded</td>
@@ -24,6 +25,7 @@
                         @foreach ($refunds as $refund)
                             <tr>
                                 <td>{{ $refund->order_id }}</td>
+                                <td>{{ $refund->line_id }}</td>
                                 <td>{{ $refund->quantity }}</td>
                                 <td>{{ $refund->amount }}</td>
                                 <td>{{ $refund->date_refunded }}</td>
