@@ -15,10 +15,10 @@ class RefundCreateEventListener {
     /**
      * Handle the event.
      *
-     * @param  RefundCreateEvent  $event
+     * @param  RefundsCreateEvent  $event
      * @return void
      */
-    public function handle(RefundCreateEvent $event) {
+    public function handle(RefundsCreateEvent $event) {
                
         // send email to customer
         $orderRepo = new OrderRepository($event->order);
