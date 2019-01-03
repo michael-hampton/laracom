@@ -18,87 +18,6 @@ function buildcheckBox($value, $label) {
 }
 ?>
 
-<style>
-    /* SWITCHES */
-    .onoffswitch {
-        position: relative;
-        width: 54px;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-    }
-    .onoffswitch-checkbox {
-        display: none;
-    }
-    .onoffswitch-label {
-        display: block;
-        overflow: hidden;
-        cursor: pointer;
-        border: 2px solid #1AB394;
-        border-radius: 3px;
-    }
-    .onoffswitch-inner {
-        display: block;
-        width: 200%;
-        margin-left: -100%;
-        -moz-transition: margin 0.3s ease-in 0s;
-        -webkit-transition: margin 0.3s ease-in 0s;
-        -o-transition: margin 0.3s ease-in 0s;
-        transition: margin 0.3s ease-in 0s;
-    }
-    .onoffswitch-inner:before,
-    .onoffswitch-inner:after {
-        display: block;
-        float: left;
-        width: 50%;
-        height: 16px;
-        padding: 0;
-        line-height: 16px;
-        font-size: 10px;
-        color: white;
-        font-family: Trebuchet, Arial, sans-serif;
-        font-weight: bold;
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-    }
-    .onoffswitch-inner:before {
-        content: "ON";
-        padding-left: 7px;
-        background-color: #1AB394;
-        color: #FFFFFF;
-    }
-    .onoffswitch-inner:after {
-        content: "OFF";
-        padding-right: 7px;
-        background-color: #FFFFFF;
-        color: #919191;
-        text-align: right;
-    }
-    .onoffswitch-switch {
-        display: block;
-        width: 18px;
-        margin: 0;
-        background: #FFFFFF;
-        border: 2px solid #1AB394;
-        border-radius: 3px;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 36px;
-        -moz-transition: all 0.3s ease-in 0s;
-        -webkit-transition: all 0.3s ease-in 0s;
-        -o-transition: all 0.3s ease-in 0s;
-        transition: all 0.3s ease-in 0s;
-    }
-    .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
-        margin-left: 0;
-    }
-    .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-        right: 0;
-    }
-</style>
-
 @section('content')
 <!-- Main content -->
 <section class="content">
@@ -235,19 +154,27 @@ function buildcheckBox($value, $label) {
 $('.test').on('switchChange.bootstrapSwitch', function () {
 
     if ($('input#isAdmin').bootstrapSwitch('state')) {
-        alert($(this).attr('id') + 'I am true');
+        //alert($(this).attr('id') + 'I am true');
          $(this).val("1"); 
   	} else {
-    	alert($(this).attr('id') + 'I am false');
+    	//alert($(this).attr('id') + 'I am false');
        $(this).val("0"); 
     }
 });
 
-var arr = {};
-$('.test').each(function(){
-    arr.push({
-         $(this).attr('id'): $(this).val()              
-     });
+('.mike').on('click', function () {
+ 	var arr = [{'name':'test'}];
+	$('.test').each(function(){
+	  
+	  var id = $(this).attr('id');
+	  
+	    arr.push({
+	         id: $(this).val()              
+	     });
+	});
+  
+   console.log(arr); 
+  
 });
 
 console.log(arr);
