@@ -47,6 +47,14 @@ function buildcheckBox($value, $label) {
                             <label for="cover">Cover </label>
                             <input type="file" name="cover" id="cover" class="form-control">
                         </div>
+			
+			<div class="box-footer">
+                            <div class="btn-group">
+                                <a href="{{ route('admin.channels.index') }}" class="btn btn-default">Back</a>
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
+                           </div>
+			</form>
 
                         {{buildCheckbox($channel->has_priority, 'has_priority')}}
 
@@ -123,13 +131,7 @@ function buildcheckBox($value, $label) {
                 </div>
             </div>
             <!-- /.box-body -->
-            <div class="box-footer">
-                <div class="btn-group">
-                    <a href="{{ route('admin.channels.index') }}" class="btn btn-default">Back</a>
-                    <button type="submit" class="btn btn-primary">Update</button>
-                </div>
-            </div>
-        </form>
+            
     </div>
     <!-- /.box -->
 
@@ -149,16 +151,20 @@ function buildcheckBox($value, $label) {
 
 $('.test').on('switchChange.bootstrapSwitch', function () {
 
-    if ($('input#isAdmin').bootstrapSwitch('state')) {
-        //alert($(this).attr('id') + 'I am true');
-         $(this).val("1"); 
-  	} else {
-    	//alert($(this).attr('id') + 'I am false');
-       $(this).val("0"); 
+    if ($(this).bootstrapSwitch('state')) {
+        var val = 1;
+        $(this).val("1"); 
+    } else {
+        var val = 0;
+        $(this).val("0"); 
     }
+    
+    var id = $(this).attr('id');
+    
+    alert(val + ' ' + id);
 });
 
-('#channelForm').on('submit', function () {
+/*('#channelForm').on('submit', function () {
  	var arr = $(this).serializeArray();
 	
 	$('.test').each(function(){
@@ -172,7 +178,7 @@ $('.test').on('switchChange.bootstrapSwitch', function () {
   
    console.log(arr); 
   
-});
+}); */
 
 console.log(arr);
         
