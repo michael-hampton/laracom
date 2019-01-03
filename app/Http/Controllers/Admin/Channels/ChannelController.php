@@ -154,12 +154,12 @@ class ChannelController extends Controller {
         $channelRepo = new ChannelRepository($channel);
 
         $data = $request->except('_token', '_method');
-        
+
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
             $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
         }
 
-       $channelRepo->updateChannel($data);
+        $channelRepo->updateChannel($data);
 
         $request->session()->flash('message', 'Update successful');
         return redirect()->route('admin.channels.edit', $id);
@@ -188,10 +188,19 @@ class ChannelController extends Controller {
         request()->session()->flash('message', 'Image delete successful');
         return redirect()->back();
     }
-    
-    public function updateChannelAttribute(Request $request) {
-        
-        die('mike');
+
+    /**
+     * 
+     * @param Request $request
+     */
+    public function saveChannelAttribute(Request $request) {
+
+        $data = [$request->id => $request->value];
+
+        $channel = $this->channelRepo->findChannelById($request->channelId);
+        $channelRepo = new ChannelRepository($channel);
+
+        $channelRepo->updateChannel($data);
     }
 
     /**

@@ -18,7 +18,7 @@ function buildcheckBox($value, $label) {
     @include('layouts.errors-and-messages')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap2/bootstrap-switch.min.css" rel="stylesheet" type="text/css">
     <div class="box">
-        <form id="channelForm" action="{{ route('admin.channels.update', $channel->id) }}" method="post" class="form" enctype="multipart/form-data">
+        <form id="channelForm" channel-id="{{ $channel->id }}" action="{{ route('admin.channels.update', $channel->id) }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 <div class="row">
                     {{ csrf_field() }}
@@ -47,76 +47,12 @@ function buildcheckBox($value, $label) {
                             <label for="cover">Cover </label>
                             <input type="file" name="cover" id="cover" class="form-control">
                         </div>
-			
-			<div class="box-footer">
+
+                        <div class="box-footer">
                             <div class="btn-group">
                                 <a href="{{ route('admin.channels.index') }}" class="btn btn-default">Back</a>
-                                    <button type="submit" class="btn btn-primary">Update</button>
+                                <button type="submit" class="btn btn-primary">Update</button>
                             </div>
-                           </div>
-			</form>
-
-                        {{buildCheckbox($channel->has_priority, 'has_priority')}}
-
-                        <!--                        <div class="form-group">
-                                                    <label for="status">Has Priority </label>
-                                                    <select name="has_priority" id="has_priority" class="form-control">
-                                                        <option value="1" {{ $channel->has_priority === 1 ? 'selected="selected"' : '' }}>Yes</option>
-                                                        <option value="0" {{ $channel->has_priority === 0 ? 'selected="selected"' : '' }}>No</option>
-                                                    </select>
-                                                </div>-->
-
-                        <div class="form-group">
-                            <label for="status">Allocate On Order </label>
-                            <select name="allocate_on_order" id="allocate_on_order" class="form-control">
-                                <option value="1" {{ $channel->allocate_on_order === 1 ? 'selected="selected"' : '' }}>Yes</option>
-                                <option value="0" {{ $channel->allocate_on_order === 0 ? 'selected="selected"' : '' }}>No</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="status">Backorders enabled </label>
-                            <select name="backorders_enabled" id="backorders_enabled" class="form-control">
-                                <option value="1" {{ $channel->backorders_enabled === 1 ? 'selected="selected"' : '' }}>Yes</option>
-                                <option value="0" {{ $channel->backorders_enabled === 0 ? 'selected="selected"' : '' }}>No</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="status">Send Order Received Email </label>
-                            <select name="send_received_email" id="send_received_email" class="form-control">
-                                <option value="1" {{ $channel->send_received_email === 1 ? 'selected="selected"' : '' }}>Yes</option>
-                                <option value="0" {{ $channel->send_received_email === 0 ? 'selected="selected"' : '' }}>No</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="status">Send Dispatched Email </label>
-                            <select name="send_dispatched_email" id="send_dispatched_email" class="form-control">
-                                <option value="1" {{ $channel->send_dispatched_email === 1 ? 'selected="selected"' : '' }}>Yes</option>
-                                <option value="0" {{ $channel->send_dispatched_email === 0 ? 'selected="selected"' : '' }}>No</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="status">Send Dispatched Email </label>
-                            <select name="send_dispatched_email" id="send_dispatched_email" class="form-control">
-                                <option value="1" {{ $channel->send_dispatched_email === 1 ? 'selected="selected"' : '' }}>Yes</option>
-                                <option value="0" {{ $channel->send_dispatched_email === 0 ? 'selected="selected"' : '' }}>No</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="status">Strict validation </label>
-                            <select name="strict_validation" id="send_dispatched_email" class="form-control">
-                                <option value="1" {{ $channel->send_dispatched_email === 1 ? 'selected="selected"' : '' }}>Yes</option>
-                                <option value="0" {{ $channel->send_dispatched_email === 0 ? 'selected="selected"' : '' }}>No</option>
-                            </select>
-                        </div>
-                        
-                         <div class="form-group">
-                            <label for="status">Partial Shipment </label>
-                            <select name="partial_shipment" id="send_dispatched_email" class="form-control">
-                                <option value="1" {{ $channel->send_dispatched_email === 1 ? 'selected="selected"' : '' }}>Yes</option>
-                                <option value="0" {{ $channel->send_dispatched_email === 0 ? 'selected="selected"' : '' }}>No</option>
-                            </select>
                         </div>
 
                         <div class="form-group">
@@ -126,12 +62,47 @@ function buildcheckBox($value, $label) {
                                 <option value="1" @if($channel->status == 1) selected="selected" @endif>Enable</option>
                             </select>
                         </div>
+                        </form>
+
+                        <div class="form-group">
+                            <label for="status">Has Priority </label>
+                            {{buildCheckbox($channel->has_priority, 'has_priority')}}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">Allocate On Order </label>
+                            {{buildCheckbox($channel->allocate_on_order, 'allocate_on_order')}}
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Backorders enabled </label>
+                            {{buildCheckbox($channel->backorders_enabled, 'backorders_enabled')}}
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Send Order Received Email </label>
+                            {{buildCheckbox($channel->send_received_email, 'send_received_email')}}
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Send Dispatched Email </label>
+                            {{buildCheckbox($channel->send_dispatched_email, 'send_dispatched_email')}}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">Strict validation </label>
+                            {{buildCheckbox($channel->strict_validation, 'strict_validation')}}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">Partial Shipment </label>
+                            {{buildCheckbox($channel->partial_shipment, 'partial_shipment')}}
+                        </div>
+
+
                     </div>
 
                 </div>
             </div>
             <!-- /.box-body -->
-            
+
     </div>
     <!-- /.box -->
 
@@ -143,63 +114,44 @@ function buildcheckBox($value, $label) {
 @endsection
 
 @section('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.js" data-turbolinks-track="true"></script>
+
+
 <script type="text/javascript">
-    $(document).ready(function () {
-    
-    ('.test').bootstrapSwitch();
 
-$('.test').on('switchChange.bootstrapSwitch', function () {
 
-    if ($(this).bootstrapSwitch('state')) {
-        var val = 1;
-        $(this).val("1"); 
-    } else {
-        var val = 0;
-        $(this).val("0"); 
-    }
-    
-    var id = $(this).attr('id');
-    
-    $.ajax({
-                type: "POST",
-                url: '/admin/orderLine/updateLineStatus',
-                data: {line_id: lineId,
-                    order_id: orderId,
-                    status: status,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function (msg) {
-                    alert(msg);
-                }
-            });
-    
-    alert(val + ' ' + id);
-});
+$(document).ready(function () {
 
-/*('#channelForm').on('submit', function () {
- 	var arr = $(this).serializeArray();
-	
-	$('.test').each(function(){
-	  
-	  var id = $(this).attr('id');
-	  
-	    arr.push({
-	         id: $(this).val()              
-	     });
-	});
-  
-   console.log(arr); 
-  
-}); */
+    $('.test').bootstrapSwitch();
 
-console.log(arr);
-        
-        /*$(".onoffswitch-inner").off();
-         $(".onoffswitch-inner").click(function() {
-             alert('Mike');
-         });*/
+    $('.test').on('switchChange.bootstrapSwitch', function () {
+
+        if ($(this).bootstrapSwitch('state')) {
+            var val = 1;
+            $(this).val("1");
+        } else {
+            var val = 0;
+            $(this).val("0");
+        }
+
+        var id = $(this).attr('id');
+        var channelId = $("#channelForm").attr("channel-id");
+
+        $.ajax({
+            type: "POST",
+            url: '/admin/channels/saveChannelAttribute',
+            data: {
+                channelId: channelId,
+                id: id,
+                value: val,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (msg) {
+                alert(msg);
+            }
+        });
     });
+});
 </script>
 @endsection
 
