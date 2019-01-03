@@ -3,6 +3,7 @@
 namespace App\Shop\Refunds\Repositories;
 
 use App\Shop\Refunds\Refund;
+use App\Events\RefundsCreateEvent;
 use App\Shop\Orders\Order;
 use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;

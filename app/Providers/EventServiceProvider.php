@@ -16,7 +16,7 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\OrderCreateEvent' => [
             'App\Listeners\OrderCreateEventListener',
         ],
-        'App\Events\RefundCreateEvent' => [
+        'App\Events\RefundsCreateEvent' => [
             'App\Listeners\RefundCreateEventListener',
         ],
     ];

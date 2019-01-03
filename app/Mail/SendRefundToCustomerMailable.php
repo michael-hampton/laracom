@@ -1,16 +1,22 @@
 <?php
+
 namespace App\Mail;
+
 use App\Shop\Addresses\Transformations\AddressTransformable;
 use App\Shop\Orders\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
+
 class SendRefundToCustomerMailable extends Mailable {
+
     use Queueable,
         SerializesModels,
         AddressTransformable;
+
     public $order;
+
     /**
      * Create a new message instance.
      *
@@ -19,6 +25,7 @@ class SendRefundToCustomerMailable extends Mailable {
     public function __construct(Order $order) {
         $this->order = $order;
     }
+
     /**
      * Build the message.
      *
@@ -32,9 +39,10 @@ class SendRefundToCustomerMailable extends Mailable {
             'courier' => $this->order->courier,
             'address' => $this->order->address,
             'status' => $this->order->orderStatus,
-            'payment' => $this->order->paymentMethod
+           // 'payment' => $this->order->paymentMethod
         ];
-                        
-        return $this->view('emails.customer.sendRefundDetailsToCustomer', $data);
+
+        return $this->view('emails.customer.sendRefundToCustomer', $data);
     }
+
 }

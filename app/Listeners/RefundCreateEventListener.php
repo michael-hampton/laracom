@@ -19,7 +19,7 @@ class RefundCreateEventListener {
      * @return void
      */
     public function handle(RefundsCreateEvent $event) {
-               
+                       
         // send email to customer
         $orderRepo = new OrderRepository($event->order);
         $orderRepo->sendRefundEmailToCustomer();

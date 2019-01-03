@@ -10,6 +10,7 @@ use App\Events\OrderCreateEvent;
 use Illuminate\Http\Request;
 use App\Mail\sendEmailNotificationToAdminMailable;
 use App\Mail\SendOrderToCustomerMailable;
+use App\Mail\SendRefundToCustomerMailable;
 use App\Shop\Orders\Exceptions\OrderInvalidArgumentException;
 use App\Shop\Orders\Exceptions\OrderNotFoundException;
 use App\Shop\Orders\Order;
@@ -163,7 +164,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * Send email to customer
      */
     public function sendRefundEmailToCustomer() {
-        return true;
+                
         Mail::to($this->model->customer)
                 ->send(new SendRefundToCustomerMailable($this->findOrderById($this->model->id)));
     }
