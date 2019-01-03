@@ -49,6 +49,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::post('orders/search/{page?}', 'Orders\OrderController@search')->name('orders.search');
         Route::post('orders/saveComment/', 'Orders\OrderController@saveComment')->name('orders.saveComment');
         Route::post('refunds/doRefund/', 'Refunds\RefundController@doRefund')->name('refunds.doRefund');
+        Route::post('channels/saveChannelAttribute/', 'Channels\ChannelController@saveChannelAttribute')->name('channels.saveChannelAttribute');
         Route::post('orders/cloneOrder/', 'Orders\OrderController@cloneOrder')->name('orders.cloneOrder');
         Route::post('orders/destroy/{id}', 'Orders\OrderController@destroy')->name('orders.destroy');
 
