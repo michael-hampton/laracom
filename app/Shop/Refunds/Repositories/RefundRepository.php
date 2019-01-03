@@ -183,6 +183,8 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
                 break;
         }
         
+        event(new RefundCreateEvent($order));
+        
         return true;
     }
 
