@@ -24,9 +24,9 @@ class UpdateChannelRequest extends FormRequest {
     public function rules() {
         return [
             'name' => ['required', 'unique:products'],
-            'allocate_on_order' => ['required'],
-            'backorders_enabled' => ['required'],
-            'has_priority' => ['required'],
+            //'allocate_on_order' => ['required'],
+            //'backorders_enabled' => ['required'],
+            //'has_priority' => ['required'],
             'cover' => ['file', 'image:png,jpeg,jpg,gif']
         ];
     }
