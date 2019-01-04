@@ -51,6 +51,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
             if (isset($params['channel']) && !empty($params['channel'])) {
                 $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
+               
+                if(!$this->validateCustomerRef($customer_ref)){
+                    
+                    return false;
+                }
+                
                 $blPriority = $params['channel']->has_priority;
 
                 $params['customer_ref'] = $customer_ref;
@@ -134,6 +140,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $product->save();
 
         return true;
+    }
+    
+    private function validateCustomerRef($customerRef) {
+        $result = $this->listOrders()->where('customer_ref', $customerRef);
+        
+        return empty($result);
     }
 
     /**
