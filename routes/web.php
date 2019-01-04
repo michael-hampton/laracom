@@ -67,6 +67,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('vouchers/get/{channel}', 'Vouchers\VoucherController@getVouchersByChannel')->name('vouchers.getByChannel');
         Route::get('vouchers/create/{channel?}', 'Vouchers\VoucherController@create')->name('vouchers.create');
         Route::get('orders/create/{channel?}', 'Orders\OrderController@create')->name('orders.create');
+        Route::get('orders/backorders/', 'Orders\OrderController@backorders')->name('orders.backorders');
         Route::get('voucher-codes/add/{id}', 'VoucherCodes\VoucherCodeController@create')->name('voucher-codes.add');
         Route::resource('channels', 'Channels\ChannelController');
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');
