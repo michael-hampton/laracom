@@ -138,7 +138,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
      * @param Channel $channel
      * @return boolean
      */
-    public function refundLinesForOrder(Request $request, Order $order, Channel $channel, array $orderLines) {
+    public function refundLinesForOrder(Request $request, Order $order, Channel $channel = null, array $orderLines) {
 
         $refundAmount = 0;
 
