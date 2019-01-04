@@ -74,6 +74,14 @@ class OrderLineController extends Controller {
 
         $orderProductRepo->updateProduct($product, $orderProduct);
 
+        $data = [
+            'content' => $orderProduct->product_name . ' changed to ' $product->name,
+            'user_id' => auth()->guard('admin')->user()->id
+        ];
+
+        $postRepo = new OrderCommentRepository($order);
+        $postRepo->createComment($data);
+        
         return redirect()->route('admin.orders.edit', $request->orderId);
     }
 
