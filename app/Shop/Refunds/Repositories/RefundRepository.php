@@ -163,7 +163,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             $orderProductRepo->updateStatus($order, $channel, 8);
         }
        
-        $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
+        
         $totalPaid = $order->total_paid - $refundAmount;
         $refundAmount = $order->amount_refunded + $refundAmount;
 
@@ -176,22 +176,6 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
                     'order_status_id' => $order->status
                 ]
         );
-
-        switch ($order->payment) {
-            case 'paypal':
-
-                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount)) {
-
-                    die('cant do refund');
-                }
-                break;
-
-            case 'stripe':
-                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount)) {
-                    die('Cant do refund');
-                }
-                break;
-        }
 
         //event(new RefundsCreateEvent($order));
 
