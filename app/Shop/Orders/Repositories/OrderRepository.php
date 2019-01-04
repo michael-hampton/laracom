@@ -159,6 +159,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     private function validateTotal($data, $cartItems) {
         $shipping = Cart::getShippingFee();
         $productTotal = 0;
+        
+        foreach($cartItems as $cartItem) {
+            $productTotal += $cartItem->price;
+        }
+        
         $total = $shipping + $data['tax'] + $data['discounts'];
         
         if($total !== $data['total']) {
