@@ -443,6 +443,15 @@ class OrderController extends Controller {
     
     public function backorders() {
         $items = $this->orderProductRepo->listOrderProducts()->where('status', 9);
+        $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrder($items), 10);
+
+        $channels = $this->channelRepo->listChannels();
+        
+        return view('admin.orders.backorders', [
+            'orders' => $orders,
+            'channels' => $channels
+                ]
+        );
     }
 
 }
