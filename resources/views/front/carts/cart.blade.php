@@ -119,3 +119,15 @@
     @endif
 </div>
 @endsection
+$('.use_voucher').on('click', function () {
+         
+         var voucherCode = $('#voucher_code').val();
+         
+         $.ajax({
+                type: "GET",
+                url: '/admin/refunds/doRefund',
+                success: function (msg) {
+                    alert(msg);
+                }
+            });
+            });
