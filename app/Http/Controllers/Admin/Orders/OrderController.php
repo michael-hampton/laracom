@@ -390,18 +390,41 @@ class OrderController extends Controller {
         $order = $this->orderRepo->findOrderById($request->order_id);
 
         $newOrder = $this->orderRepo->cloneOrder($order, $channel);
-
+        $blError = false;
+        
         if (!$newOrder) {
+            $strMessage = 'failed to create rma order';
+           
+             $data = [
+                'content' => $strMessage,
+                'user_id' => auth()->guard('admin')->user()->id
+            ];
 
-            die('failed to crate new order');
+            $postRepo = new OrderCommentRepository($order);
+            $postRepo->createComment($data);
+        
         }
+        
+        $orderId = $newOrder->id;
+        $strMessage = $orderId . 'was created as RMA';
 
         if (!$this->orderProductRepo->cloneOrderLines($order, $newOrder, $request->lineIds)) {
-
-            die('failed to create lines');
+            $strMessage .= 'failed to clone order lines';
+            $blError = true;
+        }
+        
+         $data = [
+            'content' => $strMessage,
+            'user_id' => auth()->guard('admin')->user()->id
+        ];
+        
+        if($blError === false) {
+            
         }
 
-        die('good');
+        $postRepo = new OrderCommentRepository($order);
+        $postRepo->createComment($data);
+
     }
 
     /**
