@@ -114,7 +114,7 @@ class RefundController extends Controller {
     public function doRefund(Request $request) {
         
          $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
-         
+         $orderProducts = (new OrderProductRepository())->listOrderProducts()->where('order_id',$request->order_id);
          $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
 
         $this->refundRepo->refundLinesForOrder($request, $order, $channel);
@@ -161,6 +161,10 @@ class RefundController extends Controller {
 
         $request->session()->flash('message', 'Update successful');
         return redirect()->route('admin.refunds.edit', $id);
+    }
+    
+    private function authorizePayment(Order $order) {
+        
     }
 
     /**
