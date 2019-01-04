@@ -150,5 +150,19 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
             throw new CustomerPaymentChargingErrorException($e);
         }
     }
+    
+    public function addCredit($customer_id, $amount) {
+        
+        $customer = $this->findCustomerById($customer_id);
+        $credit = $customer->credit + $amount;
+        $customer->update(['credit' => $credit]);
+    }
+    
+    public function removeCredit() {
+        
+        $customer = $this->findCustomerById($customer_id);
+        $credit = $customer->credit - $amount;
+        $customer->update(['credit' => $credit]);
+    }
 
 }
