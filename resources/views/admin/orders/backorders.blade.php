@@ -172,7 +172,7 @@
             });
             $.ajax({
                 type: "POST",
-                url: '/admin/refunds/doRefund',
+                url: '/admin/orderLine/allocateStock',
                 data: {
                     order_id: orderId,
                     status: status,
