@@ -143,24 +143,13 @@ class RefundController extends Controller {
                     'order_status_id' => $order->status
                 ]
         );
-
-        $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
         
-            switch ($order->payment) {
-            case 'paypal':
-
-                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount)) {
-
-                    return response()->json(['error' => 'failed to authorize'], 404); // Status code here
-                }
-                break;
-
-            case 'stripe':
-                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount)) {
-                   return response()->json(['error' => 'failed to authorize'], 404); // Status code here
-                }
-                break;
+        if(!authorizePayment($order)) {
+            
+             return response()->json(['error' => 'failed to authorize payment'], 404); // Status code here
         }
+
+      
         $request->session()->flash('message', 'Creation successful');
     }
 
@@ -207,6 +196,25 @@ class RefundController extends Controller {
     
     private function authorizePayment(Order $order) {
         
+          $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
+        
+            switch ($order->payment) {
+            case 'paypal':
+
+                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount)) {
+
+                    return response()->json(['error' => 'failed to authorize'], 404); // Status code here
+                }
+                break;
+
+            case 'stripe':
+                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount)) {
+                   return response()->json(['error' => 'failed to authorize'], 404); // Status code here
+                }
+                break;
+        }
+        
+        return true;
     }
 
     /**
