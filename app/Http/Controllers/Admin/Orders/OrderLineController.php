@@ -102,5 +102,10 @@ class OrderLineController extends Controller {
                 ]
         );
     }
+    
+    public function allocateStock($lineId) {
+        
+        die('do allocation');
+    }
 
 }
