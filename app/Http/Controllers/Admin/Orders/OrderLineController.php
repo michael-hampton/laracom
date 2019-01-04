@@ -85,5 +85,22 @@ class OrderLineController extends Controller {
         
         return redirect()->route('admin.orders.edit', $request->orderId);
     }
+    
+    public function search(Request $request) {
+        $channels = $this->channelRepo->listChannels();
+        $statuses = $this->orderStatusRepo->listOrderStatuses();
+        $couriers = $this->courierRepo->listCouriers();
+        $customers = $this->customerRepo->listCustomers();
+        $list = $this->orderRepo->searchOrder($request);
+        $orders = $this->orderRepo->paginateArrayResults($this->transFormOrder($list), 10);
+        return view('admin.orders.list', [
+            'orders' => $orders,
+            'channels' => $channels,
+            'statuses' => $statuses,
+            'couriers' => $couriers,
+            'customers' => $customers
+                ]
+        );
+    }
 
 }
