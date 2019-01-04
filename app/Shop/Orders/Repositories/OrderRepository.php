@@ -57,6 +57,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     return false;
                 }
                 
+                if(!$this->validateTotal($params)) {
+                    
+                    return false;
+                }
+                
                 $blPriority = $params['channel']->has_priority;
 
                 $params['customer_ref'] = $customer_ref;
