@@ -138,13 +138,18 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
      * @param Channel $channel
      * @return boolean
      */
-    public function refundLinesForOrder(Request $request, Order $order, Channel $channel) {
+    public function refundLinesForOrder(Request $request, Order $order, Channel $channel, array $orderLines) {
 
         $refundAmount = 0;
 
-        foreach ($request->lineIds as $lineId) {
+        foreach ($orderLines as $orderProduct) {
+            
+            if(!in_array($orderProduct->id, $request->lineIds){
+                
+                continue;
+            }
 
-            $orderProduct = (new OrderProductRepository(new OrderProduct))->findOrderProductById($lineId);
+            //$orderProduct = (new OrderProductRepository(new OrderProduct))->findOrderProductById($lineId);
 
             $refundAmount += $orderProduct->product_price;
 
