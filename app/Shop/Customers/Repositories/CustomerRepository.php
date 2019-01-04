@@ -153,16 +153,12 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
     
     public function addCredit($customer_id, $amount) {
         
-        $customer = $this->findCustomerById($customer_id);
-        $credit = $customer->credit + $amount;
-        $customer->update(['credit' => $credit]);
+        Customer::find($customer_id)->increment('credit', $amount);
     }
     
-    public function removeCredit() {
+    public function removeCredit($customer_id, $amount) {
         
-        $customer = $this->findCustomerById($customer_id);
-        $credit = $customer->credit - $amount;
-        $customer->update(['credit' => $credit]);
+        Customer::find($customer_id)->decrement('loyalty_points', $amount);
     }
 
 }
