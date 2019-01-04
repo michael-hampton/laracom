@@ -178,9 +178,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         $total = $productTotal + $data['shipping'] + $data['tax'];
 
-//        if(!empty($data['discounts']) && $data['discounts'] > 0) {
-//            $total -= $data['discounts'];
-//        }
+        if(!empty($data['discounts']) && $data['discounts'] > 0) {
+            $total -= $data['discounts'];
+        }
 
 
         if (round($total, 2) !== round($data['total'], 2)) {
