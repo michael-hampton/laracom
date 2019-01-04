@@ -147,6 +147,17 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         
         return empty($result);
     }
+    
+    public function validateTotal($data) {
+        $shipping = Cart::getShippingFee();
+        $total = $shipping + $data['tax'] + $data['discounts'];
+        
+        if($total !== $data['total']) {
+            return false;
+        }
+        
+        return true;
+    }
 
     /**
      * Send email to customer
