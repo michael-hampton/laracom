@@ -119,13 +119,15 @@ class RefundController extends Controller {
 
         if($order->total_paid <= 0)  {
             
-            die('total cant be 0');
+            return response()->json(['error' => 'paid total cant be 0'], 404); // Status code here
+            
+            //die('total cant be 0');
         }
         
         $refundAmount = $this->refundRepo->refundLinesForOrder($request, $order, $channel);
         
         if(!$refundAmount) {
-            die('refund failed');
+            return response()->json(['error' => 'failed to update order lines'], 404); // Status code here
             
         }
         
@@ -149,13 +151,13 @@ class RefundController extends Controller {
 
                 if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount)) {
 
-                    die('cant do refund');
+                    return response()->json(['error' => 'failed to authorize'], 404); // Status code here
                 }
                 break;
 
             case 'stripe':
                 if (!(new StripeRepository($customer))->doRefund($order, $refundAmount)) {
-                    die('Cant do refund');
+                   return response()->json(['error' => 'failed to authorize'], 404); // Status code here
                 }
                 break;
         }
