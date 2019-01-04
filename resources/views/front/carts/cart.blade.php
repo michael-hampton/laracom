@@ -129,9 +129,10 @@ $('.use_voucher').on('click', function () {
          
          $.ajax({
                 type: "GET",
-                url: '/admin/refunds/doRefund',
+                url: '/admin/voucher-codes/validateVoucherCode'+voucherCode,
                 success: function (msg) {
                     alert(msg);
+                    location.reload();
                 }
             });
             });
