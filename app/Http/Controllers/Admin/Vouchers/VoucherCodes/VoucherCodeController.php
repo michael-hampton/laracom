@@ -184,7 +184,14 @@ class VoucherCodeController extends Controller {
         $result = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts);
 
         if (!$result) {
-           request()->session()->flash('message', 'Voucher could not be found');
+            
+            $arrErrors = $this->voucherCodeRepo->getValidationFailures();
+            
+            if(!empty($arrErrors)){
+                request()->session()->flash('message', implode('<br>', $arrErrors);
+            }
+           
+            request()->session()->flash('message', 'Voucher could not be found');                         request()->session()->flash('message', 'Voucher could not be found');
         }
     }
 
