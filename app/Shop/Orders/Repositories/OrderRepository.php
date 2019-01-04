@@ -57,7 +57,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     return false;
                 }
                 
-                if(!$this->validateTotal($params)) {
+                $items = Cart::content();
+                if(!$this->validateTotal($params, $items)) {
                     
                     return false;
                 }
@@ -70,6 +71,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             }
 
             $order = $this->create($params);
+            $orderRepo = new OrderRepository($order);
+            $orderRepo->buildOrderDetails($items);
 
             event(new OrderCreateEvent($order));
 
