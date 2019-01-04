@@ -92,7 +92,7 @@ class OrderLineController extends Controller {
         $statuses = $this->orderStatusRepo->listOrderStatuses();
         $couriers = $this->courierRepo->listCouriers();
         $customers = $this->customerRepo->listCustomers();
-        $list = $this->orderLineRepo->searchOrder($request);
+        $list = $this->orderLineRepo->searchOrderProducts($request);
         $orders = $this->orderLineRepo->paginateArrayResults($this->transFormOrder($list), 10);
         
         return view('admin.orders.list', [
