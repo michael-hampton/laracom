@@ -100,6 +100,8 @@
             <hr>
             <div class="row">
                 <div class="col-md-12">
+                <input type="text" class="form-control" id="voucher_code">
+                <button class="btn btn-default btn-block use_voucher">Use</button>
                     <div class="btn-group pull-right">
                         <a href="{{ route('home') }}" class="btn btn-default">Continue shopping</a>
                         <a href="{{ route('checkout.index') }}" class="btn btn-primary">Go to checkout</a>
