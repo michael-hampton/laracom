@@ -419,7 +419,7 @@ class OrderController extends Controller {
         ];
         
         if($blError === false) {
-            
+            return response()->json(['error' => $strMessage], 404); // Status code here
         }
 
         $postRepo = new OrderCommentRepository($order);
@@ -439,6 +439,10 @@ class OrderController extends Controller {
 
         request()->session()->flash('message', 'Delete successful');
         return redirect()->route('admin.channels.index');
+    }
+    
+    public function backorders() {
+        $items = $this->orderProductRepo->listOrderProducts()->where('status', 9);
     }
 
 }
