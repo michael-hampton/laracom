@@ -144,7 +144,7 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
 
 
         if (empty($results)) {
-
+$validationFailures[] = 'unable to find voucher code';
             return false;
         }
 
