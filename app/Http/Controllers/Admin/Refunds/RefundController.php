@@ -117,8 +117,30 @@ class RefundController extends Controller {
          $orderProducts = (new OrderProductRepository())->listOrderProducts()->where('order_id',$request->order_id);
          $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
 
-        if(!$this->refundRepo->refundLinesForOrder($request, $order, $channel)) {
+        if($order->total_paid <= 0)  {
+            
+            die('total cant be 0');
+        }
+        
+        $refundAmount = $this->refundRepo->refundLinesForOrder($request, $order, $channel);
+        
+        if(!$refundAmount) {
             die('refund failed');
+            
+        }
+        
+        $totalPaid = $order->total_paid - $refundAmount;
+        $refundAmount = $order->amount_refunded + $refundAmount;
+
+        $orderRepo = new OrderRepository($order);
+
+        $orderRepo->updateOrder(
+                [
+                    'total_paid' => $totalPaid,
+                    'amount_refunded' => $refundAmount,
+                    'order_status_id' => $order->status
+                ]
+        );
 
         $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
         
