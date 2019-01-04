@@ -156,3 +156,38 @@
 </section>
 <!-- /.content -->
 @endsection
+
+@section('js')
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        $('.do-allocation').on('click', function () {
+            
+            if ($('.cb:checked').length == 0)
+            {
+                alert('Please select atleast one checkbox');
+                return false;
+            }
+            var cb = [];
+            $.each($('.cb:checked'), function () {
+                cb.push($(this).val());
+            });
+            $.ajax({
+                type: "POST",
+                url: '/admin/refunds/doRefund',
+                data: {
+                    order_id: orderId,
+                    status: status,
+                    lineIds: cb,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (msg) {
+                    alert(msg);
+                }
+            });
+            return false;
+        });
+        });
+        </script>
+        @endsection;
+
