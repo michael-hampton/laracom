@@ -117,8 +117,26 @@ class RefundController extends Controller {
          $orderProducts = (new OrderProductRepository())->listOrderProducts()->where('order_id',$request->order_id);
          $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
 
-        $this->refundRepo->refundLinesForOrder($request, $order, $channel);
+        if(!$this->refundRepo->refundLinesForOrder($request, $order, $channel)) {
+            die('refund failed');
 
+        $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
+        
+            switch ($order->payment) {
+            case 'paypal':
+
+                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount)) {
+
+                    die('cant do refund');
+                }
+                break;
+
+            case 'stripe':
+                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount)) {
+                    die('Cant do refund');
+                }
+                break;
+        }
         $request->session()->flash('message', 'Creation successful');
     }
 
