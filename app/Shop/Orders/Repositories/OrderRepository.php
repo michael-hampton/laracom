@@ -301,23 +301,28 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     /**
      * @param Collection $items
      */
-    public function buildOrderDetails(Collection $items) {
+     public function buildOrderDetails(Collection $items) {
+        
         $items->each(function ($item) {
 
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item->id);
+            
+            $status = $product->quantity <= 0 ? 9 : 1;
+            
             if ($item->options->has('product_attribute_id')) {
                 $this->associateProduct($product, $item->qty, [
                     'product_attribute_id' => $item->options->product_attribute_id
                 ]);
+              
             } else {
-                $this->associateProduct($product, $item->qty);
+            
+            $this->associateProduct($product, $item->qty, $status);
             }
         });
 
         return true;
     }
-
     /**
      * 
      * @param array $items
