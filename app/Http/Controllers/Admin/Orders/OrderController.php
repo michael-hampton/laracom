@@ -442,7 +442,10 @@ class OrderController extends Controller {
     }
     
     public function backorders() {
-        $items = $this->orderProductRepo->listOrderProducts()->where('status', 9);
+        $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
+        $os = $orderStatusRepo->findByName('backorder');
+        
+        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id);
         $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrder($items), 10);
 
         $channels = $this->channelRepo->listChannels();
