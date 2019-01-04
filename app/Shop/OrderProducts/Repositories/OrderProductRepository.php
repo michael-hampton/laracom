@@ -171,7 +171,7 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
      * @param \App\Shop\OrderProducts\Repositories\Channel $channel
      * @param type $blReject
      */
-    public function updateStatus(Order $order, Channel $channel, int $status, bool $blReject = false) {
+    public function updateStatus(Order $order, Channel $channel = null, int $status, bool $blReject = false) {
         return $this->checkStatuses($order, $channel, $status, $blReject);
     }
 
@@ -182,7 +182,7 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
      * @param int $status
      * @param bool $blReject
      */
-    private function checkStatuses(Order $order, Channel $channel, int $status, bool $blReject = false) {
+    private function checkStatuses(Order $order, Channel $channel = null, int $status, bool $blReject = false) {
 
         $orderProducts = $this->listOrderProducts()->where('order_id', $order->id);
 
@@ -195,14 +195,14 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
             }
         }
         
-        if ($notSameStatus === 1) {
+        if ($channel === null || $notSameStatus === 1) {
             $order->status = $status;
             $this->updateOrderProduct(['status' => $status]);
 
             return true;
         }
 
-        if ((int) $channel->partial_shipment === 1 || $blReject === false) {
+        if ($channel === null || (int) $channel->partial_shipment === 1 || $blReject === false) {
             $this->updateOrderProduct(['status' => $status]);
             return true;
         }
