@@ -134,7 +134,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @param int $quantity
      * @param array $data
      */
-    public function associateProduct(Product $product, int $quantity = 1, array $data = []) {
+    public function associateProduct(Product $product, int $quantity = 1, int $status = 1, array $data = []) {
         $this->model->products()->attach($product, [
             'quantity' => $quantity,
             'product_name' => $product->name,
@@ -311,7 +311,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             $status = $product->quantity <= 0 ? 9 : 1;
             
             if ($item->options->has('product_attribute_id')) {
-                $this->associateProduct($product, $item->qty, [
+                $this->associateProduct($product, $item->qty, $status, [
                     'product_attribute_id' => $item->options->product_attribute_id
                 ]);
               
