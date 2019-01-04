@@ -6,7 +6,7 @@
 
     @include('layouts.errors-and-messages')
     <!-- Default box -->
-    @if($orders)
+   
     <div class="box">
         <div class="box-body">
             <h2>Backorders</h2>
@@ -87,7 +87,71 @@
         </div>
     </div>
     <!-- /.box -->
-    @endif
+    
+    <div class="box">
+        @if(!$items->isEmpty())
+        <div class="box-body">
+            <h4> <i class="fa fa-gift"></i> Items</h4>
+            <table class="table">
+                <thead>
+                <th class="col-md-2">SKU</th>
+                <th class="col-md-2">Name</th>
+                <th class="col-md-2">Description</th>
+                <th class="col-md-2">Quantity</th>
+                <th class="col-md-2">Price</th>
+                <th class="col-md-2">Status</th>
+                <th class="col-md-2">Actions</th>
+                </thead>
+                <tbody>
+
+
+                    @foreach($items as $item)
+
+                    <tr>
+                        <td>{{ $item->product_sku }}</td>
+                        <td>
+                            @if($item->status != 8)
+                            <select disabled="disabled" order-id="{{ $order->id }}" quantity="{{ $item->quantity }}" line-id="{{ $item->id }}" class="productSelect" class="form-control">
+                                @foreach($products as $product)
+                                @if($product->name == $item->product_name)
+                                <option selected="selected" value="{{ $product->id }}">{{ str_limit($product->name, 20, '...') }}</option>
+                                @else
+                                <option value="{{ $product->id }}">{{ str_limit($product->name, 20, '...') }}</option>
+                                @endif
+                                @endforeach
+                            </select>
+                            @endif
+
+                        </td>
+                        <td>{!! $item->product_description !!}</td>
+                        <td>{{ $item->quantity }}</td>
+                        <td>{{ $item->product_price }}</td>
+                        <td>
+                            @if($item->status != 8)
+                            <div class="input-group">
+                                <select name="line_status_id" order-id="{{ $order->id }}" line-id="{{ $item->id }}" class="line_status_id form-control select2">
+                                    @foreach($statuses as $status)
+                                    <option @if($item->status == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif;
+                        </td>
+
+
+
+                        <td>
+                            @if($item->status != 8)
+                            <input type="checkbox" class="cb" name="services[]" value="{{ $item->id }}">
+                            @endif;
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+    </div>
 
 </section>
 <!-- /.content -->
