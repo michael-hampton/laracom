@@ -169,22 +169,11 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
         }
        
         
-        $totalPaid = $order->total_paid - $refundAmount;
-        $refundAmount = $order->amount_refunded + $refundAmount;
-
-        $orderRepo = new OrderRepository($order);
-
-        $orderRepo->updateOrder(
-                [
-                    'total_paid' => $totalPaid,
-                    'amount_refunded' => $refundAmount,
-                    'order_status_id' => $order->status
-                ]
-        );
+        
 
         //event(new RefundsCreateEvent($order));
 
-        return true;
+        return $refundAmount;
     }
 
 }
