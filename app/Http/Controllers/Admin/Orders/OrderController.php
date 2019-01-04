@@ -304,6 +304,7 @@ class OrderController extends Controller {
             'order_status_id' => 10,
             'payment' => 'import',
             'discounts' => 0,
+            'shipping' => 0,
             'total_products' => 1,
             'total' => $request->total,
             'total_paid' => $request->total,
@@ -361,6 +362,17 @@ class OrderController extends Controller {
     }
 
     /**
+     * @param Collection $list
+     * @return array
+     */
+    private function transFormOrderLines(Collection $list) {
+        return $list->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
+
+                    return $order;
+                })->all();
+    }
+
+    /**
      * 
      * @param Request $request
      */
@@ -391,20 +403,19 @@ class OrderController extends Controller {
 
         $newOrder = $this->orderRepo->cloneOrder($order, $channel);
         $blError = false;
-        
+
         if (!$newOrder) {
             $strMessage = 'failed to create rma order';
-           
-             $data = [
+
+            $data = [
                 'content' => $strMessage,
                 'user_id' => auth()->guard('admin')->user()->id
             ];
 
             $postRepo = new OrderCommentRepository($order);
             $postRepo->createComment($data);
-        
         }
-        
+
         $orderId = $newOrder->id;
         $strMessage = $orderId . 'was created as RMA';
 
@@ -412,19 +423,20 @@ class OrderController extends Controller {
             $strMessage .= 'failed to clone order lines';
             $blError = true;
         }
-        
-         $data = [
+
+        $data = [
             'content' => $strMessage,
             'user_id' => auth()->guard('admin')->user()->id
         ];
-        
-        if($blError === false) {
-            return response()->json(['error' => $strMessage], 404); // Status code here
-        }
+
+        $order->update(['customer_ref' => 'RMA_' . md5(uniqid(mt_rand(), true) . microtime(true))]);
 
         $postRepo = new OrderCommentRepository($order);
         $postRepo->createComment($data);
 
+        if ($blError === true) {
+            return response()->json(['error' => $strMessage], 404); // Status code here
+        }
     }
 
     /**
@@ -440,18 +452,20 @@ class OrderController extends Controller {
         request()->session()->flash('message', 'Delete successful');
         return redirect()->route('admin.channels.index');
     }
-    
+
     public function backorders() {
+
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
-        $os = $orderStatusRepo->findByName('backorder');
-        
+        $os = $orderStatusRepo->findByName('Backorder');
+
         $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id);
-        $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrder($items), 10);
+
+        $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
         $channels = $this->channelRepo->listChannels();
-        
+
         return view('admin.orders.backorders', [
-            'orders' => $orders,
+            'items' => $items,
             'channels' => $channels
                 ]
         );

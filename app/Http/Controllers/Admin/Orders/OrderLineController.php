@@ -76,25 +76,25 @@ class OrderLineController extends Controller {
         $orderProductRepo->updateProduct($product, $orderProduct);
 
         $data = [
-            'content' => $orderProduct->product_name . ' changed to ' $product->name,
-            'user_id' => auth()->guard('admin')->user()->id
+        'content' => $orderProduct->product_name . ' changed to ' $product->name,
+        'user_id' => auth()->guard('admin')->user()->id
         ];
 
         $postRepo = new OrderCommentRepository($order);
         $postRepo->createComment($data);
-        
+
         return redirect()->route('admin.orders.edit', $request->orderId);
     }
-    
+
     public function search(Request $request) {
-        
+
         $channels = $this->channelRepo->listChannels();
         $statuses = $this->orderStatusRepo->listOrderStatuses();
         $couriers = $this->courierRepo->listCouriers();
         $customers = $this->customerRepo->listCustomers();
         $list = $this->orderLineRepo->searchOrderProducts($request);
         $orders = $this->orderLineRepo->paginateArrayResults($this->transFormOrder($list), 10);
-        
+
         return view('admin.orders.list', [
             'orders' => $orders,
             'channels' => $channels,
@@ -104,9 +104,9 @@ class OrderLineController extends Controller {
                 ]
         );
     }
-    
+
     public function allocateStock() {
-        
+
         die('do allocation');
     }
 

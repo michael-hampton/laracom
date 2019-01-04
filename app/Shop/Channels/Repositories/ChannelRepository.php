@@ -8,13 +8,11 @@ use App\Shop\Channels\Exceptions\ChannelNotFoundException;
 use App\Shop\Channels\Channel;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\Products\Product;
-use App\Shop\Products\Transformations\ProductTransformable;
 use App\Shop\Channels\Transformations\ChannelTransformable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class ChannelRepository extends BaseRepository implements ChannelRepositoryInterface {
 
@@ -195,6 +193,15 @@ class ChannelRepository extends BaseRepository implements ChannelRepositoryInter
      */
     public function channelsWithoutEmployee(): Collection {
         return $this->model->doesntHave('employees')->get();
+    }
+
+    /**
+     * 
+     * @param string $name
+     * @return type
+     */
+    public function findByName(string $name) {
+        return $this->model->where('name', $name)->first();
     }
 
 }

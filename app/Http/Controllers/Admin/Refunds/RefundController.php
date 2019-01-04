@@ -4,6 +4,11 @@ namespace App\Http\Controllers\Admin\Refunds;
 
 use App\Shop\Refunds\Refund;
 use App\Shop\Refunds\Repositories\RefundRepository;
+use App\Shop\Comments\OrderCommentRepository;
+use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\Customers\Customer;
+use App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository;
+use App\Shop\PaymentMethods\Stripe\StripeRepository;
 use App\Shop\Refunds\Repositories\Interfaces\RefundRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\Refunds\Requests\CreateRefundRequest;
@@ -12,6 +17,8 @@ use App\Shop\Refunds\Transformations\RefundTransformable;
 use App\Shop\Orders\Order;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\Channels\Channel;
+use App\Shop\OrderProducts\Repositories\OrderProductRepository;
+use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use Illuminate\Http\Request;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
@@ -112,25 +119,23 @@ class RefundController extends Controller {
      * @param CreateRefundRequest $request
      */
     public function doRefund(Request $request) {
-        
-         $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
-         $orderProducts = (new OrderProductRepository())->listOrderProducts()->where('order_id',$request->order_id);
-         $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
 
-        if($order->total_paid <= 0)  {
-            
+        $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
+        $orderProducts = (new OrderProductRepository(new OrderProduct))->listOrderProducts()->where('order_id', $request->order_id);
+        $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
+
+        if ($order->total_paid <= 0) {
+
             return response()->json(['error' => 'paid total cant be 0'], 404); // Status code here
-            
             //die('total cant be 0');
         }
-        
-        $refundAmount = $this->refundRepo->refundLinesForOrder($request, $order, $channel);
-        
-        if(!$refundAmount) {
+
+        $refundAmount = $this->refundRepo->refundLinesForOrder($request, $order, $channel, $orderProducts);
+
+        if (!$refundAmount) {
             return response()->json(['error' => 'failed to update order lines'], 404); // Status code here
-            
         }
-        
+
         $totalPaid = $order->total_paid - $refundAmount;
         $refundAmount = $order->amount_refunded + $refundAmount;
 
@@ -143,13 +148,21 @@ class RefundController extends Controller {
                     'order_status_id' => $order->status
                 ]
         );
-        
-        if(!authorizePayment($order)) {
-            
-             return response()->json(['error' => 'failed to authorize payment'], 404); // Status code here
+
+        $data = [
+            'content' => 'Order refund created',
+            'user_id' => auth()->guard('admin')->user()->id
+        ];
+
+        $postRepo = new OrderCommentRepository($order);
+        $postRepo->createComment($data);
+
+        if (!$this->authorizePayment($order)) {
+
+            return response()->json(['error' => 'failed to authorize payment'], 404); // Status code here
         }
 
-      
+
         $request->session()->flash('message', 'Creation successful');
     }
 
@@ -193,27 +206,27 @@ class RefundController extends Controller {
         $request->session()->flash('message', 'Update successful');
         return redirect()->route('admin.refunds.edit', $id);
     }
-    
+
     private function authorizePayment(Order $order) {
-        
-          $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
-        
-            switch ($order->payment) {
+
+        $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
+
+        switch ($order->payment) {
             case 'paypal':
 
-                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount)) {
+                if (!(new PayPalExpressCheckoutRepository())->doRefund($order)) {
 
                     return response()->json(['error' => 'failed to authorize'], 404); // Status code here
                 }
                 break;
 
             case 'stripe':
-                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount)) {
-                   return response()->json(['error' => 'failed to authorize'], 404); // Status code here
+                if (!(new StripeRepository($customer))->doRefund($order)) {
+                    return response()->json(['error' => 'failed to authorize'], 404); // Status code here
                 }
                 break;
         }
-        
+
         return true;
     }
 

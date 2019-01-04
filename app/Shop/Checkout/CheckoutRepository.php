@@ -17,9 +17,10 @@ class CheckoutRepository {
     public function buildCheckoutItems(array $data): Order {
         $orderRepo = new OrderRepository(new Order);
         $cartRepo = new CartRepository(new ShoppingCart);
-                
+
         $order = $orderRepo->createOrder([
             'reference' => $data['reference'],
+            'shipping' => $data['shipping'],
             'courier_id' => $data['courier_id'],
             'customer_id' => $data['customer_id'],
             'voucher_code' => !empty($data['voucher_id']) ? $data['voucher_id']->id : null,

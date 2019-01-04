@@ -5,15 +5,9 @@ namespace App\Shop\Refunds\Repositories;
 use App\Shop\Refunds\Refund;
 use App\Events\RefundsCreateEvent;
 use App\Shop\Orders\Order;
-use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
-use App\Shop\Customers\Repositories\CustomerRepository;
-use App\Shop\Customers\Customer;
 use App\Shop\Channels\Channel;
-use App\Shop\Orders\Repositories\OrderRepository;
 use App\Events\OrderCreateEvent;
-use App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository;
-use App\Shop\PaymentMethods\Stripe\StripeRepository;
 use Illuminate\Http\Request;
 use App\Shop\Refunds\Exceptions\RefundInvalidArgumentException;
 use App\Shop\Refunds\Exceptions\RefundNotFoundException;
@@ -138,13 +132,13 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
      * @param Channel $channel
      * @return boolean
      */
-    public function refundLinesForOrder(Request $request, Order $order, Channel $channel = null, array $orderLines) {
+    public function refundLinesForOrder(Request $request, Order $order, Channel $channel = null, Collection $orderLines) {
 
         $refundAmount = 0;
 
         foreach ($orderLines as $orderProduct) {
             
-            if(!in_array($orderProduct->id, $request->lineIds){
+            if(!in_array($orderProduct->id, $request->lineIds)){
                 
                 continue;
             }
@@ -158,7 +152,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             $data = [];
             $data['date_refunded'] = date('Y-m-d'); //add request
             $data['quantity'] = $orderProduct->quantity;
-            $data['line_id'] = $lineId;
+            $data['line_id'] = $orderProduct->id;
             $data['order_id'] = $request->order_id;
             $data['status'] = $request->status;
             $data['amount'] = $orderProduct->product_price;

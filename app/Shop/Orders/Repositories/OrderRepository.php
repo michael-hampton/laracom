@@ -2,6 +2,7 @@
 
 namespace App\Shop\Orders\Repositories;
 
+use Gloudemans\Shoppingcart\Facades\Cart;
 use App\Shop\Base\BaseRepository;
 use App\Shop\Employees\Employee;
 use App\Shop\Employees\Repositories\EmployeeRepository;
@@ -17,13 +18,11 @@ use App\Shop\Orders\Order;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\Orders\Transformers\OrderTransformable;
 use App\Shop\PaymentMethods\PaymentMethod;
-use App\Shop\OrderStatuses\OrderStatus;
 use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\ProductRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface {
@@ -41,28 +40,32 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
     /**
      * Create the order
-     *
      * @param array $params
+     * @param bool $blManualOrder
      * @return Order
      * @throws OrderInvalidArgumentException
+     * @throws \Exception
      */
-    public function createOrder(array $params): Order {
+    public function createOrder(array $params, bool $blManualOrder = false): Order {
         try {
 
             if (isset($params['channel']) && !empty($params['channel'])) {
                 $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
-               
-                if(!$this->validateCustomerRef($customer_ref)){
-                    
-                    return false;
+
+                if (!$this->validateCustomerRef($customer_ref)) {
+
+                    throw new \Exception('Unable to validate customer order ref');
                 }
-                
-                $items = Cart::content();
-                if(!$this->validateTotal($params, $items)) {
-                    
-                    return false;
+
+                if ($blManualOrder === false) {
+                    $items = Cart::content();
+
+                    if (!$this->validateTotal($params, $items)) {
+
+                        throw new \Exception('Invalid order total');
+                    }
                 }
-                
+
                 $blPriority = $params['channel']->has_priority;
 
                 $params['customer_ref'] = $customer_ref;
@@ -71,8 +74,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             }
 
             $order = $this->create($params);
-            $orderRepo = new OrderRepository($order);
-            $orderRepo->buildOrderDetails($items);
 
             event(new OrderCreateEvent($order));
 
@@ -149,27 +150,44 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         return true;
     }
-    
+
+    /**
+     * 
+     * @param type $customerRef
+     * @return type
+     * @throws Exception
+     */
     private function validateCustomerRef($customerRef) {
-        $result = $this->listOrders()->where('customer_ref', $customerRef);
-        
-        return empty($result);
+
+        try {
+            $result = $this->listOrders()->where('customer_ref', $customerRef);
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
+        }
+
+        return $result->isEmpty();
     }
-    
+
     private function validateTotal($data, $cartItems) {
-        $shipping = Cart::getShippingFee();
         $productTotal = 0;
-        
-        foreach($cartItems as $cartItem) {
+
+        foreach ($cartItems as $cartItem) {
+
             $productTotal += $cartItem->price;
         }
-        
-        $total = $shipping + $data['tax'] + $data['discounts'];
-        
-        if($total !== $data['total']) {
+
+        $total = $productTotal + $data['shipping'] + $data['tax'];
+
+//        if(!empty($data['discounts']) && $data['discounts'] > 0) {
+//            $total -= $data['discounts'];
+//        }
+
+
+        if (round($total, 2) !== round($data['total'], 2)) {
+
             return false;
         }
-        
+
         return true;
     }
 
@@ -196,15 +214,16 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         Mail::to($employee)
                 ->send(new sendEmailNotificationToAdminMailable($this->findOrderById($this->model->id)));
     }
-    
+
     /**
      * Send email to customer
      */
     public function sendRefundEmailToCustomer() {
-                
+
         Mail::to($this->model->customer)
                 ->send(new SendRefundToCustomerMailable($this->findOrderById($this->model->id)));
     }
+
     /**
      * Send email notification to the admin
      */
@@ -214,7 +233,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return true;
         Mail::to($employee)
                 ->send(new sendEmailNotificationToAdminMailable($this->findOrderById($this->model->id)));
-    }    
+    }
 
     /**
      * 
@@ -301,34 +320,35 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     /**
      * @param Collection $items
      */
-     public function buildOrderDetails(Collection $items) {
-        
+    public function buildOrderDetails(Collection $items) {
+
         $items->each(function ($item) {
 
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item->id);
-            
-            $status = $product->quantity <= 0 ? 9 : 1;
-            
+
+            $status = $product->quantity <= 0 ? 11 : 1;
+
             if ($item->options->has('product_attribute_id')) {
                 $this->associateProduct($product, $item->qty, $status, [
                     'product_attribute_id' => $item->options->product_attribute_id
                 ]);
-              
             } else {
-            
-            $this->associateProduct($product, $item->qty, $status);
+
+                $this->associateProduct($product, $item->qty, $status);
             }
         });
 
         return true;
     }
+
     /**
      * 
      * @param array $items
      * @return boolean
      */
     public function buildOrderLinesForManualOrder(array $items) {
+
         foreach ($items as $item) {
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item['id']);
@@ -338,6 +358,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return true;
     }
 
+    /**
+     * 
+     * @param Order $order
+     * @param Channel $channel
+     * @return type
+     */
     public function cloneOrder(Order $order, Channel $channel) {
 
         return $this->createOrder([
@@ -354,7 +380,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     'total_shipping' => $order->total_shipping,
                     'tax' => $order->tax,
                     'channel' => $channel
-        ]);
+                        ], true);
     }
 
     /**

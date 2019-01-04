@@ -99,9 +99,14 @@
             </table>
             <hr>
             <div class="row">
+
+                <div class="col-lg-3">
+                    <input type="text" placeholder="Enter Voucher Code"class="form-control" id="voucher_code">
+                    <button class="btn btn-default btn-block use_voucher pull-right">Use</button>
+                </div>
+
                 <div class="col-md-12">
-                <input type="text" class="form-control" id="voucher_code">
-                <button class="btn btn-default btn-block use_voucher">Use</button>
+
                     <div class="btn-group pull-right">
                         <a href="{{ route('home') }}" class="btn btn-default">Continue shopping</a>
                         <a href="{{ route('checkout.index') }}" class="btn btn-primary">Go to checkout</a>
@@ -123,19 +128,19 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
-$('.use_voucher').on('click', function () {
-         
-         var voucherCode = $('#voucher_code').val();
-         
-         $.ajax({
+        $('.use_voucher').on('click', function () {
+
+            var voucherCode = $('#voucher_code').val();
+
+            $.ajax({
                 type: "GET",
-                url: '/admin/voucher-codes/validateVoucherCode'+voucherCode,
+                url: '/admin/voucher-codes/validate/' + voucherCode,
                 success: function (msg) {
                     alert(msg);
                     location.reload();
                 }
             });
-            });
-            });
-            </script>
-            @endsection
+        });
+    });
+</script>
+@endsection

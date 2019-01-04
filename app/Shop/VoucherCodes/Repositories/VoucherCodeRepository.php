@@ -17,7 +17,11 @@ use Illuminate\Support\Facades\DB;
 class VoucherCodeRepository extends BaseRepository implements VoucherCodeRepositoryInterface {
 
     use VoucherCodeTransformable;
-    
+
+    /**
+     *
+     * @var type 
+     */
     private $validationFailures = [];
 
     /**
@@ -28,9 +32,9 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
         parent::__construct($voucherCode);
         $this->model = $voucherCode;
     }
-    
+
     public function getValidationFailures() {
-        return $validationFailures;
+        return $this->validationFailures;
     }
 
     /**
@@ -144,15 +148,15 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
 
 
         if (empty($results)) {
-$validationFailures[] = 'unable to find voucher code';
+            $this->validationFailures[] = 'unable to find voucher code';
             return false;
         }
 
-        if(!$this->validateVoucherScopes($results, $cartProducts)) {
-            $validationFailures[] = 'unable to validate voucher code';
+        if (!$this->validateVoucherScopes($results, $cartProducts)) {
+            $this->validationFailures[] = 'unable to validate voucher code';
             return false;
         }
-        
+
         request()->session()->put('voucherCode', $results[0]->id);
 
         return true;

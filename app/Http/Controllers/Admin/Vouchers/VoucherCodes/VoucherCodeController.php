@@ -166,10 +166,10 @@ class VoucherCodeController extends Controller {
      * @param type $voucherCode
      */
     public function validateVoucherCode($voucherCode) {
-        
+
         $cartRepo = new CartRepository(new ShoppingCart);
-        
-         $cartProducts = $cartRepo->getCartItems()->map(function (CartItem $item) {
+
+        $cartProducts = $cartRepo->getCartItems()->map(function (CartItem $item) {
             $productRepo = new ProductRepository(new Product());
             $product = $productRepo->findProductById($item->id);
             $item->product = $this->transformProduct($product);
@@ -177,21 +177,21 @@ class VoucherCodeController extends Controller {
             return $item;
         });
 
-        $channel = env('CHANNEL');
         $channelRepo = new ChannelRepository(new Channel);
-        $channel = $channelRepo->listChannels()->where('name', $channel)->first();
-
+        $channel = $channelRepo->findByName(env('CHANNEL'));
+        
         $result = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts);
 
         if (!$result) {
-            
+
             $arrErrors = $this->voucherCodeRepo->getValidationFailures();
-            
-            if(!empty($arrErrors)){
-                request()->session()->flash('message', implode('<br>', $arrErrors);
+
+            if (!empty($arrErrors)) {
+                
+                return response()->json(['error' => implode('<br>', $arrErrors)], 404); // Status code here
             }
-           
-            request()->session()->flash('message', 'Voucher could not be found');                         request()->session()->flash('message', 'Voucher could not be found');
+            
+            return response()->json(['error' => 'Voucher could not be found'], 404);
         }
     }
 

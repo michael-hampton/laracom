@@ -121,6 +121,7 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
      * @return mixed
      */
     public function getShippingFee(Courier $courier) {
+        
         return number_format($courier->cost, 2);
     }
     

@@ -114,12 +114,12 @@ class BankTransferController extends Controller {
         $this->voucherRepo = $voucherRepository;
 
         if ($request->has('voucherCode')) {
-            
+
             $voucherCode = $request->input('voucherCode');
-                    
-            $this->voucherId = null;      
-            
-            if(!empty($voucherCode)) {
+
+            $this->voucherId = null;
+
+            if (!empty($voucherCode)) {
                 $this->voucherId = $this->voucherRepo->findVoucherById($voucherCode);
             }
         }
@@ -162,20 +162,21 @@ class BankTransferController extends Controller {
         $objChannel = Channel::where('name', $channel)->first();
 
         $order = $checkoutRepo->buildCheckoutItems([
-        'reference' => Uuid::uuid4()->toString(),
-        'courier_id' => 1, // @deprecated
-        'customer_id' => $request->user()->id,
-        'address_id' => $request->input('billing_address'),
-        'order_status_id' => $os->id,
-        'payment' => strtolower(config('bank-transfer.name')),
-        'discounts' => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
-        'voucher_id' => $this->voucherId,
-        'total_products' => $this->cartRepo->getSubTotal(),
-        'total' => $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId),
-        'total_shipping' => $this->shippingFee,
-        'total_paid' => 0,
-        'channel' => $objChannel,
-        'tax' => $this->cartRepo->getTax()
+            'reference' => Uuid::uuid4()->toString(),
+            'courier_id' => 1, // @deprecated
+            'customer_id' => $request->user()->id,
+            'address_id' => $request->input('billing_address'),
+            'order_status_id' => $os->id,
+            'payment' => strtolower(config('bank-transfer.name')),
+            'shipping' => $this->shippingFee,
+            'discounts' => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
+            'voucher_id' => $this->voucherId,
+            'total_products' => $this->cartRepo->getSubTotal(),
+            'total' => $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId),
+            'total_shipping' => $this->shippingFee,
+            'total_paid' => 0,
+            'channel' => $objChannel,
+            'tax' => $this->cartRepo->getTax()
         ]);
 
         if (env('ACTIVATE_SHIPPING') == 1) {
