@@ -141,9 +141,7 @@
 
 
                         <td>
-                            @if($item->status != 8)
                             <input type="checkbox" class="cb" name="services[]" value="{{ $item->id }}">
-                            @endif;
                         </td>
                     </tr>
                     @endforeach
