@@ -119,6 +119,10 @@
     @endif
 </div>
 @endsection
+
+@section('js')
+<script type="text/javascript">
+    $(document).ready(function () {
 $('.use_voucher').on('click', function () {
          
          var voucherCode = $('#voucher_code').val();
@@ -131,3 +135,5 @@ $('.use_voucher').on('click', function () {
                 }
             });
             });
+            });
+            </script>
