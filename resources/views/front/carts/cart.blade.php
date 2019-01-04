@@ -138,3 +138,4 @@ $('.use_voucher').on('click', function () {
             });
             });
             </script>
+            @endsection
