@@ -164,13 +164,15 @@ class BankTransferController extends Controller {
         $os = $orderStatusRepo->findByName('ordered');
 
         $total = $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId);
+        $total_paid = 0;
 
         if ($customer->customer_type === 'credit') {
 
-            if ($customer->credit <= 0) {
+            if ($customer->credit <= $total) {
                 $os = $orderStatusRepo->findByName('Insufficient Credit');
             } else {
-                 $customerRepo->removeCredit($customer->id, $total);
+                $customerRepo->removeCredit($customer->id, $total);
+                $total_paid = $total;
             }
         }
 
@@ -189,7 +191,7 @@ class BankTransferController extends Controller {
             'total_products' => $this->cartRepo->getSubTotal(),
             'total' => $total,
             'total_shipping' => $this->shippingFee,
-            'total_paid' => 0,
+            'total_paid' => $total_paid,
             'channel' => $objChannel,
             'tax' => $this->cartRepo->getTax()
         ]);

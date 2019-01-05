@@ -37,6 +37,7 @@ trait ProductTransformable {
         $prod->description = $product->description;
         $prod->cover = asset("storage/$product->cover");
         $prod->quantity = $product->quantity;
+        $prod->reserved_stock = $product->reserved_stock;
         $prod->price = isset($price) ? $price : $product->price;
         $prod->status = $product->status;
         $prod->weight = (float) $product->weight;

@@ -32,6 +32,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     use OrderTransformable;
 
     /**
+     *
+     * @var type 
+     */
+    private $allocate_on_order = false;
+
+    /**
      * OrderRepository constructor.
      * @param Order $order
      */
@@ -138,6 +144,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @param array $data
      */
     public function associateProduct(Product $product, int $quantity = 1, int $status = 1, array $data = []) {
+       
+        var_dump($this->allocate_on_order);
+        
         $this->model->products()->attach($product, [
             'quantity' => $quantity,
             'product_name' => $product->name,
@@ -148,8 +157,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             'product_attribute_id' => isset($data['product_attribute_id']) ? $data['product_attribute_id'] : null,
         ]);
 
-        $product->quantity = ($product->quantity - $quantity);
-        $product->save();
+        if ($this->allocate_on_order === true) {
+            $product->quantity = ($product->quantity - $quantity);
+            $product->save();
+        }
 
         return true;
     }
@@ -338,23 +349,28 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item->id);
 
+            $totalStock = $product->quantity - $product->reserved_stock;
             $status = 5;
 
-            if ($blOrderHung === true || ($product->quantity <= 0 &&
+            $this->allocate_on_order = $channel->allocate_on_order === 1 ? true : false;
+            
+            if (!is_null($channel) && $channel->allocate_on_order === 0) {
+                $status = 14;
+            } elseif ($blOrderHung === true || ($totalStock <= 0 &&
                     $blOrderHung === false &&
                     !is_null($channel) &&
                     (int) $channel->backorders_enabled === 0)
             ) {
                 $status = 13;
                 $blOrderHung = true;
-            } elseif ($product->quantity <= 0 &&
+            } elseif ($totalStock <= 0 &&
                     !is_null($channel) &&
                     (int) $channel->backorders_enabled === 1 &&
                     $channel->partial_shipment === 0
             ) {
                 $status = 11;
                 $blBackorderAllItems++;
-            } elseif ($product->quantity <= 0 &&
+            } elseif ($totalStock <= 0 &&
                     !is_null($channel) &&
                     (int) $channel->backorders_enabled === 1 &&
                     $channel->partial_shipment === 1
@@ -378,8 +394,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             }
         }
 
-        if ($blOrderHung === true) {
-           $order->order_status_id = 13;
+        if ($blOrderHung === true && $order->order_status_id !== 12) {
+            $order->order_status_id = 13;
             $order->save();
         }
 
@@ -396,7 +412,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         foreach ($items as $item) {
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item['id']);
-            $this->associateProduct($product, $item['quantity']);
+            $this->allocate_on_order = false;
+            $this->associateProduct($product, $item['quantity'], 14);
         }
 
         return true;

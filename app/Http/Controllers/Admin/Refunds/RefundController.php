@@ -124,11 +124,15 @@ class RefundController extends Controller {
         $orderProducts = (new OrderProductRepository(new OrderProduct))->listOrderProducts()->where('order_id', $request->order_id);
         $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
 
-        if ($order->total_paid <= 0) {
+//        if ($order->total_paid <= 0) {
+//
+//            return response()->json(['error' => 'paid total cant be 0'], 404); // Status code here
+//            //die('total cant be 0');
+//        }
 
-            return response()->json(['error' => 'paid total cant be 0'], 404); // Status code here
-            //die('total cant be 0');
-        }
+        $objCustomerRepository = new CustomerRepository(new Customer);
+
+        $customer = $objCustomerRepository->findCustomerById($order->customer_id);
 
         $refundAmount = $this->refundRepo->refundLinesForOrder($request, $order, $channel, $orderProducts);
 
@@ -157,9 +161,14 @@ class RefundController extends Controller {
         $postRepo = new OrderCommentRepository($order);
         $postRepo->createComment($data);
 
-        if (!$this->authorizePayment($order)) {
+        if (!$this->authorizePayment($order, $customer)) {
 
             return response()->json(['error' => 'failed to authorize payment'], 404); // Status code here
+        }
+
+        if ($customer->customer_type == 'credit') {
+
+            $objCustomerRepository->addCredit($customer->id, 10);
         }
 
 
@@ -207,9 +216,15 @@ class RefundController extends Controller {
         return redirect()->route('admin.refunds.edit', $id);
     }
 
-    private function authorizePayment(Order $order) {
+    /**
+     * 
+     * @param Order $order
+     * @param Customer $customer
+     * @return boolean
+     */
+    private function authorizePayment(Order $order, Customer $customer) {
 
-        $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer_id);
+        return true;
 
         switch ($order->payment) {
             case 'paypal':

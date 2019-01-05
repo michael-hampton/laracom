@@ -109,9 +109,10 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
      * @param Order $order
      * @param Order $newOrder
      * @param array $lineIds
+     * @param type $blDeleteOriginal
      * @return boolean
      */
-    public function cloneOrderLines(Order $order, Order $newOrder, array $lineIds = []) {
+    public function cloneOrderLines(Order $order, Order $newOrder, array $lineIds = [], $blDeleteOriginal = false) {
 
         $lines = $this->listOrderProducts()->where('order_id', $order->id);
 
@@ -144,12 +145,16 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
 
                 return false;
             }
+
+            if ($blDeleteOriginal === true) {
+                $line->delete();
+            }
         }
 
         return true;
     }
-    
-        /**
+
+    /**
      * 
      * @param Request $request
      * @return Collection
@@ -232,7 +237,7 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
                 $notSameStatus++;
             }
         }
-        
+
         if ($channel === null || $notSameStatus === 1) {
             $order->status = $status;
             $this->updateOrderProduct(['status' => $status]);

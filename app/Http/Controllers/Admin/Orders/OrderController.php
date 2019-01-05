@@ -301,7 +301,7 @@ class OrderController extends Controller {
             'customer_id' => $customer->id,
             'voucher_code' => null,
             'address_id' => $deliveryAddress->id,
-            'order_status_id' => 10,
+            'order_status_id' => 14,
             'payment' => 'import',
             'discounts' => 0,
             'shipping' => 0,
@@ -397,8 +397,7 @@ class OrderController extends Controller {
      */
     public function cloneOrder(Request $request) {
 
-        $channel = env('CHANNEL');
-        $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
+        $channel = $this->channelRepo->findByName(env('CHANNEL'));
         $order = $this->orderRepo->findOrderById($request->order_id);
 
         $newOrder = $this->orderRepo->cloneOrder($order, $channel);
@@ -419,7 +418,7 @@ class OrderController extends Controller {
         $orderId = $newOrder->id;
         $strMessage = $orderId . 'was created as RMA';
 
-        if (!$this->orderProductRepo->cloneOrderLines($order, $newOrder, $request->lineIds)) {
+        if (!$this->orderProductRepo->cloneOrderLines($order, $newOrder, $request->lineIds, true)) {
             $strMessage .= 'failed to clone order lines';
             $blError = true;
         }
