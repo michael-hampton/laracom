@@ -20,6 +20,19 @@
                             <input type="text" name="email" id="email" placeholder="Email" class="form-control" value="{!! $customer->email ?: old('email')  !!}">
                         </div>
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="credit">Credit<span class="text-danger">*</span></label>
+                        <input type="text" name="credit" id="credit" placeholder="Credit" class="form-control" value="{!! $customer->credit ?: old('credit')  !!}">
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Customer Type </label>
+                        <select name="customer_type" id="customer_type" class="form-control">
+                            <option value="standard" @if($customer->customer_type == 'standard') selected="selected" @endif>Standard</option>
+                            <option value="credit" @if($customer->customer_type == 'credit') selected="selected" @endif>Credit Only</option>
+                        </select>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="password">Password <span class="text-danger">*</span></label>
                         <input type="password" name="password" id="password" placeholder="xxxxx" class="form-control">
