@@ -108,6 +108,7 @@ class OrderLineController extends Controller {
     public function allocateStock() {
         
         $productRepo = new ProductRepository();
+        $arrDone = [];
         
         foreach($arrLines as $arrLine) {
               $arrProducts = $this->orderLineRepo->listOrderProducts('order_id', $arrLine['order_id'])->where('status', 11);
@@ -127,12 +128,16 @@ class OrderLineController extends Controller {
             if($total > 0 && $channel->partial_shipment === 0) {
                 
             } elseif($total > 0 && $channel->partial_shipment === 1) {
-                $objLine2 = $this->orderLineRepo->findOrderProductById($request->lineId);
+                $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id]);
+                $objLine2->status = 12;
+                $objLine2->save();
             } else {
                 foreach($arrProducts as $objLine2) {
                     $objLine->status = 12;
                     $objLine->save();
                 }
+                
+                $arrDone[] = $arrLine['order_id'];
                 
                 return true;
             }
