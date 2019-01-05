@@ -247,5 +247,24 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
 
         return false;
     }
+    
+    /**
+     * 
+     * @param Order $order
+     * @return boolean
+     */
+    public function backorderAllItems(Order $order) {
+        $orderedProducts = $this->listOrderProducts()->where('order_id', $order->id);
+        
+        if(!empty($orderedProducts)) {
+            
+            foreach ($orderedProducts as $orderedProducts) {
+                $orderedProducts->status = 7;
+                $orderedProducts->save();
+            }
+        }
+        
+        return true;
+    }
 
 }

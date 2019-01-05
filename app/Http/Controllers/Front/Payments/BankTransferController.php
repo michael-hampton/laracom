@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Checkout\CheckoutRepository;
+use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\Customers\Customer;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\OrderStatuses\OrderStatus;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
@@ -155,11 +157,24 @@ class BankTransferController extends Controller {
     public function store(Request $request) {
         $checkoutRepo = new CheckoutRepository;
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
+
+        $customerRepo = new CustomerRepository(new Customer);
+        $customer = $customerRepo->findCustomerById($request->user()->id);
+
         $os = $orderStatusRepo->findByName('ordered');
 
-        $channel = env('CHANNEL');
+        $total = $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId);
 
-        $objChannel = Channel::where('name', $channel)->first();
+        if ($customer->customer_type === 'credit') {
+
+            if ($customer->credit <= 0) {
+                $os = $orderStatusRepo->findByName('Insufficient Credit');
+            } else {
+                 $customerRepo->removeCredit($customer->id, $total);
+            }
+        }
+
+        $objChannel = $this->channelRepo->findByName(env('CHANNEL'));
 
         $order = $checkoutRepo->buildCheckoutItems([
             'reference' => Uuid::uuid4()->toString(),
@@ -172,7 +187,7 @@ class BankTransferController extends Controller {
             'discounts' => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
             'voucher_id' => $this->voucherId,
             'total_products' => $this->cartRepo->getSubTotal(),
-            'total' => $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId),
+            'total' => $total,
             'total_shipping' => $this->shippingFee,
             'total_paid' => 0,
             'channel' => $objChannel,

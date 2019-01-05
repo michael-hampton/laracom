@@ -6,6 +6,8 @@ use Gloudemans\Shoppingcart\Facades\Cart;
 use App\Shop\Base\BaseRepository;
 use App\Shop\Employees\Employee;
 use App\Shop\Employees\Repositories\EmployeeRepository;
+use App\Shop\OrderProducts\Repositories\OrderProductRepository;
+use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\Channels\Channel;
 use App\Events\OrderCreateEvent;
 use Illuminate\Http\Request;
@@ -140,6 +142,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             'quantity' => $quantity,
             'product_name' => $product->name,
             'product_sku' => $product->sku,
+            'status' => $status,
             'product_description' => $product->description,
             'product_price' => $product->price,
             'product_attribute_id' => isset($data['product_attribute_id']) ? $data['product_attribute_id'] : null,
@@ -158,6 +161,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @throws Exception
      */
     private function validateCustomerRef($customerRef) {
+
+        if (strlen($customerRef) > 36) {
+            return false;
+        }
 
         try {
             $result = $this->listOrders()->where('customer_ref', $customerRef);
@@ -178,7 +185,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         $total = $productTotal + $data['shipping'] + $data['tax'];
 
-        if(!empty($data['discounts']) && $data['discounts'] > 0) {
+        if (!empty($data['discounts']) && $data['discounts'] > 0) {
             $total -= $data['discounts'];
         }
 
@@ -320,14 +327,46 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     /**
      * @param Collection $items
      */
-    public function buildOrderDetails(Collection $items) {
+    public function buildOrderDetails(Collection $items, Order $order, Channel $channel = null) {
 
-        $items->each(function ($item) {
+        $blOrderHung = false;
+        $blBackorderAllItems = 0;
+        $status = 5;
+
+        foreach ($items as $item) {
 
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item->id);
 
-            $status = $product->quantity <= 0 ? 11 : 1;
+            $status = 5;
+
+            if ($blOrderHung === true || ($product->quantity <= 0 &&
+                    $blOrderHung === false &&
+                    !is_null($channel) &&
+                    (int) $channel->backorders_enabled === 0)
+            ) {
+                $status = 13;
+                $blOrderHung = true;
+            } elseif ($product->quantity <= 0 &&
+                    !is_null($channel) &&
+                    (int) $channel->backorders_enabled === 1 &&
+                    $channel->partial_shipment === 0
+            ) {
+                $status = 11;
+                $blBackorderAllItems++;
+            } elseif ($product->quantity <= 0 &&
+                    !is_null($channel) &&
+                    (int) $channel->backorders_enabled === 1 &&
+                    $channel->partial_shipment === 1
+            ) {
+                $status = 11;
+            }
+
+            if ($blBackorderAllItems > 0 && !is_null($channel) && $channel->partial_shipment === 0) {
+
+                $status = 11;
+            }
+
 
             if ($item->options->has('product_attribute_id')) {
                 $this->associateProduct($product, $item->qty, $status, [
@@ -337,7 +376,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
                 $this->associateProduct($product, $item->qty, $status);
             }
-        });
+        }
+
+        if ($blOrderHung === true) {
+           $order->order_status_id = 13;
+            $order->save();
+        }
 
         return true;
     }

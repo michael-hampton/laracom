@@ -310,13 +310,13 @@ class OrderController extends Controller {
             'total_paid' => $request->total,
             'channel' => $channel,
             'tax' => 0
-        ]);
+        ], true);
 
         $orderRepo = new OrderRepository($order);
         $orderRepo->buildOrderLinesForManualOrder($request->products);
 
         $request->session()->flash('message', 'Creation successful');
-        return redirect()->route('admin.vouchers.index');
+        return redirect()->route('admin.orders.index');
     }
 
     /**

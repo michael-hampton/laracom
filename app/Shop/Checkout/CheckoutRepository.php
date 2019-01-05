@@ -35,7 +35,7 @@ class CheckoutRepository {
             'tax' => $data['tax']
         ]);
         $orderRepo = new OrderRepository($order);
-        $orderRepo->buildOrderDetails($cartRepo->getCartItems());
+        $orderRepo->buildOrderDetails($cartRepo->getCartItems(), $order, $data['channel']);
         return $order;
     }
 

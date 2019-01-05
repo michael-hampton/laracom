@@ -52,7 +52,7 @@
 
                 <div class="form-group">
                     <label for="quantity">Quantity</label>
-                    <input name="products[0][quantity]" id="quantity" class="form-control">
+                    <input name="products[0][quantity]" id="quantity" class="form-control quantity">
 
                 </div>
 
@@ -77,6 +77,14 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $('.quantity').on('change', function () {
+
+            var price = $(this).parent().prev().find('#product option:selected').attr('price');
+            var total = price * parseInt($(this).val());
+
+            $('#total').val(total);
+        });
 
         $('#product').on('change', function () {
 
