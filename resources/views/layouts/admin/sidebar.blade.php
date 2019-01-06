@@ -113,7 +113,7 @@
                     <li><a href="{{ route('admin.orders.index') }}"><i class="fa fa-circle-o"></i> List orders</a></li>
                     <li><a href="{{ route('admin.orders.create') }}"><i class="fa fa-circle-o"></i> Manual Order</a></li>
                     <li><a href="{{ route('admin.orders.backorders') }}"><i class="fa fa-circle-o"></i>Backorders</a></li>
-                    <li><a href="{{ route('admin.orders.index') }}"><i class="fa fa-circle-o"></i>Allocations</a></li>
+                    <li><a href="{{ route('admin.orders.allocations') }}"><i class="fa fa-circle-o"></i>Allocations</a></li>
                 </ul>
             </li>
             <li class="treeview @if(request()->segment(2) == 'order-statuses') active @endif">

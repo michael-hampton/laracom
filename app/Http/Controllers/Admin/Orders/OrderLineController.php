@@ -99,19 +99,31 @@ class OrderLineController extends Controller {
 
         $channels = $this->channelRepo->listChannels();
         $statuses = $this->orderStatusRepo->listOrderStatuses();
-        $list = $this->orderLineRepo->searchOrderProducts($request)->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
+        $list = $this->orderLineRepo->searchOrderProducts($request)->transform(function (OrderProduct $order) {
 
                     return $order;
                 })->all();
 
         $items = $this->orderLineRepo->paginateArrayResults($list, 10);
 
-        return view('admin.orders.backorders', [
+
+        $module = $request->module;
+
+        return view('admin.orders.' . $module, [
             'items' => $items,
             'channels' => $channels,
             'statuses' => $statuses
                 ]
         );
+    }
+
+    /**
+     * 
+     * @param Request $request
+     */
+    public function doAllocation(Request $request) {
+        
+        die('do allocation');
     }
 
     /**

@@ -70,6 +70,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('vouchers/create/{channel?}', 'Vouchers\VoucherController@create')->name('vouchers.create');
         Route::get('orders/create/{channel?}', 'Orders\OrderController@create')->name('orders.create');
         Route::get('orders/backorders/get', 'Orders\OrderController@backorders')->name('orders.backorders');
+         Route::get('orders/allocations/get', 'Orders\OrderController@allocations')->name('orders.allocations');
         Route::get('voucher-codes/add/{id}', 'VoucherCodes\VoucherCodeController@create')->name('voucher-codes.add');
         Route::resource('channels', 'Channels\ChannelController');
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');

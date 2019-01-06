@@ -9,7 +9,7 @@
 
     <div class="box">
         <div class="box-body">
-            <h2>Backorders</h2>
+            <h2>Allocations</h2>
 
             <!-- search form -->
             <div class="col-lg-12">
@@ -57,8 +57,8 @@
                             @endif
                         </div>
 
-                        <input type="hidden" id="status" name="status" value="11">
-                        <input type="hidden" id="module" name="module" value="backorders">
+                        <input type="hidden" id="status" name="status" value="14">
+                        <input type="hidden" id="module" name="module" value="allocations">
                     </div>
                     <span class="input-group-btn">
                         <button type="submit" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i> Search </button>

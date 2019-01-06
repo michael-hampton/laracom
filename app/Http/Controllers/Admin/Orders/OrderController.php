@@ -473,4 +473,22 @@ class OrderController extends Controller {
         );
     }
 
+    public function allocations() {
+
+        $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
+        $os = $orderStatusRepo->findByName('Waiting Allocation');
+
+        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id);
+
+        $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
+
+        $channels = $this->channelRepo->listChannels();
+
+        return view('admin.orders.allocations', [
+            'items' => $items,
+            'channels' => $channels
+                ]
+        );
+    }
+
 }
