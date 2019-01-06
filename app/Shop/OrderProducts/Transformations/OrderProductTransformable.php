@@ -25,6 +25,7 @@ trait OrderProductTransformable {
         $orderProductObj->product_price = $orderProduct->product_price;
         $orderProductObj->price = $orderProduct->product_price;
         $orderProductObj->status = $orderProduct->status;
+        $orderProductObj->created_at = $orderProduct->created_at;
 
         return $orderProductObj;
     }

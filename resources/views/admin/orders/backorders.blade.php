@@ -13,7 +13,7 @@
 
             <!-- search form -->
             <div class="col-lg-12">
-                <form action="{{ route('admin.orders.search') }}" method="post" id="admin-search">
+                <form action="{{ route('admin.orderLine.search') }}" method="post" id="admin-search">
 
                     {{ csrf_field() }}
 
@@ -79,7 +79,6 @@
                     <th class="col-md-2">Name</th>
                     <th class="col-md-2">Quantity</th>
                     <th class="col-md-2">Price</th>
-                    <th class="col-md-2">Status</th>
                     <th class="col-md-2">Actions</th>
                     </thead>
                     <tbody>
@@ -87,7 +86,17 @@
 
                         @foreach($items as $item)
 
-                        <tr>
+                        <?php
+                        if (strtotime($item->created_at) < strtotime('-30 days')) {
+                            $color = '#FF6666';
+                        } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
+                            $color = '#C0C0C0';
+                        } else {
+                            $color = '#FFFF99';
+                        }
+                        ?>
+
+                        <tr style="background-color: {{ $color }}">
                             <td>{{ $item->product_sku }}</td>
                             <td>
                                 {{ $item->product_name }}
@@ -95,12 +104,9 @@
                             </td>
                             <td>{{ $item->quantity }}</td>
                             <td>{{ $item->product_price }}</td>
-                          
-
-
 
                             <td>
-                                <input type="checkbox" class="cb" name="services[]" value="{{ $item->id }}">
+                                <input type="checkbox" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
                             </td>
                         </tr>
                         @endforeach
@@ -111,6 +117,10 @@
         </div>
 
         <div class="box-footer">
+            <div class="btn-group pull-right">
+                <button type="button" class="btn btn-primary do-allocation">Allocate</button>
+            </div>
+
             {{ $items->links() }}
         </div>
 
@@ -131,14 +141,16 @@
             }
             var cb = [];
             $.each($('.cb:checked'), function () {
-                cb.push($(this).val());
+                cb.push({
+                    order_id: $(this).attr('order-id'),
+                    line_id: $(this).val()
+                });
             });
+
             $.ajax({
                 type: "POST",
                 url: '/admin/orderLine/allocateStock',
                 data: {
-                    order_id: orderId,
-                    status: status,
                     lineIds: cb,
                     _token: '{{ csrf_token() }}'
                 },

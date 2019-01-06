@@ -6,8 +6,11 @@ use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Products\Repositories\ProductRepository;
+use App\Shop\Products\Product;
+use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
+use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\OrderProducts\Requests\UpdateOrderProductRequest;
 use App\Shop\Comments\OrderCommentRepository;
@@ -33,17 +36,23 @@ class OrderLineController extends Controller {
     private $productRepo;
 
     /**
+     * @var ChannelRepositoryInterface
+     */
+    private $channelRepo;
+
+    /**
      * @var OrderStatusRepositoryInterface
      */
     private $orderStatusRepo;
 
     public function __construct(
-    OrderRepositoryInterface $orderRepository, OrderStatusRepositoryInterface $orderStatusRepository, OrderProductRepositoryInterface $orderProductRepository, ProductRepositoryInterface $productRepository
+    OrderRepositoryInterface $orderRepository, OrderStatusRepositoryInterface $orderStatusRepository, OrderProductRepositoryInterface $orderProductRepository, ProductRepositoryInterface $productRepository, ChannelRepositoryInterface $channelRepository
     ) {
         $this->orderRepo = $orderRepository;
         $this->orderStatusRepo = $orderStatusRepository;
         $this->orderLineRepo = $orderProductRepository;
         $this->productRepo = $productRepository;
+        $this->channelRepo = $channelRepository;
 
         //$this->middleware(['permission:update-order, guard:employee'], ['only' => ['edit', 'update']]);
     }
@@ -76,8 +85,8 @@ class OrderLineController extends Controller {
         $orderProductRepo->updateProduct($product, $orderProduct);
 
         $data = [
-        'content' => $orderProduct->product_name . ' changed to ' $product->name,
-        'user_id' => auth()->guard('admin')->user()->id
+            'content' => $orderProduct->product_name . ' changed to ' . $product->name,
+            'user_id' => auth()->guard('admin')->user()->id
         ];
 
         $postRepo = new OrderCommentRepository($order);
@@ -90,56 +99,77 @@ class OrderLineController extends Controller {
 
         $channels = $this->channelRepo->listChannels();
         $statuses = $this->orderStatusRepo->listOrderStatuses();
-        $couriers = $this->courierRepo->listCouriers();
-        $customers = $this->customerRepo->listCustomers();
-        $list = $this->orderLineRepo->searchOrderProducts($request);
-        $orders = $this->orderLineRepo->paginateArrayResults($this->transFormOrder($list), 10);
+        $list = $this->orderLineRepo->searchOrderProducts($request)->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
 
-        return view('admin.orders.list', [
-            'orders' => $orders,
+                    return $order;
+                })->all();
+
+        $items = $this->orderLineRepo->paginateArrayResults($list, 10);
+
+        return view('admin.orders.backorders', [
+            'items' => $items,
             'channels' => $channels,
-            'statuses' => $statuses,
-            'couriers' => $couriers,
-            'customers' => $customers
+            'statuses' => $statuses
                 ]
         );
     }
 
-     public function allocateStock() {
-         
-          die('do allocation');
-        
-        $productRepo = new ProductRepository();
-        
-        foreach($arrLines as $arrLine) {
-              $arrProducts = $this->orderLineRepo->listOrderProducts('order_id', $arrLine['order_id'])->where('status', 11);
-            
-            $total = count($arrProducts);
-            
-            foreach($arrProducts as $objProductLine) {
-                
+    /**
+     * 
+     * @param Request $request
+     */
+    public function allocateStock(Request $request) {
+
+        $productRepo = new ProductRepository(new Product);
+        $os = $this->orderStatusRepo->findByName('Backorder');
+        $objNewStatus = $this->orderStatusRepo->findByName('ordered');
+        $arrDone = [];
+
+        foreach ($request->lineIds as $arrLine) {
+
+            if (in_array($arrLine['order_id'], $arrDone)) {
+
+                continue;
+            }
+
+            $order = $this->orderRepo->findOrderById($arrLine['order_id']);
+            $channel = $this->channelRepo->findChannelById($order->channel);
+
+            $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id)->where('status', $os->id);
+
+            $total = $arrProducts->count();
+
+            foreach ($arrProducts as $objProductLine) {
+
                 $product = $productRepo->findProductById($objProductLine->product_id);
-                
-                if($product->quantity > $objProductLine->quantity) {
-                    
+
+                if ($product->quantity > $objProductLine->quantity) {
+
                     $total--;
                 }
             }
-            
-            if($total > 0 && $channel->partial_shipment === 0) {
-                
-            } elseif($total > 0 && $channel->partial_shipment === 1) {
-                $objLine2 = $this->orderLineRepo->findOrderProductById($request->lineId);
+
+
+            if ($total > 0 && $channel->partial_shipment === 0) {
+
+                die('reject');
+            } elseif ($total > 0 && $channel->partial_shipment === 1) {
+
+                $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
+                $orderLineRepo = new OrderProductRepository(new OrderProduct);
+                $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
             } else {
-                foreach($arrProducts as $objLine2) {
-                    $objLine->status = 12;
-                    $objLine->save();
+
+                foreach ($arrProducts as $objLine2) {
+                    $objLine2->status = $objNewStatus->id;
+                    $objLine2->save();
                 }
-                
-                return true;
+
+                $order->order_status_id = $objNewStatus->id;
+                $order->save();
+                $arrDone[] = $arrLine['order_id'];
             }
         }
-       
     }
 
 }

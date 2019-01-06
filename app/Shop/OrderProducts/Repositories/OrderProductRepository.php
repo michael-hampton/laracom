@@ -8,6 +8,7 @@ use App\Shop\OrderProducts\Exceptions\OrderProductNotFoundException;
 use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\Orders\Order;
+use Illuminate\Http\Request;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\Products\Product;
 use App\Shop\Channels\Channel;
@@ -160,33 +161,36 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
      * @return Collection
      */
     public function searchOrderProducts(Request $request): Collection {
-        $q = Order::query()
+        $q = OrderProduct::query()
                 ->select('order_product.*')
-                ->join('customers', 'orders.customer_id', '=', 'customers.id')
                 ->join('orders', 'order_product.order_id', '=', 'orders.id')
-                ->join('products', 'products.id', '=', 'order_product.product_id')
-                ->leftJoin('voucher_codes', 'orders.voucher_code', '=', 'voucher_codes.voucher_id');
+                ->join('customers', 'orders.customer_id', '=', 'customers.id');
+        
         if ($request->has('q') && count($request->q)) {
             $q->where('customer_ref', 'like', '%' . $request->q . '%');
         }
+        
         if ($request->has('name') && count($request->name)) {
             $q->where('customers.name', 'like', '%' . $request->name . '%');
         }
+        
         if ($request->has('email') && count($request->email)) {
             $q->where('customers.email', 'like', '%' . $request->email . '%');
         }
-        if ($request->has('voucher_code') && count($request->voucher_code)) {
-            $q->where('voucher_codes.voucher_code', 'like', '%' . $request->voucher_code . '%');
-        }
+
         if ($request->has('product_name') && count($request->product_name)) {
             $q->where('products.sku', 'like', '%' . $request->product_name . '%');
         }
+        
         if ($request->has('status') && count($request->status)) {
-            $q->where('order_status_id', $request->status);
+                        
+            $q->where('order_product.status', $request->status);
         }
+        
         if ($request->has('channel') && count($request->channel)) {
             $q->where('channel', $request->channel);
         }
+        
         $q->groupBy('order_product.id');
         $q->orderBy('orders.created_at', 'DESC')->orderBy('is_priority', 'ASC');
         return $q->get();

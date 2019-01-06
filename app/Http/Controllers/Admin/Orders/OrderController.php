@@ -295,13 +295,16 @@ class OrderController extends Controller {
 
         $orderRepo = new OrderRepository(new Order);
 
+        $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
+        $os = $orderStatusRepo->findByName('Waiting Allocation');
+
         $order = $orderRepo->createOrder([
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
             'courier_id' => 1,
             'customer_id' => $customer->id,
             'voucher_code' => null,
             'address_id' => $deliveryAddress->id,
-            'order_status_id' => 14,
+            'order_status_id' => $os->id,
             'payment' => 'import',
             'discounts' => 0,
             'shipping' => 0,
@@ -310,7 +313,7 @@ class OrderController extends Controller {
             'total_paid' => $request->total,
             'channel' => $channel,
             'tax' => 0
-        ], true);
+                ], true);
 
         $orderRepo = new OrderRepository($order);
         $orderRepo->buildOrderLinesForManualOrder($request->products);

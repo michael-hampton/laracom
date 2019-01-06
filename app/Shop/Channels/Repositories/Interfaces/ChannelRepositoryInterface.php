@@ -75,4 +75,10 @@ interface ChannelRepositoryInterface extends BaseRepositoryInterface {
      * channelsWithoutEmployee
      */
     public function channelsWithoutEmployee(): Collection;
+
+    /**
+     * 
+     * @param string $name
+     */
+    public function findByName(string $name);
 }
