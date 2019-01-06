@@ -44,13 +44,15 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::post('orderLine/update', 'OrderLineController@update')->name('orderLine.update');
             Route::resource('order-statuses', 'OrderStatusController');
             Route::get('orders/{id}/invoice', 'OrderController@generateInvoice')->name('orders.invoice.generate');
+            Route::get('orders/importCsv/get', 'OrderController@importCsv')->name('orders.importCsv');
+            Route::post('orders/saveImport', 'OrderController@saveImport')->name('orders.saveImport');
         });
 
         Route::post('orderLine/processBackorders/', 'Orders\OrderLineController@processBackorders')->name('orderLine.processBackorders');
         Route::post('orderLine/doAllocation/', 'Orders\OrderLineController@doAllocation')->name('orderLine.doAllocation');
         Route::post('warehouse/pickOrder/', 'Orders\WarehouseController@pickOrder')->name('warehouse.pickOrder');
         Route::post('warehouse/packOrder/', 'Orders\WarehouseController@packOrder')->name('warehouse.packOrder');
-         Route::get('warehouse/index/', 'Orders\WarehouseController@index')->name('warehouse.index');
+        Route::get('warehouse/index/', 'Orders\WarehouseController@index')->name('warehouse.index');
         Route::post('warehouse/dispatchOrder/', 'Orders\WarehouseController@dispatchOrder')->name('warehouse.dispatchOrder');
         Route::post('orderLine/search/{page?}', 'Orders\OrderLineController@search')->name('orderLine.search');
         Route::post('orders/search/{page?}', 'Orders\OrderController@search')->name('orders.search');
@@ -75,7 +77,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('vouchers/create/{channel?}', 'Vouchers\VoucherController@create')->name('vouchers.create');
         Route::get('orders/create/{channel?}', 'Orders\OrderController@create')->name('orders.create');
         Route::get('orders/backorders/get', 'Orders\OrderController@backorders')->name('orders.backorders');
-         Route::get('orders/allocations/get', 'Orders\OrderController@allocations')->name('orders.allocations');
+        Route::get('orders/allocations/get', 'Orders\OrderController@allocations')->name('orders.allocations');
         Route::get('voucher-codes/add/{id}', 'VoucherCodes\VoucherCodeController@create')->name('voucher-codes.add');
         Route::resource('channels', 'Channels\ChannelController');
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');

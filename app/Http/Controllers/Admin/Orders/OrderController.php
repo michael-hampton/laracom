@@ -9,6 +9,7 @@ use App\Shop\Couriers\Courier;
 use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Customers\Customer;
+use App\Shop\Orders\Requests\ImportRequest;
 use App\Shop\Comments\Comment;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Channels\Repositories\ChannelRepository;
@@ -491,50 +492,62 @@ class OrderController extends Controller {
                 ]
         );
     }
-    
-    public function importCsv() {
+
+    public function saveImport(Request $request) {
         $file_path = $request->csv_file->path();
         $line = 0;
-  
+
         if (($handle = fopen($file_path, "r")) !== FALSE) {
+
+            $flag = true;
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+
+                if ($flag) {
+                    $flag = false;
+                    continue;
+                }
+                
                 $line++;
-                $book = array();
-                
+                $order = [];
+
                 list(
-                    $book['title'], 
-                    $book['author'], 
-                    $book['year'],
-                    $book['publisher']
-               ) = $data;
-                
-               $csv_errors = Validator::make(
-                   $book, 
-                  (new CreateBook)->rules()
-                  )->errors();
-    
-                 // Add any additional validation here.
+                        $order['channel'],
+                        $order['customer_id'],
+                        $order['voucher_code'],
+                        $order['shipping'],
+                        $order['total']
+                        ) = $data;
+
+                $csv_errors = Validator::make(
+                                $order, (new ImportRequest())->rules()
+                        )->errors();
+
+                // Add any additional validation here.
                 // For example, validates that only certain years allowed
                 $allowed_years = [2013, 2015];
-    
-                if ( !in_array($book['year'], $allowed_years) ) {
-                    $csv_errors->add('year', "Year must be either 2013 or 2015.");
-                }
-    
-    
+
+//                if (!in_array($book['year'], $allowed_years)) {
+//                    $csv_errors->add('year', "Year must be either 2013 or 2015.");
+//                }
+//
+
                 if ($csv_errors->any()) {
                     return redirect()->back()
-                    ->withErrors($csv_errors, 'import')
-                    ->with('error_line', $line);
+                                    ->withErrors($csv_errors, 'import')
+                                    ->with('error_line', $line);
                 }
             }
-  
-            fclose($handle);
 
+            fclose($handle);
         }
 
         // Dispatch job to store the data in database
-        dispatch(new StoreBooks($file_path));
+        //dispatch(new StoreBooks($file_path));
+    }
+
+    public function importCsv() {
+
+        return view('admin.orders.importCsv');
     }
 
 }
