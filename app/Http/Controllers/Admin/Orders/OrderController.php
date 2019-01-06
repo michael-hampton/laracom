@@ -490,5 +490,42 @@ class OrderController extends Controller {
                 ]
         );
     }
+    
+    public function importCsv() {
+        $file_path = $request->csv_file->path();
+$line = 0;
+if (($handle = fopen($file_path, "r")) !== FALSE) {
+  while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+    $line++;
+    $book = array();
+    list(
+      $book['title'], 
+      $book['author'], 
+      $book['year'],
+      $book['publisher']
+    ) = $data;
+                
+    $csv_errors = Validator::make(
+      $book, 
+      (new CreateBook)->rules()
+    )->errors();
+    // Add any additional validation here.
+    // For example, validates that only certain years allowed
+    $allowed_years = [2013, 2015];
+    if ( !in_array($book['year'], $allowed_years) ) {
+      $csv_errors->add('year', "Year must be either 2013 or 2015.");
+    }
+    
+    if ($csv_errors->any()) {
+      return redirect()->back()
+        ->withErrors($csv_errors, 'import')
+        ->with('error_line', $line);
+    }
+  }
+  fclose($handle);
+}
+// Dispatch job to store the data in database
+dispatch(new StoreBooks($file_path));
+    }
 
 }
