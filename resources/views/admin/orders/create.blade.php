@@ -38,26 +38,35 @@
                 </div>
                 @endif
 
-                @if(!empty($products))
-                <div class="form-group">
-                    <label for="product">Product</label>
-                    <select name="products[0][id]" id="product" class="form-control select2 scope-select">
-                        <option value="">--Select--</option>
-                        @foreach($products as $product)
-                        <option price="{{ $product->price }}" @if(old('product') == $product->id) selected="selected" @endif value="{{ $product->id }}">{{ $product->name }}</option>
-                        @endforeach
-                    </select>
+                <button class="btn btn-sm btn-primary float-right m-t-n-xs add-more" style="margin-bottom:10px;" type="button"><strong>+</strong></button>
+
+                <div class="products">
+                    <div class="form-inline">
+                        @if(!empty($products))
+                        <div class="form-group">
+                            <label class="sr-only" for="product">Product</label>
+                            <select lineid="0" name="products[0][id]" id="product" class="main form-control select2 scope-select">
+                                <option value="">--Select--</option>
+                                @foreach($products as $product)
+                                <option price="{{ $product->price }}" @if(old('product') == $product->id) selected="selected" @endif value="{{ $product->id }}">{{ $product->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
+
+                        <div class="form-group">
+                            <label class="sr-only" for="quantity">Quantity</label>
+                            <input lineid="0" placeholder="Quantity" name="products[0][quantity]" id="quantity" class="form-control quantity">
+                        </div
+
+                        <div class="form-group">
+                            <label class="sr-only" for="price">Price</label>
+                            <input lineid="0" placeholder="Price" readonly="readonly" id="price" class="form-control price">
+                        </div
+                    </div>
                 </div>
-                @endif
-
-                <div class="form-group">
-                    <label for="quantity">Quantity</label>
-                    <input name="products[0][quantity]" id="quantity" class="form-control quantity">
-
-                </div>
 
 
-                <input type="hidden" name="price" id="price">
             </div>
             <!-- /.box-body -->
             <div class="box-footer">
@@ -78,24 +87,104 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $('.quantity').on('change', function () {
+        bindHandlers();
 
-            var price = $(this).parent().prev().find('#product option:selected').attr('price');
-            var total = price * parseInt($(this).val());
+        $('.add-more').off();
+        $('.add-more').on('click', function () {
 
-            $('#total').val(total);
+            var count = $('.scope-select').length;
+            
+            var products = $('.main.scope-select option');
+
+            var HTML = '<div class="form-inline" style="margin-top: 12px;">' +
+                    '<div class="form-group">' +
+                    '<label class="sr-only" for="product">Product</label>' +
+                    '<select lineid="' + count + '" name="products[' + count + '][id]" id="product" class="form-control select2 scope-select">' +
+                    products +
+                    '</select>' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                    '<label class="sr-only" for="quantity">Quantity</label>' +
+                    '<input lineid="' + count + '" placeholder="Quantity" name="products[' + count + '][quantity]" id="quantity" class="form-control quantity">' +
+                    '</div' +
+                    '<div class="form-group">' +
+                    '<label class="sr-only" for="price">Price</label>' +
+                    '<input lineid="' + count + '" placeholder="Price" readonly="readonly" id="price" class="form-control price">' +
+                    '</div>' +
+                    '</div>';
+
+            $('.products').append(HTML);
+            populateProductSelect(count);
+            bindHandlers();
+        });
+    });
+
+    /**
+     * 
+     
+     * @param {type} lineId
+     * @returns {undefined} */
+    function populateProductSelect(lineId) {
+        $(".main > option").each(function (key, value) {
+
+            var price = $(this).attr('price');
+
+            $('.scope-select[lineid=' + lineId + ']')
+                    .append($("<option></option>")
+                            .attr("price", price)
+                            .attr("value", this.value)
+                            .text(this.text));
+        });
+    }
+
+    /**
+     * 
+     * @param {type} lineId
+     * @returns {undefined}
+     */
+    function calculatePrice(lineId) {
+        var price = $('.scope-select[lineid=' + lineId + '] option:selected').attr('price');
+        var quantity = $('.quantity[lineid=' + lineId + ']').val();
+
+        if (quantity !== '' && price !== '') {
+            var total = price * parseInt(quantity);
+            $('.price[lineid=' + lineId + ']').val(total);
+        }
+
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+
+        var total = 0;
+
+        $('.price').each(function () {
+
+            var price = $(this).val();
+
+            total += price;
+
+        });
+
+        $('#total').val(total);
+    }
+
+    function bindHandlers() {
+
+        $('.quantity').on('keyup', function () {
+
+            var lineId = $(this).attr('lineid');
+            calculatePrice(lineId);
         });
 
         $('#product').on('change', function () {
 
-            var price = $(this).find(":selected").attr('price');
-
-            $('#total').val(price);
-            $('#price').val(price);
+            var lineId = $(this).attr('lineid');
+            calculatePrice(lineId);
 
             return false;
         });
-    });
+    }
 
 
 </script>
