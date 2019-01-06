@@ -150,7 +150,7 @@
 
             $.ajax({
                 type: "POST",
-                url: '/admin/orderLine/allocateStock',
+                url: '/admin/orderLine/doAllocation',
                 data: {
                     lineIds: cb,
                     _token: '{{ csrf_token() }}'

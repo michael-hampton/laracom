@@ -122,20 +122,12 @@ class OrderLineController extends Controller {
      * @param Request $request
      */
     public function doAllocation(Request $request) {
-        
-        die('do allocation');
-    }
-
-    /**
-     * 
-     * @param Request $request
-     */
-    public function allocateStock(Request $request) {
 
         $productRepo = new ProductRepository(new Product);
-        $os = $this->orderStatusRepo->findByName('Backorder');
+        $os = $this->orderStatusRepo->findByName('Waiting Allocation');
         $objNewStatus = $this->orderStatusRepo->findByName('ordered');
         $arrDone = [];
+        $arrFailed = [];
 
         foreach ($request->lineIds as $arrLine) {
 
@@ -147,13 +139,72 @@ class OrderLineController extends Controller {
             $order = $this->orderRepo->findOrderById($arrLine['order_id']);
             $channel = $this->channelRepo->findChannelById($order->channel);
 
+            // get all backoredered lines for order
             $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id)->where('status', $os->id);
 
+            $originalTotal = $arrProducts->count();
             $total = $arrProducts->count();
+            $intCantMove = 0;
+
+            // work out how many lines can be moved
 
             foreach ($arrProducts as $objProductLine) {
 
                 $product = $productRepo->findProductById($objProductLine->product_id);
+
+
+                if ($product->quantity > $objProductLine->quantity) {
+
+                    $total--;
+                } else {
+                    $intCantMove++;
+                }
+            }
+
+            // none can move
+            if (($intCantMove === $originalTotal) || ($total > 0 && $channel->partial_shipment === 0)) {
+                 $arrFailed[] = $arrLine['line_id'];
+            } elseif ($total > 0 && $channel->partial_shipment === 1) {
+                
+            } else {
+                
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param Request $request
+     */
+    public function processBackorders(Request $request) {
+
+        $productRepo = new ProductRepository(new Product);
+        $os = $this->orderStatusRepo->findByName('Backorder');
+        $objNewStatus = $this->orderStatusRepo->findByName('ordered');
+        $arrDone = [];
+        $arrFailed = [];
+
+        foreach ($request->lineIds as $arrLine) {
+
+            if (in_array($arrLine['order_id'], $arrDone)) {
+
+                continue;
+            }
+
+            $order = $this->orderRepo->findOrderById($arrLine['order_id']);
+            $channel = $this->channelRepo->findChannelById($order->channel);
+
+            // get all backoredered lines for order
+            $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id)->where('status', $os->id);
+
+            $total = $arrProducts->count();
+
+            // work out how many lines can be moved
+
+            foreach ($arrProducts as $objProductLine) {
+
+                $product = $productRepo->findProductById($objProductLine->product_id);
+
 
                 if ($product->quantity > $objProductLine->quantity) {
 
@@ -164,17 +215,49 @@ class OrderLineController extends Controller {
 
             if ($total > 0 && $channel->partial_shipment === 0) {
 
-                die('reject');
+                // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
+                $arrFailed[] = $arrLine['line_id'];
+
+                // if partial shipping allowed and more than 1 line backordered then move single line
             } elseif ($total > 0 && $channel->partial_shipment === 1) {
 
                 $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
-                $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
+                $objProduct = $productRepo->findProductById($objLine2->product_id);
+
+                // check enough quantity to fulfil line if not reject
+                if ($objProduct->quantity > $objLine2->quantity) {
+                    // update stock
+                    $reserved_stock = $objProduct->reserved_stock - $objLine2->quantity;
+                    $quantity = $objProduct->quantity - $objLine2->quantity;
+                    $objProductRepo = new ProductRepository($objProduct);
+                    $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock, 'quantity' => $quantity]);
+
+                    // update line status
+                    $orderLineRepo = new OrderProductRepository(new OrderProduct);
+                    $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
+                } else {
+                    $arrFailed[] = $arrLine['line_id'];
+                }
+
+                // if all can be backordered move all
             } else {
 
                 foreach ($arrProducts as $objLine2) {
-                    $objLine2->status = $objNewStatus->id;
-                    $objLine2->save();
+
+                    $objProduct = $productRepo->findProductById($objLine2->product_id);
+
+                    if ($objProduct->quantity > $objLine2->quantity) {
+                        $reserved_stock = $objProduct->reserved_stock - $objLine2->quantity;
+                        $quantity = $objProduct->quantity - $objLine2->quantity;
+
+                        $objProductRepo = new ProductRepository($objProduct);
+                        $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock, 'quantity' => $quantity]);
+
+                        $objLine2->status = $objNewStatus->id;
+                        $objLine2->save();
+                    } else {
+                        $arrFailed[] = $arrLine['line_id'];
+                    }
                 }
 
                 $order->order_status_id = $objNewStatus->id;
@@ -182,6 +265,8 @@ class OrderLineController extends Controller {
                 $arrDone[] = $arrLine['order_id'];
             }
         }
+
+        print_r($arrFailed);
     }
 
 }

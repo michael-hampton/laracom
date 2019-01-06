@@ -65,6 +65,7 @@ class Product extends Model implements Buyable {
         'height',
         'distance_unit',
         'slug',
+        'reserved_stock'
     ];
 
     /**

@@ -46,7 +46,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::get('orders/{id}/invoice', 'OrderController@generateInvoice')->name('orders.invoice.generate');
         });
 
-        Route::post('orderLine/allocateStock/', 'Orders\OrderLineController@allocateStock')->name('orderLine.allocateStock');
+        Route::post('orderLine/processBackorders/', 'Orders\OrderLineController@processBackorders')->name('orderLine.processBackorders');
+        Route::post('orderLine/doAllocation/', 'Orders\OrderLineController@doAllocation')->name('orderLine.doAllocation');
+        Route::post('warehouse/pickOrder/', 'Orders\WarehouseController@pickOrder')->name('warehouse.pickOrder');
+        Route::post('warehouse/packOrder/', 'Orders\WarehouseController@packOrder')->name('warehouse.packOrder');
+         Route::get('warehouse/index/', 'Orders\WarehouseController@index')->name('warehouse.index');
+        Route::post('warehouse/dispatchOrder/', 'Orders\WarehouseController@dispatchOrder')->name('warehouse.dispatchOrder');
         Route::post('orderLine/search/{page?}', 'Orders\OrderLineController@search')->name('orderLine.search');
         Route::post('orders/search/{page?}', 'Orders\OrderController@search')->name('orders.search');
         Route::post('orders/saveComment/', 'Orders\OrderController@saveComment')->name('orders.saveComment');

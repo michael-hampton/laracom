@@ -144,9 +144,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @param array $data
      */
     public function associateProduct(Product $product, int $quantity = 1, int $status = 1, array $data = []) {
-       
-        var_dump($this->allocate_on_order);
-        
+
         $this->model->products()->attach($product, [
             'quantity' => $quantity,
             'product_name' => $product->name,
@@ -157,10 +155,16 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             'product_attribute_id' => isset($data['product_attribute_id']) ? $data['product_attribute_id'] : null,
         ]);
 
-        if ($this->allocate_on_order === true) {
+        if ($this->allocate_on_order === true && $status !== 11) {
             $product->quantity = ($product->quantity - $quantity);
-            $product->save();
         }
+
+        if ($status === 11) {
+
+            $product->reserved_stock = ($product->reserved_stock + $quantity);
+        }
+
+        $product->save();
 
         return true;
     }
@@ -342,6 +346,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         $blOrderHung = false;
         $blBackorderAllItems = 0;
+        $countBackorderedItems = 0;
         $status = 5;
 
         foreach ($items as $item) {
@@ -353,7 +358,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             $status = 5;
 
             $this->allocate_on_order = $channel->allocate_on_order === 1 ? true : false;
-            
+
             if (!is_null($channel) && $channel->allocate_on_order === 0) {
                 $status = 14;
             } elseif ($blOrderHung === true || ($totalStock <= 0 &&
@@ -370,12 +375,14 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             ) {
                 $status = 11;
                 $blBackorderAllItems++;
+                $countBackorderedItems++;
             } elseif ($totalStock <= 0 &&
                     !is_null($channel) &&
                     (int) $channel->backorders_enabled === 1 &&
                     $channel->partial_shipment === 1
             ) {
                 $status = 11;
+                $countBackorderedItems++;
             }
 
             if ($blBackorderAllItems > 0 && !is_null($channel) && $channel->partial_shipment === 0) {
@@ -393,7 +400,13 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $this->associateProduct($product, $item->qty, $status);
             }
         }
-
+        
+        if ($items->count() == $countBackorderedItems) {
+                        
+            $order->order_status_id = 11;
+            $order->save();
+        }
+        
         if ($blOrderHung === true && $order->order_status_id !== 12) {
             $order->order_status_id = 13;
             $order->save();

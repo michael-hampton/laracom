@@ -7,11 +7,11 @@
     @include('layouts.errors-and-messages')
     <!-- Default box -->
 
-    <div class="box">
+<!--    <div class="box">
         <div class="box-body">
             <h2>Backorders</h2>
 
-            <!-- search form -->
+             search form 
             <div class="col-lg-12">
                 <form action="{{ route('admin.orderLine.search') }}" method="post" id="admin-search">
 
@@ -65,9 +65,9 @@
                     </span>
                 </form>
             </div>
-            <!-- /.box-body -->
+             /.box-body 
 
-        </div>
+        </div>-->
         <!-- /.box -->
 
         <div class="box">
@@ -107,7 +107,17 @@
                             <td>{{ $item->product_price }}</td>
 
                             <td>
-                                <input type="checkbox" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                <button class="pick" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
+                                    Pick
+                                </button>
+                                
+                                <button class="dispatch" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
+                                    Dispatch
+                                </button>
+                                
+                                <button class="pack" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
+                                    Pack
+                                </button>
                             </td>
                         </tr>
                         @endforeach
@@ -133,26 +143,57 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $('.do-allocation').on('click', function () {
-
-            if ($('.cb:checked').length == 0)
-            {
-                alert('Please select atleast one checkbox');
-                return false;
-            }
-            var cb = [];
-            $.each($('.cb:checked'), function () {
-                cb.push({
-                    order_id: $(this).attr('order-id'),
-                    line_id: $(this).val()
-                });
-            });
+        $('.pick').on('click', function () {
+            
+            var orderId = $(this).attr('order-id');
+            var lineId = $(this).attr('line-id');
 
             $.ajax({
                 type: "POST",
-                url: '/admin/orderLine/processBackorders',
+                url: '/admin/warehouse/pickOrder',
                 data: {
-                    lineIds: cb,
+                    orderId: orderId,
+                    lineId: lineId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (msg) {
+                    alert(msg);
+                }
+            });
+            return false;
+        });
+        
+        $('.pack').on('click', function () {
+            
+            var orderId = $(this).attr('order-id');
+            var lineId = $(this).attr('line-id');
+
+            $.ajax({
+                type: "POST",
+                url: '/admin/warehouse/packOrder',
+                data: {
+                    orderId: orderId,
+                    lineId: lineId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (msg) {
+                    alert(msg);
+                }
+            });
+            return false;
+        });
+        
+        $('.dispatch').on('click', function () {
+            
+            var orderId = $(this).attr('order-id');
+            var lineId = $(this).attr('line-id');
+
+            $.ajax({
+                type: "POST",
+                url: '/admin/warehouse/dispatchOrder',
+                data: {
+                    orderId: orderId,
+                    lineId: lineId,
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (msg) {
