@@ -163,7 +163,7 @@ class OrderLineController extends Controller {
 
             // none can move
             if (($intCantMove === $originalTotal) || ($total > 0 && $channel->partial_shipment === 0)) {
-                 $arrFailed[] = $arrLine['line_id'];
+                $arrFailed[] = $arrLine['line_id'];
             } elseif ($total > 0 && $channel->partial_shipment === 1) {
                 
             } else {
@@ -266,7 +266,9 @@ class OrderLineController extends Controller {
             }
         }
 
-        print_r($arrFailed);
+        if (count($arrFailed) > 0) {
+            return response()->json(['error' => 'we failed to process the following line ids ' . implode(',', $arrFailed)], 404);
+        }
     }
 
 }

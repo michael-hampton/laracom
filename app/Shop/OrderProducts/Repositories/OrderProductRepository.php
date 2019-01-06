@@ -165,15 +165,15 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
                 ->select('order_product.*')
                 ->join('orders', 'order_product.order_id', '=', 'orders.id')
                 ->join('customers', 'orders.customer_id', '=', 'customers.id');
-        
+
         if ($request->has('q') && count($request->q)) {
             $q->where('customer_ref', 'like', '%' . $request->q . '%');
         }
-        
+
         if ($request->has('name') && count($request->name)) {
             $q->where('customers.name', 'like', '%' . $request->name . '%');
         }
-        
+
         if ($request->has('email') && count($request->email)) {
             $q->where('customers.email', 'like', '%' . $request->email . '%');
         }
@@ -181,16 +181,16 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
         if ($request->has('product_name') && count($request->product_name)) {
             $q->where('products.sku', 'like', '%' . $request->product_name . '%');
         }
-        
+
         if ($request->has('status') && count($request->status)) {
-                        
+
             $q->where('order_product.status', $request->status);
         }
-        
+
         if ($request->has('channel') && count($request->channel)) {
             $q->where('channel', $request->channel);
         }
-        
+
         $q->groupBy('order_product.id');
         $q->orderBy('orders.created_at', 'DESC')->orderBy('is_priority', 'ASC');
         return $q->get();
@@ -231,16 +231,7 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
      */
     private function checkStatuses(Order $order, Channel $channel = null, int $status, bool $blReject = false) {
 
-        $orderProducts = $this->listOrderProducts()->where('order_id', $order->id);
-
-        $notSameStatus = 0;
-
-        foreach ($orderProducts as $orderProduct) {
-
-            if ((int) $orderProduct->status !== $status) {
-                $notSameStatus++;
-            }
-        }
+        $notSameStatus = $this->chekIfAllLineStatusesAreEqual($order, $status);
 
         if ($channel === null || $notSameStatus === 1) {
             $order->status = $status;
@@ -255,6 +246,25 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
         }
 
         return false;
+    }
+
+    /**
+     * 
+     * @return int
+     */
+    public function chekIfAllLineStatusesAreEqual(Order $order, $status) {
+        $orderProducts = $this->listOrderProducts()->where('order_id', $order->id);
+
+        $notSameStatus = 0;
+
+        foreach ($orderProducts as $orderProduct) {
+
+            if ((int) $orderProduct->status !== $status) {
+                $notSameStatus++;
+            }
+        }
+
+        return $notSameStatus;
     }
 
 }
