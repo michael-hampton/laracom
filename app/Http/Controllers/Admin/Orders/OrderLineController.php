@@ -259,7 +259,7 @@ class OrderLineController extends Controller {
                 $order->order_status_id = $objNewStatus->id;
                 $order->save();
                 $arrDone[] = $arrLine['order_id'];
-            } elseif(($backorderCount === 1 && $intCantMove === 0 && $channel->partial_shipment === 1) || $channel->partial_shipment === 1) {
+            } elseif($backorderCount === $total || $channel->partial_shipment === 1) {
 
                 $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
                 $objProduct = $productRepo->findProductById($objLine2->product_id);
