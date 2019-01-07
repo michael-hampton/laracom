@@ -429,7 +429,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             }
         }
         
-        if ($blOrderHung === true && $order->order_status_id !== 12) {
+        if($blOrderHung === true && !is_null($channel) && $channel->strict_validation === 1) {
+            $order->delete();
+        } elseif ($blOrderHung === true && $order->order_status_id !== 12) {
             $order->order_status_id = 13;
             $order->save();
         } elseif ($items->count() == $countBackorderedItems || (
