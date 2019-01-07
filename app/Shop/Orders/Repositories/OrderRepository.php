@@ -187,7 +187,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             //$product->quantity = ($product->quantity - $quantity);
         }
 
-        if ($this->allocate_on_order === true || && $status !== 11) {
+        if ($this->allocate_on_order === true && $status !== 11) {
 
             $product->reserved_stock = ($product->reserved_stock + $quantity);
         }
@@ -340,7 +340,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             $product = $productRepo->find($item->id);
 
             $totalStock = $product->quantity - $product->reserved_stock;
-            $status = 5;
+            $status = 14;
 
             $this->allocate_on_order = $channel->allocate_on_order === 1 ? true : false;
 
