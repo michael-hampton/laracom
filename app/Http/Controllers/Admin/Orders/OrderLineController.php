@@ -199,9 +199,11 @@ class OrderLineController extends Controller {
             $channel = $this->channelRepo->findChannelById($order->channel);
 
             // get all backoredered lines for order
-            $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id)->where('status', $os->id);
+            $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id);
 
             $total = $arrProducts->count();
+            $backorderCount = 0;
+            $intCantMove = 0;
             
             if($total === 0) {
                 continue;
@@ -215,14 +217,21 @@ class OrderLineController extends Controller {
 
                 $availiableQty = $product->quantity - $product->reserved_stock;
 
-                if ($availiableQty > $objProductLine->quantity) {
+                if ($objProductLine->status === 11 && $availiableQty <= $objProductLine->quantity) {
 
-                    $total--;
+                    $intCantMove++;
+                }
+                
+                if($objProductLine->status === 11) {
+                    $backorderCount++;
                 }
             }
 
 
-            if ($total > 0 && $channel->partial_shipment === 0) {
+            if($total > 0) {
+                
+            }
+            elseif ($intCantMove > 0 && $channel->partial_shipment === 0) {
 
                 // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
                 $arrFailed[] = $arrLine['line_id'];
