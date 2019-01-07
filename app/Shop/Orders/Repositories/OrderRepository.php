@@ -423,7 +423,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @param Channel $channel
      * @return type
      */
-    public function cloneOrder(Order $order, Channel $channel) {
+    public function cloneOrder(Order $order, Channel $channel, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository) {
 
         return $this->createOrder([
                     'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
@@ -439,7 +439,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     'total_shipping' => $order->total_shipping,
                     'tax' => $order->tax,
                     'channel' => $channel
-                        ], true);
+                        ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository, true);
     }
 
     /**
