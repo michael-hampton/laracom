@@ -11,5 +11,14 @@ $addressRepo->findAddressById($id);
 return false;
 }
 }
+  
+  public function validateCustomer($customerRepo, $id) {
+
+try {
+$customerRepo->findCustomerById($id);
+} catch() {
+return false;
+}
+}
 
 }
