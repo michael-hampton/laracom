@@ -34,14 +34,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     use NewOrderValidation;
     
     protected $validationFailures = [];
-    
-    private $voucherCodeRepo;
-    
-    private $courierRepo;
-    
-    private $addressRepo;
-    
-    private $customerRepo;
 
     /**
      *
@@ -56,10 +48,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function __construct(Order $order) {
         parent::__construct($order);
         $this->model = $order;
-        //$this->voucherCodeRepo = $voucherCodeRepository;
-        //$this->courierRepo = $courierRepository;
-        //$this->customerRepo = $customerRepository;
-        //$this->addressRepo = $addressRepository;
     }
 
     /**
