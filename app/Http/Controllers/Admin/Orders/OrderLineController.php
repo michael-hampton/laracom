@@ -228,11 +228,8 @@ class OrderLineController extends Controller {
             }
 
 
-            if($total > 0) {
+            if($total > $backorderCount && $channel->partial_shipment === 0){
                 
-            }
-            elseif ($intCantMove > 0 && $channel->partial_shipment === 0) {
-
                 // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
                 $arrFailed[] = $arrLine['line_id'];
 
