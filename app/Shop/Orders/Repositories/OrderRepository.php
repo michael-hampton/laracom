@@ -70,7 +70,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @throws OrderInvalidArgumentException
      * @throws \Exception
      */
-    public function createOrder(array $params, VoucherCodeRepository $voucherCodeRepository, CourierRepository $courierRepository, CustomerRepository $customerRepository, AddressRepository $addressRepository, bool $blManualOrder = false): Order {
+    public function createOrder(array $params, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepository $courierRepository, CustomerRepository $customerRepository, AddressRepository $addressRepository, bool $blManualOrder = false): Order {
         try {
             
             $this->validationFailures = [];
