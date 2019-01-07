@@ -234,7 +234,7 @@ class OrderLineController extends Controller {
                 $arrFailed[] = $arrLine['line_id'];
 
                 // if partial shipping allowed and more than 1 line backordered then move single line
-            } elseif ($intCantMove === 0 && $backorderCount > 1) {
+            } elseif ($intCantMove === 0 && $backorderCount === $total && $backorderCount > 1) {
 
                 foreach ($arrProducts as $objLine2) {
 
