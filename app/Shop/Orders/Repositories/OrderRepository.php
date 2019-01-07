@@ -17,6 +17,7 @@ use App\Mail\SendRefundToCustomerMailable;
 use App\Shop\Orders\Exceptions\OrderInvalidArgumentException;
 use App\Shop\Orders\Exceptions\OrderNotFoundException;
 use App\Shop\Orders\Order;
+use App\Shop\Comments\OrderCommentRepository;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\Orders\Transformers\OrderTransformable;
 use App\Shop\PaymentMethods\PaymentMethod;
