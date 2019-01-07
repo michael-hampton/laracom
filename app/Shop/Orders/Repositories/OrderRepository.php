@@ -107,7 +107,15 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
             if(count($this->validationFailures) > 0) {
                 
+                $strMessage = implode('<br>', $this->validationFailures);
                 //create comment
+                $data = [
+            'content' => $strMessage,
+            'user_id' => auth()->guard('admin')->user()->id
+        ];
+       
+        $postRepo = new OrderCommentRepository($order);
+        $postRepo->createComment($data);
             }
             
             
