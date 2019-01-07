@@ -70,7 +70,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @throws OrderInvalidArgumentException
      * @throws \Exception
      */
-    public function createOrder(array $params, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepository $courierRepository, CustomerRepository $customerRepository, AddressRepository $addressRepository, bool $blManualOrder = false): Order {
+    public function createOrder(array $params, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, bool $blManualOrder = false): Order {
         try {
             
             $this->validationFailures = [];
@@ -86,10 +86,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     $this->validateTotal($params, $items);
                 }
                 
-                $this->validateVoucherCode();
-                $this->validateCustomer();
-                $this->validateAddress();
-                $this->validateCourier();
+                $this->validateVoucherCode($voucherCodeRepository);
+                $this->validateCustomer($customerRepository);
+                $this->validateAddress($addressRepository);
+                $this->validateCourier($courierRepository);
 
                 $blPriority = $params['channel']->has_priority;
 
