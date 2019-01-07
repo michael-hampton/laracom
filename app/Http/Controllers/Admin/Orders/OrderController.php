@@ -270,12 +270,14 @@ class OrderController extends Controller {
         }
 
         $customers = $this->customerRepo->listCustomers();
-
+        $couriers = $this->courierRepo->listCouriers();
+        
         return view('admin.orders.create', [
             'selectedChannel' => isset($channel) ? $channel->id : null,
             'channels' => $channels,
             'products' => $products,
-            'customers' => $customers
+            'customers' => $customers,
+            'couriers' => $couriers,
                 ]
         );
     }
@@ -302,9 +304,9 @@ class OrderController extends Controller {
 
         $order = $orderRepo->createOrder([
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-            'courier_id' => 1,
+            'courier_id' => $request->courier,
             'customer_id' => $customer->id,
-            'voucher_code' => null,
+            'voucher_code' => !empty($request->voucher_code) ? $request->voucher_code : null,
             'address_id' => $deliveryAddress->id,
             'order_status_id' => $os->id,
             'payment' => 'import',
