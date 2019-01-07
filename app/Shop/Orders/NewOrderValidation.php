@@ -3,23 +3,35 @@ namespace App/Shop/Orders/Validation;
 
 trait NewOrderValidation {
 
-public function validateAddress($addressRepo, $id) {
+public function validateAddress(AddressRepositoryInterface $addressRepo, $id) {
 
 try {
 $addressRepo->findAddressById($id);
-} catch() {
+} catch(\Exception $e) {
+  $this->validationFailures[] = 'Invalid address used';
 return false;
 }
 }
   
-  public function validateCustomer($customerRepo, $id) {
+  public function validateCustomer(CustomerRepositoryInterface $customerRepo, $id) {
 
 try {
 $customerRepo->findCustomerById($id);
-} catch() {
+} catch(\Exception $e) {
+  $this->validationFailures[] = 'Invalid customer used';
 return false;
 }
 }
+  
+  public function validateVoucherCode(VoucherRepositoryInterface $voucherRepo, $voucherCode) {
+    
+    try {
+      $voucherRepo->getByVoucherCode($voucherCode);
+    } catch(\Exception $e) {
+      $this->validationFailures[] = 'Invalid voucher code used';
+      return false;
+    }
+  }
   
   private function validateCustomerRef($customerRef) {
 
@@ -30,6 +42,7 @@ return false;
         try {
             $result = $this->listOrders()->where('customer_ref', $customerRef);
         } catch (Exception $ex) {
+          $this->validationFailures[] = 'Invalid customer ref used';
             throw new Exception($ex->getMessage());
         }
 
@@ -52,7 +65,7 @@ return false;
 
 
         if (round($total, 2) !== round($data['total'], 2)) {
-
+           $this->validationFailures[] = 'Invalid totals';
             return false;
         }
 
