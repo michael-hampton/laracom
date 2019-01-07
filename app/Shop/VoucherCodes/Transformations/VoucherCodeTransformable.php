@@ -3,6 +3,8 @@
 namespace App\Shop\VoucherCodes\Transformations;
 
 use App\Shop\VoucherCodes\VoucherCode;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
+use App\Shop\Vouchers\Voucher;
 
 trait VoucherCodeTransformable {
 
@@ -13,6 +15,9 @@ trait VoucherCodeTransformable {
      * @return Voucher
      */
     public function transformVoucherCode(VoucherCode $voucherCode) {
+        
+        $objVoucher = new VoucherRepository(new Voucher);
+        
         $obj = new VoucherCode;
         $obj->id = $voucherCode->id;
         $obj->use_count = $voucherCode->use_count;

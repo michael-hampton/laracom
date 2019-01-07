@@ -10,6 +10,8 @@ use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterfa
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\Orders\Repositories\OrderRepository;
+use App\Shop\Products\Repositories\ProductRepository;
+use App\Shop\Products\Product;
 use App\Shop\Orders\Order;
 use App\Shop\OrderStatuses\OrderStatus;
 use App\Shop\Comments\OrderCommentRepository;
@@ -61,7 +63,7 @@ class WarehouseController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Backorder');
 
-        $items = $this->orderLineRepo->listOrderProducts()->where('status', $os->id);
+        $items = $this->orderLineRepo->listOrderProducts()->whereIn('status', [5, 15, 16, 17]);
 
         $items = $items->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
 
@@ -138,20 +140,24 @@ class WarehouseController extends Controller {
         $channel = $this->channelRepo->findChannelById($order->channel);
         $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
         $newStatus = $this->orderStatusRepo->findByName('Dispatch');
+        $completeStatus = $this->orderStatusRepo->findByName('Order Completed');
 
-        
-            
-              $objProduct = $productRepo->findProductById($objLine->product_id);
+        $productRepo = new ProductRepository(new Product);
 
-              $quantity = $objProduct->quantity - $objLine->quantity;
-              $objProductRepo = new ProductRepository($objProduct);
-              $objProductRepo->updateProduct(['quantity' => $quantity]);
+        $objProduct = $productRepo->findProductById($objLine->product_id);
+
+        $quantity = $objProduct->quantity - $objLine->quantity;
+        $reserved_stock = $objProduct->reserved_stock - $objLine->quantity;
+        $objProductRepo = new ProductRepository($objProduct);
+        $objProductRepo->updateProduct(['quantity' => $quantity, 'reserved_stock' => $reserved_stock]);
 
         $objOrderLineRepo = new OrderProductRepository($objLine);
 
         $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
-        
+
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
+            $order->order_status_id = $completeStatus->id;
+            $order->save();
             //complete order
         }
     }

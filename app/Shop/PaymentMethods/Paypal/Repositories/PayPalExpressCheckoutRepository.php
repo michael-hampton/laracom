@@ -5,6 +5,10 @@ namespace App\Shop\PaymentMethods\Paypal\Repositories;
 use App\Shop\Addresses\Address;
 use App\Shop\Orders\Order;
 use App\Shop\Addresses\Repositories\AddressRepository;
+use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
+use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
+use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
+use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Carts\Repositories\CartRepository;
 use App\Shop\Carts\ShoppingCart;
 use App\Shop\Checkout\CheckoutRepository;
@@ -27,7 +31,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * PayPalExpressCheckoutRepository constructor.
      */
     public function __construct() {
-        
+
         $payment = new Payment(new PaypalExpress(
                 config('paypal.client_id'), config('paypal.client_secret'), config('paypal.mode'), config('paypal.api_url')
         ));
@@ -51,12 +55,12 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
     public function process($shippingFee, $voucher, Request $request) {
         $cartRepo = new CartRepository(new ShoppingCart());
         $items = $cartRepo->getCartItemsTransformed();
-        
+
         if (request()->session()->has('discount_amount')) {
             $discountedAmount = request()->session()->get('discount_amount', 1);
-             $items->first()->price -= $discountedAmount;
+            $items->first()->price -= $discountedAmount;
         }
-        
+
         $addressRepo = new AddressRepository(new Address());
         $this->payPal->setPayer();
         $this->payPal->setItems($items);
@@ -71,7 +75,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             $shippingAddress = $addressRepo->findAddressById($request->input('shipping_address'));
             $this->payPal->setShippingAddress($shippingAddress);
         }
-        
+
         try {
             $response = $this->payPal->createPayment(
                     route('checkout.execute', $request->except('_token', '_method')), route('checkout.cancel')
@@ -87,11 +91,15 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
     }
 
     /**
+     * 
      * @param Request $request
-     *
-     * @throws \Exception
+     * @param \App\Shop\PaymentMethods\Paypal\Repositories\VoucherCodeRepositoryInterface $voucherCodeRepository
+     * @param \App\Shop\PaymentMethods\Paypal\Repositories\CourierRepositoryInterface $courierRepository
+     * @param \App\Shop\PaymentMethods\Paypal\Repositories\CustomerRepositoryInterface $customerRepository
+     * @param \App\Shop\PaymentMethods\Paypal\Repositories\AddressRepositoryInterface $addressRepository
+     * @param type $voucher
      */
-    public function execute(Request $request, $voucher = null) {
+    public function execute(Request $request, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, $voucher = null) {
         $payment = PayPalPayment::get($request->input('paymentId'), $this->payPal->getApiContext());
         $execution = $this->payPal->setPayerId($request->input('PayerID'));
         $trans = $payment->execute($execution, $this->payPal->getApiContext());
@@ -112,17 +120,17 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 'total' => $cartRepo->getTotal(),
                 'total_paid' => $transaction->getAmount()->getTotal(),
                 'tax' => $cartRepo->getTax()
-            ]);
+                    ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository);
         }
         $cartRepo->clearCart();
     }
-    
+
     /**
      * 
      * @param Order $order
      */
     public function doRefund(Order $order) {
-        
+
         die('do refund');
     }
 

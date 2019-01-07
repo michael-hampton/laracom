@@ -9,6 +9,8 @@ use App\Shop\Carts\Requests\PayPalCheckoutExecutionRequest;
 use App\Shop\Carts\Requests\StripeExecutionRequest;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
+use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
+use App\Shop\VoucherCodes\VoucherCode;
 use App\Shop\Customers\Customer;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
@@ -192,7 +194,8 @@ class CheckoutController extends Controller {
                 $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
             }
 
-            $this->payPal->execute($request, $voucher);
+            $this->payPal->execute($request, new VoucherCodeRepository(new VoucherCode), $this->courierRepo, $this->customerRepo, $this->addressRepo, $voucher
+            );
             $this->cartRepo->clearCart();
             return redirect()->route('checkout.success');
         } catch (PayPalConnectionException $e) {

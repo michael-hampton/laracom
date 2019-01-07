@@ -7,11 +7,16 @@ use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Checkout\CheckoutRepository;
 use App\Shop\Customers\Repositories\CustomerRepository;
-use App\Shop\Customers\Customer;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\OrderStatuses\OrderStatus;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
-use App\Shop\Channels\Channel;
+use App\Shop\Addresses\Repositories\AddressRepository;
+use App\Shop\Addresses\Address;
+use App\Shop\Customers\Customer;
+use App\Shop\Couriers\Courier;
+use App\Shop\Couriers\Repositories\CourierRepository;
+use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
+use App\Shop\VoucherCodes\VoucherCode;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\Shipping\ShippingInterface;
 use Gloudemans\Shoppingcart\Facades\Cart;
@@ -72,6 +77,12 @@ class BankTransferController extends Controller {
      * @var type 
      */
     private $voucherId = 0;
+    
+    /**
+     *
+     * @var type 
+     */
+    private $voucherCode;
 
     /**
      * BankTransferController constructor.
@@ -123,6 +134,7 @@ class BankTransferController extends Controller {
 
             if (!empty($voucherCode)) {
                 $this->voucherId = $this->voucherRepo->findVoucherById($voucherCode);
+                $this->voucherCode = $voucherCode;
             }
         }
 
@@ -177,7 +189,7 @@ class BankTransferController extends Controller {
         }
 
         $objChannel = $this->channelRepo->findByName(env('CHANNEL'));
-
+        
         $order = $checkoutRepo->buildCheckoutItems([
             'reference' => Uuid::uuid4()->toString(),
             'courier_id' => 1, // @deprecated
@@ -187,14 +199,15 @@ class BankTransferController extends Controller {
             'payment' => strtolower(config('bank-transfer.name')),
             'shipping' => $this->shippingFee,
             'discounts' => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
-            'voucher_id' => $this->voucherId,
+            'voucher_id' => $this->voucherCode,
+            'voucher_code' => $this->voucherId,
             'total_products' => $this->cartRepo->getSubTotal(),
             'total' => $total,
             'total_shipping' => $this->shippingFee,
             'total_paid' => $total_paid,
             'channel' => $objChannel,
-            'tax' => $this->cartRepo->getTax()
-        ]);
+            'tax' => $this->cartRepo->getTax(),
+                ], new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address));
 
         if (env('ACTIVATE_SHIPPING') == 1) {
 

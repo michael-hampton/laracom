@@ -7,11 +7,15 @@ use App\Shop\Addresses\Transformations\AddressTransformable;
 use App\Shop\Orders\Requests\CreateOrderRequest;
 use App\Shop\Couriers\Courier;
 use App\Shop\Couriers\Repositories\CourierRepository;
+use App\Shop\VoucherCodes\VoucherCode;
+use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Customers\Customer;
 use App\Shop\Orders\Requests\ImportRequest;
 use App\Shop\Comments\Comment;
 use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\Addresses\Repositories\AddressRepository;
+use App\Shop\Addresses\Address;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
@@ -173,18 +177,24 @@ class OrderController extends Controller {
     public function edit($orderId) {
 
         $order = $this->orderRepo->findOrderById($orderId);
+        
+       
+        
         $order->courier = $this->courierRepo->findCourierById($order->courier_id);
         $order->address = $this->addressRepo->findAddressById($order->address_id);
+        
         $orderRepo = new OrderRepository($order);
         $items = $this->orderProductRepo->listOrderProducts()->where('order_id', $orderId);
+        
 
         $voucher = null;
 
-        if (!empty($order->voucher_code)) {
-
-            $voucher = $this->voucherRepo->findVoucherById($order->voucher_code);
-        }
-
+//        if (!empty($order->voucher_code)) {
+//
+//
+//            $voucher = $this->voucherRepo->findVoucherById($order->voucher_code);
+//        }
+        
         $arrProducts = $this->productRepo->listProducts();
 
         $arrAudits = $order->audits;
@@ -271,7 +281,7 @@ class OrderController extends Controller {
 
         $customers = $this->customerRepo->listCustomers();
         $couriers = $this->courierRepo->listCouriers();
-        
+
         return view('admin.orders.create', [
             'selectedChannel' => isset($channel) ? $channel->id : null,
             'channels' => $channels,
@@ -302,11 +312,13 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
 
+        //VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository
+
         $order = $orderRepo->createOrder([
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
             'courier_id' => $request->courier,
             'customer_id' => $customer->id,
-            'voucher_code' => !empty($request->voucher_code) ? $request->voucher_code : null,
+            'voucher_id' => !empty($request->voucher_code) ? $request->voucher_code : null,
             'address_id' => $deliveryAddress->id,
             'order_status_id' => $os->id,
             'payment' => 'import',
@@ -317,7 +329,8 @@ class OrderController extends Controller {
             'total_paid' => $request->total,
             'channel' => $channel,
             'tax' => 0
-                ], true);
+                ], new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address), true
+        );
 
         $orderRepo = new OrderRepository($order);
         $orderRepo->buildOrderLinesForManualOrder($request->products);
@@ -407,7 +420,8 @@ class OrderController extends Controller {
         $channel = $this->channelRepo->findByName(env('CHANNEL'));
         $order = $this->orderRepo->findOrderById($request->order_id);
 
-        $newOrder = $this->orderRepo->cloneOrder($order, $channel);
+        $newOrder = $this->orderRepo->cloneOrder($order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address)
+        );
         $blError = false;
 
         if (!$newOrder) {
@@ -508,7 +522,7 @@ class OrderController extends Controller {
                     $flag = false;
                     continue;
                 }
-                
+
                 $line++;
                 $order = [];
 

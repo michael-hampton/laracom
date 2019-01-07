@@ -6,8 +6,6 @@ use Gloudemans\Shoppingcart\Facades\Cart;
 use App\Shop\Base\BaseRepository;
 use App\Shop\Employees\Employee;
 use App\Shop\Employees\Repositories\EmployeeRepository;
-use App\Shop\OrderProducts\Repositories\OrderProductRepository;
-use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\Channels\Channel;
 use App\Events\OrderCreateEvent;
 use Illuminate\Http\Request;
@@ -25,19 +23,19 @@ use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Shop\Orders\Transformers\OrderTransformable;
 use App\Shop\PaymentMethods\PaymentMethod;
-$use App\Shop\Products\Product;
+use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\ProductRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
-use App\Shop\Orders\Validation\NewOrderValidation.pho
+use App\Traits\MyTrait;
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface {
 
     use OrderTransformable;
-    use NewOrderValidation;
-    
+    use MyTrait;
+
     protected $validationFailures = [];
 
     /**
@@ -58,14 +56,17 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     /**
      * Create the order
      * @param array $params
+     * @param VoucherCodeRepositoryInterface $voucherCodeRepository
+     * @param CourierRepositoryInterface $courierRepository
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param AddressRepositoryInterface $addressRepository
      * @param bool $blManualOrder
      * @return Order
      * @throws OrderInvalidArgumentException
-     * @throws \Exception
      */
     public function createOrder(array $params, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, bool $blManualOrder = false): Order {
         try {
-            
+
             $this->validationFailures = [];
 
             if (isset($params['channel']) && !empty($params['channel'])) {
@@ -78,11 +79,15 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
                     $this->validateTotal($params, $items);
                 }
-                
-                $this->validateVoucherCode($voucherCodeRepository);
-                $this->validateCustomer($customerRepository);
-                $this->validateAddress($addressRepository);
-                $this->validateCourier($courierRepository);
+
+                if (isset($params['voucher_id']) && !empty($params['voucher_id'])) {
+
+                    $this->validateVoucherCode($voucherCodeRepository, $params['voucher_id']);
+                }
+
+                $this->validateCustomer($customerRepository, $params['customer_id']);
+                $this->validateAddress($addressRepository, $params['address_id']);
+                $this->validateCourier($courierRepository, $params['courier_id']);
 
                 $blPriority = $params['channel']->has_priority;
 
@@ -90,28 +95,27 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $params['is_priority'] = $blPriority;
                 $params['channel'] = $params['channel']->id;
             }
-            
-            if(count($this->validationFailures) > 0) {
-                $params['order_status_id'] = 12;
-               
+
+            if (count($this->validationFailures) > 0) {
+                $params['order_status_id'] = 13;
             }
 
             $order = $this->create($params);
 
-            if(count($this->validationFailures) > 0) {
-                
+            if (count($this->validationFailures) > 0) {
+
                 $strMessage = implode('<br>', $this->validationFailures);
                 //create comment
                 $data = [
-            'content' => $strMessage,
-            'user_id' => auth()->guard('admin')->user()->id
-        ];
-       
-        $postRepo = new OrderCommentRepository($order);
-        $postRepo->createComment($data);
+                    'content' => $strMessage,
+                    'user_id' => auth()->guard('admin')->user()->id
+                ];
+
+                $postRepo = new OrderCommentRepository($order);
+                $postRepo->createComment($data);
             }
-            
-            
+
+
             event(new OrderCreateEvent($order));
 
             return $order;
@@ -197,7 +201,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         return true;
     }
-    
 
     /**
      * Send email to customer
@@ -386,21 +389,22 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $this->associateProduct($product, $item->qty, $status);
             }
         }
-        
-        if(count($this->validationFailures) > 0 && !is_null($channel) && $channel->strict_validation === 0) {
-        } elseif($blOrderHung === true && !is_null($channel) && $channel->strict_validation === 1) {
+
+        if (in_array($order->order_status_id, [12, 13]) && !is_null($channel) && $channel->strict_validation === 0) {
+
+        } elseif ($blOrderHung === true && !is_null($channel) && $channel->strict_validation === 1) {
             $order->delete();
         } elseif ($blOrderHung === true && $order->order_status_id !== 12) {
             $order->order_status_id = 13;
             $order->save();
         } elseif ($items->count() == $countBackorderedItems || (
-            $items->count() > 1 && $countBackorderedItems > 0 && !is_null($channel) && $channel->partial_shipment === 0)) {
-                        
+                $items->count() > 1 && $countBackorderedItems > 0 && !is_null($channel) && $channel->partial_shipment === 0)) {
+
             $order->order_status_id = 11;
             $order->save();
         }
-        
-        
+
+
 
         return true;
     }

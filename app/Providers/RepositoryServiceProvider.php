@@ -58,6 +58,7 @@ use App\Shop\States\Repositories\StateRepository;
 use App\Shop\States\Repositories\StateRepositoryInterface;
 use App\Shop\Comments\Repositories\OrderCommentRepository;
 use App\Shop\Comments\Repositories\CommentRepository;
+use App\Traits\MyTrait;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider {
