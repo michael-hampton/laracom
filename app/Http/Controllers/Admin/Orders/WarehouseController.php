@@ -88,7 +88,7 @@ class WarehouseController extends Controller {
         $order = $this->orderRepo->findOrderById($request->orderId);
         $channel = $this->channelRepo->findChannelById($order->channel);
         $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
-        $newStatus = $this->orderStatusRepo->findByName('Packing');
+        $newStatus = $this->orderStatusRepo->findByName('Picking');
 
         if ($order->total_paid <= 0) {
 
@@ -115,7 +115,7 @@ class WarehouseController extends Controller {
         $order = $this->orderRepo->findOrderById($request->orderId);
         $channel = $this->channelRepo->findChannelById($order->channel);
         $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
-        $newStatus = $this->orderStatusRepo->findByName('Dispatch');
+        $newStatus = $this->orderStatusRepo->findByName('Packing');
 
         $objOrderLineRepo = new OrderProductRepository($objLine);
 
