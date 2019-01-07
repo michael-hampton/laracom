@@ -37,6 +37,21 @@
                     </select>
                 </div>
                 @endif
+                
+                <div class="form-group">
+                    <label for="courier">Courier</label>
+                    <select name="courier" id="courier" class="form-control">
+                        <option value="">--Select--</option>
+                        @foreach($couriers as $courier)
+                        <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                            <label class="" for="voucher_code">Voucher Code</label>
+                            <input lineid="0" placeholder="Voucher Code" name="voucher_code" id="voucher_code" class="form-control">
+                        </div
 
                 <button class="btn btn-sm btn-primary float-right m-t-n-xs add-more" style="margin-bottom:10px;" type="button"><strong>+</strong></button>
 
