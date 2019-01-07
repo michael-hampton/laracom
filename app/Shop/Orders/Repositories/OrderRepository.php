@@ -100,12 +100,17 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             
             if(count($this->validationFailures) > 0) {
                 $params['order_status_id'] = 12;
-                
-                //create comment
+               
             }
 
             $order = $this->create($params);
 
+            if(count($this->validationFailures) > 0) {
+                
+                //create comment
+            }
+            
+            
             event(new OrderCreateEvent($order));
 
             return $order;
