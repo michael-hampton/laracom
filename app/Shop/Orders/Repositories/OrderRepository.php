@@ -184,10 +184,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         ]);
 
         if ($this->allocate_on_order === true && $status !== 11) {
-            $product->quantity = ($product->quantity - $quantity);
+            //$product->quantity = ($product->quantity - $quantity);
         }
 
-        if ($status === 11) {
+        if ($this->allocate_on_order || $status === 11) {
 
             $product->reserved_stock = ($product->reserved_stock + $quantity);
         }
@@ -196,50 +196,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         return true;
     }
-
-    /**
-     * 
-     * @param type $customerRef
-     * @return type
-     * @throws Exception
-     */
-    private function validateCustomerRef($customerRef) {
-
-        if (strlen($customerRef) > 36) {
-            return false;
-        }
-
-        try {
-            $result = $this->listOrders()->where('customer_ref', $customerRef);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
-        }
-
-        return $result->isEmpty();
-    }
-
-    private function validateTotal($data, $cartItems) {
-        $productTotal = 0;
-
-        foreach ($cartItems as $cartItem) {
-
-            $productTotal += $cartItem->price;
-        }
-
-        $total = $productTotal + $data['shipping'] + $data['tax'];
-
-        if (!empty($data['discounts']) && $data['discounts'] > 0) {
-            $total -= $data['discounts'];
-        }
-
-
-        if (round($total, 2) !== round($data['total'], 2)) {
-
-            return false;
-        }
-
-        return true;
-    }
+    
 
     /**
      * Send email to customer
