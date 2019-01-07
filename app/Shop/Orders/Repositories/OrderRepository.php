@@ -53,13 +53,13 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * OrderRepository constructor.
      * @param Order $order
      */
-    public function __construct(Order $order, VoucherCodeRepository $voucherCodeRepository, CourierRepository $courierRepository, CustomerRepository $customerRepository, AddressRepository $addressRepository) {
+    public function __construct(Order $order) {
         parent::__construct($order);
         $this->model = $order;
-        $this->voucherCodeRepo = $voucherCodeRepository;
-        $this->courierRepo = $courierRepository;
-        $this->customerRepo = $customerRepository;
-        $this->addressRepo = $addressRepository;
+        //$this->voucherCodeRepo = $voucherCodeRepository;
+        //$this->courierRepo = $courierRepository;
+        //$this->customerRepo = $customerRepository;
+        //$this->addressRepo = $addressRepository;
     }
 
     /**
@@ -70,31 +70,38 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @throws OrderInvalidArgumentException
      * @throws \Exception
      */
-    public function createOrder(array $params, bool $blManualOrder = false): Order {
+    public function createOrder(array $params, VoucherCodeRepository $voucherCodeRepository, CourierRepository $courierRepository, CustomerRepository $customerRepository, AddressRepository $addressRepository, bool $blManualOrder = false): Order {
         try {
+            
+            $this->validationFailures = [];
 
             if (isset($params['channel']) && !empty($params['channel'])) {
                 $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
 
-                if (!$this->validateCustomerRef($customer_ref)) {
-
-                    throw new \Exception('Unable to validate customer order ref');
-                }
+                $this->validateCustomerRef($customer_ref);
 
                 if ($blManualOrder === false) {
                     $items = Cart::content();
 
-                    if (!$this->validateTotal($params, $items)) {
-
-                        throw new \Exception('Invalid order total');
-                    }
+                    $this->validateTotal($params, $items);
                 }
+                
+                $this->validateVoucherCode();
+                $this->validateCustomer();
+                $this->validateAddress();
+                $this->validateCourier();
 
                 $blPriority = $params['channel']->has_priority;
 
                 $params['customer_ref'] = $customer_ref;
                 $params['is_priority'] = $blPriority;
                 $params['channel'] = $params['channel']->id;
+            }
+            
+            if(count($this->validationFailures) > 0) {
+                $params['order_status_id'] = 12;
+                
+                //create comment
             }
 
             $order = $this->create($params);
