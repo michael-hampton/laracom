@@ -180,7 +180,7 @@ class OrderLineController extends Controller {
 
         $productRepo = new ProductRepository(new Product);
         $os = $this->orderStatusRepo->findByName('Backorder');
-        $objNewStatus = $this->orderStatusRepo->findByName('ordered');
+        $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
         $arrDone = [];
         $arrFailed = [];
 
@@ -205,8 +205,9 @@ class OrderLineController extends Controller {
 
                 $product = $productRepo->findProductById($objProductLine->product_id);
 
+                $availiableQty = $product->quantity - $product->reserved_stock;
 
-                if ($product->quantity > $objProductLine->quantity) {
+                if ($availiableQty > $objProductLine->quantity) {
 
                     $total--;
                 }
@@ -224,13 +225,15 @@ class OrderLineController extends Controller {
                 $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
                 $objProduct = $productRepo->findProductById($objLine2->product_id);
 
+                $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
+                
                 // check enough quantity to fulfil line if not reject
-                if ($objProduct->quantity > $objLine2->quantity) {
+                if ($availiableQty > $objLine2->quantity) {
                     // update stock
-                    $reserved_stock = $objProduct->reserved_stock - $objLine2->quantity;
-                    $quantity = $objProduct->quantity - $objLine2->quantity;
+                    $reserved_stock = $objProduct->reserved_stock + $objLine2->quantity;
+                    //$quantity = $objProduct->quantity - $objLine2->quantity;
                     $objProductRepo = new ProductRepository($objProduct);
-                    $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock, 'quantity' => $quantity]);
+                    $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
 
                     // update line status
                     $orderLineRepo = new OrderProductRepository(new OrderProduct);
@@ -246,12 +249,14 @@ class OrderLineController extends Controller {
 
                     $objProduct = $productRepo->findProductById($objLine2->product_id);
 
-                    if ($objProduct->quantity > $objLine2->quantity) {
+                    $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
+                    
+                    if ($availiableQty > $objLine2->quantity) {
                         $reserved_stock = $objProduct->reserved_stock - $objLine2->quantity;
-                        $quantity = $objProduct->quantity - $objLine2->quantity;
+                        //$quantity = $objProduct->quantity - $objLine2->quantity;
 
                         $objProductRepo = new ProductRepository($objProduct);
-                        $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock, 'quantity' => $quantity]);
+                        $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
 
                         $objLine2->status = $objNewStatus->id;
                         $objLine2->save();
