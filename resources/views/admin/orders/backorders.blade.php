@@ -121,6 +121,8 @@
             <div class="btn-group pull-right">
                 <button type="button" class="btn btn-primary do-allocation">Allocate</button>
             </div>
+            
+            <div class='checkbox-count'></div>
 
             {{ $items->links() }}
         </div>
@@ -132,7 +134,13 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
-
+    
+        $('.cb').change(function() {
+            var numberOfChecked = $('.cb:checked').length;
+            var totalCheckboxes = $('.cb').length;
+            $('.checkbox-count').html(numberOfChecked +' / ' + totalCheckboxes);
+         });
+     
         $('.do-allocation').on('click', function () {
 
             if ($('.cb:checked').length == 0)
