@@ -187,7 +187,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             //$product->quantity = ($product->quantity - $quantity);
         }
 
-        if ($this->allocate_on_order || $status === 11) {
+        if ($this->allocate_on_order === true || && $status !== 11) {
 
             $product->reserved_stock = ($product->reserved_stock + $quantity);
         }
@@ -386,7 +386,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             }
         }
         
-        if($blOrderHung === true && !is_null($channel) && $channel->strict_validation === 1) {
+        if(count($this->validationFailures) > 0 && !is_null($channel) && $channel->strict_validation === 0) {
+        } elseif($blOrderHung === true && !is_null($channel) && $channel->strict_validation === 1) {
             $order->delete();
         } elseif ($blOrderHung === true && $order->order_status_id !== 12) {
             $order->order_status_id = 13;
