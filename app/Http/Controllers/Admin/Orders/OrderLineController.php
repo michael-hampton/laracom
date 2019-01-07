@@ -234,30 +234,7 @@ class OrderLineController extends Controller {
                 $arrFailed[] = $arrLine['line_id'];
 
                 // if partial shipping allowed and more than 1 line backordered then move single line
-            } elseif ($total > 0 && $channel->partial_shipment === 1) {
-
-                $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
-                $objProduct = $productRepo->findProductById($objLine2->product_id);
-
-                $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
-                
-                // check enough quantity to fulfil line if not reject
-                if ($availiableQty > $objLine2->quantity) {
-                    // update stock
-                    $reserved_stock = $objProduct->reserved_stock + $objLine2->quantity;
-                    //$quantity = $objProduct->quantity - $objLine2->quantity;
-                    $objProductRepo = new ProductRepository($objProduct);
-                    $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-
-                    // update line status
-                    $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                    $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
-                } else {
-                    $arrFailed[] = $arrLine['line_id'];
-                }
-
-                // if all can be backordered move all
-            } elseif ($total === 0) {
+            } elseif ($intCantMove === 0 && $backorderCount > 1) {
 
                 foreach ($arrProducts as $objLine2) {
 
@@ -282,6 +259,27 @@ class OrderLineController extends Controller {
                 $order->order_status_id = $objNewStatus->id;
                 $order->save();
                 $arrDone[] = $arrLine['order_id'];
+            } elseif(($backorderCount === 1 && $intCantMove === 0 && $channel->partial_shipment === 1) || $channel->partial_shipment === 1) {
+
+                $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
+                $objProduct = $productRepo->findProductById($objLine2->product_id);
+
+                $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
+                
+                // check enough quantity to fulfil line if not reject
+                if ($availiableQty > $objLine2->quantity) {
+                    // update stock
+                    $reserved_stock = $objProduct->reserved_stock + $objLine2->quantity;
+                    //$quantity = $objProduct->quantity - $objLine2->quantity;
+                    $objProductRepo = new ProductRepository($objProduct);
+                    $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
+
+                    // update line status
+                    $orderLineRepo = new OrderProductRepository(new OrderProduct);
+                    $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
+                } else {
+                    $arrFailed[] = $arrLine['line_id'];
+                }
             }
         }
 
