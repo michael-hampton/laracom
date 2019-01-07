@@ -216,5 +216,9 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
 
         return true;
     }
+    
+    public function getByVoucherCode($voucherCode) {
+        $where('voucher_code', $voucherCode)->firstOrFail();
+    }
 
 }
