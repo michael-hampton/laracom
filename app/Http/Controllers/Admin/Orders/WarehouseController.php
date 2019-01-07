@@ -140,9 +140,12 @@ class WarehouseController extends Controller {
         $newStatus = $this->orderStatusRepo->findByName('Dispatch');
 
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 1) {
+            
+              $objProduct = $productRepo->findProductById($objLine->product_id);
 
-            $orderRepo = new OrderRepository($order);
-            $orderRepo->updateOrder(['order_status_id' => $newStatus->id]);
+              $quantity = $objProduct->quantity - $objLine->quantity;
+              $objProductRepo = new ProductRepository($objProduct);
+              $objProductRepo->updateProduct(['quantity' => $quantity]);
         } else {
             return response()->json(['error' => 'All order lines must be at dispatched status'], 404);
         }
