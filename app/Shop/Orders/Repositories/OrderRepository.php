@@ -26,10 +26,22 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
+use App\Shop\Orders\Validation\NewOrderValidation.pho
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface {
 
     use OrderTransformable;
+    use NewOrderValidation;
+    
+    protected $validationFailures = [];
+    
+    private $voucherCodeRepo;
+    
+    private $courierRepo;
+    
+    private $addressRepo;
+    
+    private $customerRepo;
 
     /**
      *
