@@ -234,7 +234,7 @@ class OrderLineController extends Controller {
                 $arrFailed[] = $arrLine['line_id'];
 
                 // if partial shipping allowed and more than 1 line backordered then move single line
-            } elseif ($intCantMove === 0 && $backorderCount === $total && $backorderCount > 1) {
+            } elseif ($intCantMove === 0 && $backorderCount > 1) {
 
                 foreach ($arrProducts as $objLine2) {
 
@@ -259,7 +259,7 @@ class OrderLineController extends Controller {
                 $order->order_status_id = $objNewStatus->id;
                 $order->save();
                 $arrDone[] = $arrLine['order_id'];
-            } elseif($backorderCount === $total || $channel->partial_shipment === 1) {
+            } elseif(($backorderCount === $total && $backorderCount === 1) || $channel->partial_shipment === 1) {
 
                 $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
                 $objProduct = $productRepo->findProductById($objLine2->product_id);
