@@ -53,7 +53,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * OrderRepository constructor.
      * @param Order $order
      */
-    public function __construct(Order $order) {
+    public function __construct(Order $order, VoucherCodeRepository $voucherCodeRepository, CourierRepository $courierRepository, CustomerRepository $customerRepository, AddressRepository $addressRepository) {
         parent::__construct($order);
         $this->model = $order;
     }
