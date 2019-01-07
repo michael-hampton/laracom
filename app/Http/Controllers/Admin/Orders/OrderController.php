@@ -312,8 +312,6 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
 
-        //VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository
-
         $order = $orderRepo->createOrder([
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
             'courier_id' => $request->courier,
