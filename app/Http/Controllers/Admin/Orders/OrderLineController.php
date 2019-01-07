@@ -165,9 +165,13 @@ class OrderLineController extends Controller {
             if (($intCantMove === $originalTotal) || ($total > 0 && $channel->partial_shipment === 0)) {
                 $arrFailed[] = $arrLine['line_id'];
             } elseif ($total > 0 && $channel->partial_shipment === 1) {
-                
-            } else {
-                
+                $orderLineRepo = new OrderProductRepository(new OrderProduct);
+                $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
+            } elseif($total === 0 {
+                foreach ($arrProducts as $objLine2) {
+                        $objLine2->status = $objNewStatus->id;
+                        $objLine2->save();
+                }
             }
         }
     }
@@ -198,6 +202,10 @@ class OrderLineController extends Controller {
             $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id)->where('status', $os->id);
 
             $total = $arrProducts->count();
+            
+            if($total === 0) {
+                continue;
+            }
 
             // work out how many lines can be moved
 
@@ -243,7 +251,7 @@ class OrderLineController extends Controller {
                 }
 
                 // if all can be backordered move all
-            } else {
+            } elseif ($total === 0) {
 
                 foreach ($arrProducts as $objLine2) {
 
