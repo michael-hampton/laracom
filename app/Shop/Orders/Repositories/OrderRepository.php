@@ -20,7 +20,7 @@ use App\Shop\Orders\Order;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\Orders\Transformers\OrderTransformable;
 use App\Shop\PaymentMethods\PaymentMethod;
-use App\Shop\Products\Product;
+$use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\ProductRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -56,6 +56,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function __construct(Order $order, VoucherCodeRepository $voucherCodeRepository, CourierRepository $courierRepository, CustomerRepository $customerRepository, AddressRepository $addressRepository) {
         parent::__construct($order);
         $this->model = $order;
+        $this->voucherCodeRepo = $voucherCodeRepository;
+        $this->courierRepo = $courierRepository;
+        $this->customerRepo = $customerRepository;
+        $this->addressRepo = $addressRepository;
     }
 
     /**
