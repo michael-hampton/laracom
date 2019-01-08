@@ -1,8 +1,7 @@
 <?php
-namespace App\Shop\Countries;
-use App\Shop\Provinces\Province;
+namespace App\Shop\CourierRates;
 use Illuminate\Database\Eloquent\Model;
-class Country extends Model
+class CourierRate extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -10,12 +9,10 @@ class Country extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
-        'iso',
-        'iso3',
-        'numcode',
-        'phonecode',
-        'status'
+        'range_from',
+        'range_to',
+        'country',
+        'cost'
     ];
     /**
      * The attributes that should be hidden for arrays.
@@ -23,8 +20,5 @@ class Country extends Model
      * @var array
      */
     protected $hidden = [];
-    public function provinces()
-    {
-        return $this->hasMany(Province::class);
-    }
+    
 }
