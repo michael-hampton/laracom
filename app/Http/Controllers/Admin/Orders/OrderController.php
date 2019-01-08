@@ -538,15 +538,18 @@ class OrderController extends Controller {
                 $csv_errors = Validator::make(
                                 $order, (new ImportRequest())->rules()
                         )->errors();
+                
+                 $customer = $this->customerRepo->searchCustomer($request->customer);
 
-                // Add any additional validation here.
-                // For example, validates that only certain years allowed
-                $allowed_years = [2013, 2015];
-
-//                if (!in_array($book['year'], $allowed_years)) {
-//                    $csv_errors->add('year', "Year must be either 2013 or 2015.");
-//                }
-//
+                if (empty($customer)) {
+                   $csv_errors->add('customer', "Customer is invalid.");
+               }
+                
+                 $courier = $this->courierRepo->searchCouriers($request->courier);
+                
+                if (empty($courier)) {
+                   $csv_errors->add('courier', "Courier is invalid.");
+                }
 
                 if ($csv_errors->any()) {
                     return redirect()->back()
