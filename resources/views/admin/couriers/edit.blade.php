@@ -24,33 +24,6 @@
                             <input type="text" name="url" id="url" placeholder="Link" class="form-control" value="{{ $courier->url ?: old('url') }}">
                         </div>
                     </div>
-                   
-                   div class="form-group">
-                    <label for="range_from">Range From</label>
-                    <div class="input-group">
-                        <input type="text" name="range_from" id="range_from" placeholder="Range From" class="form-control" value="{{ old('range_from') }}">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="range_to">Range To</label>
-                    <div class="input-group">
-                        <input type="text" name="range_to" id="range_to" placeholder="Range To" class="form-control" value="{{ old('range_to') }}">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="country">Country </label>
-                    <select name="country" id="country" class="form-control">
-                            @foreach($countries as $country)
-                                   @if($country->id == $courier->country)
-                                    <option selected="selected" value="{{ $country->id }}">{{ $country->name }}</option>
-                                @else
-                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
-                                @endif
-                            @endforeach
-                    </select>
-                </div>
                     
                     <div class="form-group">
                         <label for="is_free">Free Delivery? </label>
