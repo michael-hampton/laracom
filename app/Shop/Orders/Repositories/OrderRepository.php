@@ -68,6 +68,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         try {
 
             $this->validationFailures = [];
+            
+            $this->arrValidationFailures = Validator::make(
+                                $params, (new NewOrderRequest())->rules()
+                        )->errors();
 
             if (isset($params['channel']) && !empty($params['channel'])) {
                 $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
