@@ -6,6 +6,8 @@ use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Couriers\Requests\CreateCourierRequest;
 use App\Shop\Couriers\Requests\UpdateCourierRequest;
+use App\Shop\Countries\Repositories\CountryRepository;
+use App\Shop\Countries\Country;
 use App\Http\Controllers\Controller;
 
 class CourierController extends Controller {
@@ -38,7 +40,9 @@ class CourierController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function create() {
-        return view('admin.couriers.create');
+        $countryRepo = new CountryRepository(new Country);
+        $countries = $countryRepo->listCountries();
+        return view('admin.couriers.create', ['countries' => $countries]);
     }
 
     /**
@@ -60,7 +64,10 @@ class CourierController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit(int $id) {
-        return view('admin.couriers.edit', ['courier' => $this->courierRepo->findCourierById($id)]);
+        $countryRepo = new CountryRepository(new Country);
+        $countries = $countryRepo->listCountries();
+        return view('admin.couriers.edit', ['courier' => $this->courierRepo->findCourierById($id), 'countries' => $countries]);
+    }]);
     }
 
     /**
