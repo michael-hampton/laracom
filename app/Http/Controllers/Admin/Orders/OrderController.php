@@ -510,6 +510,7 @@ class OrderController extends Controller {
     public function saveImport(Request $request) {
         $file_path = $request->csv_file->path();
         $line = 0;
+        $arrDone = [];
 
         if (($handle = fopen($file_path, "r")) !== FALSE) {
 
@@ -518,6 +519,11 @@ class OrderController extends Controller {
 
                 if ($flag) {
                     $flag = false;
+                    continue;
+                }
+                
+                if(in_array($data['order_id'], $arrDone)) {
+                    
                     continue;
                 }
 
@@ -568,7 +574,7 @@ class OrderController extends Controller {
                                     ->with('error_line', $line);
                 }
                 
-                $orderId = $data['order_id'];
+                $arrDone = $data['order_id'];
             }
 
             fclose($handle);
