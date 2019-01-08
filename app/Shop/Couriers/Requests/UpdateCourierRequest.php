@@ -15,7 +15,10 @@ class UpdateCourierRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'name' => ['required', Rule::unique('couriers')->ignore($this->segment(3))]
+            'name' => ['required', Rule::unique('couriers')->ignore($this->segment(3))],
+            'range_from' => ['required'],
+            'range_to' => ['required'],
+            'country' => ['required'],
         ];
     }
 }
