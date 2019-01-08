@@ -23,6 +23,29 @@
                         <input type="text" name="url" id="url" placeholder="Link" class="form-control" value="{{ old('url') }}">
                     </div>
                 </div>
+                
+                <div class="form-group">
+                    <label for="range_from">Range From</label>
+                    <div class="input-group">
+                        <input type="text" name="range_from" id="range_from" placeholder="Range From" class="form-control" value="{{ old('range_from') }}">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="range_to">Range To</label>
+                    <div class="input-group">
+                        <input type="text" name="range_to" id="range_to" placeholder="Range To" class="form-control" value="{{ old('range_to') }}">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">Country </label>
+                    <select name="country" id="country" class="form-control">
+                        <option value="0">No</option>
+                        <option value="1" selected="selected">Yes</option>
+                    </select>
+                </div>
+                
                 <div class="form-group">
                     <label for="is_free">Is Free Delivery? </label>
                     <select name="is_free" id="is_free" class="form-control">
