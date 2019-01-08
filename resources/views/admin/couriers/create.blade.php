@@ -41,8 +41,9 @@
                 <div class="form-group">
                     <label for="country">Country </label>
                     <select name="country" id="country" class="form-control">
-                        <option value="0">No</option>
-                        <option value="1" selected="selected">Yes</option>
+                            @foreach($countries as $country)
+                                <option value="{{ $country->id }}">{{ $country->name }}</option>
+                            @endforeach
                     </select>
                 </div>
                 
