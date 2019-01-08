@@ -100,4 +100,21 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
         return $query->get();
         
     }
+    
+     /**
+     * @param CourierRate $address
+     * @return Address
+     */
+    public function attachCourierRate(CourierRate $courierRate): CourierRate {
+        $this->model->courierRates()->save($courierRate);
+        return $courierRate;
+    }
+    /**
+     * Find the courier rates attached to the courier
+     *
+     * @return mixed
+     */
+    public function findCourierRates(): Support {
+        return $this->model->courierRates;
+    }
 }
