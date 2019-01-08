@@ -1,18 +1,15 @@
 <?php
-
 namespace App\Shop\Customers;
-
 use App\Shop\Addresses\Address;
 use App\Shop\Orders\Order;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Sofa\Eloquence\Eloquence;
-
+use Laravel\Cashier\Billable;
+use Nicolaslopezj\Searchable\SearchableTrait;
 class Customer extends Authenticatable
 {
-    use Notifiable, SoftDeletes, Eloquence;
-
+    use Notifiable, SoftDeletes, SearchableTrait, Billable;
     /**
      * The attributes that are mass assignable.
      *
@@ -26,7 +23,7 @@ class Customer extends Authenticatable
         'credit',
         'customer_type'
     ];
-
+    
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -36,17 +33,25 @@ class Customer extends Authenticatable
         'password',
         'remember_token',
     ];
-
     protected $dates = ['deleted_at'];
-
+    /**
+     * Searchable rules.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        'columns' => [
+            'customers.name' => 10,
+            'customers.email' => 5
+        ]
+    ];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function addresses()
     {
-        return $this->hasMany(Address::class)->where('status', 1);
+        return $this->hasMany(Address::class)->whereStatus(true);
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -54,4 +59,14 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+    /**
+     * @param $term
+     *
+     * @return mixed
+     */
+    public function searchCustomer($term)
+    {
+        return self::search($term);
+    }
 }
+
