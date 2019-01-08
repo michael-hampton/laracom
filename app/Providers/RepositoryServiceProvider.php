@@ -28,6 +28,8 @@ use App\Shop\Countries\Repositories\CountryRepository;
 use App\Shop\Countries\Repositories\Interfaces\CountryRepositoryInterface;
 use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
+use App\Shop\CourierRates\Repositories\CourierRateRepository;
+use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Employees\Repositories\EmployeeRepository;
@@ -128,6 +130,9 @@ class RepositoryServiceProvider extends ServiceProvider {
         );
         $this->app->bind(
                 CourierRepositoryInterface::class, CourierRepository::class
+        );
+            $this->app->bind(
+                CourierRateRepositoryInterface::class, CourierRateRepository::class
         );
         $this->app->bind(
                 PaymentMethodRepositoryInterface::class, PaymentMethodRepository::class
