@@ -534,20 +534,26 @@ class OrderController extends Controller {
                         $order['shipping'],
                         $order['total']
                         ) = $data;
+                
+                $shipping = $this->courierRepo->findDeliveryMethod($order['total']);
 
+                if($shipping->isEmpty()) {
+                    $shippingCost = 0;
+                }
+                
                 $csv_errors = Validator::make(
                                 $order, (new ImportRequest())->rules()
                         )->errors();
                 
                  $customer = $this->customerRepo->searchCustomer($request->customer);
 
-                if (empty($customer)) {
+                if ($customer->isEmpty())) {
                    $csv_errors->add('customer', "Customer is invalid.");
                }
                 
                  $courier = $this->courierRepo->findByName($request->courier);
                 
-                if (empty($courier)) {
+                if ($courier->isEmpty()) {
                    $csv_errors->add('courier', "Courier is invalid.");
                 }
 
