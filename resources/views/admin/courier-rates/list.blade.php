@@ -13,12 +13,10 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <td class="col-md-2">Name</td>
-                                <td class="col-md-2">Description</td>
-                                <td class="col-md-2">URL</td>
-                                <td class="col-md-1">Is Free?</td>
+                                <td class="col-md-2">Courier</td>
+                                <td class="col-md-2">From</td>
+                                <td class="col-md-1">To</td>
                                 <td class="col-md-1">Cost</td>
-                                <td class="col-md-1">Status</td>
                                 <td class="col-md-3">Actions</td>
                             </tr>
                         </thead>
