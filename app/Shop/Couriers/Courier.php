@@ -30,4 +30,9 @@ class Courier extends Model
      * @var array
      */
     protected $hidden = [];
+    
+    public function courierRates()
+    {
+        return $this->hasMany(CourierRate::class);
+    }
 }
