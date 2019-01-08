@@ -30,6 +30,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\MyTrait;
+use App\Shop\Orders\Requests\NewOrderRequest;
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface {
 
