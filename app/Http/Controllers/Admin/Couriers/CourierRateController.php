@@ -1,6 +1,8 @@
-namespace App\Http\Controllers\Admin\Couriers;
+namespace App\Http\Controllers\Admin\CourierRates;
+use App\Shop\CourierRates\Repositories\CourierRateRepository;
 use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
+use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\Couriers\Requests\CreateCourierRequest;
 use App\Shop\Couriers\Requests\UpdateCourierRequest;
 use App\Shop\Countries\Repositories\CountryRepository;
@@ -12,12 +14,19 @@ class CourierRateController extends Controller {
      * @var CourierRepositoryInterface
      */
     private $courierRepo;
+    
     /**
-     * CourierController constructor.
+     * @var CourierRateRepositoryInterface
+     */
+    private $courierRateRepo;
+    
+    /**
+     * CourierRateController constructor.
      * @param CourierRepositoryInterface $courierRepository
      */
-    public function __construct(CourierRateRepositoryInterface $courierRepository) {
+    public function __construct(CourierRepositoryInterface $courierRepository, CourierRateRepositoryInterface $courierRateRepository) {
         $this->courierRepo = $courierRepository;
+        $this->courierRateRepo = $courierRateRepository;
     }
     /**
      * Display a listing of the resource.
@@ -25,7 +34,7 @@ class CourierRateController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        return view('admin.couriers.list', ['couriers' => $this->courierRepo->listCouriers('name', 'asc')]);
+        return view('admin.courier-rates.list', ['couriers' => $this->courierRateRepo->listCourierRates('name', 'asc')]);
     }
     /**
      * Show the form for creating a new resource.
@@ -35,18 +44,18 @@ class CourierRateController extends Controller {
     public function create() {
         $countryRepo = new CountryRepository(new Country);
         $countries = $countryRepo->listCountries();
-        return view('admin.couriers.create', ['countries' => $countries]);
+        return view('admin.courier-rates.create', ['countries' => $countries, 'couriers' => $this->courierRepo->listCouriers('name', 'asc')]);
     }
     /**
      * Store a newly created resource in storage.
      *
-     * @param  CreateCourierRequest $request
+     * @param  CreateCourierRateRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateCourierRequest $request) {
-        $this->courierRepo->createCourier($request->all());
+    public function store(CreateCourierRateRequest $request) {
+        $this->courierRateRepo->createCourierRate($request->all());
         $request->session()->flash('message', 'Create successful');
-        return redirect()->route('admin.couriers.index');
+        return redirect()->route('admin.courier-rates.index');
     }
     /**
      * Show the form for editing the specified resource.
@@ -57,22 +66,22 @@ class CourierRateController extends Controller {
     public function edit(int $id) {
         $countryRepo = new CountryRepository(new Country);
         $countries = $countryRepo->listCountries();
-        return view('admin.couriers.edit', ['courier' => $this->courierRepo->findCourierById($id), 'countries' => $countries]);
+        return view('admin.courier-rates.edit', ['courier' => $this->courierRateRepo->findCourierRateById($id), 'countries' => $countries, 'couriers' => $this->courierRepo->listCouriers('name', 'asc')]);
     }]);
     }
     /**
      * Update the specified resource in storage.
      *
-     * @param  UpdateCourierRequest  $request
+     * @param  UpdateCourierRateRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCourierRequest $request, $id) {
-        $courier = $this->courierRepo->findCourierById($id);
-        $update = new CourierRepository($courier);
-        $update->updateCourier($request->all());
+    public function update(UpdateCourierRateRequest $request, $id) {
+        $courier = $this->courierRateRepo->findCourierRateById($id);
+        $update = new CourierRateRepository($courier);
+        $update->updateCourierRate($request->all());
         $request->session()->flash('message', 'Update successful');
-        return redirect()->route('admin.couriers.edit', $id);
+        return redirect()->route('admin.courier-rates.edit', $id);
     }
     /**
      * Remove the specified resource from storage.
@@ -81,10 +90,10 @@ class CourierRateController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy(int $id) {
-        $courier = $this->courierRepo->findCourierById($id);
-        $courierRepo = new CourierRepository($courier);
+        $courier = $this->courierRateRepo->findCourierRateById($id);
+        $courierRepo = new CourierRateRepository($courier);
         $courierRepo->delete();
         request()->session()->flash('message', 'Delete successful');
-        return redirect()->route('admin.couriers.index');
+        return redirect()->route('admin.courier-rates.index');
     }
 }
