@@ -537,6 +537,7 @@ class OrderController extends Controller {
                         $order['voucher_code'],
                         $order['product'],
                         $order['quantity'],
+                        $order['price'],
                         $order['shipping'],
                         $order['total']
                         ) = $data;
