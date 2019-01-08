@@ -15,9 +15,11 @@ class ImportRequest extends BaseFormRequest
     {
         return [
             'channel' => ['required'],
-            'customer_id' => ['required'],
-            'shipping' => ['required'],
-            'total' => ['required']
+            'customer' => ['required'],
+            'courier' => ['required'],
+            'product' => ['required'],
+            'quantity' => ['required'],
+            'price' => ['required']
         ];
     }
 }
