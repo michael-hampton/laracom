@@ -43,7 +43,11 @@
                     <label for="country">Country </label>
                     <select name="country" id="country" class="form-control">
                             @foreach($countries as $country)
-                                <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                   @if($country->id == $courier->country)
+                                    <option selected="selected" value="{{ $country->id }}">{{ $country->name }}</option>
+                                @else
+                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                @endif
                             @endforeach
                     </select>
                 </div>
