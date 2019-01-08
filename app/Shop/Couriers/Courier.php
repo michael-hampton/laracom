@@ -21,7 +21,7 @@ class Courier extends Model
         'status',
         'range_from',
         'range_to',
-        'country_id'
+        'country'
     ];
 
     /**
