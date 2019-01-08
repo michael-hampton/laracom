@@ -1,4 +1,3 @@
-
 <?php
 namespace App\Shop\CourierRates\Requests;
 use App\Shop\Base\BaseFormRequest;

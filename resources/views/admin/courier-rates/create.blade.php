@@ -7,74 +7,64 @@
 <section class="content">
     @include('layouts.errors-and-messages')
     <div class="box">
-        <form action="{{ route('admin.couriers.store') }}" method="post" class="form">
+        <form action="{{ route('admin.courier-rates.store') }}" method="post" class="form">
             <div class="box-body">
                 {{ csrf_field() }}
+
                 <div class="form-group">
-                    <label for="name">Name <span class="text-danger">*</span></label>
-                    <input type="text" name="name" id="name" placeholder="Name" class="form-control" value="{{ old('name') }}">
+                    <label for="courier">Courier</label>
+                    <select name="courier" id="courier" class="form-control select2">
+                        <option value="">--Select--</option>
+                        @foreach($couriers as $courier)
+                        <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
+
                 <div class="form-group">
-                    <label for="description">Description </label>
-                    <textarea name="description" id="description" rows="5" class="form-control" placeholder="Description">{{ old('description') }}</textarea>
+                    <label for="channel">Channel</label>
+                    <select name="channel" id="channel" class="form-control select2">
+                        <option value="">--Select--</option>
+                        @foreach($channels as $channel)
+                        <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <div class="form-group">
-                    <label for="URL">URL</label>
-                    <div class="input-group">
-                        <span class="input-group-addon">http://</span>
-                        <input type="text" name="url" id="url" placeholder="Link" class="form-control" value="{{ old('url') }}">
-                    </div>
-                </div>
-                
+
                 <div class="form-group">
                     <label for="range_from">Range From</label>
                     <div class="input-group">
                         <input type="text" name="range_from" id="range_from" placeholder="Range From" class="form-control" value="{{ old('range_from') }}">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="range_to">Range To</label>
                     <div class="input-group">
                         <input type="text" name="range_to" id="range_to" placeholder="Range To" class="form-control" value="{{ old('range_to') }}">
                     </div>
                 </div>
-                
+
+                <div class="form-group">
+                    <label for="cost">Cost</label>
+                    <div class="input-group">
+                        <input type="text" name="cost" id="cost" placeholder="Cost" class="form-control" value="{{ old('cost') }}">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="country">Country </label>
                     <select name="country" id="country" class="form-control">
-                            @foreach($countries as $country)
-                                <option value="{{ $country->id }}">{{ $country->name }}</option>
-                            @endforeach
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="is_free">Is Free Delivery? </label>
-                    <select name="is_free" id="is_free" class="form-control">
-                        <option value="0">No</option>
-                        <option value="1" selected="selected">Yes</option>
-                    </select>
-                </div>
-                <div class="form-group" style="display: none" id="delivery_cost">
-                    <label for="cost">Delivery Cost <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                        <span class="input-group-addon">{{config('cart.currency')}}</span>
-                        <input class="form-control" type="text" id="cost" name="cost" placeholder="{{config('cart.currency')}}" value="{{old('cost')}}">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="status">Status </label>
-                    <select name="status" id="status" class="form-control">
-                        <option value="0">Disable</option>
-                        <option value="1">Enable</option>
+                        @foreach($countries as $country)
+                        <option value="{{ $country->id }}">{{ $country->name }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
             <!-- /.box-body -->
             <div class="box-footer">
                 <div class="btn-group">
-                    <a href="{{ route('admin.products.index') }}" class="btn btn-default">Back</a>
+                    <a href="{{ route('admin.courier-rates.index') }}" class="btn btn-default">Back</a>
                     <button type="submit" class="btn btn-primary">Create</button>
                 </div>
             </div>

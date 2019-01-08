@@ -13,7 +13,8 @@ class CourierRate extends Model
         'range_to',
         'country',
         'cost',
-        'channel'
+        'channel',
+        'courier'
     ];
     /**
      * The attributes that should be hidden for arrays.
