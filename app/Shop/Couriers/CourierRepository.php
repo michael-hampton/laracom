@@ -90,5 +90,6 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
         
         $query = DB::table('couriers');
         $query->whereRaw('LOWER(`name`) = ? ',[trim(strtolower($name))]);
+        return $query->get();
     }
 }
