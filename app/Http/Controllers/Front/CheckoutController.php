@@ -8,8 +8,8 @@ use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Carts\Requests\PayPalCheckoutExecutionRequest;
 use App\Shop\Carts\Requests\StripeExecutionRequest;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
-use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
+use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Shop\VoucherCodes\VoucherCode;
 use App\Shop\Customers\Customer;
 use App\Shop\Customers\Repositories\CustomerRepository;
@@ -45,9 +45,9 @@ class CheckoutController extends Controller {
     private $courierRepo;
 
     /**
-     * @var VoucherRepositoryInterface
+     * @var VoucherCodeRepositoryInterface
      */
-    private $voucherRepo;
+    private $voucherCodeRepo;
 
     /**
      * @var AddressRepositoryInterface
@@ -80,7 +80,7 @@ class CheckoutController extends Controller {
     private $shippingRepo;
 
     public function __construct(
-    CartRepositoryInterface $cartRepository, CourierRepositoryInterface $courierRepository, AddressRepositoryInterface $addressRepository, CustomerRepositoryInterface $customerRepository, ProductRepositoryInterface $productRepository, OrderRepositoryInterface $orderRepository, ShippingInterface $shipping, VoucherRepositoryInterface $voucherRepository
+    CartRepositoryInterface $cartRepository, CourierRepositoryInterface $courierRepository, AddressRepositoryInterface $addressRepository, CustomerRepositoryInterface $customerRepository, ProductRepositoryInterface $productRepository, OrderRepositoryInterface $orderRepository, ShippingInterface $shipping, VoucherCodeRepositoryInterface $voucherCodeRepository
     ) {
         $this->cartRepo = $cartRepository;
         $this->courierRepo = $courierRepository;
@@ -90,7 +90,7 @@ class CheckoutController extends Controller {
         $this->orderRepo = $orderRepository;
         $this->payPal = new PayPalExpressCheckoutRepository;
         $this->shippingRepo = $shipping;
-        $this->voucherRepo = $voucherRepository;
+        $this->voucherCodeRepo = $voucherCodeRepository;
     }
 
     /**
@@ -126,7 +126,7 @@ class CheckoutController extends Controller {
         $voucher = null;
 
         if (request()->session()->has('voucherCode')) {
-            $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+            $voucher = $this->voucherCodeRepo->getByVoucherCode(request()->session()->get('voucherCode', 1));
         }
 
         return view('front.checkout', [

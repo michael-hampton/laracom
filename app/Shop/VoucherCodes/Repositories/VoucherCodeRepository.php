@@ -157,7 +157,7 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
             return false;
         }
 
-        request()->session()->put('voucherCode', $results[0]->id);
+        request()->session()->put('voucherCode', $results[0]->voucher_code);
 
         return true;
     }

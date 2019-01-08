@@ -15,6 +15,7 @@ use App\Mail\SendRefundToCustomerMailable;
 use App\Shop\Orders\Exceptions\OrderInvalidArgumentException;
 use App\Shop\Orders\Exceptions\OrderNotFoundException;
 use App\Shop\Orders\Order;
+use Validator;
 use App\Shop\Comments\OrderCommentRepository;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
@@ -85,9 +86,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     $this->validateTotal($params, $items);
                 }
 
-                if (isset($params['voucher_id']) && !empty($params['voucher_id'])) {
+                if (isset($params['voucher_code']) && !empty($params['voucher_code'])) {
 
-                    $this->validateVoucherCode($voucherCodeRepository, $params['voucher_id']);
+                    $this->validateVoucherCode($voucherCodeRepository, $params['voucher_code']);
                 }
 
                 $this->validateCustomer($customerRepository, $params['customer_id']);

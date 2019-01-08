@@ -19,9 +19,7 @@ use App\Shop\Addresses\Address;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
-use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
-use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Orders\Order;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
@@ -31,8 +29,8 @@ use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterfac
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\Comments\Transformers\CommentTransformer;
-use App\Shop\Refunds\Refund;
 use App\Shop\Refunds\Repositories\Interfaces\RefundRepositoryInterface;
+use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Shop\Comments\OrderCommentRepository;
@@ -58,6 +56,11 @@ class OrderController extends Controller {
      * @var VoucherRepositoryInterface
      */
     private $voucherRepo;
+    
+     /**
+     * @var VoucherCodeRepositoryInterface
+     */
+    private $voucherCodeRepo;
 
     /**
      * @var ChannelRepositoryInterface
@@ -94,8 +97,22 @@ class OrderController extends Controller {
      */
     private $productRepo;
 
+    /**
+     * 
+     * @param OrderRepositoryInterface $orderRepository
+     * @param CourierRepositoryInterface $courierRepository
+     * @param AddressRepositoryInterface $addressRepository
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param OrderStatusRepositoryInterface $orderStatusRepository
+     * @param RefundRepositoryInterface $refundRepository
+     * @param ChannelRepositoryInterface $channelRepository
+     * @param OrderProductRepositoryInterface $orderProductRepository
+     * @param ProductRepositoryInterface $productRepository
+     * @param VoucherRepositoryInterface $voucherRepository
+     * @param VoucherCodeRepositoryInterface $voucherCodeRepository
+     */
     public function __construct(
-    OrderRepositoryInterface $orderRepository, CourierRepositoryInterface $courierRepository, AddressRepositoryInterface $addressRepository, CustomerRepositoryInterface $customerRepository, OrderStatusRepositoryInterface $orderStatusRepository, RefundRepositoryInterface $refundRepository, ChannelRepositoryInterface $channelRepository, OrderProductRepositoryInterface $orderProductRepository, ProductRepositoryInterface $productRepository, VoucherRepositoryInterface $voucherRepository
+    OrderRepositoryInterface $orderRepository, CourierRepositoryInterface $courierRepository, AddressRepositoryInterface $addressRepository, CustomerRepositoryInterface $customerRepository, OrderStatusRepositoryInterface $orderStatusRepository, RefundRepositoryInterface $refundRepository, ChannelRepositoryInterface $channelRepository, OrderProductRepositoryInterface $orderProductRepository, ProductRepositoryInterface $productRepository, VoucherRepositoryInterface $voucherRepository, VoucherCodeRepositoryInterface $voucherCodeRepository
     ) {
         $this->orderRepo = $orderRepository;
         $this->courierRepo = $courierRepository;
@@ -107,6 +124,7 @@ class OrderController extends Controller {
         $this->orderProductRepo = $orderProductRepository;
         $this->productRepo = $productRepository;
         $this->voucherRepo = $voucherRepository;
+        $this->voucherCodeRepo = $voucherCodeRepository;
 
         //$this->middleware(['permission:update-order, guard:employee'], ['only' => ['edit', 'update']]);
     }
@@ -178,22 +196,18 @@ class OrderController extends Controller {
 
         $order = $this->orderRepo->findOrderById($orderId);
         
-       
-        
         $order->courier = $this->courierRepo->findCourierById($order->courier_id);
         $order->address = $this->addressRepo->findAddressById($order->address_id);
         
-        $orderRepo = new OrderRepository($order);
         $items = $this->orderProductRepo->listOrderProducts()->where('order_id', $orderId);
         
-
         $voucher = null;
 
-//        if (!empty($order->voucher_code)) {
-//
-//
-//            $voucher = $this->voucherRepo->findVoucherById($order->voucher_code);
-//        }
+        if (!empty($order->voucher_code)) {
+
+
+            $voucher = $this->voucherCodeRepo->findVoucherCodeById($order->voucher_code);
+        }
         
         $arrProducts = $this->productRepo->listProducts();
 
@@ -559,7 +573,7 @@ class OrderController extends Controller {
                 
                  $customer = $this->customerRepo->searchCustomer($data['customer']);
 
-                if ($customer->isEmpty())) {
+                if ($customer->isEmpty()) {
                    $csv_errors->add('customer', "Customer is invalid.");
                }
                 

@@ -16,7 +16,9 @@ trait VoucherCodeTransformable {
      */
     public function transformVoucherCode(VoucherCode $voucherCode) {
         
-        $objVoucher = new VoucherRepository(new Voucher);
+        $voucher = new VoucherRepository(new Voucher);
+        
+        $objVoucher = $voucher->findVoucherById($voucherCode->voucher_id);
         
         $obj = new VoucherCode;
         $obj->id = $voucherCode->id;

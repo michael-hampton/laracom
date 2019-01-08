@@ -7,6 +7,8 @@ use App\Shop\Carts\Exceptions\ProductInCartNotFoundException;
 use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Carts\ShoppingCart;
 use App\Shop\Couriers\Courier;
+use App\Shop\VoucherCodes\VoucherCode;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Shop\Vouchers\Voucher;
 use App\Shop\Customers\Customer;
 use App\Shop\Products\Product;
@@ -17,6 +19,12 @@ use Gloudemans\Shoppingcart\Exceptions\InvalidRowIDException;
 use Illuminate\Support\Collection;
 
 class CartRepository extends BaseRepository implements CartRepositoryInterface {
+
+    /**
+     *
+     * @var type 
+     */
+    private $voucherAmount = 0;
 
     /**
      * CartRepository constructor.
@@ -40,7 +48,7 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
      * @return \Illuminate\Support\Collection
      */
     public function getCartItems(): Collection {
-        
+
         return $this->model->content();
     }
 
@@ -83,8 +91,19 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
      * @param type $voucher
      * @return type
      */
-    public function getTotal(int $decimals = 2, $shipping = 0.00, Voucher $voucher = null) {
-        return $this->model->total($decimals, '.', '', $shipping, $voucher);
+    public function getTotal(int $decimals = 2, $shipping = 0.00, VoucherCode $voucher = null) {
+
+        $voucherRepo = new VoucherRepository(new Voucher);
+
+        $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
+
+        $this->voucherAmount = $objVoucher->amount;
+
+        return $this->model->total($decimals, '.', '', $shipping, $objVoucher);
+    }
+
+    public function getVoucherAmount() {
+        return $this->voucherAmount;
     }
 
     /**
@@ -121,18 +140,8 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
      * @return mixed
      */
     public function getShippingFee(Courier $courier) {
-        
+
         return number_format($courier->cost, 2);
-    }
-    
-    /**
-     * 
-     * @param \App\Shop\Carts\Repositories\VoucherCode $voucherCode
-     * @return type
-     */
-    public function getVoucherAmount(Voucher $voucher) {
-        
-        return number_format($voucher->amount, 2);
     }
 
     /**

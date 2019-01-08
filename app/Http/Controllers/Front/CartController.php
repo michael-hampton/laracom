@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Shop\Carts\Requests\AddToCartRequest;
 use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
-use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
+use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Products\Repositories\ProductRepository;
@@ -34,9 +34,9 @@ class CartController extends Controller {
     private $courierRepo;
 
     /**
-     * @var VoucherRepositoryInterface
+     * @var VoucherCodeRepositoryInterface
      */
-    private $voucherRepo;
+    private $voucherCodeRepo;
 
     /**
      * CartController constructor.
@@ -46,12 +46,12 @@ class CartController extends Controller {
      * @param \App\Http\Controllers\Front\VoucherRepositoryInterface $voucherRepository
      */
     public function __construct(
-    CartRepositoryInterface $cartRepository, ProductRepositoryInterface $productRepository, CourierRepositoryInterface $courierRepository, VoucherRepositoryInterface $voucherRepository
+    CartRepositoryInterface $cartRepository, ProductRepositoryInterface $productRepository, CourierRepositoryInterface $courierRepository, VoucherCodeRepositoryInterface $voucherCodeRepository
     ) {
         $this->cartRepo = $cartRepository;
         $this->productRepo = $productRepository;
         $this->courierRepo = $courierRepository;
-        $this->voucherRepo = $voucherRepository;
+        $this->voucherCodeRepo = $voucherCodeRepository;
     }
 
     /**
@@ -73,7 +73,7 @@ class CartController extends Controller {
         $voucher = null;
 
         if (request()->session()->has('voucherCode')) {
-            $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+            $voucher = $this->voucherCodeRepo->getByVoucherCode(request()->session()->get('voucherCode', 1));
         }
 
         $courier = $this->courierRepo->findCourierById(request()->session()->get('courierId', 1));

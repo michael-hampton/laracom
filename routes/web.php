@@ -85,7 +85,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('countries.provinces', 'Provinces\ProvinceController');
         Route::resource('countries.provinces.cities', 'Cities\CityController');
         Route::resource('couriers', 'Couriers\CourierController');
-        Route::resource('courier-rates', 'CourierRates\CourierRateController');
+        Route::resource('courier-rates', 'Couriers\CourierRateController');
         Route::resource('payment-methods', 'PaymentMethods\PaymentMethodController');
         Route::resource('attributes', 'Attributes\AttributeController');
         Route::resource('attributes.values', 'Attributes\AttributeValueController');

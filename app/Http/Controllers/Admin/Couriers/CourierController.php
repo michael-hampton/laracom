@@ -66,8 +66,7 @@ class CourierController extends Controller {
     public function edit(int $id) {
         $countryRepo = new CountryRepository(new Country);
         $countries = $countryRepo->listCountries();
-        return view('admin.couriers.edit', ['courier' => $this->courierRepo->findCourierById($id), 'countries' => $countries]);
-    }]);
+        return view('admin.couriers.edit', ['courier' => $this->courierRepo->findCourierById($id)]);
     }
 
     /**

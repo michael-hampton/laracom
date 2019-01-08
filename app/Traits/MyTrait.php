@@ -32,10 +32,11 @@ trait MyTrait {
      * @return boolean
      */
     public function validateCustomer(CustomerRepositoryInterface $customerRepo, $id) {
-        
+
         try {
             $customerRepo->findCustomerById($id);
         } catch (\Exception $e) {
+
             $this->validationFailures[] = 'Invalid customer used';
             return false;
         }
@@ -69,9 +70,10 @@ trait MyTrait {
 
             return true;
         }
-
+        
         try {
-            $voucherRepo->getByVoucherCode($voucherCode);
+            $voucherRepo->findVoucherCodeById($voucherCode);
+            
         } catch (\Exception $e) {
             $this->validationFailures[] = 'Invalid voucher code used';
             return false;
