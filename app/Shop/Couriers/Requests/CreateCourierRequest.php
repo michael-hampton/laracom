@@ -16,9 +16,6 @@ class CreateCourierRequest extends BaseFormRequest
         return [
             'name' => ['required', 'unique:couriers'],
             'cost' => ['required_if:is_free,0'],
-            'range_from' => ['required'],
-            'range_to' => ['required'],
-            'country' => ['required'],
         ];
     }
 }
