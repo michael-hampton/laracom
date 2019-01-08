@@ -18,7 +18,10 @@ class Courier extends Model
         'url',
         'is_free',
         'cost',
-        'status'
+        'status',
+        'range_from',
+        'range_to',
+        'country_id'
     ];
 
     /**
