@@ -24,15 +24,16 @@
                         @foreach ($couriers as $courier)
                             <tr>
                                 <td>{{ $courier->name }}</td>
-                                <td>{{ str_limit($courier->description, 100, ' ...') }}</td>
-                                <td>{{ $courier->url }}</td>
+                                <td>{{ $courier->rate_from }}</td>
+                                <td>{{ $courier->rate_to }}</td>
+                                <td>{{ $courier->rate_to }}</td>
                                 <td>
                                     @include('layouts.status', ['status' => $courier->is_free])
                                 </td>
                                 <td>
                                     {{config('cart.currency')}} {{ $courier->cost }}
                                 </td>
-                                <td>@include('layouts.status', ['status' => $courier->status])</td>
+                                <!-- <td>@include('layouts.status', ['status' => $courier->status])</td> -->
                                 <td>
                                     <form action="{{ route('admin.couriers.destroy', $courier->id) }}" method="post" class="form-horizontal">
                                         {{ csrf_field() }}
