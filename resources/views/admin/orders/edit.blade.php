@@ -353,7 +353,10 @@
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (msg) {
-                    alert(msg);
+                    alert('success');
+                },
+                error: function(data){
+                alert('unable to complete action');
                 }
             });
 
@@ -375,6 +378,9 @@
                 },
                 success: function (msg) {
                     alert(msg);
+                },
+                error: function(data){
+                alert('unable to complete action');
                 }
             });
 
@@ -413,7 +419,10 @@
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (msg) {
-                    alert(msg);
+                    alert('success');
+                },
+                error: function(data){
+                alert('unable to complete action');
                 }
             });
 
@@ -444,7 +453,10 @@
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (msg) {
-                    alert(msg);
+                    alert('success');
+                },
+                error: function(data){
+                alert('unable to complete action');
                 }
             });
 
@@ -470,6 +482,9 @@
                 },
                 success: function (msg) {
 
+                },
+                error: function(data){
+                alert('unable to complete action');
                 }
             });
 
