@@ -526,8 +526,11 @@ class OrderController extends Controller {
 
                 list(
                         $order['channel'],
-                        $order['customer_id'],
+                        $order['customer'],
+                        $order['courier'],
                         $order['voucher_code'],
+                        $order['product'],
+                        $order['quantity'],
                         $order['shipping'],
                         $order['total']
                         ) = $data;
