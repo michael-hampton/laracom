@@ -11,8 +11,13 @@ class NewOrderRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'customer' => ['required'],
-            'channel' => ['required']
+            'reference' => ['required'],
+            'courier_id' => ['required'],
+            'customer_id' => ['required'],
+            'address_id' => ['required'],
+            'order_status_id' => ['required'],
+            'payment' => ['required'],
+            'total' => ['required']
         ];
     }
 }
