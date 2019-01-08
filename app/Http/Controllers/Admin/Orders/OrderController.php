@@ -535,6 +535,8 @@ class OrderController extends Controller {
                         $order['total']
                         ) = $data;
                 
+                $arrProducts[$data['order_id']] = array('product' => $data['product'], 'quantity' => $data['quantity']);
+                
                 $shipping = $this->courierRepo->findDeliveryMethod($order['total']);
 
                 if($shipping->isEmpty()) {
