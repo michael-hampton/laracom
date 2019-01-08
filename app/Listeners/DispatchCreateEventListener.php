@@ -25,6 +25,6 @@ class DispatchCreateEventListener {
         $orderRepo->sendDispatchEmail();
                 
         $orderRepo = new OrderRepository($event->order);
-        $orderRepo->sendDispatchEmailNotificationToAdmin();        
+        $orderRepo->sendEmailNotificationToAdmin();        
     }
 }
