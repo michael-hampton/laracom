@@ -11,6 +11,7 @@ use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class CourierRepository extends BaseRepository implements CourierRepositoryInterface
 {
@@ -83,5 +84,11 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
     public function listCouriers(string $order = 'id', string $sort = 'desc') : Collection
     {
         return $this->model->where('status', 1)->orderBy($order, $sort)->get();
+    }
+    
+    public function findByName($name) {
+        
+        $query = DB::table('couriers');
+        $query->whereRaw('LOWER(`name`) = ? ',[trim(strtolower($name))]);
     }
 }
