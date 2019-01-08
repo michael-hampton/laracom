@@ -545,7 +545,7 @@ class OrderController extends Controller {
                    $csv_errors->add('customer', "Customer is invalid.");
                }
                 
-                 $courier = $this->courierRepo->searchCouriers($request->courier);
+                 $courier = $this->courierRepo->findByName($request->courier);
                 
                 if (empty($courier)) {
                    $csv_errors->add('courier', "Courier is invalid.");
