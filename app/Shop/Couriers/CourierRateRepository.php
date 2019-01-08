@@ -70,4 +70,12 @@ class CourierRateRepository extends BaseRepository implements CountryRepositoryI
             throw new CountryInvalidArgumentException($e->getMessage());
         }
     }
+    
+    public function findShippingMethod($total) {
+        
+        $query = DB::table('couriers');
+        $query->whereRaw('? between range_from and range_to', [$total])
+        return $query->get();
+        
+    }
 }
