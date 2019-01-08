@@ -24,9 +24,9 @@
                         @foreach ($couriers as $courier)
                             <tr>
                                 <td>{{ $courier->name }}</td>
-                                <td>{{ $courier->rate_from }}</td>
-                                <td>{{ $courier->rate_to }}</td>
-                                <td>{{ $courier->rate_to }}</td>
+                                <td>{{ $courier->range_from }}</td>
+                                <td>{{ $courier->range_to }}</td>
+                                <td>{{ $courier->cost }}</td>
                                 <td>
                                     @include('layouts.status', ['status' => $courier->is_free])
                                 </td>
