@@ -146,6 +146,12 @@ class OrderLineController extends Controller {
 
             if ($statusCount === 0) {
                 foreach ($arrProducts as $objLine) {
+                    
+                    if($objLine->status !== $os->id) {
+                        
+                        continue;
+                    }
+                        
                     $objProduct = $productRepo->findProductById($objLine->product_id);
 
                     if($channel->allocate_on_order === 1 || $order->payment === 'import') {
