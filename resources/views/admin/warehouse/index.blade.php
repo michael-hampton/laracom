@@ -79,12 +79,13 @@
                 <th class="col-md-2">SKU</th>
                 <th class="col-md-2">Name</th>
                 <th class="col-md-2">Quantity</th>
+                <th class="col-md-2">Picklist Ref</th>
+                <th class="col-md-2">Bin</th>
                 <th class="col-md-2">Price</th>
                 <th class="col-md-2">Status</th>
                 <th class="col-md-2">Actions</th>
                 </thead>
                 <tbody>
-
 
                     @foreach($items as $item)
 
@@ -105,6 +106,8 @@
 
                         </td>
                         <td>{{ $item->quantity }}</td>
+                        <td>12335</td>
+                        <td>A</td>
                         <td>{{ $item->product_price }}</td>
                         <td>{{ $item->status }}</td>
 
