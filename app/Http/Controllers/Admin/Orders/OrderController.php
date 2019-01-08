@@ -535,9 +535,12 @@ class OrderController extends Controller {
                         $order['total']
                         ) = $data;
                 
-                $arrProducts[$data['order_id']] = array('product' => $data['product'], 'quantity' => $data['quantity']);
+                $arrProducts[$data['order_id']] = array(
+                    'product' => $data['product'], 
+                    'quantity' => $data['quantity']
+                );
                 
-                $shipping = $this->courierRepo->findDeliveryMethod($order['total']);
+                $shipping = $this->courierRepo->findDeliveryMethod($data['total']);
 
                 if($shipping->isEmpty()) {
                     $shippingCost = 0;
@@ -547,13 +550,13 @@ class OrderController extends Controller {
                                 $order, (new ImportRequest())->rules()
                         )->errors();
                 
-                 $customer = $this->customerRepo->searchCustomer($request->customer);
+                 $customer = $this->customerRepo->searchCustomer($data['customer']);
 
                 if ($customer->isEmpty())) {
                    $csv_errors->add('customer', "Customer is invalid.");
                }
                 
-                 $courier = $this->courierRepo->findByName($request->courier);
+                 $courier = $this->courierRepo->findByName($data['courier']);
                 
                 if ($courier->isEmpty()) {
                    $csv_errors->add('courier', "Courier is invalid.");
@@ -564,6 +567,8 @@ class OrderController extends Controller {
                                     ->withErrors($csv_errors, 'import')
                                     ->with('error_line', $line);
                 }
+                
+                $orderId = $data['order_id'];
             }
 
             fclose($handle);
