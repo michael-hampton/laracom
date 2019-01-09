@@ -81,6 +81,7 @@
                 <th class="col-md-2">Quantity</th>
                 <th class="col-md-2">Picklist Ref</th>
                 <th class="col-md-2">Bin</th>
+                <th class="col-md-2">Tote</th>
                 <th class="col-md-2">Price</th>
                 <th class="col-md-2">Status</th>
                 <th class="col-md-2">Actions</th>
@@ -107,6 +108,7 @@
                         </td>
                         <td>{{ $item->quantity }}</td>
                         <td>12335</td>
+                        <td>A</td>
                         <td>A</td>
                         <td>{{ $item->product_price }}</td>
                         <td>{{ $item->status }}</td>
