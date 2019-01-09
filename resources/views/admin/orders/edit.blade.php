@@ -149,6 +149,7 @@
             <h4> <i class="fa fa-gift"></i> Items</h4>
             
             <form>
+           @foreach($items as $item)
             <div class="form-row">
     <div class="form-group col-md-6">
       <label for="product_name">Product</label>
@@ -238,6 +239,7 @@
       <input type="text" class="form-control" disabled='disabled' id="price" name='price'>
     </div>
   </div>
+  @endforeach;
   </form>
             
             
