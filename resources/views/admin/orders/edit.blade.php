@@ -53,6 +53,7 @@
                     <tr>
                         <td class="col-md-3">Date</td>
                         <td class="col-md-3">Customer</td>
+                        <td class="col-md-3">Channel</td>
                         <td class="col-md-3">Payment</td>
                         <td class="col-md-3">Status</td>
                     </tr>
@@ -61,6 +62,7 @@
                     <tr>
                         <td>{{ date('M d, Y h:i a', strtotime($order['created_at'])) }}</td>
                         <td><a href="{{ route('admin.customers.show', $customer->id) }}">{{ $customer->name }}</a></td>
+                        <td><a href="{{ route('admin.customers.show', $customer->id) }}">{{ $order->channel }}</a></td>
                         <td><strong>{{ $order['payment'] }}</strong></td>
                         <td>
                             <form action="{{ route('admin.orders.update', $order->id) }}" method="post">
