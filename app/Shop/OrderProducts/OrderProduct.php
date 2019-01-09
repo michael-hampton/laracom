@@ -24,7 +24,13 @@ class OrderProduct extends Model {
         'product_sku',
         'product_description',
         'product_price',
-        'status'
+        'status',
+        'tote',
+        'sage_ref',
+        'picklist_ref',
+        'warehouse',
+        'courier_id',
+        'tracking_code'
     ];
 
     /**
