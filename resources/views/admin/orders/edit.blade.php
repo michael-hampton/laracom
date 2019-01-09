@@ -173,8 +173,8 @@
     </div>
     
    <div class="form-group col-md-3">
-      <label for="inputZip">Tracking Code</label>
-      <input type="text" class="form-control" id="tracking_code" name='tracking_code'>
+      <label for="inputZip">Picklist Ref</label>
+      <input type="text" class="form-control" id="picklist_ref" name='picklist_ref'>
     </div>
     
     <div class="form-group col-md-3">
@@ -220,20 +220,22 @@
   
   <div class="form-row">
     <div class="form-group col-md-3">
-      <label for="inputCity">City</label>
-      <input type="text" class="form-control" id="inputCity">
+      <label for="inputCity">Reserved Stock</label>
+      <input type="text" class="form-control" disabled='disabled' id="reserved_stock" name='reserved_stock'>
     </div>
     
     <div class="form-group col-md-3">
-      <label for="inputState">State</label>
-      <select id="inputState" class="form-control">
-        <option selected>Choose...</option>
-        <option>...</option>
-      </select>
+      <label for="inputState">Stock Available</label>
+      <input type="text" class="form-control" disabled='disabled' id="stock_availiable" name='stock_availiable'>
     </div>
     <div class="form-group col-md-3">
-      <label for="inputZip">Zip</label>
-      <input type="text" class="form-control" id="inputZip">
+      <label for="inputZip">Quantity</label>
+      <input type="text" class="form-control" disabled='disabled' id="quantity" name='quantity'>
+    </div>
+    
+    <div class="form-group col-md-3">
+      <label for="inputZip">Price</label>
+      <input type="text" class="form-control" disabled='disabled' id="price" name='price'>
     </div>
   </div>
   </form>
