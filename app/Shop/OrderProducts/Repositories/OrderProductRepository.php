@@ -186,6 +186,11 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
 
             $q->where('order_product.status', $request->status);
         }
+        
+        if ($request->has('courier') && count($request->courier)) {
+
+            $q->whereIn('orders.courier_id', $request->courier);
+        }
 
         if ($request->has('channel') && count($request->channel)) {
             $q->where('channel', $request->channel);
