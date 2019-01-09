@@ -1105,6 +1105,9 @@ crossorigin="anonymous"></script>
                                             var newProduct = $('.replace-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]').clone();
                                             var productForSwap = $('.replace-window .selected-for-swap');
                                             var newProductCode = productForSwap.find('.product-code').val();
+                                            
+                                            alert(newProductCode);
+                                            
                                             var newProductTitle = productForSwap.find('.product-title').val();
                                             var newProductWarehouse = productForSwap.find('#warehouse-ref').val();
                                             var newProductStatus = originalProduct.attr('data-line-status');
@@ -1125,6 +1128,8 @@ crossorigin="anonymous"></script>
                                             $('.replace-window #freeTextLostinPost').val('');
                                             //~BR - lets draw the drop down - this is messy as, but without recoding the whole thing, I need to allow a Qty to be selected for the Line
                                             var Quantity = originalProduct.attr('data-line-quantity');
+                                            
+                                            alert(Quantity);
                                             var qtyDropdownHtml = '<br /><div class="col-sm-7 input-group input-group-sm pull-right">\n' +
                                                     '            <span class="input-group-addon order-details-label">Swap Quantity</span>\n' +
                                                     '        <select class="form-control quantity" name="quantity[' + lineRef + ']">';
@@ -1153,6 +1158,8 @@ crossorigin="anonymous"></script>
                                             var productForSwap = $('.swap-window .selected-for-swap');
                                             var newproductCode = productForSwap.find('.product-code').val();
                                             var newproductTitle = productForSwap.find('.product-title').val();
+                                            
+                                            alert('f ' + newproductTitle);
 
                                             newProduct.removeClass('active').attr('data-product-code', newproductCode).attr('data-line-ref', lineRef).attr('data-original-product-code', originalProduct.attr('data-product-code'));
                                             newProduct.find('.product-code').html(newproductCode);
@@ -1175,6 +1182,8 @@ crossorigin="anonymous"></script>
                                             $.each(productsForSwap.children(), function (ind, value) {
                                                 var newProductCode = $(value).attr('data-product-code');
                                                 var lineRef = $(value).attr('data-line-ref');
+                                                alert(lineRef);
+                                                // this needs to be the lines form
                                                 var lines = $('#order-details-line-container');
                                                 var updateLine = lines.find('div[data-line-ref="' + lineRef + '"]');
                                                 updateLine.find('.update-kondor-product-code').val(newProductCode);
