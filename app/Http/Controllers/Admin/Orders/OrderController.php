@@ -495,10 +495,12 @@ class OrderController extends Controller {
         $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
         $channels = $this->channelRepo->listChannels();
+        $couriers = $this->courierRepo->listCouriers();
 
         return view('admin.orders.backorders', [
             'items' => $items,
-            'channels' => $channels
+            'channels' => $channels,
+            'couriers' => $couriers
                 ]
         );
     }
@@ -513,10 +515,12 @@ class OrderController extends Controller {
         $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
         $channels = $this->channelRepo->listChannels();
+        $couriers = $this->courierRepo->listCouriers();
 
         return view('admin.orders.allocations', [
             'items' => $items,
-            'channels' => $channels
+            'channels' => $channels,
+            'couriers' => $couriers
                 ]
         );
     }
