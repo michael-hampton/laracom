@@ -113,6 +113,16 @@
                         <td class="bg-danger text-bold">{{ $order['total_paid'] }}</td>
                     </tr>
                     @endif
+                    
+                        @if($order['amount_refunded'] > 0)
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="bg-danger text-bold">Total refunded</td>
+                        <td class="bg-danger text-bold">{{ $order['amount_refunded'] }}</td>
+                    </tr>
+                    @endif
+                    
                 </tbody>
             </table>
         </div>
