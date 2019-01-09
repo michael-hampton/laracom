@@ -607,5 +607,59 @@ class OrderController extends Controller {
 
         return view('admin.orders.importCsv');
     }
+    
+    private function addToQueue($data) {
+         $config = [
+            'factory_class' => AmqpConnectionFactory::class,
+            'dsn'      => null,
+            'host'     => getenv('HOST'),
+            'port'     => getenv('PORT'),
+            'login'    => 'guest',
+            'password' => 'guest',
+            'vhost'    => '/',
+            'options' => [
+                'exchange' => [
+                    'name' => null,
+                    'declare' => true,
+                    'type' => \Interop\Amqp\AmqpTopic::TYPE_DIRECT,
+                    'passive' => false,
+                    'durable' => true,
+                    'auto_delete' => false,
+                ],
+                'queue' => [
+                    'name' => 'default',
+                    'declare' => true,
+                    'bind' => true,
+                    'passive' => false,
+                    'durable' => true,
+                    'exclusive' => false,
+                    'auto_delete' => false,
+                    'arguments' => '[]',
+                ],
+            ],
+            'ssl_params' => [
+                'ssl_on'        => false,
+                'cafile'        => null,
+                'local_cert'    => null,
+                'local_key'     => null,
+                'verify_peer'   => true,
+                'passphrase'    => null,
+            ],
+        ];
+        
+        $connector = new RabbitMQConnector(new Dispatcher());
+        /** @var RabbitMQQueue $queue */
+        $queue = $connector->connect($config);
+        $queue->setContainer($this->createDummyContainer());
+        // we need it to declare exchange\queue on RabbitMQ side.
+        $queue->pushRaw('something');
+        $queue->getContext()->purgeQueue($queue->getContext()->createQueue('default'));
+        $expectedPayload = json_encode($data);
+        $queue->pushRaw($expectedPayload);
+        sleep(1);
+        $job = $queue->pop();
+        
+        var_dump($job);
+    }
 
 }
