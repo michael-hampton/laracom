@@ -150,6 +150,18 @@
             
             <form>
             <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="product_name">Product</label>
+      <input type="text" disabled='disabled' class="form-control" id="inputCity">
+    </div>
+    
+    <div class="form-group col-md-3">
+      <label for="inputState">Description</label>
+      <input type="text" disabled='disabled' class="form-control" id="inputCity">
+    </div>
+  </div>
+            
+            <div class="form-row">
     <div class="form-group col-md-3">
       <label for="inputCity">City</label>
       <input type="text" class="form-control" id="inputCity">
