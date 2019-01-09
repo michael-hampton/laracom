@@ -56,6 +56,19 @@
                             </div>
                             @endif
                         </div>
+                        
+                        <div class="pull-left col-lg-2">
+                            @if(!$couriers->isEmpty())
+                            <div class="form-group">
+                                <select name="courier" id="courier" class="form-control select2">
+                                    <option value="">Courier</option>
+                                    @foreach($couriers as $courier)
+                                    <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
+                        </div>
 
                         <input type="hidden" id="status" name="status" value="14">
                         <input type="hidden" id="module" name="module" value="allocations">
