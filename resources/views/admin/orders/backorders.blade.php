@@ -107,7 +107,7 @@
                             <td>{{ $item->product_price }}</td>
 
                             <td>
-                                <input type="checkbox" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                <input type="checkbox" checked='checked' class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
                             </td>
                         </tr>
                         @endforeach
