@@ -214,6 +214,7 @@
             
             <form method='post' action=''>
              {{ csrf_field() }}
+             <input type="hidden" name='form[{{$count}}][line_id]' value='{{$item->id}}'>
            @foreach($items as $count => $item)
             <div class="form-row">
     <div class="form-group col-md-6">
