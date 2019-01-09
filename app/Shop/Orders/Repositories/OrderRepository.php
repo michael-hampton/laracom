@@ -273,6 +273,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
             $q->where('customer_ref', 'like', '%' . $request->q . '%');
         }
+        
+        if ($request->has('courier') && count($request->courier)) {
+
+            $q->whereIn('orders.courier_id', $request->courier);
+        }
 
         if ($request->has('name') && count($request->name)) {
             $q->where('customers.name', 'like', '%' . $request->name . '%');
