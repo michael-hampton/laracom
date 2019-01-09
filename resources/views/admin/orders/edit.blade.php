@@ -136,7 +136,7 @@
                     <div class="" data-line-ref="1">
 
                         <select class="current-line-ref" data-line-ref="1">
-                            <option value="1">1</option>
+                            <option class='active' value="1">1</option>
                             <option value="2"></option>
                         </select>
 
@@ -149,7 +149,7 @@
                     <input type="text" placeholder="Start typing to find a swappable product" class="form-control" data-channel="EEA/3/14" name="freeTextLostinPost" id="freeTextLostinPost">
                     <p class="no-products"></p>
                     <h4 class="title">Notice: Product codes may ONLY contain "a-z 0-9 - _"</h4>
-                    <input type="hidden" name="channel" id="channel" value="EEA/3/14">
+                    <input type="hidden" name="channel" id="channel" value="{{$order->channel}}">
                     <input type="hidden" name="current-line" id="current-line" value="">
                     <input type="hidden" name="warehouse-ref" id="warehouse-ref" value="">
                 </div>
@@ -182,7 +182,7 @@
                     <div id="rma-delivery-select">
                         <div class="col-sm-11 input-group input-group-sm pull-right">
                             <span class="input-group-addon order-details-label">Select Delivery Code:</span>
-                            <select class="form-control" name="delivery" id="onlyRMADeliveryDropDown2">
+                            <select class="form-control" name="courier_id" id="onlyRMADeliveryDropDown2">
 
                                 <option value="RMA_INT_B4_3PM_UPG" selected="">RMA_INT_B4_3PM_UPG</option>
                             </select>
@@ -195,12 +195,6 @@
             </div>
         </div>
     </div>
-    <script>
-        function openOrder(customerRef)
-        {
-            window.open("http://koms.kondor.tes/sales/ordersearch/?customer_ref=" + customerRef);
-        }
-    </script>
 
     <div style="display:none;" class="swap-window">
 
@@ -217,7 +211,7 @@
 
                     <div class="" data-line-ref="1">
                         <select class="current-line-ref" data-line-ref="1">
-                            <option value="1">1</option>
+                            <option class='active' value="1">1</option>
                             <option value="2"></option>
                         </select>
                     </div>
@@ -227,7 +221,7 @@
                 <div id="searchBoxWrapper" class="col-lg-4 col-md-2">
                     <h3>Replace to...</h3>
                     <input type="text" placeholder="Start typing to find a swappable product" class="form-control" data-channel="EEA/3/14" name="freeTextLostinPost" id="SwapFinder">
-                    <input type="hidden" name="channel" id="channel" value="EEA/3/14">
+                    <input type="hidden" name="channel" id="channel" value="{{$order->channel}}">
                     <input type="hidden" name="current-line" id="current-line" value="">
                     <p class="no-products"></p>
                     <h4 class="title">Notice: Product codes may ONLY contain "a-z 0-9 - _"</h4>
@@ -396,9 +390,9 @@
                     <div class="form-group col-md-3">
                         <label for="inputZip">Warehouse</label>
                         <select id="warehouse" name='form[{{$count}}][warehouse]' class="form-control">
-                            <option selected>Choose...</option>
-                            <option value='KW'>KW</option>
-                            <option value='RW'>RW</option>
+                            <option>Choose...</option>
+                            <option value='KW' @if($item->warehouse == 'KW') selected="selected" @endif>KW</option>
+                            <option value='RW' @if($item->warehouse == 'RW') selected="selected" @endif>RW</option>
                         </select>
                     </div>
 
@@ -430,7 +424,7 @@
 
                     <div class="form-group col-md-3">
                         <label for="inputZip">Dispatch Date</label>
-                        <input type="text" disabled class="form-control" id="dispatch_date" name='dispatch_date'>
+                        <input type="text" disabled class="form-control" id="dispatch_date" name='dispatch_date' value='{{$item->dispatch_date}}'>
                     </div>
                 </div>
 
