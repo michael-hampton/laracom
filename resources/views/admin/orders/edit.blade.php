@@ -20,19 +20,19 @@
                 </div>
 
                 <div class="col-md-1">
-                    <a href="#" class="do-refund" order-id="{{ $order->id }}">
+                    <a href="#" class="do-refund" id='refundBtn' order-id="{{ $order->id }}">
                     <span class='glyphicon glyphicon-transfer'></span>
                     </a>
                 </div>
 
                 <div class="col-md-1">
-                    <a href="{{route('admin.orders.cloneOrder', $order['id'])}}" class="do-clone" order-id="{{ $order->id }}">
+                    <a href="{{route('admin.orders.cloneOrder', $order['id'])}}" class="do-clone" id='replaceBtn' order-id="{{ $order->id }}">
                     <span class='glyphicon glyphicon-flash'></span>
                     </a>
                 </div>
 
                 <div class="col-md-1">
-                    <a href="#" class="do-swap">
+                    <a href="#" class="do-swap" id='lostInPostBtn'>
                     <span class='glyphicon glyphicon-retweet'></span>
                     </a>
                 </div>
@@ -202,7 +202,7 @@
                     </tr>
                     @endforeach
                     
-                    <button type='submit' id='SaveOrder' class='pull-right btn btn-primary'></button>
+                
                 </tbody>
             </table>
     </div>
@@ -305,6 +305,8 @@
     </div>
   </div>
   @endforeach;
+  
+      <button type='submit' id='SaveOrder' class='pull-right btn btn-primary'></button>
   </form>
       
     </div>
