@@ -135,6 +135,11 @@
 <script type="text/javascript">
     $(document).ready(function () {
     
+        $('.uncheck').click(function() {
+            var checkboxes = $('.cb');
+            $('.cb').prop('checked', !checkboxes.prop('checked');
+        });
+    
         $('.cb').change(function() {
             var numberOfChecked = $('.cb:checked').length;
             var totalCheckboxes = $('.cb').length;
