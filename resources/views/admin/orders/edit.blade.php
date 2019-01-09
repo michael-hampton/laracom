@@ -148,7 +148,8 @@
         <div class="box-body">
             <h4> <i class="fa fa-gift"></i> Items</h4>
             
-            <form>
+            <form method='post' action=''>
+             {{ csrf_field() }}
            @foreach($items as $count => $item)
             <div class="form-row">
     <div class="form-group col-md-6">
@@ -165,17 +166,17 @@
             <div class="form-row">
     <div class="form-group col-md-3">
       <label for="inputCity">Tote</label>
-      <input type="text" class="form-control" id="tote" name='form[{{$count}}][tote]'>
+      <input type="text" placeholder='Tote' class="form-control" id="tote" name='form[{{$count}}][tote]'>
     </div>
     
     <div class="form-group col-md-3">
       <label for="inputState">Sage Ref</label>
-      <input type="text" class="form-control" id="sage_ref" name='form[{{$count}}][sage_ref]'>
+      <input type="text" placeholder='Sage Ref' class="form-control" id="sage_ref" name='form[{{$count}}][sage_ref]'>
     </div>
     
    <div class="form-group col-md-3">
       <label for="inputZip">Picklist Ref</label>
-      <input type="text" class="form-control" id="picklist_ref" name='form[{{$count}}][picklist_ref]'>
+      <input type="text" placeholder='Picklist Ref' class="form-control" id="picklist_ref" name='form[{{$count}}][picklist_ref]'>
     </div>
     
     <div class="form-group col-md-3">
@@ -210,7 +211,7 @@
     
     <div class="form-group col-md-3">
       <label for="inputZip">Tracking Code</label>
-      <input type="text" class="form-control" id="tracking_code" name='form[{{$count}}][tracking_code]'>
+      <input type="text" class="form-control" id="tracking_code" placeholder='Tracking code' name='form[{{$count}}][tracking_code]'>
     </div>
     
    <div class="form-group col-md-3">
