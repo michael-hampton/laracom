@@ -36,6 +36,14 @@ use Illuminate\Http\Request;
 use App\Shop\Comments\OrderCommentRepository;
 use Illuminate\Support\Collection;
 use Validator;
+use Psr\Log\NullLogger;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Container\Container;
+use Enqueue\AmqpLib\AmqpConnectionFactory;
+use VladimirYuldashev\LaravelQueueRabbitMQ\Queue\RabbitMQQueue;
+use VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Jobs\RabbitMQJob;
+use VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector;
+/**
 
 class OrderController extends Controller {
 
@@ -198,6 +206,7 @@ class OrderController extends Controller {
         
         $order->courier = $this->courierRepo->findCourierById($order->courier_id);
         $order->address = $this->addressRepo->findAddressById($order->address_id);
+        $couriers = $this->courierRepo->listCouriers();
         
         $items = $this->orderProductRepo->listOrderProducts()->where('order_id', $orderId);
         
@@ -225,6 +234,7 @@ class OrderController extends Controller {
             'statuses' => $this->orderStatusRepo->listOrderStatuses(),
             'products' => $arrProducts,
             'order' => $order,
+            'couriers' => $couriers,
             'items' => $items,
             'refunds' => $arrRefunds,
             'customer' => $this->customerRepo->findCustomerById($order->customer_id),
@@ -660,6 +670,13 @@ class OrderController extends Controller {
         $job = $queue->pop();
         
         var_dump($job);
+    }
+    
+    private function createDummyContainer()
+    {
+        $container = new Container();
+        $container['log'] = new NullLogger();
+        return $container;
     }
 
 }
