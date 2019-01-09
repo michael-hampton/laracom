@@ -63,10 +63,14 @@ class OrderLineController extends Controller {
      */
     public function updateLineStatus(Request $request) {
 
-        $orderProduct = $this->orderLineRepo->findOrderProductById($request->line_id);
+        foreach($request->products as $arrData) {
+        
+        
+        $orderProduct = $this->orderLineRepo->findOrderProductById($arrData['line_id']);
         $orderProductRepo = new OrderProductRepository($orderProduct);
 
-        $orderProductRepo->updateOrderProduct(['status' => $request->status], $request->line_id);
+        $orderProductRepo->updateOrderProduct(['status' => $arrData, $arrData['line_id']);
+                                               }
         return redirect()->route('admin.orders.edit', $request->order_id);
     }
 
