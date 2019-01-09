@@ -60,7 +60,7 @@
                          <div class="pull-left col-lg-2">
                             @if(!$couriers->isEmpty())
                             <div class="form-group">
-                                <select name="courier" id="courier" class="form-control select2">
+                                <select name="courier[]" multiple='multiple' id="courier" class="form-control select2">
                                     <option value="">Courier</option>
                                     @foreach($couriers as $courier)
                                     <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
