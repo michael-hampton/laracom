@@ -299,6 +299,8 @@
                         </td>
                     </tr>
                     @endforeach
+                    
+                    <button type='submit' id='SaveOrder' class='pull-right btn btn-primary'></button>
                 </tbody>
             </table>
         </div>
