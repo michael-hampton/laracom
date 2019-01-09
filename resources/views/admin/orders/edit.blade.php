@@ -149,7 +149,7 @@
             <h4> <i class="fa fa-gift"></i> Items</h4>
             
             <form>
-           @foreach($items as $item)
+           @foreach($items as $count => $item)
             <div class="form-row">
     <div class="form-group col-md-6">
       <label for="product_name">Product</label>
@@ -165,22 +165,22 @@
             <div class="form-row">
     <div class="form-group col-md-3">
       <label for="inputCity">Tote</label>
-      <input type="text" class="form-control" id="tote" name='tote'>
+      <input type="text" class="form-control" id="tote" name='form[{{$count}}][tote]'>
     </div>
     
     <div class="form-group col-md-3">
       <label for="inputState">Sage Ref</label>
-      <input type="text" class="form-control" id="sage_ref" name='sage_ref'>
+      <input type="text" class="form-control" id="sage_ref" name='form[{{$count}}][sage_ref]'>
     </div>
     
    <div class="form-group col-md-3">
       <label for="inputZip">Picklist Ref</label>
-      <input type="text" class="form-control" id="picklist_ref" name='picklist_ref'>
+      <input type="text" class="form-control" id="picklist_ref" name='form[{{$count}}][picklist_ref]'>
     </div>
     
     <div class="form-group col-md-3">
       <label for="inputZip">Warehouse</label>
-      <select id="warehouse" name='warehouse' class="form-control">
+      <select id="warehouse" name='form[{{$count}}][warehouse]' class="form-control">
         <option selected>Choose...</option>
         <option value='KW'>KW</option>
         <option value='RW'>RW</option>
@@ -193,7 +193,7 @@
     <div class="form-group col-md-3">
       <label for="inputCity">Status</label>
       
-      <select id="status" name='status' class="form-control">
+      <select id="status" name='form[{{$count}}][status]' class="form-control">
       @foreach($statuses as $status)
           <option @if($item->status == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
        @endforeach
@@ -202,7 +202,7 @@
    
    <div class="form-group col-md-3">
       <label for="inputState">Delivery Code</label>
-      <select id="courier_id" name='courier_id' class="form-control">
+      <select id="courier_id" name='form[{{$count}}][courier_id]' class="form-control">
         <option selected>Choose...</option>
         <option>...</option>
       </select>
@@ -210,12 +210,12 @@
     
     <div class="form-group col-md-3">
       <label for="inputZip">Tracking Code</label>
-      <input type="text" class="form-control" id="tracking_code" name='tracking_code'>
+      <input type="text" class="form-control" id="tracking_code" name='form[{{$count}}][tracking_code]'>
     </div>
     
    <div class="form-group col-md-3">
       <label for="inputZip">Dispatch Date</label>
-      <input type="text" class="form-control" id="dispatch_date" name='dispatch_date'>
+      <input type="text" disabled class="form-control" id="dispatch_date" name='dispatch_date'>
     </div>
   </div>
   
