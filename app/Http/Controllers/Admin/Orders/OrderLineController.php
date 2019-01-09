@@ -63,7 +63,7 @@ class OrderLineController extends Controller {
      */
     public function updateLineStatus(Request $request) {
 
-        foreach($request->products as $arrData) {
+        foreach($request->form as $arrData) {
         
         
         $orderProduct = $this->orderLineRepo->findOrderProductById($arrData['line_id']);
