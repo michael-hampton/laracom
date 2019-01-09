@@ -690,6 +690,7 @@ crossorigin="anonymous"></script>
                                             // Bind click event to replace order button
                                             $(document).on("click", "#replaceBtn", function () {
                                                 var firstLineRef = $('#currentLineWrap .active').attr('data-line-ref');
+                                                alert('a ' + firstLineRef);
                                                 $('#searchBoxWrapper #current-line').val(firstLineRef);
 
                                                 initProductAutoComplete('#SwapFinder');
@@ -724,6 +725,8 @@ crossorigin="anonymous"></script>
 // Bind click event on the current product to swap
                                             $(document).on('click', '.replace-window .current-line-ref', function (e) {
                                                 var lineRef = $(this).attr('data-line-ref');
+                                                
+                                                alert('b ' + lineRef);
                                                 $('#freeTextLostinPost').attr('disabled', false).val('');
                                                 $('#searchBoxWrapper #current-line').val(lineRef);
                                                 var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
@@ -739,6 +742,7 @@ crossorigin="anonymous"></script>
 // Bind click event on the current product to swap
                                             $(document).on('click', '.swap-window .current-line-ref', function (e) {
                                                 var lineRef = $(this).attr('data-line-ref');
+                                                alert('c ' + lineRef);
                                                 $('#freeTextLostinPost').attr('disabled', false);
                                                 $('#SwapFinder').val('');
                                                 $('#searchBoxWrapper #current-line').val(lineRef);
@@ -751,6 +755,7 @@ crossorigin="anonymous"></script>
                                             $(document).on("click", "#replaceProduct", function (e) {
                                                 e.preventDefault();
                                                 var lineRef = $('#searchBoxWrapper #current-line').val();
+                                                alert('d ' + lineRef);
                                                 replaceProductInOrder(lineRef);
                                             });
 
@@ -783,6 +788,7 @@ crossorigin="anonymous"></script>
                                             $(document).on("click", "#lostInPostBtn", function () {
                                                 $('#createOrderSpinner').hide();
                                                 var firstLineRef = $('#currentLineWrap .active').attr('data-line-ref');
+                                                alert('e ' + firstLineRef);
                                                 var wmsWarehouseRef = $('#currentLineWrap .active').attr('data-warehouse-ref');
                                                 $('#searchBoxWrapper #current-line').val(firstLineRef);
                                                 $('#searchBoxWrapper #warehouse-ref').val(wmsWarehouseRef);
