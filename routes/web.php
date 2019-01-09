@@ -33,6 +33,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::resource('products', 'ProductController');
             Route::get('remove-image-product', 'ProductController@removeImage')->name('product.remove.image');
             Route::get('remove-image-thumb', 'ProductController@removeThumbnail')->name('product.remove.thumb');
+           Route::post('getProductAutoComplete', 'ProductController@getProductAutoComplete')->name('product.getProductAutoComplete');
         });
         Route::namespace('Categories')->group(function () {
             Route::resource('categories', 'CategoryController');
@@ -61,6 +62,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::post('channels/saveChannelAttribute/', 'Channels\ChannelController@saveChannelAttribute')->name('channels.saveChannelAttribute');
         Route::post('orders/cloneOrder/', 'Orders\OrderController@cloneOrder')->name('orders.cloneOrder');
         Route::post('orders/destroy/{id}', 'Orders\OrderController@destroy')->name('orders.destroy');
+        Route::post('products/getProductAutoComplete/get/', 'Products\ProductController@getProductAutoComplete')->name('products.getProductAutoComplete');
 
         Route::resource('employees', 'EmployeeController');
         Route::get('employees/{id}/profile', 'EmployeeController@getProfile')->name('employee.profile');

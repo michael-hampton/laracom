@@ -379,6 +379,21 @@ class ProductController extends Controller {
     }
 
     /**
+     * 
+     * @param Request $request
+     */
+    public function getProductAutoComplete(Request $request) {
+
+        $list = $this->productRepo->searchProduct($request->product_code);
+
+//         $products = $list->map(function (Product $item) {
+//                    return $this->transformProduct($item);
+//                })->all();
+
+       echo json_encode(['results' => $list->toArray()]);
+    }
+
+    /**
      * @param array $data
      *
      * @return
@@ -387,7 +402,7 @@ class ProductController extends Controller {
         $validator = Validator::make($data, [
                     'productAttributeQuantity' => 'required'
         ]);
-        
+
         if ($validator->fails()) {
             return $validator;
         }

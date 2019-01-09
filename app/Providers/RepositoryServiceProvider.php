@@ -61,6 +61,7 @@ use App\Shop\States\Repositories\StateRepositoryInterface;
 use App\Shop\Comments\Repositories\OrderCommentRepository;
 use App\Shop\Comments\Repositories\CommentRepository;
 use App\Traits\MyTrait;
+use VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider {

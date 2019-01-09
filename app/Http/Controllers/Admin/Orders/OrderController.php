@@ -35,15 +35,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Shop\Comments\OrderCommentRepository;
 use Illuminate\Support\Collection;
-use Validator;
+use Illuminate\Container\Container;
 use Psr\Log\NullLogger;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Container\Container;
-use Enqueue\AmqpLib\AmqpConnectionFactory;
-use VladimirYuldashev\LaravelQueueRabbitMQ\Queue\RabbitMQQueue;
-use VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Jobs\RabbitMQJob;
-use VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector;
-/**
+use Validator;
 
 class OrderController extends Controller {
 
@@ -64,8 +59,8 @@ class OrderController extends Controller {
      * @var VoucherRepositoryInterface
      */
     private $voucherRepo;
-    
-     /**
+
+    /**
      * @var VoucherCodeRepositoryInterface
      */
     private $voucherCodeRepo;
@@ -201,15 +196,14 @@ class OrderController extends Controller {
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function edit($orderId) {
-
         $order = $this->orderRepo->findOrderById($orderId);
-        
+
         $order->courier = $this->courierRepo->findCourierById($order->courier_id);
         $order->address = $this->addressRepo->findAddressById($order->address_id);
         $couriers = $this->courierRepo->listCouriers();
-        
+
         $items = $this->orderProductRepo->listOrderProducts()->where('order_id', $orderId);
-        
+
         $voucher = null;
 
         if (!empty($order->voucher_code)) {
@@ -217,7 +211,7 @@ class OrderController extends Controller {
 
             $voucher = $this->voucherCodeRepo->findVoucherCodeById($order->voucher_code);
         }
-        
+
         $arrProducts = $this->productRepo->listProducts();
 
         $arrAudits = $order->audits;
@@ -549,9 +543,9 @@ class OrderController extends Controller {
                     $flag = false;
                     continue;
                 }
-                
-                if(in_array($data['order_id'], $arrDone)) {
-                    
+
+                if (in_array($data['order_id'], $arrDone)) {
+
                     continue;
                 }
 
@@ -569,32 +563,32 @@ class OrderController extends Controller {
                         $order['shipping'],
                         $order['total']
                         ) = $data;
-                
+
                 $arrProducts[$data['order_id']] = array(
-                    'product' => $data['product'], 
+                    'product' => $data['product'],
                     'quantity' => $data['quantity']
                 );
-                
+
                 $shipping = $this->courierRepo->findDeliveryMethod($data['total']);
 
-                if($shipping->isEmpty()) {
+                if ($shipping->isEmpty()) {
                     $shippingCost = 0;
                 }
-                
+
                 $csv_errors = Validator::make(
                                 $order, (new ImportRequest())->rules()
                         )->errors();
-                
-                 $customer = $this->customerRepo->searchCustomer($data['customer']);
+
+                $customer = $this->customerRepo->searchCustomer($data['customer']);
 
                 if ($customer->isEmpty()) {
-                   $csv_errors->add('customer', "Customer is invalid.");
-               }
-                
-                 $courier = $this->courierRepo->findByName($data['courier']);
-                
+                    $csv_errors->add('customer', "Customer is invalid.");
+                }
+
+                $courier = $this->courierRepo->findByName($data['courier']);
+
                 if ($courier->isEmpty()) {
-                   $csv_errors->add('courier', "Courier is invalid.");
+                    $csv_errors->add('courier', "Courier is invalid.");
                 }
 
                 if ($csv_errors->any()) {
@@ -602,7 +596,7 @@ class OrderController extends Controller {
                                     ->withErrors($csv_errors, 'import')
                                     ->with('error_line', $line);
                 }
-                
+
                 $arrDone = $data['order_id'];
             }
 
@@ -617,27 +611,28 @@ class OrderController extends Controller {
 
         return view('admin.orders.importCsv');
     }
-    
+
     private function addToQueue($data) {
-         $config = [
-            'factory_class' => AmqpConnectionFactory::class,
-            'dsn'      => null,
-            'host'     => getenv('HOST'),
-            'port'     => getenv('PORT'),
-            'login'    => 'guest',
+        
+        $config = [
+            'factory_class' => \Enqueue\AmqpLib\AmqpConnectionFactory::class,
+            'dsn' => null,
+            'host' => 'localhost',
+            'port' => 15672,
+            'login' => 'guest',
             'password' => 'guest',
-            'vhost'    => '/',
+            'vhost' => '/',
             'options' => [
                 'exchange' => [
                     'name' => null,
                     'declare' => true,
-                    'type' => \Interop\Amqp\AmqpTopic::TYPE_DIRECT,
+                    'type' => \Interop\Amqp\Impl\AmqpTopic::TYPE_DIRECT,
                     'passive' => false,
                     'durable' => true,
                     'auto_delete' => false,
                 ],
                 'queue' => [
-                    'name' => 'default',
+                    'name' => 'mike',
                     'declare' => true,
                     'bind' => true,
                     'passive' => false,
@@ -648,18 +643,22 @@ class OrderController extends Controller {
                 ],
             ],
             'ssl_params' => [
-                'ssl_on'        => false,
-                'cafile'        => null,
-                'local_cert'    => null,
-                'local_key'     => null,
-                'verify_peer'   => true,
-                'passphrase'    => null,
+                'ssl_on' => false,
+                'cafile' => null,
+                'local_cert' => null,
+                'local_key' => null,
+                'verify_peer' => true,
+                'passphrase' => null,
             ],
         ];
-        
-        $connector = new RabbitMQConnector(new Dispatcher());
+
+        require_once($_SERVER['DOCUMENT_ROOT'] . '../VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector.php');
+         require_once($_SERVER['DOCUMENT_ROOT'] . '../VladimirYuldashev\LaravelQueueRabbitMQ\Queue\RabbitMQQueue.php');
+
+        $connector = new \VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector(new Dispatcher());
         /** @var RabbitMQQueue $queue */
         $queue = $connector->connect($config);
+        
         $queue->setContainer($this->createDummyContainer());
         // we need it to declare exchange\queue on RabbitMQ side.
         $queue->pushRaw('something');
@@ -668,12 +667,11 @@ class OrderController extends Controller {
         $queue->pushRaw($expectedPayload);
         sleep(1);
         $job = $queue->pop();
-        
+
         var_dump($job);
     }
-    
-    private function createDummyContainer()
-    {
+
+    private function createDummyContainer() {
         $container = new Container();
         $container['log'] = new NullLogger();
         return $container;

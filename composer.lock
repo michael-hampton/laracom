@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ed0cd7095624ab63cc25140b785a937",
+    "content-hash": "413039007eaf88fd9835fee959afa96f",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -61,6 +61,72 @@
                 "pdf"
             ],
             "time": "2018-08-31T13:25:44+00:00"
+        },
+        {
+            "name": "bschmitt/laravel-amqp",
+            "version": "2.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bschmitt/laravel-amqp.git",
+                "reference": "e9f83dfcd5feb1fda5648087985c8e62456acd85"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bschmitt/laravel-amqp/zipball/e9f83dfcd5feb1fda5648087985c8e62456acd85",
+                "reference": "e9f83dfcd5feb1fda5648087985c8e62456acd85",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": ">=v5.5.28",
+                "php": ">=7.0",
+                "php-amqplib/php-amqplib": "2.*"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9",
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "^3.0@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Bschmitt\\Amqp\\AmqpServiceProvider"
+                    ],
+                    "aliases": {
+                        "Amqp": "Bschmitt\\Amqp\\Facades\\Amqp"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bschmitt\\Amqp\\": "src/",
+                    "Bschmitt\\Amqp\\Test\\": "test/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Björn Schmitt",
+                    "email": "code@bjoern.io"
+                }
+            ],
+            "description": "AMQP wrapper for Laravel and Lumen to publish and consume messages",
+            "keywords": [
+                "AMQP",
+                "Björn Schmitt",
+                "bschmitt",
+                "laravel",
+                "laravel5",
+                "lumen",
+                "message queue",
+                "package",
+                "queue",
+                "rabbitmq"
+            ],
+            "time": "2018-07-13T10:38:45+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -687,6 +753,174 @@
                 "validator"
             ],
             "time": "2018-12-04T22:38:24+00:00"
+        },
+        {
+            "name": "enqueue/amqp-lib",
+            "version": "0.8.42",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-enqueue/amqp-lib.git",
+                "reference": "ae8559501b936d9a698569d37f96c232b36f8a0a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-enqueue/amqp-lib/zipball/ae8559501b936d9a698569d37f96c232b36f8a0a",
+                "reference": "ae8559501b936d9a698569d37f96c232b36f8a0a",
+                "shasum": ""
+            },
+            "require": {
+                "enqueue/amqp-tools": "^0.8.35@dev",
+                "php": ">=5.6",
+                "php-amqplib/php-amqplib": "^2.7",
+                "queue-interop/amqp-interop": "^0.7.4@dev"
+            },
+            "require-dev": {
+                "enqueue/enqueue": "^0.8@dev",
+                "enqueue/null": "^0.8@dev",
+                "enqueue/test": "^0.8@dev",
+                "phpunit/phpunit": "~5.4.0",
+                "queue-interop/queue-spec": "^0.5.3@dev",
+                "symfony/config": "^2.8|^3|^4",
+                "symfony/dependency-injection": "^2.8|^3|^4"
+            },
+            "suggest": {
+                "enqueue/enqueue": "If you'd like to use advanced features like Client abstract layer or Symfony integration features"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.8.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Enqueue\\AmqpLib\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Message Queue Amqp Transport",
+            "homepage": "https://enqueue.forma-pro.com/",
+            "keywords": [
+                "AMQP",
+                "messaging",
+                "queue"
+            ],
+            "time": "2018-11-22T13:24:40+00:00"
+        },
+        {
+            "name": "enqueue/amqp-tools",
+            "version": "0.8.42",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-enqueue/amqp-tools.git",
+                "reference": "f92f5cdb7f3f2fba0f6a52b30fa184be8eed5e3c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-enqueue/amqp-tools/zipball/f92f5cdb7f3f2fba0f6a52b30fa184be8eed5e3c",
+                "reference": "f92f5cdb7f3f2fba0f6a52b30fa184be8eed5e3c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6",
+                "queue-interop/amqp-interop": "^0.7@dev",
+                "queue-interop/queue-interop": "^0.6@dev|^1.0.0-alpha1"
+            },
+            "require-dev": {
+                "enqueue/null": "^0.8@dev",
+                "enqueue/test": "^0.8@dev",
+                "phpunit/phpunit": "~5.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.8.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Enqueue\\AmqpTools\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Message Queue Amqp Tools",
+            "homepage": "https://enqueue.forma-pro.com/",
+            "keywords": [
+                "AMQP",
+                "messaging",
+                "queue"
+            ],
+            "time": "2018-11-22T13:24:40+00:00"
+        },
+        {
+            "name": "enqueue/fs",
+            "version": "0.8.42",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-enqueue/fs.git",
+                "reference": "2b409e660ee0eac721347305e60b07994ec767fc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-enqueue/fs/zipball/2b409e660ee0eac721347305e60b07994ec767fc",
+                "reference": "2b409e660ee0eac721347305e60b07994ec767fc",
+                "shasum": ""
+            },
+            "require": {
+                "makasim/temp-file": "^0.2@stable",
+                "php": ">=5.6",
+                "queue-interop/queue-interop": "^0.6|^1.0.0-alpha1",
+                "symfony/filesystem": "^2.8|^3|^4"
+            },
+            "require-dev": {
+                "enqueue/enqueue": "^0.7",
+                "enqueue/null": "^0.7",
+                "enqueue/test": "^0.7",
+                "phpunit/phpunit": "~5.5",
+                "queue-interop/queue-spec": "^0.5.3@dev",
+                "symfony/config": "^2.8|^3|^4",
+                "symfony/dependency-injection": "^2.8|^3|^4",
+                "symfony/phpunit-bridge": "^2.8|^3|^4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.8.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Enqueue\\Fs\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Enqueue Filesystem based transport",
+            "homepage": "https://enqueue.forma-pro.com/",
+            "keywords": [
+                "filesystem",
+                "local",
+                "messaging",
+                "queue"
+            ],
+            "time": "2018-11-22T13:24:40+00:00"
         },
         {
             "name": "erusev/parsedown",
@@ -1775,6 +2009,48 @@
             "time": "2014-10-30T20:38:12+00:00"
         },
         {
+            "name": "makasim/temp-file",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/makasim/TempFile.git",
+                "reference": "e9cfbfc61a23044aeb2fe0a3db49aeec2f84ca27"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/makasim/TempFile/zipball/e9cfbfc61a23044aeb2fe0a3db49aeec2f84ca27",
+                "reference": "e9cfbfc61a23044aeb2fe0a3db49aeec2f84ca27",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Makasim": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maksim Kotlyar",
+                    "email": "kotlyar.maksim@gmail.com"
+                }
+            ],
+            "description": "Temp file object",
+            "homepage": "https://github.com/makasim/TempFile",
+            "keywords": [
+                "file",
+                "temp",
+                "temp file"
+            ],
+            "time": "2013-07-12T06:09:04+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "1.24.0",
             "source": {
@@ -2306,6 +2582,76 @@
             "time": "2018-06-03T10:10:03+00:00"
         },
         {
+            "name": "php-amqplib/php-amqplib",
+            "version": "v2.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-amqplib/php-amqplib.git",
+                "reference": "7df8553bd8b347cf6e919dd4a21e75f371547aa0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-amqplib/php-amqplib/zipball/7df8553bd8b347cf6e919dd4a21e75f371547aa0",
+                "reference": "7df8553bd8b347cf6e919dd4a21e75f371547aa0",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "php": ">=5.4.0"
+            },
+            "replace": {
+                "videlalvaro/php-amqplib": "self.version"
+            },
+            "require-dev": {
+                "phpdocumentor/phpdocumentor": "^2.9",
+                "phpunit/phpunit": "^4.8",
+                "scrutinizer/ocular": "^1.1",
+                "squizlabs/php_codesniffer": "^2.5"
+            },
+            "suggest": {
+                "ext-sockets": "Use AMQPSocketConnection"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.8-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PhpAmqpLib\\": "PhpAmqpLib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Alvaro Videla",
+                    "role": "Original Maintainer"
+                },
+                {
+                    "name": "John Kelly",
+                    "email": "johnmkelly86@gmail.com",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Raúl Araya",
+                    "email": "nubeiro@gmail.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Formerly videlalvaro/php-amqplib.  This library is a pure PHP implementation of the AMQP protocol. It's been tested against RabbitMQ.",
+            "homepage": "https://github.com/php-amqplib/php-amqplib/",
+            "keywords": [
+                "message",
+                "queue",
+                "rabbitmq"
+            ],
+            "time": "2018-10-23T18:48:24+00:00"
+        },
+        {
             "name": "psr/container",
             "version": "1.0.0",
             "source": {
@@ -2572,6 +2918,87 @@
                 "shell"
             ],
             "time": "2018-10-13T15:16:03+00:00"
+        },
+        {
+            "name": "queue-interop/amqp-interop",
+            "version": "0.7.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/queue-interop/amqp-interop.git",
+                "reference": "e1679b0a308e320c508afa74b5148bf58479dd0d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/queue-interop/amqp-interop/zipball/e1679b0a308e320c508afa74b5148bf58479dd0d",
+                "reference": "e1679b0a308e320c508afa74b5148bf58479dd0d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5",
+                "queue-interop/queue-interop": "^0.6.2|0.7.x-dev|^1.0.0-alpha1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~5.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.7.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Interop\\Amqp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "time": "2018-08-08T17:31:15+00:00"
+        },
+        {
+            "name": "queue-interop/queue-interop",
+            "version": "0.6.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/queue-interop/queue-interop.git",
+                "reference": "950c8083ff328751843080f25266dec0db624ddb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/queue-interop/queue-interop/zipball/950c8083ff328751843080f25266dec0db624ddb",
+                "reference": "950c8083ff328751843080f25266dec0db624ddb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Interop\\Queue\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Promoting the interoperability of MQs objects. Based on Java JMS",
+            "homepage": "https://github.com/queue-interop/queue-interop",
+            "keywords": [
+                "MQ",
+                "jms",
+                "message queue",
+                "messaging",
+                "queue"
+            ],
+            "time": "2018-08-05T12:16:04+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -3592,6 +4019,56 @@
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
             "time": "2018-11-30T18:07:24+00:00"
+        },
+        {
+            "name": "symfony/filesystem",
+            "version": "v3.4.21",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/filesystem.git",
+                "reference": "c24ce3d18ccc9bb9d7e1d6ce9330fcc6061cafde"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/c24ce3d18ccc9bb9d7e1d6ce9330fcc6061cafde",
+                "reference": "c24ce3d18ccc9bb9d7e1d6ce9330fcc6061cafde",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.5.9|>=7.0.8",
+                "symfony/polyfill-ctype": "~1.8"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Filesystem\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Filesystem Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-01-01T13:45:19+00:00"
         },
         {
             "name": "symfony/finder",

@@ -63,14 +63,18 @@ class OrderLineController extends Controller {
      */
     public function updateLineStatus(Request $request) {
 
-        foreach($request->form as $arrData) {
-        
-        
-        $orderProduct = $this->orderLineRepo->findOrderProductById($arrData['line_id']);
-        $orderProductRepo = new OrderProductRepository($orderProduct);
 
-        $orderProductRepo->updateOrderProduct(['status' => $arrData, $arrData['line_id']);
-                                               }
+        foreach ($request->form as $arrData) {
+
+            $lineId = $arrData['line_id'];
+            unset($arrData['line_id']);
+
+            $orderProduct = $this->orderLineRepo->findOrderProductById($lineId);
+
+            $orderProductRepo = new OrderProductRepository($orderProduct);
+
+            $orderProductRepo->updateOrderProduct($arrData, $lineId);
+        }
         return redirect()->route('admin.orders.edit', $request->order_id);
     }
 
@@ -142,7 +146,7 @@ class OrderLineController extends Controller {
 
             $order = $this->orderRepo->findOrderById($arrLine['order_id']);
             $channel = $this->channelRepo->findChannelById($order->channel);
-            
+
 
             $statusCount = $this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, $os->id);
 
@@ -150,16 +154,16 @@ class OrderLineController extends Controller {
 
             if ($statusCount === 0) {
                 foreach ($arrProducts as $objLine) {
-                    
-                    if($objLine->status !== $os->id) {
-                        
+
+                    if ($objLine->status !== $os->id) {
+
                         continue;
                     }
-                        
+
                     $objProduct = $productRepo->findProductById($objLine->product_id);
 
-                    if($channel->allocate_on_order === 1 || $order->payment === 'import') {
-                         // check enough quantity to fulfil line if not reject
+                    if ($channel->allocate_on_order === 1 || $order->payment === 'import') {
+                        // check enough quantity to fulfil line if not reject
                         // update stock
                         $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
 
@@ -179,8 +183,8 @@ class OrderLineController extends Controller {
                 $objLine = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
                 $objProduct = $productRepo->findProductById($objLine->product_id);
 
-                 if($channel->allocate_on_order === 1 || $order->payment === 'import') {
-                       // update stock
+                if ($channel->allocate_on_order === 1 || $order->payment === 'import') {
+                    // update stock
                     $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
                     //$quantity = $objProduct->quantity - $objLine2->quantity;
                     $objProductRepo = new ProductRepository($objProduct);

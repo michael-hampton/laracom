@@ -26,6 +26,12 @@ trait OrderProductTransformable {
         $orderProductObj->price = $orderProduct->product_price;
         $orderProductObj->status = $orderProduct->status;
         $orderProductObj->created_at = $orderProduct->created_at;
+        $orderProductObj->tote = $orderProduct->tote;
+        $orderProductObj->sage_ref = $orderProduct->sage_ref;
+        $orderProductObj->picklist_ref = $orderProduct->picklist_ref;
+        $orderProductObj->warehouse = $orderProduct->warehouse;
+        $orderProductObj->courier_id = (int) $orderProduct->courier_id;
+        $orderProductObj->tracking_code = $orderProduct->tracking_code;
 
         return $orderProductObj;
     }

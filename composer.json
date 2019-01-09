@@ -7,7 +7,10 @@
       "require": {
         "php": ">=7.0.0",
         "barryvdh/laravel-dompdf": "^0.8.2",
+        "bschmitt/laravel-amqp": "^2.0",
         "doctrine/dbal": "^2.5",
+        "enqueue/amqp-lib": "^0.8.42",
+        "enqueue/fs": "^0.8.42",
         "fideloper/proxy": "~3.3",
         "gloudemans/shoppingcart": "^2.5",
         "guzzlehttp/guzzle": "^6.3",
