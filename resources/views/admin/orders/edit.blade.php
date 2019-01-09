@@ -163,19 +163,58 @@
             
             <div class="form-row">
     <div class="form-group col-md-3">
-      <label for="inputCity">City</label>
-      <input type="text" class="form-control" id="inputCity">
+      <label for="inputCity">Tote</label>
+      <input type="text" class="form-control" id="tote" name='tote'>
     </div>
+    
     <div class="form-group col-md-3">
-      <label for="inputState">State</label>
-      <select id="inputState" class="form-control">
+      <label for="inputState">Sage Ref</label>
+      <input type="text" class="form-control" id="sage_ref" name='sage_ref'>
+    </div>
+    
+   <div class="form-group col-md-3">
+      <label for="inputZip">Tracking Code</label>
+      <input type="text" class="form-control" id="tracking_code" name='tracking_code'>
+    </div>
+    
+    <div class="form-group col-md-3">
+      <label for="inputZip">Warehouse</label>
+      <select id="warehouse" name='warehouse' class="form-control">
+        <option selected>Choose...</option>
+        <option value='KW'>KW</option>
+        <option value='RW'>RW</option>
+      </select>
+    </div>
+    
+  </div>
+  
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <label for="inputCity">Status</label>
+      
+      <select id="status" name='status' class="form-control">
+      @foreach($statuses as $status)
+          <option @if($item->status == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
+       @endforeach
+       </select>
+    </div>
+   
+   <div class="form-group col-md-3">
+      <label for="inputState">Delivery Code</label>
+      <select id="courier_id" name='courier_id' class="form-control">
         <option selected>Choose...</option>
         <option>...</option>
       </select>
     </div>
+    
     <div class="form-group col-md-3">
-      <label for="inputZip">Zip</label>
-      <input type="text" class="form-control" id="inputZip">
+      <label for="inputZip">Tracking Code</label>
+      <input type="text" class="form-control" id="tracking_code" name='tracking_code'>
+    </div>
+    
+   <div class="form-group col-md-3">
+      <label for="inputZip">Dispatch Date</label>
+      <input type="text" class="form-control" id="dispatch_date" name='dispatch_date'>
     </div>
   </div>
   
@@ -184,24 +223,7 @@
       <label for="inputCity">City</label>
       <input type="text" class="form-control" id="inputCity">
     </div>
-    <div class="form-group col-md-3">
-      <label for="inputState">State</label>
-      <select id="inputState" class="form-control">
-        <option selected>Choose...</option>
-        <option>...</option>
-      </select>
-    </div>
-    <div class="form-group col-md-3">
-      <label for="inputZip">Zip</label>
-      <input type="text" class="form-control" id="inputZip">
-    </div>
-  </div>
-  
-  <div class="form-row">
-    <div class="form-group col-md-3">
-      <label for="inputCity">City</label>
-      <input type="text" class="form-control" id="inputCity">
-    </div>
+    
     <div class="form-group col-md-3">
       <label for="inputState">State</label>
       <select id="inputState" class="form-control">
