@@ -71,15 +71,25 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
             $this->validationFailures = [];
             
-            $this->arrValidationFailures = Validator::make(
+            $blFieldsValid = Validator::make(
                                 $params, (new NewOrderRequest())->rules()
                         )->errors();
+            
+               if ($blFieldsValid->any()) {
+                   throw new \Exception('invalid fields found');
+               }
 
             if (isset($params['channel']) && !empty($params['channel'])) {
                 $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
 
                 $this->validateCustomerRef($customer_ref);
 
+                $blPriority = $params['channel']->has_priority;
+
+                $params['customer_ref'] = $customer_ref;
+                $params['is_priority'] = $blPriority;
+                $params['channel'] = $params['channel']->id;
+            }
                 if ($blManualOrder === false) {
                     $items = Cart::content();
 
@@ -94,13 +104,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $this->validateCustomer($customerRepository, $params['customer_id']);
                 $this->validateAddress($addressRepository, $params['address_id']);
                 $this->validateCourier($courierRepository, $params['courier_id']);
-
-                $blPriority = $params['channel']->has_priority;
-
-                $params['customer_ref'] = $customer_ref;
-                $params['is_priority'] = $blPriority;
-                $params['channel'] = $params['channel']->id;
-            }
 
             if (count($this->validationFailures) > 0) {
                 $params['order_status_id'] = 13;
