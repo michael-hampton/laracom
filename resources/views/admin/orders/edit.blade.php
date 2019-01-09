@@ -133,14 +133,10 @@
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
 
-                    <div class="" data-line-ref="1">
-
                         <select class="current-line-ref" data-line-ref="1">
                             <option class='active' value="1">1</option>
                             <option value="2"></option>
                         </select>
-
-                    </div>
 
                 </div>
 
@@ -208,13 +204,10 @@
                 <div class="col-lg-12 col-md-8 response"></div>
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
-
-                    <div class="" data-line-ref="1">
                         <select class="current-line-ref" data-line-ref="1">
                             <option class='active' value="1">1</option>
                             <option value="2"></option>
                         </select>
-                    </div>
 
                 </div>
 
@@ -356,7 +349,7 @@
                 {{ csrf_field() }}
 
                 @foreach($items as $count => $item)
-
+       <div data-line-ref="1">
                 <input type="hidden" name='form[{{$count}}][line_id]' value='{{$item->id}}'>
 
                 <div class="form-row">
@@ -447,6 +440,7 @@
                         <label for="inputZip">Price</label>
                         <input value="{{$item->product_price}}"type="text" class="form-control" disabled='disabled' id="price" name='price'>
                     </div>
+                </div>
                 </div>
                 @endforeach;
 
