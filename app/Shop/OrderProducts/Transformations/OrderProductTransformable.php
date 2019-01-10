@@ -5,6 +5,7 @@ namespace App\Shop\OrderProducts\Transformations;
 use App\Shop\OrderProducts\OrderProduct;
 use Illuminate\Support\Facades\Storage;
 use App\Shop\Products\Product;
+use App\Shop\Products\Repositories\ProductRepository;
 
 trait OrderProductTransformable {
 
