@@ -134,8 +134,10 @@
                     <h3>Current Products</h3>
 
                         <select class="current-line-ref" data-line-ref="1">
+                        @foreach($items as $item)
                             <option class='active' value="1">1</option>
                             <option value="2"></option>
+                            @endforeach;
                         </select>
 
                 </div>
