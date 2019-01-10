@@ -533,6 +533,7 @@ class OrderController extends Controller {
         $file_path = $request->csv_file->path();
         $line = 0;
         $arrDone = [];
+        $arrOrders = [];
 
         if (($handle = fopen($file_path, "r")) !== FALSE) {
 
@@ -563,12 +564,7 @@ class OrderController extends Controller {
                         $order['shipping'],
                         $order['total']
                         ) = $data;
-
-                $arrProducts[$data['order_id']] = array(
-                    'product' => $data['product'],
-                    'quantity' => $data['quantity']
-                );
-
+                
                 $shipping = $this->courierRepo->findDeliveryMethod($data['total']);
 
                 if ($shipping->isEmpty()) {
@@ -590,12 +586,27 @@ class OrderController extends Controller {
                 if ($courier->isEmpty()) {
                     $csv_errors->add('courier', "Courier is invalid.");
                 }
+                
+                $product = $this->productRepo->searchProduct($data['product']);
+
+                if ($product->isEmpty()) {
+                    $csv_errors->add('product', "Product is invalid.");
+                }
 
                 if ($csv_errors->any()) {
                     return redirect()->back()
                                     ->withErrors($csv_errors, 'import')
                                     ->with('error_line', $line);
                 }
+                
+                $arrOrders[$data['order_id']] = $data;
+
+                $arrOrders[$data['order_id']]['products'][] = array(
+                    'product' => $data['product'],
+                    'quantity' => $data['quantity']
+                );
+
+                
 
                 $arrDone = $data['order_id'];
             }
