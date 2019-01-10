@@ -654,6 +654,10 @@ class OrderController extends Controller {
 
                 $voucherCodeId = !empty($voucherCode) ? $voucherCode->id : null;
 
+                if(isset($arrOrders[$order['order_id']]['total']) && !empty($arrOrders[$order['order_id']]['total'] )) {
+                    $orderTotal += $arrOrders[$order['order_id']]['total'];
+                }
+                
                 $arrOrders[$order['order_id']] = [
                     'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
                     'courier_id' => $courier[0]->id,
