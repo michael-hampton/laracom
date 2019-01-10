@@ -367,9 +367,9 @@ class OrderController extends Controller {
             'address_id' => $deliveryAddress->id,
             'order_status_id' => $os->id,
             'payment' => 'import',
-            'discounts' => 0,
+            'discounts' => $voucherAmount,
             'shipping' => $shippingCost,
-            'total_products' => 1,
+            'total_products' => count($request->products),
             'total' => $orderTotal,
             'total_paid' => 0,
             'channel' => $channel,
@@ -688,7 +688,7 @@ class OrderController extends Controller {
                     'payment' => 'import',
                     'discounts' => $voucherAmount,
                     'shipping' => $shippingCost,
-                    'total_products' => 1,
+                    'total_products' => count($arrProducts[$order['order_id']]),
                     'total' => $orderTotal,
                     'total_paid' => 0,
                     'channel' => $channel,
@@ -718,8 +718,6 @@ class OrderController extends Controller {
 
             $orderRepo->buildOrderLinesForManualOrder($arrProducts[$orderId]);
         }
-
-        die;
 
 
         // Dispatch job to store the data in database
