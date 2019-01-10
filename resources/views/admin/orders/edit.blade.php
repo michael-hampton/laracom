@@ -135,8 +135,7 @@
 
                         <select class="current-line-ref" data-line-ref="1">
                         @foreach($items as $item)
-                            <option class='active' value="1">1</option>
-                            <option value="2"></option>
+                            <option class='active' value="{{$item->id}}">{{$item->product_name}}</option>
                             @endforeach;
                         </select>
 
@@ -208,8 +207,9 @@
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
                         <select class="current-line-ref" data-line-ref="1">
-                            <option class='active' value="1">1</option>
-                            <option value="2"></option>
+                           foreach($items as $item)
+                            <option class='active' value="{{$item->id}}">{{$item->product_name}}</option>
+                            @endforeach;
                         </select>
 
                 </div>
