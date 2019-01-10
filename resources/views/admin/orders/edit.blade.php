@@ -219,7 +219,7 @@
                     }}"  data-warehouse-ref ="KW"
                          data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
                          data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
-                        @if ($item->quantity > 0 or $item->reserved_stock > 0)
+                        @if ($item->free_stock > 0 || $item->reserved_stock > 0)
                             <img src="/images/accept.png" />
                         @else;
                             <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
