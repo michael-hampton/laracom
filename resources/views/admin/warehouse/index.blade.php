@@ -107,9 +107,9 @@
 
                         </td>
                         <td>{{ $item->quantity }}</td>
-                        <td>12335</td>
+                        <td>{{$item->picklist_ref}}</td>
                         <td>A</td>
-                        <td>A</td>
+                        <td>{{$item->tote}}</td>
                         <td>{{ $item->product_price }}</td>
                         <td>{{ $item->status }}</td>
 
