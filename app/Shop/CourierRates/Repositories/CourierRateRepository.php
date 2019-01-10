@@ -82,6 +82,7 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
         $query = DB::table('courier_rates');
         $query->whereRaw('? between range_from and range_to', [$total]);
         $query->where('courier', '=', $courierId);
+        //$rates = CourierRates::hydrate($result); 
         return $query->get();
         
     }
