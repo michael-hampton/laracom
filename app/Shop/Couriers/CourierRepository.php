@@ -13,14 +13,13 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class CourierRepository extends BaseRepository implements CourierRepositoryInterface
-{
+class CourierRepository extends BaseRepository implements CourierRepositoryInterface {
+
     /**
      * CourierRepository constructor.
      * @param Courier $courier
      */
-    public function __construct(Courier $courier)
-    {
+    public function __construct(Courier $courier) {
         parent::__construct($courier);
         $this->model = $courier;
     }
@@ -32,8 +31,7 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
      * @return Courier
      * @throws CourierInvalidArgumentException
      */
-    public function createCourier(array $params) : Courier
-    {
+    public function createCourier(array $params): Courier {
         try {
             return $this->create($params);
         } catch (QueryException $e) {
@@ -48,8 +46,7 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
      * @return Courier
      * @throws CourierInvalidArgumentException
      */
-    public function updateCourier(array $params) : Courier
-    {
+    public function updateCourier(array $params): Courier {
         try {
             $this->update($params, $this->model->id);
             return $this->find($this->model->id);
@@ -65,8 +62,7 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
      * @return Courier
      * @throws CountryNotFoundException
      */
-    public function findCourierById(int $id) : Courier
-    {
+    public function findCourierById(int $id): Courier {
         try {
             return $this->findOneOrFail($id);
         } catch (ModelNotFoundException $e) {
@@ -81,27 +77,24 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
      * @param string $sort
      * @return Collection|mixed
      */
-    public function listCouriers(string $order = 'id', string $sort = 'desc') : Collection
-    {
+    public function listCouriers(string $order = 'id', string $sort = 'desc'): Collection {
         return $this->model->where('status', 1)->orderBy($order, $sort)->get();
     }
-    
+
+    /**
+     * 
+     * @param type $name
+     * @return type
+     */
     public function findByName($name) {
-        
+
         $query = DB::table('couriers');
-        $query->whereRaw('LOWER(`name`) = ? ',[trim(strtolower($name))]);
-        return $query->get();
+        $query->whereRaw('LOWER(`name`) = ? ', [trim(strtolower($name))]);
+        $result = $query->get();
+        return Courier::hydrate($result->toArray())[0];
     }
-    
-    public function findShippingMethod($total) {
-        
-        $query = DB::table('courier_rates');
-        $query->whereRaw('? between range_from and range_to', [$total]);
-        return $query->get();
-        
-    }
-    
-     /**
+
+    /**
      * @param CourierRate $address
      * @return Address
      */
@@ -109,6 +102,7 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
         $this->model->courierRates()->save($courierRate);
         return $courierRate;
     }
+
     /**
      * Find the courier rates attached to the courier
      *
@@ -117,4 +111,5 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
     public function findCourierRates(): Support {
         return $this->model->courierRates;
     }
+
 }

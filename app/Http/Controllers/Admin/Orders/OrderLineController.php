@@ -82,7 +82,11 @@ class OrderLineController extends Controller {
      * 
      * @param UpdateOrderProductRequest $request
      */
-    public function update(UpdateOrderProductRequest $request) {
+    public function update() {
+        
+        echo '<pre>';
+        print_r(json_decode($_POST['data'], true));
+        die;
 
         $orderProduct = $this->orderLineRepo->findOrderProductById($request->lineId);
 

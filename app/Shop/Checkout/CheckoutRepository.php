@@ -28,7 +28,7 @@ class CheckoutRepository {
 
         $order = $orderRepo->createOrder([
             'reference' => $data['reference'],
-            'shipping' => $data['shipping'],
+            'total_shipping' => $data['shipping'],
             'courier_id' => $data['courier_id'],
             'customer_id' => $data['customer_id'],
             'voucher_code' => !empty($data['voucher_code']) ? $data['voucher_code']->id : null,

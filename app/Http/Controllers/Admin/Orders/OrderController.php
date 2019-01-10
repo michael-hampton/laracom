@@ -331,32 +331,34 @@ class OrderController extends Controller {
 
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
-        
+
         $orderTotal = $request->total;
 
         $objCourierRate = new CourierRateRepository(new CourierRate);
-        $shipping = $objCourierRate->findShippingMethod($request->total, $request->courier);
+        $courier = $this->courierRepo->findCourierById($request->courier);
+
+        $shipping = $objCourierRate->findShippingMethod($request->total, $courier, $channel);
 
         $shippingCost = 0;
 
-        if (!$shipping->isEmpty()) {
+        if (!empty($shipping)) {
 
-               $shippingCost = $shipping[0]->cost;
-       }
-                
-          $orderTotal += $shippingCost;
+            $shippingCost = $shipping->cost;
+        }
 
-          $voucherAmount = 0;
+        $orderTotal += $shippingCost;
 
-         if (!empty($request->voucher_code)) {
-                    $voucherCode = $this->voucherCodeRepo->getByVoucherCode($request->voucher_code);
+        $voucherAmount = 0;
 
-                    $voucher_id = $voucherCode->voucher_id;
-                    $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
+        if (!empty($request->voucher_code)) {
+            $voucherCode = $this->voucherCodeRepo->getByVoucherCode($request->voucher_code);
 
-                    $voucherAmount = $objVoucher->amount;
-                }
-        
+            $voucher_id = $voucherCode->voucher_id;
+            $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
+
+            $voucherAmount = $objVoucher->amount;
+        }
+
         $orderTotal += $voucherAmount;
 
         $order = $orderRepo->createOrder([
@@ -364,11 +366,12 @@ class OrderController extends Controller {
             'courier_id' => $request->courier,
             'customer_id' => $customer->id,
             'voucher_id' => !empty($request->voucher_code) ? $request->voucher_code : null,
+            'voucher_code' => $voucherCode->id,
             'address_id' => $deliveryAddress->id,
             'order_status_id' => $os->id,
             'payment' => 'import',
             'discounts' => $voucherAmount,
-            'shipping' => $shippingCost,
+            'total_shipping' => $shippingCost,
             'total_products' => count($request->products),
             'total' => $orderTotal,
             'total_paid' => 0,
@@ -461,6 +464,10 @@ class OrderController extends Controller {
      * @param type $orderId
      */
     public function cloneOrder(Request $request) {
+        
+        echo '<pre>';
+        print_r($_POST);
+        die;
 
         $channel = $this->channelRepo->findByName(env('CHANNEL'));
         $order = $this->orderRepo->findOrderById($request->order_id);
@@ -570,7 +577,7 @@ class OrderController extends Controller {
 
             $flag = true;
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                
+
                 $orderTotal = 0;
 
                 if ($flag) {
@@ -617,21 +624,21 @@ class OrderController extends Controller {
 
                 $courier = $this->courierRepo->findByName($order['courier']);
 
-                if ($courier->isEmpty()) {
+                if (empty($courier)) {
 
                     $csv_errors->add('courier', "Courier is invalid.");
                 }
 
                 $objCourierRate = new CourierRateRepository(new CourierRate);
-                $shipping = $objCourierRate->findShippingMethod(20, $courier[0]->id);
+                $shipping = $objCourierRate->findShippingMethod($orderTotal, $courier, $channel);
 
                 $shippingCost = 0;
 
-                if (!$shipping->isEmpty()) {
+                if (!empty($shipping)) {
 
-                    $shippingCost = $shipping[0]->cost;
+                    $shippingCost = $shipping->cost;
                 }
-                
+
                 $orderTotal += $shippingCost;
 
                 $voucherAmount = 0;
@@ -673,13 +680,13 @@ class OrderController extends Controller {
 
                 $voucherCodeId = !empty($voucherCode) ? $voucherCode->id : null;
 
-                if(isset($arrOrders[$order['order_id']]['total']) && !empty($arrOrders[$order['order_id']]['total'] )) {
+                if (isset($arrOrders[$order['order_id']]['total']) && !empty($arrOrders[$order['order_id']]['total'])) {
                     $orderTotal += $arrOrders[$order['order_id']]['total'];
                 }
-                
+
                 $arrOrders[$order['order_id']] = [
                     'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-                    'courier_id' => $courier[0]->id,
+                    'courier_id' => $courier->id,
                     'customer_id' => $customer[0]->id,
                     'voucher_code' => $voucherCodeId,
                     'voucher_id' => !empty($order['voucher_code']) ? $order['voucher_code'] : null,
@@ -687,8 +694,8 @@ class OrderController extends Controller {
                     'order_status_id' => $os->id,
                     'payment' => 'import',
                     'discounts' => $voucherAmount,
-                    'shipping' => $shippingCost,
-                    'total_products' => count($arrProducts[$order['order_id']]),
+                    'total_shipping' => $shippingCost,
+                    'total_products' => 0,
                     'total' => $orderTotal,
                     'total_paid' => 0,
                     'channel' => $channel,
@@ -720,8 +727,8 @@ class OrderController extends Controller {
         }
 
 
-        // Dispatch job to store the data in database
-        //dispatch(new StoreBooks($file_path));
+        request()->session()->flash('message', 'Import successful');
+        return redirect()->route('admin.orders.importCsv');
     }
 
     public function importCsv() {

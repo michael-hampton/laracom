@@ -56,7 +56,7 @@
                             </div>
                             @endif
                         </div>
-                        
+
                         <div class="pull-left col-lg-2">
                             @if(!$couriers->isEmpty())
                             <div class="form-group">
@@ -134,7 +134,7 @@
             <div class="btn-group pull-right">
                 <button type="button" class="btn btn-primary do-allocation">Allocate</button>
             </div>
-            
+
             <div class='checkbox-count'></div>
 
             {{ $items->links() }}
@@ -147,17 +147,17 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
-    
-        $('.uncheck').click(function() {
+
+        $('.uncheck').click(function () {
             var checkboxes = $('.cb');
-            $('.cb').prop('checked', !checkboxes.prop('checked');
+            $('.cb').prop('checked', !checkboxes.prop('checked'));
         });
-    
-        $('.cb').change(function() {
+
+        $('.cb').change(function () {
             var numberOfChecked = $('.cb:checked').length;
             var totalCheckboxes = $('.cb').length;
-            $('.checkbox-count').html(numberOfChecked +' / ' + totalCheckboxes);
-         });
+            $('.checkbox-count').html(numberOfChecked + ' / ' + totalCheckboxes);
+        });
 
         $('.do-allocation').on('click', function () {
 

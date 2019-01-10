@@ -132,20 +132,22 @@
                 <div class="col-lg-12 col-md-8 response"></div>
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
-                    
+
                     @foreach($items as $count => $item)
 
+                    <?php $activeState = $count === 0 ? 'active' : ''; ?>
 
-                        <div class="current-line-ref btn btn-primary btn-outline {{ if($count == 0) 'active' @endif  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
-                            @if ($item->free_stock > 0 || $item->reserve_stock > 0)
-                                <img src="/images/accept.png" />
-                           @else
-                                <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
-                           @endif;
-                            <div class="product-code">{{ $item->product_sku }}</div>
-                            <div class="product-title">{{ $item->product_name }}</div>
-                        </div>
-                     @endforeach;
+
+                    <div class="current-line-ref btn btn-primary btn-outline {{ $activeState  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
+                        @if ($item->free_stock > 0 || $item->reserve_stock > 0)
+                        <img src="/images/accept.png" />
+                        @else
+                        <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
+                        @endif;
+                        <div class="product-code">{{ $item->product_sku }}</div>
+                        <div class="product-title">{{ $item->product_name }}</div>
+                    </div>
+                    @endforeach;
                 </div>
 
                 <div id="searchBoxWrapper" class="col-lg-4 col-md-2">
@@ -187,9 +189,9 @@
                         <div class="col-sm-11 input-group input-group-sm pull-right">
                             <span class="input-group-addon order-details-label">Select Delivery Code:</span>
                             <select class="form-control" name="courier_id" id="onlyRMADeliveryDropDown2">
-                              @foreach($couriers as $courier)
-                                    <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
-                                    @endforeach;
+                                @foreach($couriers as $courier)
+                                <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                @endforeach;
                             </select>
                         </div>
                     </div>
@@ -215,15 +217,17 @@
                     <h3>Current Products</h3>
                     @foreach($items as $item)
 
-                         <div class="current-line-ref btn btn-primary btn-outline {{ @if($count == 0) 'active' @endif }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
-                    }}"  data-warehouse-ref ="KW"
+                    <?php $activeState = $count === 0 ? 'active' : ''; ?>
+
+                    <div class="current-line-ref btn btn-primary btn-outline {{ $activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
+                         }}"  data-warehouse-ref ="KW"
                          data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
                          data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
-                        @if ($item->free_stock > 0 || $item->reserved_stock > 0)
-                            <img src="/images/accept.png" />
-                        @else;
-                            <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
-                       @endif;
+                        <!--                        @if ($item->free_stock > 0 || $item->reserved_stock > 0)-->
+                        <img src="/images/accept.png" />
+                        <!--                        @else;
+                                                <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
+                                                @endif;-->
                         <div class="product-code">{{ $item->product_sku }}</div>
                         <div class="product-title">{{ $item->product_name }}</div>
                     </div>
@@ -369,100 +373,100 @@
                 {{ csrf_field() }}
 
                 @foreach($items as $count => $item)
-       <div data-line-ref="1">
-                <input type="hidden" name='form[{{$count}}][line_id]' value='{{$item->id}}'>
+                <div data-line-ref="1">
+                    <input type="hidden" name='form[{{$count}}][line_id]' value='{{$item->id}}'>
 
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="product_name">Product</label><br>
-                        {{$item->product_name}}
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="product_name">Product</label><br>
+                            {{$item->product_name}}
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label for="inputState">Description</label><br>
+                            {{$item->product_description}}
+                        </div>
                     </div>
 
-                    <div class="form-group col-md-6">
-                        <label for="inputState">Description</label><br>
-                        {{$item->product_description}}
-                    </div>
-                </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="inputCity">Tote</label>
+                            <input type="text" value="{{$item->tote}}" placeholder='Tote' class="form-control" id="tote" name='form[{{$count}}][tote]'>
+                        </div>
 
-                <div class="form-row">
-                    <div class="form-group col-md-3">
-                        <label for="inputCity">Tote</label>
-                        <input type="text" value="{{$item->tote}}" placeholder='Tote' class="form-control" id="tote" name='form[{{$count}}][tote]'>
-                    </div>
+                        <div class="form-group col-md-3">
+                            <label for="inputState">Sage Ref</label>
+                            <input type="text" value="{{$item->sage_ref}}" placeholder='Sage Ref' class="form-control" id="sage_ref" name='form[{{$count}}][sage_ref]'>
+                        </div>
 
-                    <div class="form-group col-md-3">
-                        <label for="inputState">Sage Ref</label>
-                        <input type="text" value="{{$item->sage_ref}}" placeholder='Sage Ref' class="form-control" id="sage_ref" name='form[{{$count}}][sage_ref]'>
-                    </div>
+                        <div class="form-group col-md-3">
+                            <label for="inputZip">Picklist Ref</label>
+                            <input value="{{$item->picklist_ref}}" type="text" placeholder='Picklist Ref' class="form-control" id="picklist_ref" name='form[{{$count}}][picklist_ref]'>
+                        </div>
 
-                    <div class="form-group col-md-3">
-                        <label for="inputZip">Picklist Ref</label>
-                        <input value="{{$item->picklist_ref}}" type="text" placeholder='Picklist Ref' class="form-control" id="picklist_ref" name='form[{{$count}}][picklist_ref]'>
-                    </div>
+                        <div class="form-group col-md-3">
+                            <label for="inputZip">Warehouse</label>
+                            <select id="warehouse" name='form[{{$count}}][warehouse]' class="form-control">
+                                <option>Choose...</option>
+                                <option value='KW' @if($item->warehouse == 'KW') selected="selected" @endif>KW</option>
+                                <option value='RW' @if($item->warehouse == 'RW') selected="selected" @endif>RW</option>
+                            </select>
+                        </div>
 
-                    <div class="form-group col-md-3">
-                        <label for="inputZip">Warehouse</label>
-                        <select id="warehouse" name='form[{{$count}}][warehouse]' class="form-control">
-                            <option>Choose...</option>
-                            <option value='KW' @if($item->warehouse == 'KW') selected="selected" @endif>KW</option>
-                            <option value='RW' @if($item->warehouse == 'RW') selected="selected" @endif>RW</option>
-                        </select>
                     </div>
 
-                </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="inputCity">Status</label>
 
-                <div class="form-row">
-                    <div class="form-group col-md-3">
-                        <label for="inputCity">Status</label>
+                            <select id="status" name='form[{{$count}}][status]' class="form-control">
+                                @foreach($statuses as $status)
+                                <option @if($item->status == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                        <select id="status" name='form[{{$count}}][status]' class="form-control">
-                            @foreach($statuses as $status)
-                            <option @if($item->status == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
-                            @endforeach
-                        </select>
+                        <div class="form-group col-md-3">
+                            <label for="inputState">Delivery Code</label>
+                            <select id="courier_id" name='form[{{$count}}][courier_id]' class="form-control">
+                                <option>Choose...</option>
+                                @foreach($couriers as $courier)
+                                <option @if($item->courier_id == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-3">
+                            <label for="inputZip">Tracking Code</label>
+                            <input type="text" value="{{$item->tracking_code}}" class="form-control" id="tracking_code" placeholder='Tracking code' name='form[{{$count}}][tracking_code]'>
+                        </div>
+
+                        <div class="form-group col-md-3">
+                            <label for="inputZip">Dispatch Date</label>
+                            <input type="text" disabled class="form-control" id="dispatch_date" name='dispatch_date' value='{{$item->dispatch_date}}'>
+                        </div>
                     </div>
 
-                    <div class="form-group col-md-3">
-                        <label for="inputState">Delivery Code</label>
-                        <select id="courier_id" name='form[{{$count}}][courier_id]' class="form-control">
-                            <option>Choose...</option>
-                              @foreach($couriers as $courier)
-                                    <option @if($item->courier_id == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
-                                    @endforeach
-                        </select>
-                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="inputCity">Reserved Stock</label>
+                            <input type="text" class="form-control" disabled='disabled' id="reserved_stock" name='reserved_stock'>
+                        </div>
 
-                    <div class="form-group col-md-3">
-                        <label for="inputZip">Tracking Code</label>
-                        <input type="text" value="{{$item->tracking_code}}" class="form-control" id="tracking_code" placeholder='Tracking code' name='form[{{$count}}][tracking_code]'>
-                    </div>
+                        <div class="form-group col-md-3">
+                            <label for="inputState">Stock Available</label>
+                            <input type="text" class="form-control" disabled='disabled' id="stock_availiable" name='stock_availiable' value="{{$item->free_stock}}">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="inputZip">Quantity</label>
+                            <input value="{{$item->quantity}}" type="text" class="form-control" disabled='disabled' id="quantity" name='quantity'>
+                        </div>
 
-                    <div class="form-group col-md-3">
-                        <label for="inputZip">Dispatch Date</label>
-                        <input type="text" disabled class="form-control" id="dispatch_date" name='dispatch_date' value='{{$item->dispatch_date}}'>
+                        <div class="form-group col-md-3">
+                            <label for="inputZip">Price</label>
+                            <input value="{{$item->product_price}}"type="text" class="form-control" disabled='disabled' id="price" name='price'>
+                        </div>
                     </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group col-md-3">
-                        <label for="inputCity">Reserved Stock</label>
-                        <input type="text" class="form-control" disabled='disabled' id="reserved_stock" name='reserved_stock'>
-                    </div>
-
-                    <div class="form-group col-md-3">
-                        <label for="inputState">Stock Available</label>
-                        <input type="text" class="form-control" disabled='disabled' id="stock_availiable" name='stock_availiable'>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label for="inputZip">Quantity</label>
-                        <input value="{{$item->quantity}}" type="text" class="form-control" disabled='disabled' id="quantity" name='quantity'>
-                    </div>
-
-                    <div class="form-group col-md-3">
-                        <label for="inputZip">Price</label>
-                        <input value="{{$item->product_price}}"type="text" class="form-control" disabled='disabled' id="price" name='price'>
-                    </div>
-                </div>
                 </div>
                 @endforeach;
 
@@ -628,26 +632,20 @@ crossorigin="anonymous"></script>
 
 <script type="text/javascript">
                                         $(document).ready(function () {
-
                                             // Bind click event to close swap window
                                             $(document).on("click", "#cancel-swap", function (e) {
                                                 e.preventDefault();
                                                 $('body').removeClass('product-swap');
                                                 location.reload();
                                             });
-
 // Bind click event to lost in post button
                                             $(document).on("click", "#cancelReplace", function (e) {
                                                 e.preventDefault();
                                                 $('body').removeClass('lost-in-post');
                                                 $('#order-details-refresh').trigger('click');
                                             });
-
-
                                             $('#SaveOrder').on('click', function () {
-
                                                 var data = $('#linesForm').serialize();
-
                                                 $.ajax({
                                                     type: "POST",
                                                     url: '/admin/orderLine/updateLineStatus',
@@ -659,16 +657,11 @@ crossorigin="anonymous"></script>
                                                         alert('unable to complete action');
                                                     }
                                                 });
-
                                                 //$('#line-status-form').submit();
-
                                                 return false;
                                             });
-
                                             $('.cancel-order').on('click', function () {
-
                                                 var orderId = $(this).attr('order-id');
-
                                                 $.ajax({
                                                     type: "POST",
                                                     url: '/admin/orders/destroy/' + orderId,
@@ -683,16 +676,12 @@ crossorigin="anonymous"></script>
                                                         alert('unable to complete action');
                                                     }
                                                 });
-
                                                 //$('#line-status-form').submit();
-
                                                 return false;
                                             });
-
                                             $('.do-swap').on('click', function () {
                                                 $('.productSelect').prop('disabled', false);
                                             });
-
                                             // Bind click event to refund button
                                             $(document).on("click", "#refundBtn", function () {
                                                 preRefundCheck();
@@ -702,76 +691,62 @@ crossorigin="anonymous"></script>
                                                     $('.refund-window #continue-refund').attr('disabled', false).addClass('btn-success');
                                                 });
                                             });
-
                                             // Bind click event to replace order button
                                             $(document).on("click", "#replaceBtn", function () {
                                                 var firstLineRef = $('#currentLineWrap .active').attr('data-line-ref');
                                                 alert('a ' + firstLineRef);
                                                 $('#searchBoxWrapper #current-line').val(firstLineRef);
-
                                                 initProductAutoComplete('#SwapFinder');
                                                 $('body').removeClass('lost-in-post');
                                                 $('body').addClass('product-swap');
                                                 $('.swap-window').slideDown();
                                             });
-
 // Bind click event on the current product to swap
+                                            // Bind click event on the current product to swap
                                             $(document).on('change', '.replace-window #currentLineWrap .current-line-ref', function (e) {
                                                 var line = $(this).prev();
+                                                var lineRef = line.attr('data-line-ref');
+                                                var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
+                                                line.toggleClass('removed');
+                                                newOrder.toggleClass('removed');
+                                                var allLines = $('.current-line-ref');
+                                                allLines.removeClass('active');
+                                                newOrder.removeClass('active');
 
-                                            
-                                            
-            // Bind click event on the current product to swap
-$(document).on('change', '.replace-window #currentLineWrap .current-line-ref', function(e){
-    var line = $(this).prev();
-    var lineRef = line.attr('data-line-ref');
-    var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
-    line.toggleClass('removed');
-    newOrder.toggleClass('removed');
-    var allLines = $('.current-line-ref');
-    allLines.removeClass('active');
-    newOrder.removeClass('active');
-
-    if(line.hasClass('removed')){
-        line.removeClass('active');
-        newOrder.removeClass('active');
-    }else{
-        line.addClass('active');
-        newOrder.addClass('active');
-    }
-});
+                                                if (line.hasClass('removed')) {
+                                                    line.removeClass('active');
+                                                    newOrder.removeClass('active');
+                                                } else {
+                                                    line.addClass('active');
+                                                    newOrder.addClass('active');
+                                                }
+                                            });
 
 // Bind click event on the current product to swap
-$(document).on('click', '.replace-window .current-line-ref', function(e){
-    var lineRef = $(this).attr('data-line-ref');
-    $('#freeTextLostinPost').attr('disabled', false).val('');
-    $('#searchBoxWrapper #current-line').val(lineRef);
-    var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
-    var allLines = $('.current-line-ref');
+                                            $(document).on('click', '.replace-window .current-line-ref', function (e) {
+                                                var lineRef = $(this).attr('data-line-ref');
+                                                $('#freeTextLostinPost').attr('disabled', false).val('');
+                                                $('#searchBoxWrapper #current-line').val(lineRef);
+                                                var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
+                                                var allLines = $('.current-line-ref');
 
-    allLines.not($(this)).removeClass('active');
-    newOrder.not($(this)).removeClass('active');
+                                                allLines.not($(this)).removeClass('active');
+                                                newOrder.not($(this)).removeClass('active');
 
-    $(this).addClass('active');
-    newOrder.toggleClass('active');
-});
+                                                $(this).addClass('active');
+                                                newOrder.toggleClass('active');
+                                            });
 
 // Bind click event on the current product to swap
-$(document).on('click', '.swap-window .current-line-ref', function(e){
-    var lineRef = $(this).attr('data-line-ref');
-    $('#freeTextLostinPost').attr('disabled', false);
-    $('#SwapFinder').val('');
-    $('#searchBoxWrapper #current-line').val(lineRef);
-    var allLines = $('.current-line-ref');
-    allLines.not($(this)).removeClass('active');
-    $(this).addClass('active');
-});                                
-                                            
-                                            
-                                            
-                                            
-                                            
-
+                                            $(document).on('click', '.swap-window .current-line-ref', function (e) {
+                                                var lineRef = $(this).attr('data-line-ref');
+                                                $('#freeTextLostinPost').attr('disabled', false);
+                                                $('#SwapFinder').val('');
+                                                $('#searchBoxWrapper #current-line').val(lineRef);
+                                                var allLines = $('.current-line-ref');
+                                                allLines.not($(this)).removeClass('active');
+                                                $(this).addClass('active');
+                                            });
 // Bind click event to the Lost in post btn
                                             $(document).on("click", "#replaceProduct", function (e) {
                                                 e.preventDefault();
@@ -779,14 +754,12 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                 alert('d ' + lineRef);
                                                 replaceProductInOrder(lineRef);
                                             });
-
 // Bind click event on the product swap to btn
                                             $(document).on("click", "#swapToSelectedProduct", function (e) {
                                                 e.preventDefault();
                                                 var lineRef = $('#searchBoxWrapper #current-line').val();
                                                 swapProductInOrder(lineRef);
                                             });
-
 // Bind click event on the submit new order
                                             $(document).on("click", "#createNewOrder", function (e) {
                                                 e.preventDefault();
@@ -797,14 +770,11 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                 }
                                                 $('#createOrderSpinner').fadeIn(600);
                                                 createNewOrder(type);
-
                                             });
-
                                             $(document).on("click", "#swap-products", function (e) {
                                                 e.preventDefault();
                                                 submitProductSwap();
                                             });
-
                                             // Bind click event to lost in post button
                                             $(document).on("click", "#lostInPostBtn", function () {
                                                 $('#createOrderSpinner').hide();
@@ -813,35 +783,26 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                 var wmsWarehouseRef = $('#currentLineWrap .active').attr('data-warehouse-ref');
                                                 $('#searchBoxWrapper #current-line').val(firstLineRef);
                                                 $('#searchBoxWrapper #warehouse-ref').val(wmsWarehouseRef);
-
                                                 alert('Mike');
-
                                                 initProductAutoComplete('#freeTextLostinPost');
                                                 $('body').removeClass('product-swap');
                                                 $('body').addClass('lost-in-post');
                                                 $('.replace-window').slideDown();
                                                 /*        $('#currentLineWrap .current-line-ref').*/
-
                                                 return false;
                                             });
-
-
                                             $('#continue-refund').on('click', function () {
-
                                                 var status = 8;
                                                 var orderId = $(this).attr('order-id');
-
                                                 if ($('.cb:checked').length == 0)
                                                 {
                                                     alert('Please select atleast one checkbox');
                                                     return false;
                                                 }
-
                                                 var cb = [];
                                                 $.each($('.cb:checked'), function () {
                                                     cb.push($(this).val());
                                                 });
-
                                                 $.ajax({
                                                     type: "POST",
                                                     url: '/admin/refunds/doRefund',
@@ -858,25 +819,19 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                         alert('unable to complete action');
                                                     }
                                                 });
-
                                                 return false;
                                             });
-
                                             $('.test1').on('click', function () {
-
                                                 var orderId = $(this).attr('order-id');
-
                                                 if ($('.cb:checked').length == 0)
                                                 {
                                                     alert('Please select atleast one checkbox');
                                                     return false;
                                                 }
-
                                                 var cb = [];
                                                 $.each($('.cb:checked'), function () {
                                                     cb.push($(this).val());
                                                 });
-
                                                 $.ajax({
                                                     type: "POST",
                                                     url: '/admin/orders/cloneOrder',
@@ -892,17 +847,13 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                         alert('unable to complete action');
                                                     }
                                                 });
-
                                                 return false;
                                             });
-
                                             $('.productSelect').on('change', function () {
-
                                                 var lineId = $(this).attr('line-id');
                                                 var quantity = $(this).attr('quantity');
                                                 var orderId = $(this).attr('order-id');
                                                 var productId = $(this).val();
-
                                                 $.ajax({
                                                     type: "POST",
                                                     url: '/admin/orderLine/update',
@@ -914,16 +865,13 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                         _token: '{{ csrf_token() }}'
                                                     },
                                                     success: function (msg) {
-
                                                     },
                                                     error: function (data) {
                                                         alert('unable to complete action');
                                                     }
                                                 });
-
                                                 return false;
                                             });
-
                                             let osElement = $('#order_status_id');
                                             osElement.change(function () {
                                                 if (+$(this).val() === 1) {
@@ -933,32 +881,26 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                 }
                                             });
                                         })
-
                                         $('#cancelRefundBtn').on('click', function () {
                                             $('.refund-window').slideUp();
                                             $('.refund-help').fadeOut();
                                             $('.orderline-refund').addClass("hide-me");
                                         });
-
                                         function preRefundCheck() {
                                             $('.refund-window').slideDown();
                                             $('.refund-help').fadeIn();
                                             $('.orderline-refund').removeClass("hide-me");
-
                                             //var orderLineTicks = $('.orderline-refund i');
                                             //orderLineTicks.addClass('pulsing');
                                         }
-
                                         function initProductAutoComplete(selector) {
                                             var $ele = $(selector);
                                             var channelCode = $ele.attr('data-channel');
-
                                             // Init autocomplete swap product finder
                                             $ele.autocomplete({
                                                 minLength: 0,
                                                 // Get and format data for other products on the same channel
                                                 source: function (request, response) {
-
                                                     var pattern = new RegExp(/^[a-zA-Z0-9\-_]+/);
                                                     var arrData = {
                                                         product_code: $ele.val().toUpperCase(),
@@ -966,9 +908,7 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                         _token: '{{ csrf_token() }}'
                                                     };
                                                     var strUrl = "/admin/products/getProductAutoComplete/get";
-
                                                     if ($ele.val().match(pattern)) {
-
                                                         var data = [];
                                                         $.ajax({
                                                             type: "POST",
@@ -982,16 +922,14 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                                     return false;
                                                                 }
                                                                 search = $.parseJSON(search);
-
                                                                 if (search.results.length > 0) {
-
                                                                     $.each(search.results, function (ind, val) {
-
                                                                         data.push({
                                                                             label: val.sku + " - " + val.description + " - "
                                                                                     + val.warehouse,
                                                                             value: val.sku,
                                                                             product: {
+                                                                                id: val.id,
                                                                                 product_code: val.sku,
                                                                                 product_title: val.description,
                                                                                 product_id: val.id,
@@ -1016,15 +954,16 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                 },
                                                 //Handle the click event on the autocomplete selection
                                                 select: function (event, ui) {
-
                                                     console.log(ui.item.product);
-
                                                     $(".no-products").html('');
+
+                                                    alert(ui.item.product.id);
+
                                                     $('.selected-for-swap .selected-product-code').html(ui.item.product.product_code);
                                                     $('.selected-for-swap .selected-product-title').html(ui.item.product.product_title);
                                                     $('.selected-for-swap .selected-stock-lvl').html("Stock Level: " + ui.item.product.freestock);
                                                     // hidden inputs
-                                                    $('.selected-for-swap .product-code').val(ui.item.product.product_code);
+                                                    $('.selected-for-swap .product-code').val(ui.item.product.id);
                                                     $('.selected-for-swap .product-title').val(ui.item.product.product_title);
                                                     $('.selected-for-swap .freestock').val(ui.item.product.freestock);
                                                     $('.selected-for-swap #warehouse-ref').val(ui.item.product.warehouse);
@@ -1034,20 +973,17 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                             );
                                                     $('.selected-for-swap').slideDown();
                                                 },
-
                                                 open: function () {
                                                     $('.ui-autocomplete').css({'position': 'fixed', 'border': 'none', 'display': 'block', 'z-index': 1000000});
                                                     $('.ui-autocomplete li').css({'margin-bottom': '1px', 'font-size': '0.8em', 'line-height': '1.4em', 'border-raduis': 'none', 'background': '#ddd', 'padding': '2px'});
                                                 },
                                                 close: function () {},
                                                 focus: function (event, ui) {
-
                                                 }
                                             });
                                         }
-
                                         function createNewOrder(type) {
-                                            var strUrl = "/orders/replaceOrder";
+                                            var strUrl = "/admin/orders/cloneOrder";
                                             var newOrder = $('#newOrder');
                                             $.each(newOrder.children(), function (ind, val) {
                                                 var value = $(val);
@@ -1055,20 +991,20 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                     newOrder.children().eq(ind).remove();
                                                 }
                                             });
-
                                             newOrder = newOrder.serializeArray();
                                             var customerRef = $('#order-details-content .customer-ref').text();
                                             var orderRef = $('#order-details-content .order-details').attr('data-order-ref');
-                                            var dbID = $('#order-details-content .order-details').attr('data-dbid');
+                                            var dbID = $('#lostInPostBtn').attr('order-id');
                                             var lastUpdated = encodeURI($('#order-details-content .order-details').attr('data-last-updated'));
                                             var delivery = $('#onlyRMADeliveryDropDown2').val();
                                             var channelCode = $('.replace-window #searchBoxWrapper #channel').val();
-
                                             var objXhr = $.ajax({
                                                 type: "POST",
                                                 url: strUrl,
                                                 data: {
+                                                    line_id: $('.current-line-ref').attr('data-line-ref'),
                                                     order: newOrder,
+                                                    _token: '{{ csrf_token() }}',
                                                     orderRef: orderRef,
                                                     customerRef: customerRef,
                                                     dbID: dbID,
@@ -1079,7 +1015,6 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                 },
                                                 success: function (response) {
                                                     $('#createOrderSpinner').fadeOut(600);
-
                                                     var response = JSON.parse(response);
                                                     var strOut = "<div class='alert alert-success'>";
                                                     $.each(response.body[0], function (ind, val) {
@@ -1087,20 +1022,14 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                             strOut += "<p>" + val + "</p>";
                                                         }
                                                     });
-
                                                     strOut += '</div>';
                                                     $('.replace-window .response').html(strOut).addClass('active');
-
                                                     $.each(response.koms[0].details, function (responseType, val) {
-
                                                         $.each(val, function (dbId, detail) {
-
                                                             if (responseType === 'SUCCESS') {
                                                                 $('.replace-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                             } else {
-
                                                                 $.each(detail, function (key, value) {
-
                                                                     if ((key === 'generic_errors' && typeof (value) === 'object') || (key === 'extra_info' && typeof (value) === 'object')) {
                                                                         $('.replace-window .response').append("<div class='alert alert-danger'></div>");
                                                                         $.each(value, function (errorType, message) {
@@ -1113,22 +1042,18 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                     });
                                                 }
                                             });
-
-
-
                                         }
-
                                         function replaceProductInOrder(lineRef) {
-                                        
-                                        alert('mike ' + lineRef);
-                                        
+
+                                            alert('mike ' + lineRef);
+
                                             var originalProduct = $('.replace-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]');
                                             var newProduct = $('.replace-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]').clone();
                                             var productForSwap = $('.replace-window .selected-for-swap');
                                             var newProductCode = productForSwap.find('.product-code').val();
-                                            
+
                                             alert(newProductCode);
-                                            
+
                                             var newProductTitle = productForSwap.find('.product-title').val();
                                             var newProductWarehouse = productForSwap.find('#warehouse-ref').val();
                                             var newProductStatus = originalProduct.attr('data-line-status');
@@ -1149,12 +1074,11 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                             $('.replace-window #freeTextLostinPost').val('');
                                             //~BR - lets draw the drop down - this is messy as, but without recoding the whole thing, I need to allow a Qty to be selected for the Line
                                             var Quantity = originalProduct.attr('data-line-quantity');
-                                            
+
                                             alert(Quantity);
                                             var qtyDropdownHtml = '<br /><div class="col-sm-7 input-group input-group-sm pull-right">\n' +
                                                     '            <span class="input-group-addon order-details-label">Swap Quantity</span>\n' +
                                                     '        <select class="form-control quantity" name="quantity[' + lineRef + ']">';
-
                                             for (var qtyCounter = 1; qtyCounter <= Quantity; qtyCounter++) {
                                                 if (Number(qtyCounter) === Number(Quantity)) {
                                                     qtyDropdownHtml += '<option value="' + qtyCounter + '" selected>' + qtyCounter + '</option>';
@@ -1162,26 +1086,22 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                     qtyDropdownHtml += '<option value="' + qtyCounter + '">' + qtyCounter + '</option>';
                                                 }
                                             }
-
                                             qtyDropdownHtml += '</select>' +
                                                     '        </div>';
-
                                             newProduct.append(qtyDropdownHtml);
                                             newProduct.appendTo('.replaced-products');
                                             swappedTitle.html(swappedTitle.text() + '<i style="margin:0 0.5em;" class="fa fa-hand-o-right" aria-hidden="true"></i>' + newProductCode);
                                             $('.replace-window .swap-line #saveProductReplacementWrapper').show(500);
                                             $('.selected-for-swap').slideUp();
                                         }
-
                                         function swapProductInOrder(lineRef) {
                                             var originalProduct = $('.swap-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]');
                                             var newProduct = $('.swap-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]').clone();
                                             var productForSwap = $('.swap-window .selected-for-swap');
                                             var newproductCode = productForSwap.find('.product-code').val();
                                             var newproductTitle = productForSwap.find('.product-title').val();
-                                            
-                                            alert('f ' + newproductTitle);
 
+                                            alert('f ' + newproductTitle);
                                             newProduct.removeClass('active').attr('data-product-code', newproductCode).attr('data-line-ref', lineRef).attr('data-original-product-code', originalProduct.attr('data-product-code'));
                                             newProduct.find('.product-code').html(newproductCode);
                                             newProduct.find('.product-title').html(newproductTitle);
@@ -1195,15 +1115,19 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                         function  submitProductSwap() {
                                             var productsForSwap = $('.swapped-products');
                                             var arrData = [];
-                                            var strUrl = "/product/inOrderSwap";
-
+                                            var strUrl = "/admin/orderLine/update";
                                             $('.swap-window #newOrder .fa-refresh').show();
-
                                             // Format data for update
                                             $.each(productsForSwap.children(), function (ind, value) {
                                                 var newProductCode = $(value).attr('data-product-code');
                                                 var lineRef = $(value).attr('data-line-ref');
-                                                alert(lineRef);
+
+                                                arrData.push({
+                                                    line_id: lineRef,
+                                                    product_id: newProductCode,
+                                                    order_id: $('#lostInPostBtn').attr('order-id')
+                                                });
+
                                                 // this needs to be the lines form
                                                 var lines = $('#order-details-line-container');
                                                 var updateLine = lines.find('div[data-line-ref="' + lineRef + '"]');
@@ -1211,29 +1135,26 @@ $(document).on('click', '.swap-window .current-line-ref', function(e){
                                                 updateLine.find('.update-customer-product-code').val("");
                                                 updateLine.find('[name="' + lineRef + '-line_status"]').append('<option value="2">Waiting Import</option>').val("2");
                                             });
+         
 
                                             // Send update
                                             $.ajax({
                                                 type: "POST",
                                                 url: strUrl,
-                                                data: {
-                                                    dbid: $('.order-details').attr('data-dbid')
-                                                },
+                                                data:  {data: JSON.stringify(arrData)},
                                                 success: function (response) {
+
+                                                    alert(response);
+
                                                     $('.swap-window #newOrder .fa-refresh').hide();
                                                     var response = JSON.parse(response);
-
                                                     if (response.http_code === 201 || response.http_code === 200) {
                                                         $.each(response.details, function (responseType, val) {
-
                                                             $.each(val, function (dbId, detail) {
-
                                                                 if (responseType === 'SUCCESS') {
                                                                     $('.swap-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                                 } else {
-
                                                                     $.each(detail, function (key, value) {
-
                                                                         if ((key === 'generic_errors' && typeof (value) === 'object') || (key === 'extra_info' && typeof (value) === 'object')) {
                                                                             $('.swap-window .response').append("<div class='alert alert-danger'></div>");
                                                                             $.each(value, function (errorType, message) {

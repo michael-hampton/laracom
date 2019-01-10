@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use App\Shop\CourierRates\CourierRate;
 use App\Shop\Couriers\Courier;
+use App\Shop\Channels\Channel;
 use App\Shop\CourierRates\Transformations\CourierRateTransformable;
 use Illuminate\Support\Facades\DB;
 
@@ -77,14 +78,22 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
         }
     }
 
-    public function findShippingMethod($total, $courierId) {
-        
+    /**
+     * 
+     * @param type $total
+     * @param Courier $courier
+     * @param Channel $channel
+     * @return type
+     */
+    public function findShippingMethod($total, Courier $courier, Channel $channel) {
+
         $query = DB::table('courier_rates');
         $query->whereRaw('? between range_from and range_to', [$total]);
-        $query->where('courier', '=', $courierId);
-        //$rates = CourierRates::hydrate($result); 
-        return $query->get();
-        
+        $query->where('courier', '=', $courier->id);
+        $query->where('channel', '=', $channel->id);
+        $result = $query->get();
+        $rates = CourierRate::hydrate($result->toArray());
+        return $rates[0];
     }
 
     /**

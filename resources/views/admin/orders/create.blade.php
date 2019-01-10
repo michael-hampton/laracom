@@ -51,7 +51,7 @@
                 <div class="form-group">
                             <label class="" for="voucher_code">Voucher Code</label>
                             <input lineid="0" placeholder="Voucher Code" name="voucher_code" id="voucher_code" class="form-control">
-                        </div
+                </div>
 
                 <button class="btn btn-sm btn-primary float-right m-t-n-xs add-more" style="margin-bottom:10px;" type="button"><strong>+</strong></button>
 
@@ -106,7 +106,7 @@
 
         $('.add-more').off();
         $('.add-more').on('click', function () {
-
+            
             var count = $('.scope-select').length;
             
             var products = $('.main.scope-select option');
@@ -175,7 +175,7 @@
 
         $('.price').each(function () {
 
-            var price = $(this).val();
+            var price = parseFloat($(this).val());
 
             total += price;
 

@@ -116,7 +116,7 @@ trait MyTrait {
             $productTotal += $cartItem->price;
         }
 
-        $total = $productTotal + $data['shipping'] + $data['tax'];
+        $total = $productTotal + $data['total_shipping'] + $data['tax'];
 
         if (!empty($data['discounts']) && $data['discounts'] > 0) {
             $total -= $data['discounts'];
