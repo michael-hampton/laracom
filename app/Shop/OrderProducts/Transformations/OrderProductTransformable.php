@@ -4,6 +4,7 @@ namespace App\Shop\OrderProducts\Transformations;
 
 use App\Shop\OrderProducts\OrderProduct;
 use Illuminate\Support\Facades\Storage;
+use App\Shop\Products\Product;
 
 trait OrderProductTransformable {
 
@@ -15,6 +16,9 @@ trait OrderProductTransformable {
      */
     protected function transformOrderProduct(OrderProduct $orderProduct) {
         $orderProductObj = new OrderProduct;
+        
+        $productRepo = new ProductRepository(new Product);
+        $product = $productRepo->getProductById($orderProduct->product_id);
         $orderProductObj->id = (int) $orderProduct->id;
         $orderProductObj->product_id = (int) $orderProduct->product_id;
         $orderProductObj->order_id = (int) $orderProduct->order_id;
@@ -32,7 +36,9 @@ trait OrderProductTransformable {
         $orderProductObj->warehouse = $orderProduct->warehouse;
         $orderProductObj->courier_id = (int) $orderProduct->courier_id;
         $orderProductObj->tracking_code = $orderProduct->tracking_code;
-
+        $orderProductObj->free_stock = $product->quantity;
+        $orderProductObj->reserved_stock = $product->reserved_stock;
+        
         return $orderProductObj;
     }
 
