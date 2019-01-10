@@ -93,8 +93,16 @@ class WarehouseController extends Controller {
         $newStatus = $this->orderStatusRepo->findByName('Picking');
 
         if ($order->total_paid <= 0 || empty($order->payment)) {
+            
+            $data = [
+            'content' => 'Failed to pick order as payment information is incorrect or missing',
+            'user_id' => auth()->guard('admin')->user()->id
+        ];
+            
+        $postRepo = new OrderCommentRepository($order);
+        $postRepo->createComment($data);
 
-            return response()->json(['error' => 'picking failed. The total paid is 0'], 404);
+        return response()->json(['error' => 'picking failed. The total paid is 0'], 404);
         }
 
         $objOrderLineRepo = new OrderProductRepository($objLine);
