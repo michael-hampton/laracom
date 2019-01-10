@@ -331,29 +331,33 @@ class OrderController extends Controller {
 
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
+        
+        $orderTotal = $request->total;
 
-             $objCourierRate = new CourierRateRepository(new CourierRate);
-                $shipping = $objCourierRate->findShippingMethod($request->total, $courier[0]->id);
+        $objCourierRate = new CourierRateRepository(new CourierRate);
+        $shipping = $objCourierRate->findShippingMethod($request->total, $request->courier);
 
-                $shippingCost = 0;
+        $shippingCost = 0;
 
-                if (!$shipping->isEmpty()) {
+        if (!$shipping->isEmpty()) {
 
-                    $shippingCost = $shipping[0]->cost;
-                }
+               $shippingCost = $shipping[0]->cost;
+       }
                 
-                $orderTotal += $shippingCost;
+          $orderTotal += $shippingCost;
 
-                $voucherAmount = 0;
+          $voucherAmount = 0;
 
-                if (!empty($request->voucher_code)) {
-                    $voucherCode = $this->voucherCodeRepo->getByVoucherCode($order['voucher_code']);
+         if (!empty($request->voucher_code)) {
+                    $voucherCode = $this->voucherCodeRepo->getByVoucherCode($request->voucher_code);
 
                     $voucher_id = $voucherCode->voucher_id;
                     $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
 
                     $voucherAmount = $objVoucher->amount;
                 }
+        
+        $orderTotal += $voucherAmount;
 
         $order = $orderRepo->createOrder([
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
@@ -366,8 +370,8 @@ class OrderController extends Controller {
             'discounts' => 0,
             'shipping' => $shippingCost,
             'total_products' => 1,
-            'total' => $request->total,
-            'total_paid' => $request->total,
+            'total' => $orderTotal,
+            'total_paid' => 0,
             'channel' => $channel,
             'tax' => 0
                 ], new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address), true
