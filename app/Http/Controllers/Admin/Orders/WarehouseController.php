@@ -19,6 +19,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Shop\Orders\Requests\WarehouseRequest;
+use App\Shop\Comments\OrderCommentRepository;
 
 class WarehouseController extends Controller {
 
