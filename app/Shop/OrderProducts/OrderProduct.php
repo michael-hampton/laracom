@@ -30,7 +30,8 @@ class OrderProduct extends Model {
         'picklist_ref',
         'warehouse',
         'courier_id',
-        'tracking_code'
+        'tracking_code',
+        'dispatch_date'
     ];
 
     /**
