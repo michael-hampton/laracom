@@ -607,7 +607,30 @@ class OrderController extends Controller {
                                     ->with('error_line', $line);
                 }
                 
-                $arrOrders[$data['order_id']] = $data;
+                $deliveryAddress = $customerRepo->findAddresses()->first();
+
+                $channel = $this->channelRepo->findChannelById($request->channel);
+
+                //$orderRepo = new OrderRepository(new Order);
+
+                $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
+                $os = $orderStatusRepo->findByName('Waiting Allocation');
+    
+                
+                $arrOrders[$data['order_id']] = ['reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
+                                                 'courier_id' => $request->courier,
+                                                 'customer_id' => $customer->id,
+                                                 'voucher_id' => !empty($request->voucher_code) ? $request->voucher_code : null,
+                                                 'address_id' => $deliveryAddress->id,
+            'order_status_id' => $os->id,
+            'payment' => 'import',
+            'discounts' => 0,
+            'shipping' => $shippingCost,
+            'total_products' => 1,
+            'total' => $request->total,
+            'total_paid' => $request->total,
+            'channel' => $channel,
+            'tax' => 0
 
                 $arrOrders[$data['order_id']]['products'][] = array(
                     'product' => $data['product'],
