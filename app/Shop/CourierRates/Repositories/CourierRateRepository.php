@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use App\Shop\CourierRates\CourierRate;
+use App\Shop\Couriers\Courier;
 use App\Shop\CourierRates\Transformations\CourierRateTransformable;
+use Illuminate\Support\Facades\DB;
 
 class CourierRateRepository extends BaseRepository implements CourierRateRepositoryInterface {
 
@@ -75,11 +77,13 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
         }
     }
 
-    public function findShippingMethod($total) {
-
-        $query = DB::table('couriers');
+    public function findShippingMethod($total, $courierId) {
+        
+        $query = DB::table('courier_rates');
         $query->whereRaw('? between range_from and range_to', [$total]);
+        $query->where('courier', '=', $courierId);
         return $query->get();
+        
     }
 
     /**

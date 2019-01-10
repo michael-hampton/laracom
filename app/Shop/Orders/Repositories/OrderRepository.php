@@ -431,6 +431,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function buildOrderLinesForManualOrder(array $items) {
 
         foreach ($items as $item) {
+            
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item['id']);
             $this->allocate_on_order = false;

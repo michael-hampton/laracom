@@ -22,6 +22,8 @@ use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Orders\Order;
+use App\Shop\CourierRates\Repositories\CourierRateRepository;
+use App\Shop\CourierRates\CourierRate;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\OrderStatuses\OrderStatus;
@@ -329,12 +331,12 @@ class OrderController extends Controller {
 
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
-        
+
         $shippingCost = 0;
-        
+
         $shipping = $this->shippingRepo->findShippingMethod($request->total);
-        
-        if(!$shipping->isEmpty()) {
+
+        if (!$shipping->isEmpty()) {
             $shippingCost = $shipping->cost;
         }
 
@@ -542,6 +544,8 @@ class OrderController extends Controller {
         $line = 0;
         $arrDone = [];
         $arrOrders = [];
+        $totalPrice = 0;
+        $arrProducts = [];
 
         if (($handle = fopen($file_path, "r")) !== FALSE) {
 
@@ -553,97 +557,143 @@ class OrderController extends Controller {
                     continue;
                 }
 
-                if (in_array($data['order_id'], $arrDone)) {
-
-                    continue;
-                }
-
-                $line++;
-                $order = [];
+                $voucherCode = null;
 
                 list(
+                        $order['order_id'],
                         $order['channel'],
                         $order['customer'],
                         $order['courier'],
                         $order['voucher_code'],
                         $order['product'],
                         $order['quantity'],
-                        $order['price'],
-                        $order['shipping'],
-                        $order['total']
+                        $order['price']
                         ) = $data;
-                
-                $shipping = $this->courierRepo->findDeliveryMethod($data['total']);
 
-                if ($shipping->isEmpty()) {
-                    $shippingCost = 0;
-                }
+                $line++;
+                $newOrder = [];
 
                 $csv_errors = Validator::make(
                                 $order, (new ImportRequest())->rules()
                         )->errors();
 
-                $customer = $this->customerRepo->searchCustomer($data['customer']);
+
+                $channel = $this->channelRepo->findByName($order['channel']);
+
+                if (empty($channel)) {
+
+                    $csv_errors->add('channel', "Channel is invalid.");
+                }
+
+                $customer = $order['customer'];
+
+                $customer = $this->customerRepo->searchCustomer($customer);
 
                 if ($customer->isEmpty()) {
+
                     $csv_errors->add('customer', "Customer is invalid.");
                 }
 
-                $courier = $this->courierRepo->findByName($data['courier']);
+                $courier = $this->courierRepo->findByName($order['courier']);
 
                 if ($courier->isEmpty()) {
+
                     $csv_errors->add('courier', "Courier is invalid.");
                 }
-                
-                $product = $this->productRepo->searchProduct($data['product']);
 
-                if ($product->isEmpty()) {
-                    $csv_errors->add('product', "Product is invalid.");
+                $objCourierRate = new CourierRateRepository(new CourierRate);
+                $shipping = $objCourierRate->findShippingMethod(20, $courier[0]->id);
+
+                $shippingCost = 0;
+
+                if (!$shipping->isEmpty()) {
+
+                    $shippingCost = $shipping[0]->cost;
                 }
+
+                $voucherAmount = 0;
+
+                if (!empty($order['voucher_code'])) {
+                    $voucherCode = $this->voucherCodeRepo->getByVoucherCode($order['voucher_code']);
+
+                    if (empty($voucherCode)) {
+
+                        $csv_errors->add('voucher_code', "Voucher Code is invalid.");
+                    }
+
+                    $voucher_id = $voucherCode->voucher_id;
+                    $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
+
+                    $voucherAmount = $objVoucher->amount;
+                }
+
+
+
+                $product = $this->productRepo->searchProduct($order['product'])->first();
+
+                $totalPrice += $order['price'];
 
                 if ($csv_errors->any()) {
                     return redirect()->back()
                                     ->withErrors($csv_errors, 'import')
                                     ->with('error_line', $line);
                 }
-                
-                $deliveryAddress = $customerRepo->findAddresses()->first();
 
-                $channel = $this->channelRepo->findChannelById($request->channel);
+                $customerRepo = new CustomerRepository($customer[0]);
+                $deliveryAddress = $customerRepo->findAddresses()->first();
 
                 //$orderRepo = new OrderRepository(new Order);
 
                 $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
                 $os = $orderStatusRepo->findByName('Waiting Allocation');
-    
-                
-                $arrOrders[$data['order_id']] = ['reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-                                                 'courier_id' => $request->courier,
-                                                 'customer_id' => $customer->id,
-                                                 'voucher_id' => !empty($request->voucher_code) ? $request->voucher_code : null,
-                                                 'address_id' => $deliveryAddress->id,
-            'order_status_id' => $os->id,
-            'payment' => 'import',
-            'discounts' => 0,
-            'shipping' => $shippingCost,
-            'total_products' => 1,
-            'total' => $request->total,
-            'total_paid' => $request->total,
-            'channel' => $channel,
-            'tax' => 0
 
-                $arrOrders[$data['order_id']]['products'][] = array(
-                    'product' => $data['product'],
-                    'quantity' => $data['quantity']
+
+                $voucherCodeId = !empty($voucherCode) ? $voucherCode->id : null;
+
+                $arrOrders[$order['order_id']] = [
+                    'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
+                    'courier_id' => $courier[0]->id,
+                    'customer_id' => $customer[0]->id,
+                    'voucher_code' => $voucherCodeId,
+                    'voucher_id' => !empty($order['voucher_code']) ? $order['voucher_code'] : null,
+                    'address_id' => $deliveryAddress->id,
+                    'order_status_id' => $os->id,
+                    'payment' => 'import',
+                    'discounts' => $voucherAmount,
+                    'shipping' => $shippingCost,
+                    'total_products' => 1,
+                    'total' => 0,
+                    'total_paid' => 0,
+                    'channel' => $channel,
+                    'tax' => 0
+                ];
+
+
+                $arrProducts[$order['order_id']][] = array(
+                    'product' => $product->name,
+                    'id' => $product->id,
+                    'quantity' => $order['quantity']
                 );
 
-                
 
-                $arrDone = $data['order_id'];
+
+                $arrDone[] = $order['order_id'];
             }
 
             fclose($handle);
         }
+
+        foreach ($arrOrders as $orderId => $arrOrder) {
+
+            $order = $this->orderRepo->createOrder($arrOrder, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new Addressrepository(new Address));
+
+            $orderRepo = new OrderRepository($order);
+
+            $orderRepo->buildOrderLinesForManualOrder($arrProducts[$orderId]);
+        }
+
+        die;
+
 
         // Dispatch job to store the data in database
         //dispatch(new StoreBooks($file_path));
@@ -655,7 +705,7 @@ class OrderController extends Controller {
     }
 
     private function addToQueue($data) {
-        
+
         $config = [
             'factory_class' => \Enqueue\AmqpLib\AmqpConnectionFactory::class,
             'dsn' => null,
@@ -695,12 +745,12 @@ class OrderController extends Controller {
         ];
 
         require_once($_SERVER['DOCUMENT_ROOT'] . '../VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector.php');
-         require_once($_SERVER['DOCUMENT_ROOT'] . '../VladimirYuldashev\LaravelQueueRabbitMQ\Queue\RabbitMQQueue.php');
+        require_once($_SERVER['DOCUMENT_ROOT'] . '../VladimirYuldashev\LaravelQueueRabbitMQ\Queue\RabbitMQQueue.php');
 
         $connector = new \VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector(new Dispatcher());
         /** @var RabbitMQQueue $queue */
         $queue = $connector->connect($config);
-        
+
         $queue->setContainer($this->createDummyContainer());
         // we need it to declare exchange\queue on RabbitMQ side.
         $queue->pushRaw('something');

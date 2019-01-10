@@ -95,7 +95,7 @@ class CourierRepository extends BaseRepository implements CourierRepositoryInter
     
     public function findShippingMethod($total) {
         
-        $query = DB::table('couriers');
+        $query = DB::table('courier_rates');
         $query->whereRaw('? between range_from and range_to', [$total]);
         return $query->get();
         

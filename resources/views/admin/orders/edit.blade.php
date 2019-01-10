@@ -133,11 +133,15 @@
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
 
-                        <select class="current-line-ref" data-line-ref="1">
-                        @foreach($items as $item)
-                            <option class='active' value="{{$item->id}}">{{$item->product_name}}</option>
-                            @endforeach;
-                        </select>
+                        <div class="current-line-ref btn btn-primary btn-outline {{ activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
+                            @if ($item->quantity > 0 || $item->reserve_stock > 0)
+                                <img src="/images/accept.png" />
+                           @else
+                                <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
+                           @endif;
+                            <div class="product-code">{{ $item->product_sku }}</div>
+                            <div class="product-title">{{ $item->product_name }}</div>
+                        </div>
 
                 </div>
 
@@ -206,11 +210,18 @@
                 <div class="col-lg-12 col-md-8 response"></div>
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
-                        <select class="current-line-ref" data-line-ref="1">
-                           foreach($items as $item)
-                            <option class='active' value="{{$item->id}}">{{$item->product_name}}</option>
-                            @endforeach;
-                        </select>
+                         <div class="current-line-ref btn btn-primary btn-outline {{ $activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
+                    }}"  data-warehouse-ref ="KW"
+                         data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
+                         data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
+                        @if ($item->quantity > 0 or $item->reserved_stock > 0)
+                            <img src="/images/accept.png" />
+                        @else;
+                            <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
+                       @endif;
+                        <div class="product-code">{{ $item->product_sku }}</div>
+                        <div class="product-title">{{ $item->product_name }}</div>
+                    </div>
 
                 </div>
 
