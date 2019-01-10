@@ -92,7 +92,7 @@ class WarehouseController extends Controller {
         $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
         $newStatus = $this->orderStatusRepo->findByName('Picking');
 
-        if ($order->total_paid <= 0) {
+        if ($order->total_paid <= 0 || empty($order->payment)) {
 
             return response()->json(['error' => 'picking failed. The total paid is 0'], 404);
         }
@@ -153,7 +153,11 @@ class WarehouseController extends Controller {
 
         $objOrderLineRepo = new OrderProductRepository($objLine);
 
-        $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+        $objOrderLineRepo->updateOrderProduct(
+            ['status' => $newStatus->id,
+             'dispatch_date' => date('Y-m-d')
+            ]
+        );
 
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
             $order->order_status_id = $completeStatus->id;
