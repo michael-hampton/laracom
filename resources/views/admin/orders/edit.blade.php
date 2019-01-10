@@ -179,8 +179,9 @@
                         <div class="col-sm-11 input-group input-group-sm pull-right">
                             <span class="input-group-addon order-details-label">Select Delivery Code:</span>
                             <select class="form-control" name="courier_id" id="onlyRMADeliveryDropDown2">
-
-                                <option value="RMA_INT_B4_3PM_UPG" selected="">RMA_INT_B4_3PM_UPG</option>
+                              @foreach($couriers as $courier)
+                                    <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                    @endforeach;
                             </select>
                         </div>
                     </div>
@@ -405,8 +406,10 @@
                     <div class="form-group col-md-3">
                         <label for="inputState">Delivery Code</label>
                         <select id="courier_id" name='form[{{$count}}][courier_id]' class="form-control">
-                            <option selected>Choose...</option>
-                            <option value="1">1</option>
+                            <option>Choose...</option>
+                              @foreach($couriers as $courier)
+                                    <option @if($item->courier_id == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                    @endforeach
                         </select>
                     </div>
 
