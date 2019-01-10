@@ -332,13 +332,28 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
 
-        $shippingCost = 0;
+             $objCourierRate = new CourierRateRepository(new CourierRate);
+                $shipping = $objCourierRate->findShippingMethod($request->total, $courier[0]->id);
 
-        $shipping = $this->shippingRepo->findShippingMethod($request->total);
+                $shippingCost = 0;
 
-        if (!$shipping->isEmpty()) {
-            $shippingCost = $shipping->cost;
-        }
+                if (!$shipping->isEmpty()) {
+
+                    $shippingCost = $shipping[0]->cost;
+                }
+                
+                $orderTotal += $shippingCost;
+
+                $voucherAmount = 0;
+
+                if (!empty($request->voucher_code)) {
+                    $voucherCode = $this->voucherCodeRepo->getByVoucherCode($order['voucher_code']);
+
+                    $voucher_id = $voucherCode->voucher_id;
+                    $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
+
+                    $voucherAmount = $objVoucher->amount;
+                }
 
         $order = $orderRepo->createOrder([
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
@@ -631,7 +646,7 @@ class OrderController extends Controller {
                     $voucherAmount = $objVoucher->amount;
                 }
 
-                 $orderTotal += $voucherAmount;
+                $orderTotal += $voucherAmount;
 
                 $product = $this->productRepo->searchProduct($order['product'])->first();
 
