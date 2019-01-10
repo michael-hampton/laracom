@@ -137,7 +137,7 @@
 
 
                         <div class="current-line-ref btn btn-primary btn-outline {{ if($count == 0) 'active' @endif  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
-                            @if ($item->quantity > 0 || $item->reserve_stock > 0)
+                            @if ($item->free_stock > 0 || $item->reserve_stock > 0)
                                 <img src="/images/accept.png" />
                            @else
                                 <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
