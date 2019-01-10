@@ -718,54 +718,59 @@ crossorigin="anonymous"></script>
 // Bind click event on the current product to swap
                                             $(document).on('change', '.replace-window #currentLineWrap .current-line-ref', function (e) {
                                                 var line = $(this).prev();
-                                                console.log(line);
 
-                                                var lineRef = $(this).attr('data-line-ref');
-                                                alert('lexie ' + lineRef);
-                                                var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
-                                                line.toggleClass('removed');
-                                                newOrder.toggleClass('removed');
-                                                var allLines = $('.current-line-ref');
-                                                allLines.removeClass('active');
-                                                newOrder.removeClass('active');
+                                            
+                                            
+            // Bind click event on the current product to swap
+$(document).on('change', '.replace-window #currentLineWrap .current-line-ref', function(e){
+    var line = $(this).prev();
+    var lineRef = line.attr('data-line-ref');
+    var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
+    line.toggleClass('removed');
+    newOrder.toggleClass('removed');
+    var allLines = $('.current-line-ref');
+    allLines.removeClass('active');
+    newOrder.removeClass('active');
 
-                                                if (line.hasClass('removed')) {
-                                                    line.removeClass('active');
-                                                    newOrder.removeClass('active');
-                                                } else {
-                                                    line.addClass('active');
-                                                    newOrder.addClass('active');
-                                                }
-                                            });
-
-// Bind click event on the current product to swap
-                                            $(document).on('click', '.replace-window .current-line-ref', function (e) {
-                                                var lineRef = $(this).attr('data-line-ref');
-                                                
-                                                alert('b ' + lineRef);
-                                                $('#freeTextLostinPost').attr('disabled', false).val('');
-                                                $('#searchBoxWrapper #current-line').val(lineRef);
-                                                var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
-                                                var allLines = $('.current-line-ref');
-
-                                                allLines.not($(this)).removeClass('active');
-                                                newOrder.not($(this)).removeClass('active');
-
-                                                $(this).addClass('active');
-                                                newOrder.toggleClass('active');
-                                            });
+    if(line.hasClass('removed')){
+        line.removeClass('active');
+        newOrder.removeClass('active');
+    }else{
+        line.addClass('active');
+        newOrder.addClass('active');
+    }
+});
 
 // Bind click event on the current product to swap
-                                            $(document).on('click', '.swap-window .current-line-ref', function (e) {
-                                                var lineRef = $(this).attr('data-line-ref');
-                                                alert('c ' + lineRef);
-                                                $('#freeTextLostinPost').attr('disabled', false);
-                                                $('#SwapFinder').val('');
-                                                $('#searchBoxWrapper #current-line').val(lineRef);
-                                                var allLines = $('.current-line-ref');
-                                                allLines.not($(this)).removeClass('active');
-                                                $(this).addClass('active');
-                                            });
+$(document).on('click', '.replace-window .current-line-ref', function(e){
+    var lineRef = $(this).attr('data-line-ref');
+    $('#freeTextLostinPost').attr('disabled', false).val('');
+    $('#searchBoxWrapper #current-line').val(lineRef);
+    var newOrder = $('#newOrder').find('div[data-line-ref="' + lineRef + '"]');
+    var allLines = $('.current-line-ref');
+
+    allLines.not($(this)).removeClass('active');
+    newOrder.not($(this)).removeClass('active');
+
+    $(this).addClass('active');
+    newOrder.toggleClass('active');
+});
+
+// Bind click event on the current product to swap
+$(document).on('click', '.swap-window .current-line-ref', function(e){
+    var lineRef = $(this).attr('data-line-ref');
+    $('#freeTextLostinPost').attr('disabled', false);
+    $('#SwapFinder').val('');
+    $('#searchBoxWrapper #current-line').val(lineRef);
+    var allLines = $('.current-line-ref');
+    allLines.not($(this)).removeClass('active');
+    $(this).addClass('active');
+});                                
+                                            
+                                            
+                                            
+                                            
+                                            
 
 // Bind click event to the Lost in post btn
                                             $(document).on("click", "#replaceProduct", function (e) {
