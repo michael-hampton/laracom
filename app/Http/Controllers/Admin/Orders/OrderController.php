@@ -329,6 +329,14 @@ class OrderController extends Controller {
 
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
+        
+        $shippingCost = 0;
+        
+        $shipping = $this->shippingRepo->findShippingMethod($request->total);
+        
+        if(!$shipping->isEmpty()) {
+            $shippingCost = $shipping->cost;
+        }
 
         $order = $orderRepo->createOrder([
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
@@ -339,7 +347,7 @@ class OrderController extends Controller {
             'order_status_id' => $os->id,
             'payment' => 'import',
             'discounts' => 0,
-            'shipping' => 0,
+            'shipping' => $shippingCost,
             'total_products' => 1,
             'total' => $request->total,
             'total_paid' => $request->total,
