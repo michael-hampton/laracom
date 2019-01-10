@@ -132,8 +132,11 @@
                 <div class="col-lg-12 col-md-8 response"></div>
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
+                    
+                    @foreach($items as $count => $item)
 
-                        <div class="current-line-ref btn btn-primary btn-outline {{ activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
+
+                        <div class="current-line-ref btn btn-primary btn-outline {{ if($count == 0) 'active' @endif  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
                             @if ($item->quantity > 0 || $item->reserve_stock > 0)
                                 <img src="/images/accept.png" />
                            @else
@@ -142,7 +145,7 @@
                             <div class="product-code">{{ $item->product_sku }}</div>
                             <div class="product-title">{{ $item->product_name }}</div>
                         </div>
-
+                     @endforeach;
                 </div>
 
                 <div id="searchBoxWrapper" class="col-lg-4 col-md-2">
@@ -210,7 +213,9 @@
                 <div class="col-lg-12 col-md-8 response"></div>
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
-                         <div class="current-line-ref btn btn-primary btn-outline {{ $activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
+                    @foreach($items as $item)
+
+                         <div class="current-line-ref btn btn-primary btn-outline {{ @if($count == 0) 'active' @endif }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
                     }}"  data-warehouse-ref ="KW"
                          data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
                          data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
@@ -222,6 +227,7 @@
                         <div class="product-code">{{ $item->product_sku }}</div>
                         <div class="product-title">{{ $item->product_name }}</div>
                     </div>
+                    @endforeach;
 
                 </div>
 
