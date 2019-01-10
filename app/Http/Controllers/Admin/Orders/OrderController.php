@@ -551,6 +551,8 @@ class OrderController extends Controller {
 
             $flag = true;
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                
+                $orderTotal = 0;
 
                 if ($flag) {
                     $flag = false;
@@ -610,6 +612,8 @@ class OrderController extends Controller {
 
                     $shippingCost = $shipping[0]->cost;
                 }
+                
+                $orderTotal += $shippingCost;
 
                 $voucherAmount = 0;
 
@@ -627,11 +631,11 @@ class OrderController extends Controller {
                     $voucherAmount = $objVoucher->amount;
                 }
 
-
+                 $orderTotal += $voucherAmount;
 
                 $product = $this->productRepo->searchProduct($order['product'])->first();
 
-                $totalPrice += $order['price'];
+                $orderTotal += $order['price'];
 
                 if ($csv_errors->any()) {
                     return redirect()->back()
@@ -662,7 +666,7 @@ class OrderController extends Controller {
                     'discounts' => $voucherAmount,
                     'shipping' => $shippingCost,
                     'total_products' => 1,
-                    'total' => 0,
+                    'total' => $orderTotal,
                     'total_paid' => 0,
                     'channel' => $channel,
                     'tax' => 0
