@@ -5,6 +5,26 @@
 <section class="content">
 
     @include('layouts.errors-and-messages')
+    
+            <div class="form-group">
+                    <label for="channel">Channel</label>
+                    <select name="channel" id="channel" class="form-control select2">
+                        <option value="">--Select--</option>
+                        @foreach($channels as $channel)
+                        <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Country </label>
+                    <select name="country" id="country" class="form-control">
+                        @foreach($countries as $country)
+                        <option value="{{ $country->id }}">{{ $country->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+    
     <!-- Default box -->
     @if($couriers)
     <div class="box">
