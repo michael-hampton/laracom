@@ -389,7 +389,7 @@
                         <div class="form-group col-md-6">
                             <label for="product_name">Product</label><br>
                             {{$item->product_name}}
-                            <input type='hidden' class='update-kondor-product-code' value='{{$item->product_name}}'>
+                            <input type='hidden' class='update-kondor-product-code' value='{{$item->product_id}}' name='form[{{$count}}][product_id]'>
                         </div>
 
                         <div class="form-group col-md-6">
