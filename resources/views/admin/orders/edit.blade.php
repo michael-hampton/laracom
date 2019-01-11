@@ -6,6 +6,13 @@
     .glyphicon {
         font-size: 26px;
     }
+    
+    .current-line-ref.active {
+        color #FFF;
+        background: #337ab7;
+        box-shadow:0px, 2px, 21px, 0px, #0943f0;
+}
+    
 </style>
 
 @section('content')
