@@ -32,6 +32,14 @@
                             <option value="1" @if($courier->is_free == 1) selected="selected" @endif>Yes</option>
                         </select>
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="is_priority">Is Priority? </label>
+                        <select name="is_priority" id="is_priority" class="form-control">
+                            <option value="0" @if($courier->is_priority == 0) selected="selected" @endif>No</option>
+                            <option value="1" @if($courier->is_priority == 1) selected="selected" @endif>Yes</option>
+                        </select>
+                    </div>
                     <div class="form-group" @if($courier->is_free == 1) style="display: none" @endif id="delivery_cost">
                         <label for="cost">Delivery Cost <span class="text-danger">*</span></label>
                         <div class="input-group">
