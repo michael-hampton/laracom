@@ -6,6 +6,8 @@
 
     @include('layouts.errors-and-messages')
     
+        <form action="{{$route}}" method="get" id="admin-search">
+    
             <div class="form-group">
                     <label for="channel">Channel</label>
                     <select name="channel" id="channel" class="form-control select2">
@@ -24,6 +26,7 @@
                         @endforeach
                     </select>
                 </div>
+                </form>
     
     <!-- Default box -->
     @if($couriers)
