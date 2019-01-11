@@ -376,6 +376,7 @@
         <div class="box-body">
             <h4> <i class="fa fa-gift"></i> Items</h4>
 
+          <div id='order-details-line-container'>
             <form id="linesForm">
                 {{ csrf_field() }}
 
@@ -386,7 +387,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="product_name">Product</label><br>
-                            {{$item->product_name}}
+                            <input type='text' class='update-kondor-product-code' value='{{$item->product_name}}'>
                         </div>
 
                         <div class="form-group col-md-6">
@@ -479,6 +480,7 @@
 
                 <button type='submit' id='SaveOrder' class='pull-right btn btn-primary'>Save</button>
             </form>
+            </div>
 
         </div>
         @endif;
