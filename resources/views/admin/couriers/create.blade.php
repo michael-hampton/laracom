@@ -31,6 +31,15 @@
                         <option value="1" selected="selected">Yes</option>
                     </select>
                 </div>
+                
+                 <div class="form-group">
+                    <label for="is_priority">Is Priority? </label>
+                    <select name="is_priority" id="is_priority" class="form-control">
+                        <option value="0">No</option>
+                        <option value="1" selected="selected">Yes</option>
+                    </select>
+                </div>
+                
                 <div class="form-group" style="display: none" id="delivery_cost">
                     <label for="cost">Delivery Cost <span class="text-danger">*</span></label>
                     <div class="input-group">
