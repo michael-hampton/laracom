@@ -376,8 +376,9 @@
         <div class="box-body">
             <h4> <i class="fa fa-gift"></i> Items</h4>
 
-          <div id='order-details-line-container'>
+          
             <form id="linesForm">
+            <div id='order-details-line-container'>
                 {{ csrf_field() }}
 
                 @foreach($items as $count => $item)
@@ -387,7 +388,8 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="product_name">Product</label><br>
-                            <input type='text' class='update-kondor-product-code' value='{{$item->product_name}}'>
+                            {{$item->product_name}}
+                            <input type='hidden' class='update-kondor-product-code' value='{{$item->product_name}}'>
                         </div>
 
                         <div class="form-group col-md-6">
@@ -479,8 +481,9 @@
                 @endforeach;
 
                 <button type='submit' id='SaveOrder' class='pull-right btn btn-primary'>Save</button>
-            </form>
             </div>
+            </form>
+            
 
         </div>
         @endif;
