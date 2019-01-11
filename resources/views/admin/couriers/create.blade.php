@@ -40,13 +40,13 @@
                     </select>
                 </div>
                 
-                <div class="form-group" style="display: none" id="delivery_cost">
+                <!-- <div class="form-group" style="display: none" id="delivery_cost">
                     <label for="cost">Delivery Cost <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <span class="input-group-addon">{{config('cart.currency')}}</span>
                         <input class="form-control" type="text" id="cost" name="cost" placeholder="{{config('cart.currency')}}" value="{{old('cost')}}">
                     </div>
-                </div>
+                </div>-->
                 <div class="form-group">
                     <label for="status">Status </label>
                     <select name="status" id="status" class="form-control">
