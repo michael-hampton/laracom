@@ -1134,11 +1134,11 @@ crossorigin="anonymous"></script>
                                                 var newProductCode = $(value).attr('data-product-code');
                                                 var lineRef = $(value).attr('data-line-ref');
 
-                                                arrData.push({
+                                                /*arrData.push({
                                                     line_id: lineRef,
                                                     product_id: newProductCode,
                                                     order_id: $('#lostInPostBtn').attr('order-id')
-                                                });
+                                                });*/
 
                                                 // this needs to be the lines form
                                                 var lines = $('#order-details-line-container');
@@ -1153,7 +1153,10 @@ crossorigin="anonymous"></script>
                                             $.ajax({
                                                 type: "POST",
                                                 url: strUrl,
-                                                data:  {data: JSON.stringify(arrData)},
+                                                data:  {
+                                                order_id: $('#lostInPostBtn').attr('order-id'),
+                                                lines: $('#linesForm').serializeArray()
+                                                },
                                                 success: function (response) {
 
                                                     alert(response);
