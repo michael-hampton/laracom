@@ -112,6 +112,19 @@ class ProductController extends Controller {
             'products' => $this->productRepo->paginateArrayResults($products, 10)
         ]);
     }
+    
+    public function search(Request $request) {
+        $channels = $this->channelRepo->listChannels();
+        $statuses = $this->orderStatusRepo->listOrderStatuses();
+        
+       
+        return view('admin.orders.list', [
+            'products' => $this->channelPriceRepo->paginateArrayResults($products, 10),,
+            'channels' => $channels,
+            'statuses' => $statuses,
+                ]
+        );
+    }
 
     /**
      * Show the form for creating a new resource.
