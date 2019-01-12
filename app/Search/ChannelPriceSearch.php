@@ -4,7 +4,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
-class ChannelPriceSearch implements Filter
+class ChannelPriceSearch implements FilterInterface
 {
    use \App\Traits\SearchableTrait;
    const MODEL = App\Shop\ChannelPrices\ChannelPrice;
