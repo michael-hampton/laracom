@@ -338,7 +338,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                     <tr>
                         <td>{{ date('M d, Y h:i a', strtotime($order['created_at'])) }}</td>
                         <td><a href="{{ route('admin.customers.show', $customer->id) }}">{{ $customer->name }}</a></td>
-                        <td><a href="{{ route('admin.customers.show', $customer->id) }}">{{ $order->channel }}</a></td>
+                        <td><a href="{{ route('admin.customers.show', $customer->id) }}">{{ $order->channel->name }}</a></td>
                         <td><strong>{{ $order['payment'] }}</strong></td>
                         <td>
                             <form action="{{ route('admin.orders.update', $order->id) }}" method="post">
