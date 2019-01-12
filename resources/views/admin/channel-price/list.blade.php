@@ -10,7 +10,7 @@
                 <div class="box-body">
                     <h2>Products</h2>
                     
-                    <form action="{{ route('admin.courier-rates.search' }}" method="post" id="admin-search">
+                    <form action="{{ route('admin.channel-prices.search' }}" method="post" id="admin-search">
     
             <div class="form-group">
                     <label for="channel">Channel</label>
