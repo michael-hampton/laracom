@@ -115,16 +115,18 @@ class ProductController extends Controller {
     
     public function search(Request $request) {
       
-        $statuses = $this->orderStatusRepo->listOrderStatuses();
         $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
-        $channels = $this->channelRepo->listChannels('name', 'asc');
+        
+        $list = $this->productRepo->listProducts('id');
+
+        $products = $list->map(function (Product $item) {
+                    return $this->transformProduct($item);
+                })->all();
 
         return view('admin.products.list', [
             'categories' => $categories,
-            'channels' => $channels,
             'brands' => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
-            'products' => $this->channelPriceRepo->paginateArrayResults($products, 10),
-            'statuses' => $statuses,
+            'products' => $products
                 ]
         );
     }
