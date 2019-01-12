@@ -1,6 +1,6 @@
 <?php
 use Illuminate\Database\Eloquent\Builder;
-class Channel
+class Country
 {
     /**
      * Apply a given search value to the builder instance.
