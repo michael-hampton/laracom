@@ -34,6 +34,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::get('remove-image-product', 'ProductController@removeImage')->name('product.remove.image');
             Route::get('remove-image-thumb', 'ProductController@removeThumbnail')->name('product.remove.thumb');
            Route::post('getProductAutoComplete', 'ProductController@getProductAutoComplete')->name('product.getProductAutoComplete');
+           Route::post('search/{page?}', 'ProductController@search')->name('product.search');
         });
         Route::namespace('Categories')->group(function () {
             Route::resource('categories', 'CategoryController');
@@ -88,6 +89,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('countries.provinces.cities', 'Cities\CityController');
         Route::resource('couriers', 'Couriers\CourierController');
         Route::resource('courier-rates', 'Couriers\CourierRateController');
+        Route::post('courier-rates/search/{page?}', 'Couriers\CourierRateController@search')->name('courier-rates.search');
         Route::resource('payment-methods', 'PaymentMethods\PaymentMethodController');
         Route::resource('attributes', 'Attributes\AttributeController');
         Route::resource('attributes.values', 'Attributes\AttributeValueController');
@@ -97,6 +99,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('channel-prices', 'ChannelPrices\ChannelPriceController');
         Route::get('channel-prices/get/{channel}', 'ChannelPrices\ChannelPriceController@index')->name('channel-prices.index');
         Route::get('channel-prices/editForm/{product}/{channel}', 'ChannelPrices\ChannelPriceController@editForm')->name('channel-prices.editForm');
+        Route::post('channel-prices/search/{page?}', 'ChannelPrices\ChannelPriceController@search')->name('channel-prices.search');
     });
 });
 
