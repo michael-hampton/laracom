@@ -1210,12 +1210,10 @@ crossorigin="anonymous"></script>
                                                                     $('.swap-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                                 } else {
                                                                     $.each(detail, function (key, value) {
-                                                                        if ((key === 'generic_errors' && typeof (value) === 'object') || (key === 'extra_info' && typeof (value) === 'object')) {
                                                                             $('.swap-window .response').append("<div class='alert alert-danger'></div>");
                                                                             $.each(value, function (errorType, message) {
                                                                                 $('.swap-window .response .alert-danger').append("<p>" + message + "</p>");
                                                                             });
-                                                                        }
                                                                     });
                                                                 }
                                                             });
