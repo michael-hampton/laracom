@@ -481,10 +481,12 @@ class OrderController extends Controller {
         );
 
         $blError = false;
+        $arrErrors = [];
 
         if (!$newOrder) {
             $strMessage = 'failed to create rma order';
-
+            $arrErrors[] = $strMessage;
+            
             $data = [
                 'content' => $strMessage,
                 'user_id' => auth()->guard('admin')->user()->id
@@ -507,7 +509,7 @@ class OrderController extends Controller {
         }
 
         if ($productId === null) {
-            die('no product id');
+            $arrErrors[] = 'unable to find product';
         }
 
         $arrProducts[0] = [
@@ -519,6 +521,7 @@ class OrderController extends Controller {
 
         if (!$newOrderRepo->buildOrderLinesForManualOrder($arrProducts)) {
             $strMessage .= 'failed to clone order lines';
+            $arrErrors[] = $strMessage;
             $blError = true;
         }
 
@@ -532,23 +535,22 @@ class OrderController extends Controller {
         $postRepo = new OrderCommentRepository($order);
         $postRepo->createComment($data);
 
-        if ($blError === true) {
-            return response()->json(['error' => $strMessage], 404); // Status code here
-        }
-
+        $arrData[0]['details'] = [];
+        
         $arrTest[0] = array(
             'msg' => 'Order was updated successfully',
         );
+        
+        if ($blError === true) {
+            $arrData[0]['details']['FAILURES'][$orderId] = $arrErrors;
+        } else {
+            $arrData[0]['details']['SUCCESS'][$orderId] = ['order updated successfully'];
+        }
 
-        $arrData[0] = array(
-            'details' => array(
-                'SUCCESS' => array(
-                    $orderId => ['Order was updated sucessfully']
-                )
-            )
-        );
-
-        echo json_encode(['body' => $arrTest, 'data' => $arrData]);
+        return response()->json([
+                "body" => $arrTest,
+                "data" => $arrData
+            ]);
     }
 
     /**
