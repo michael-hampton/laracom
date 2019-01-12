@@ -4,15 +4,16 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
-class ChannelPriceSearch
+class ChannelPriceSearch implements Filter
 {
+   use \App\Traits\SearchableTrait;
    const MODEL = App\Shop\ChannelPrices\ChannelPrice;
 
     public static function apply(Request $filters)
     {
         $query = 
             static::applyDecoratorsFromRequest(
-                $filters, (new User)->newQuery()
+                $filters, (new \App\Shop\ChannelPrices\ChannelPrice)->newQuery()
             );
 
         return static::getResults($query);
