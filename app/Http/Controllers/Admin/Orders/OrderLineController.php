@@ -86,20 +86,26 @@ class OrderLineController extends Controller {
      * @param UpdateOrderProductRequest $request
      */
     public function update(Request $request) {
+        
+        $arrErrors['errors'] = [];
 
         foreach ($request->form as $arrLine) {
+                
+            try {
+                   $orderProduct = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
 
-            $orderProduct = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
-
-            $order = $this->orderRepo->findOrderById($orderProduct->order_id);
-            $postRepo = new OrderCommentRepository($order);
-
-            $orderProductRepo = new OrderProductRepository($orderProduct);
-            $product = $this->productRepo->findProductById($arrLine['product_id']);
-            $orderProductRepo->updateProduct($product, $orderProduct);
-            $productRepo = new ProductRepository($product);
-            $reservedStock = $product->reserved_stock + $orderProduct->quantity;
-            $productRepo->update(['reserved_stock' => $reservedStock], $product->id);
+                   $order = $this->orderRepo->findOrderById($orderProduct->order_id);
+                   $postRepo = new OrderCommentRepository($order);
+                   $orderProductRepo = new OrderProductRepository($orderProduct);
+                   $orderProductRepo->updateProduct($product, $orderProduct);
+                $product = $this->productRepo->findProductById($arrLine['product_id']);
+                $productRepo = new ProductRepository($product);
+                $reservedStock = $product->reserved_stock + $orderProduct->quantity;
+  
+                $productRepo->update(['reserved_stock' => $reservedStock], $product->id);
+            } catch(Exception $e) {
+                $arrErrors['errors'][] = $e->getMessage();
+            }
 
             $data = [
                 'content' => $orderProduct->product_name . ' changed to ' . $product->name,
@@ -107,17 +113,19 @@ class OrderLineController extends Controller {
             ];
 
             $postRepo->createComment($data);
-
-            $arrDetails['details']['SUCCESS'][$order->id] = ['Order updated successfully'];
+            
+            if(!empty($arrErrors['errors']) {
+                $arrDetails['details']['FAILURES'][$order->id] = $arrErrors;
+            } else {
+                $arrDetails['details']['SUCCESS'][$order->id] = ['Order updated successfully'];
+            }
+               
+            return response()->json([
+                "http_code" => 201,
+                "details" => $arrDetails['details']]
+            ]);
 
         }
-
-
-
-        echo json_encode(['http_code' => 201, 'details' => $arrDetails['details']]);
-
-
-        //return redirect()->route('admin.orders.edit', $request->orderId);
     }
 
     public function search(Request $request) {
