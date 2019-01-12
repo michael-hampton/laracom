@@ -10,19 +10,9 @@
                 <div class="box-body">
                     <h2>Products</h2>
                     <form action="{{ route('admin.products.search' }}" method="post" id="admin-search">
-    
-            <div class="form-group">
-                    <label for="channel">Channel</label>
-                    <select name="channel" id="channel" class="form-control select2">
-                        <option value="">--Select--</option>
-                        @foreach($channels as $channel)
-                        <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
 
                 <div class="form-group">
-                    <label for="country">Category </label>
+                    <label for="category">Category </label>
                     <select name="category" id="category" class="form-control">
                         @foreach($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
