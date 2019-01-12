@@ -85,13 +85,16 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
      * @param Channel $channel
      * @return type
      */
-    public function findShippingMethod($total, Courier $courier, Channel $channel) {
+    public function findShippingMethod($total, Courier $courier, Channel $channel, int $country_id) {
 
+        
         $query = DB::table('courier_rates');
         $query->whereRaw('? between range_from and range_to', [$total]);
         $query->where('courier', '=', $courier->id);
         $query->where('channel', '=', $channel->id);
+        $query->where('country', '=', $country_id);
         $result = $query->get();
+
         $rates = CourierRate::hydrate($result->toArray());
         return $rates[0];
     }

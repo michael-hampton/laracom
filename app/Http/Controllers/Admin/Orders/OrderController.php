@@ -337,7 +337,9 @@ class OrderController extends Controller {
         $objCourierRate = new CourierRateRepository(new CourierRate);
         $courier = $this->courierRepo->findCourierById($request->courier);
 
-        $shipping = $objCourierRate->findShippingMethod($request->total, $courier, $channel);
+        $country_id = $deliveryAddress->country_id;
+
+        $shipping = $objCourierRate->findShippingMethod($request->total, $courier, $channel, $country_id);
 
         $shippingCost = 0;
 
@@ -369,6 +371,7 @@ class OrderController extends Controller {
             'voucher_code' => $voucherCode->id,
             'address_id' => $deliveryAddress->id,
             'order_status_id' => $os->id,
+            'delivery_method' => $shipping,
             'payment' => 'import',
             'discounts' => $voucherAmount,
             'total_shipping' => $shippingCost,
@@ -464,7 +467,7 @@ class OrderController extends Controller {
      * @param type $orderId
      */
     public function cloneOrder(Request $request) {
-        
+
         echo '<pre>';
         print_r($_POST);
         die;
@@ -537,10 +540,13 @@ class OrderController extends Controller {
         $channels = $this->channelRepo->listChannels();
         $couriers = $this->courierRepo->listCouriers();
 
+        $arrProducts = $this->productRepo->listProducts();
+
         return view('admin.orders.backorders', [
             'items' => $items,
             'channels' => $channels,
-            'couriers' => $couriers
+            'couriers' => $couriers,
+            'products' => $arrProducts
                 ]
         );
     }
@@ -557,10 +563,13 @@ class OrderController extends Controller {
         $channels = $this->channelRepo->listChannels();
         $couriers = $this->courierRepo->listCouriers();
 
+        $arrProducts = $this->productRepo->listProducts();
+
         return view('admin.orders.allocations', [
             'items' => $items,
             'channels' => $channels,
-            'couriers' => $couriers
+            'couriers' => $couriers,
+            'products' => $arrProducts
                 ]
         );
     }
@@ -622,6 +631,11 @@ class OrderController extends Controller {
                     $csv_errors->add('customer', "Customer is invalid.");
                 }
 
+                $customerRepo = new CustomerRepository($customer[0]);
+                $deliveryAddress = $customerRepo->findAddresses()->first();
+
+                $country_id = $deliveryAddress->country_id;
+
                 $courier = $this->courierRepo->findByName($order['courier']);
 
                 if (empty($courier)) {
@@ -630,7 +644,7 @@ class OrderController extends Controller {
                 }
 
                 $objCourierRate = new CourierRateRepository(new CourierRate);
-                $shipping = $objCourierRate->findShippingMethod($orderTotal, $courier, $channel);
+                $shipping = $objCourierRate->findShippingMethod($orderTotal, $courier, $channel, $country_id);
 
                 $shippingCost = 0;
 
@@ -669,8 +683,7 @@ class OrderController extends Controller {
                                     ->with('error_line', $line);
                 }
 
-                $customerRepo = new CustomerRepository($customer[0]);
-                $deliveryAddress = $customerRepo->findAddresses()->first();
+
 
                 //$orderRepo = new OrderRepository(new Order);
 
@@ -698,6 +711,7 @@ class OrderController extends Controller {
                     'total_products' => 0,
                     'total' => $orderTotal,
                     'total_paid' => 0,
+                    'delivery_method' => $shipping,
                     'channel' => $channel,
                     'tax' => 0
                 ];

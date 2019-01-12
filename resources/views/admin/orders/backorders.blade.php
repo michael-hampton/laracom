@@ -1,6 +1,24 @@
 @extends('layouts.admin.app')
 
 @section('content')
+
+
+<?php
+/**
+ * 
+ * @param type $productId
+ * @param type $arrProducts
+ * @return type
+ */
+function getInventoryForProduct($productId, $arrProducts) {
+    $test = $arrProducts->filter(function ($item) {
+                return $item->id == 25;
+            })->first();
+
+    return array('quantity' => $test->quantity, 'reserved_stock' => $test->reserved_stock);
+}
+?>
+
 <!-- Main content -->
 <section class="content">
 
@@ -99,8 +117,10 @@
 
 
                         @foreach($items as $item)
-
+                        
                         <?php
+                        $arrInventory = getInventoryForProduct($item->id, $products);
+                      
                         if (strtotime($item->created_at) < strtotime('-30 days')) {
                             $color = '#FF6666';
                         } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
@@ -116,7 +136,10 @@
                                 {{ $item->product_name }}
 
                             </td>
-                            <td>{{ $item->quantity }}</td>
+                            <td>{{ $item->quantity }}
+                                <br>Free Stock {{$arrInventory['quantity']}}
+                                 <br>Reserved Stock {{$arrInventory['reserved_stock']}}
+                            </td>
                             <td>{{ $item->product_price }}</td>
 
                             <td>

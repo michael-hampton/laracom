@@ -6,14 +6,31 @@
     .glyphicon {
         font-size: 26px;
     }
-    
+
     .current-line-ref.active {
         color #FFF;
         background: #337ab7;
         box-shadow:0px, 2px, 21px, 0px, #0943f0;
-}
-    
+    }
+
 </style>
+
+<?php
+
+/**
+ * 
+ * @param type $productId
+ * @param type $arrProducts
+ * @return type
+ */
+function getInventoryForProduct($productId, $arrProducts) {
+    $test = $arrProducts->filter(function ($item) {
+                return $item->id == 25;
+            })->first();
+
+    return array('quantity' => $test->quantity, 'reserved_stock' => $test->reserved_stock);
+}
+?>
 
 @section('content')
 <!-- Main content -->
@@ -142,11 +159,13 @@
 
                     @foreach($items as $count => $item)
 
-                    <?php $activeState = $count === 0 ? 'active' : ''; ?>
+<?php $activeState = $count === 0 ? 'active' : ''; 
+ $arrInventory = getInventoryForProduct($item->id, $products);
+?>
 
 
                     <div class="current-line-ref btn btn-primary btn-outline {{ $activeState  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
-                        @if ($item->free_stock > 0 || $item->reserve_stock > 0)
+                        @if ($arrInventory['quantity'] > 0 || $arrInventory['reserved_stock'] > 0)
                         <img src="/images/accept.png" />
                         @else
                         <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
@@ -224,17 +243,20 @@
                     <h3>Current Products</h3>
                     @foreach($items as $item)
 
-                    <?php $activeState = $count === 0 ? 'active' : ''; ?>
+<?php $activeState = $count === 0 ? 'active' : ''; 
+ $arrInventory = getInventoryForProduct($item->id, $products);
+
+?>
 
                     <div class="current-line-ref btn btn-primary btn-outline {{ $activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
                          }}"  data-warehouse-ref ="KW"
                          data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
                          data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
-                        <!--                        @if ($item->free_stock > 0 || $item->reserved_stock > 0)-->
+                                                @if ($arrInventory['quantity'] > 0 || $arrInventory['reserved_stock'] > 0)
                         <img src="/images/accept.png" />
-                        <!--                        @else;
+                                                @else;
                                                 <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
-                                                @endif;-->
+                                                @endif;
                         <div class="product-code">{{ $item->product_sku }}</div>
                         <div class="product-title">{{ $item->product_name }}</div>
                     </div>
@@ -376,114 +398,119 @@
         <div class="box-body">
             <h4> <i class="fa fa-gift"></i> Items</h4>
 
-          
+
             <form id="linesForm">
-            <div id='order-details-line-container'>
-                {{ csrf_field() }}
+                <div id='order-details-line-container'>
+                    {{ csrf_field() }}
 
-                @foreach($items as $count => $item)
-                <div data-line-ref="1">
-                    <input type="hidden" name='form[{{$count}}][line_id]' value='{{$item->id}}'>
+                    @foreach($items as $count => $item)
+                    
+                    <?php
+                     $arrInventory = getInventoryForProduct($item->id, $products);
 
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="product_name">Product</label><br>
-                            {{$item->product_name}}
-                            <input type='hidden' class='update-kondor-product-code' value='{{$item->product_id}}' name='form[{{$count}}][product_id]'>
+                    ?>
+                    <div data-line-ref="1">
+                        <input type="hidden" name='form[{{$count}}][line_id]' value='{{$item->id}}'>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="product_name">Product</label><br>
+                                {{$item->product_name}}
+                                <input type='hidden' class='update-kondor-product-code' value='{{$item->product_id}}' name='form[{{$count}}][product_id]'>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label for="inputState">Description</label><br>
+                                {{$item->product_description}}
+                            </div>
                         </div>
 
-                        <div class="form-group col-md-6">
-                            <label for="inputState">Description</label><br>
-                            {{$item->product_description}}
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="inputCity">Tote</label>
+                                <input type="text" value="{{$item->tote}}" placeholder='Tote' class="form-control" id="tote" name='form[{{$count}}][tote]'>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="inputState">Sage Ref</label>
+                                <input type="text" value="{{$item->sage_ref}}" placeholder='Sage Ref' class="form-control" id="sage_ref" name='form[{{$count}}][sage_ref]'>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="inputZip">Picklist Ref</label>
+                                <input value="{{$item->picklist_ref}}" type="text" placeholder='Picklist Ref' class="form-control" id="picklist_ref" name='form[{{$count}}][picklist_ref]'>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="inputZip">Warehouse</label>
+                                <select id="warehouse" name='form[{{$count}}][warehouse]' class="form-control">
+                                    <option>Choose...</option>
+                                    <option value='KW' @if($item->warehouse == 'KW') selected="selected" @endif>KW</option>
+                                    <option value='RW' @if($item->warehouse == 'RW') selected="selected" @endif>RW</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="inputCity">Status</label>
+
+                                <select id="status" name='form[{{$count}}][status]' class="form-control">
+                                    @foreach($statuses as $status)
+                                    <option @if($item->status == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="inputState">Delivery Code</label>
+                                <select id="courier_id" name='form[{{$count}}][courier_id]' class="form-control">
+                                    <option>Choose...</option>
+                                    @foreach($couriers as $courier)
+                                    <option @if($item->courier_id == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="inputZip">Tracking Code</label>
+                                <input type="text" value="{{$item->tracking_code}}" class="form-control" id="tracking_code" placeholder='Tracking code' name='form[{{$count}}][tracking_code]'>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="inputZip">Dispatch Date</label>
+                                <input type="text" disabled class="form-control" id="dispatch_date" name='dispatch_date' value='{{$item->dispatch_date}}'>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="inputCity">Reserved Stock</label>
+                                <input type="text" class="form-control" disabled='disabled' id="reserved_stock" name='reserved_stock' value='{{$arrInventory['reserved_stock']}}'>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="inputState">Stock Available</label>
+                                <input type="text" class="form-control" disabled='disabled' id="stock_availiable" name='stock_availiable' value="{{$arrInventory['quantity']}}">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="inputZip">Quantity</label>
+                                <input value="{{$item->quantity}}" type="text" class="form-control" disabled='disabled' id="quantity" name='quantity'>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label for="inputZip">Price</label>
+                                <input value="{{$item->product_price}}"type="text" class="form-control" disabled='disabled' id="price" name='price'>
+                            </div>
                         </div>
                     </div>
+                    @endforeach;
 
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label for="inputCity">Tote</label>
-                            <input type="text" value="{{$item->tote}}" placeholder='Tote' class="form-control" id="tote" name='form[{{$count}}][tote]'>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label for="inputState">Sage Ref</label>
-                            <input type="text" value="{{$item->sage_ref}}" placeholder='Sage Ref' class="form-control" id="sage_ref" name='form[{{$count}}][sage_ref]'>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label for="inputZip">Picklist Ref</label>
-                            <input value="{{$item->picklist_ref}}" type="text" placeholder='Picklist Ref' class="form-control" id="picklist_ref" name='form[{{$count}}][picklist_ref]'>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label for="inputZip">Warehouse</label>
-                            <select id="warehouse" name='form[{{$count}}][warehouse]' class="form-control">
-                                <option>Choose...</option>
-                                <option value='KW' @if($item->warehouse == 'KW') selected="selected" @endif>KW</option>
-                                <option value='RW' @if($item->warehouse == 'RW') selected="selected" @endif>RW</option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label for="inputCity">Status</label>
-
-                            <select id="status" name='form[{{$count}}][status]' class="form-control">
-                                @foreach($statuses as $status)
-                                <option @if($item->status == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label for="inputState">Delivery Code</label>
-                            <select id="courier_id" name='form[{{$count}}][courier_id]' class="form-control">
-                                <option>Choose...</option>
-                                @foreach($couriers as $courier)
-                                <option @if($item->courier_id == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label for="inputZip">Tracking Code</label>
-                            <input type="text" value="{{$item->tracking_code}}" class="form-control" id="tracking_code" placeholder='Tracking code' name='form[{{$count}}][tracking_code]'>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label for="inputZip">Dispatch Date</label>
-                            <input type="text" disabled class="form-control" id="dispatch_date" name='dispatch_date' value='{{$item->dispatch_date}}'>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label for="inputCity">Reserved Stock</label>
-                            <input type="text" class="form-control" disabled='disabled' id="reserved_stock" name='reserved_stock'>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label for="inputState">Stock Available</label>
-                            <input type="text" class="form-control" disabled='disabled' id="stock_availiable" name='stock_availiable' value="{{$item->free_stock}}">
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="inputZip">Quantity</label>
-                            <input value="{{$item->quantity}}" type="text" class="form-control" disabled='disabled' id="quantity" name='quantity'>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label for="inputZip">Price</label>
-                            <input value="{{$item->product_price}}"type="text" class="form-control" disabled='disabled' id="price" name='price'>
-                        </div>
-                    </div>
+                    <button type='submit' id='SaveOrder' class='pull-right btn btn-primary'>Save</button>
                 </div>
-                @endforeach;
-
-                <button type='submit' id='SaveOrder' class='pull-right btn btn-primary'>Save</button>
-            </div>
             </form>
-            
+
 
         </div>
         @endif;
@@ -1135,10 +1162,10 @@ crossorigin="anonymous"></script>
                                                 var lineRef = $(value).attr('data-line-ref');
 
                                                 /*arrData.push({
-                                                    line_id: lineRef,
-                                                    product_id: newProductCode,
-                                                    order_id: $('#lostInPostBtn').attr('order-id')
-                                                });*/
+                                                 line_id: lineRef,
+                                                 product_id: newProductCode,
+                                                 order_id: $('#lostInPostBtn').attr('order-id')
+                                                 });*/
 
                                                 // this needs to be the lines form
                                                 var lines = $('#order-details-line-container');
@@ -1147,15 +1174,15 @@ crossorigin="anonymous"></script>
                                                 updateLine.find('.update-customer-product-code').val("");
                                                 updateLine.find('[name="' + lineRef + '-line_status"]').append('<option value="2">Waiting Import</option>').val("2");
                                             });
-         
+
 
                                             // Send update
                                             $.ajax({
                                                 type: "POST",
                                                 url: strUrl,
-                                                data:  {
-                                                order_id: $('#lostInPostBtn').attr('order-id'),
-                                                lines: $('#linesForm').serializeArray()
+                                                data: {
+                                                    order_id: $('#lostInPostBtn').attr('order-id'),
+                                                    lines: $('#linesForm').serializeArray()
                                                 },
                                                 success: function (response) {
 

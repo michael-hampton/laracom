@@ -70,40 +70,39 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         try {
 
             $this->validationFailures = [];
-            
+
             $blFieldsValid = Validator::make(
-                                $params, (new NewOrderRequest())->rules()
-                        )->errors();
-            
-               if ($blFieldsValid->any()) {
-                   throw new \Exception('invalid fields found');
-               }
+                            $params, (new NewOrderRequest())->rules()
+                    )->errors();
+
+            if ($blFieldsValid->any()) {
+                throw new \Exception('invalid fields found');
+            }
 
             if (isset($params['channel']) && !empty($params['channel'])) {
                 $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
 
                 $this->validateCustomerRef($customer_ref);
-
-                $blPriority = $params['channel']->has_priority;
+                $blPriority = isset($params['delivery_method']) && $params['delivery_method']->is_priority == 1 ? 1 : 0;
 
                 $params['customer_ref'] = $customer_ref;
                 $params['is_priority'] = $blPriority;
                 $params['channel'] = $params['channel']->id;
             }
-                if ($blManualOrder === false) {
-                    $items = Cart::content();
+            if ($blManualOrder === false) {
+                $items = Cart::content();
 
-                    $this->validateTotal($params, $items);
-                }
+                $this->validateTotal($params, $items);
+            }
 
-                if (isset($params['voucher_code']) && !empty($params['voucher_code'])) {
+            if (isset($params['voucher_code']) && !empty($params['voucher_code'])) {
 
-                    $this->validateVoucherCode($voucherCodeRepository, $params['voucher_code']);
-                }
+                $this->validateVoucherCode($voucherCodeRepository, $params['voucher_code']);
+            }
 
-                $this->validateCustomer($customerRepository, $params['customer_id']);
-                $this->validateAddress($addressRepository, $params['address_id']);
-                $this->validateCourier($courierRepository, $params['courier_id']);
+            $this->validateCustomer($customerRepository, $params['customer_id']);
+            $this->validateAddress($addressRepository, $params['address_id']);
+            $this->validateCourier($courierRepository, $params['courier_id']);
 
             if (count($this->validationFailures) > 0) {
                 $params['order_status_id'] = 13;
@@ -273,9 +272,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
             $q->where('customer_ref', 'like', '%' . $request->q . '%');
         }
-        
+
         if ($request->has('courier') && count($request->courier)) {
-            
+
             $q->whereIn('orders.courier_id', $request->courier);
         }
 
@@ -405,7 +404,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         }
 
         if (in_array($order->order_status_id, [12, 13]) && !is_null($channel) && $channel->strict_validation === 0) {
-
+            
         } elseif ($blOrderHung === true && !is_null($channel) && $channel->strict_validation === 1) {
             $order->delete();
         } elseif ($blOrderHung === true && $order->order_status_id !== 12) {
@@ -431,7 +430,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function buildOrderLinesForManualOrder(array $items) {
 
         foreach ($items as $item) {
-            
+
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item['id']);
             $this->allocate_on_order = false;
