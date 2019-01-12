@@ -12,7 +12,7 @@
  */
 function getInventoryForProduct($productId, $arrProducts) {
     $test = $arrProducts->filter(function ($item) {
-                return $item->id == 25;
+                return $item->id == $productId;
             })->first();
 
     return array('quantity' => $test->quantity, 'reserved_stock' => $test->reserved_stock);
