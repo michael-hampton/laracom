@@ -79,6 +79,19 @@ class ChannelPriceController extends Controller {
             'channel' => $channel
         ]);
     }
+    
+    public function search(Request $request) {
+        $channels = $this->channelRepo->listChannels();
+        $statuses = $this->orderStatusRepo->listOrderStatuses();
+        
+       
+        return view('admin.orders.list', [
+            'products' => $this->channelPriceRepo->paginateArrayResults($products, 10),,
+            'channels' => $channels,
+            'statuses' => $statuses,
+                ]
+        );
+    }
 
     /**
      * Display the specified resource.
