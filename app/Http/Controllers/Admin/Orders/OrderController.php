@@ -471,21 +471,27 @@ class OrderController extends Controller {
     public function cloneOrder(Request $request) {
 
         $lineId = $request->line_id;
-
-        $orderedProduct = $this->orderProductRepo->findOrderProductById($lineId);
+        
+        $blError = false;
+        $arrErrors['errors'] = [];
+        
+        try {
+                 $orderedProduct = $this->orderProductRepo->findOrderProductById($lineId);
         $channel = $this->channelRepo->findChannelById($request->channelCode);
         $order = $this->orderRepo->findOrderById($request->dbID);
 
         $newOrder = $this->orderRepo->cloneOrder(
                 $order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address)
         );
-
-        $blError = false;
-        $arrErrors = [];
-
+            
+        } catch(Exception $e) {
+            $arrErrors['errors'][] = $e->getMessage();
+            $blError = true;
+        }
+      
         if (!$newOrder) {
             $strMessage = 'failed to create rma order';
-            $arrErrors[] = $strMessage;
+            $arrErrors['errors'][] = $strMessage;
             
             $data = [
                 'content' => $strMessage,
@@ -509,28 +515,36 @@ class OrderController extends Controller {
         }
 
         if ($productId === null) {
-            $arrErrors[] = 'unable to find product';
+            $arrErrors['errors'][] = 'unable to find product';
         }
 
         $arrProducts[0] = [
             'id' => $productId,
             'quantity' => $orderedProduct->quantity
         ];
-
-        $newOrderRepo = new OrderRepository($newOrder);
+        
+        try {
+               $newOrderRepo = new OrderRepository($newOrder);
 
         if (!$newOrderRepo->buildOrderLinesForManualOrder($arrProducts)) {
             $strMessage .= 'failed to clone order lines';
-            $arrErrors[] = $strMessage;
+            $arrErrors['errors'][] = $strMessage;
+            $blError = true;
+        } else {
+                $order->update(['customer_ref' => 'RMA_' . md5(uniqid(mt_rand(), true) . microtime(true))]);
+        }
+            
+        } catch(Exception $e) {
+            $arrErrors['errors'][] = $e->getMessage();
             $blError = true;
         }
-
+        
         $data = [
             'content' => $strMessage,
             'user_id' => auth()->guard('admin')->user()->id
         ];
 
-        $order->update(['customer_ref' => 'RMA_' . md5(uniqid(mt_rand(), true) . microtime(true))]);
+    
 
         $postRepo = new OrderCommentRepository($order);
         $postRepo->createComment($data);
