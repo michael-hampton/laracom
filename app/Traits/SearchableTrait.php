@@ -4,6 +4,10 @@ protected static function applyDecoratorsFromRequest(Request $request, Builder $
     {
         foreach ($request->all() as $filterName => $value) {
 
+            if(trim($value) === '') {
+                continue;
+            }
+            
             $decorator = static::createFilterDecorator($filterName);
 
             if (static::isValidDecorator($decorator)) {
@@ -17,8 +21,11 @@ protected static function applyDecoratorsFromRequest(Request $request, Builder $
     protected static function createFilterDecorator($name)
     {
         return return __NAMESPACE__ . '\\Filters\\' . 
-            str_replace(' ', '', 
-                ucwords(str_replace('_', ' ', $name)));
+            ucfirst
+                (str_replace(' ', '', 
+                    ucwords(str_replace('_', ' ', $name))
+                )
+            );
     }
     
     protected static function isValidDecorator($decorator)
