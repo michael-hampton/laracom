@@ -4,6 +4,7 @@
 
 
 <?php
+
 /**
  * 
  * @param type $productId
@@ -11,7 +12,7 @@
  * @return type
  */
 function getInventoryForProduct($productId, $arrProducts) {
-    $test = $arrProducts->filter(function ($item) {
+    $test = $arrProducts->filter(function ($item) use($productId) {
                 return $item->id == $productId;
             })->first();
 
@@ -117,10 +118,10 @@ function getInventoryForProduct($productId, $arrProducts) {
 
 
                         @foreach($items as $item)
-                        
+
                         <?php
                         $arrInventory = getInventoryForProduct($item->id, $products);
-                      
+
                         if (strtotime($item->created_at) < strtotime('-30 days')) {
                             $color = '#FF6666';
                         } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
@@ -138,7 +139,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                             </td>
                             <td>{{ $item->quantity }}
                                 <br>Free Stock {{$arrInventory['quantity']}}
-                                 <br>Reserved Stock {{$arrInventory['reserved_stock']}}
+                                <br>Reserved Stock {{$arrInventory['reserved_stock']}}
                             </td>
                             <td>{{ $item->product_price }}</td>
 

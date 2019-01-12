@@ -82,29 +82,39 @@ class OrderLineController extends Controller {
      * 
      * @param UpdateOrderProductRequest $request
      */
-    public function update() {
-        
-        echo '<pre>';
-        print_r(json_decode($_POST['data'], true));
-        die;
+    public function update(Request $request) {
 
-        $orderProduct = $this->orderLineRepo->findOrderProductById($request->lineId);
+        foreach ($request->form as $arrLine) {
 
-        $orderProductRepo = new OrderProductRepository($orderProduct);
+            $orderProduct = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
 
-        $product = $this->productRepo->findProductById($request->productId);
+            $order = $this->orderRepo->findOrderById($orderProduct->order_id);
+            $postRepo = new OrderCommentRepository($order);
 
-        $orderProductRepo->updateProduct($product, $orderProduct);
+            $orderProductRepo = new OrderProductRepository($orderProduct);
+            $product = $this->productRepo->findProductById($arrLine['product_id']);
+            $orderProductRepo->updateProduct($product, $orderProduct);
+            $productRepo = new ProductRepository($product);
+            $reservedStock = $product->reserved_stock + $orderProduct->quantity;
+            $productRepo->update(['reserved_stock' => $reservedStock], $product->id);
 
-        $data = [
-            'content' => $orderProduct->product_name . ' changed to ' . $product->name,
-            'user_id' => auth()->guard('admin')->user()->id
-        ];
+            $data = [
+                'content' => $orderProduct->product_name . ' changed to ' . $product->name,
+                'user_id' => auth()->guard('admin')->user()->id
+            ];
 
-        $postRepo = new OrderCommentRepository($order);
-        $postRepo->createComment($data);
+            $postRepo->createComment($data);
 
-        return redirect()->route('admin.orders.edit', $request->orderId);
+            $arrDetails['details']['SUCCESS'][$order->id] = ['Order updated successfully'];
+
+        }
+
+
+
+        echo json_encode(['http_code' => 201, 'details' => $arrDetails['details']]);
+
+
+        //return redirect()->route('admin.orders.edit', $request->orderId);
     }
 
     public function search(Request $request) {

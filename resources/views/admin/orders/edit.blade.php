@@ -7,10 +7,16 @@
         font-size: 26px;
     }
 
+    .current-line-ref:not(.active) {
+        background-color: #999 !important;
+    }
+
     .current-line-ref .active {
-        color #FFF;
-        background: #337ab7;
+        color: #FFF;
+        background: #337ab7 !important;
         box-shadow:0px, 2px, 21px, 0px, #0943f0;
+        -moz-box-shadow:    0px, 2px, 21px, 0px, #0943f0;
+        -webkit-box-shadow: 0px, 2px, 21px, 0px, #0943f0;
     }
 
 </style>
@@ -24,7 +30,7 @@
  * @return type
  */
 function getInventoryForProduct($productId, $arrProducts) {
-    $test = $arrProducts->filter(function ($item) {
+    $test = $arrProducts->filter(function ($item) use($productId) {
                 return $item->id == $productId;
             })->first();
 
@@ -157,23 +163,28 @@ function getInventoryForProduct($productId, $arrProducts) {
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
 
-                    @foreach($items as $count => $item)
+                    <?php
+                    $count = 0;
+                    foreach ($items as $item) {
 
-<?php $activeState = $count === 0 ? 'active' : ''; 
- $arrInventory = getInventoryForProduct($item->id, $products);
-?>
+                        $activeState = $count === 0 ? 'active' : '';
+                        $arrInventory = getInventoryForProduct($item->id, $products);
+                        ?>
 
 
-                    <div class="current-line-ref btn btn-primary btn-outline {{ $activeState  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
-                        @if ($arrInventory['quantity'] > 0 || $arrInventory['reserved_stock'] > 0)
-                        <img src="/images/accept.png" />
-                        @else
-                        <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
-                        @endif;
-                        <div class="product-code">{{ $item->product_sku }}</div>
-                        <div class="product-title">{{ $item->product_name }}</div>
-                    </div>
-                    @endforeach;
+                        <div class="current-line-ref btn btn-primary btn-outline {{ $activeState  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
+                            @if ($arrInventory['quantity'] > 0 || $arrInventory['reserved_stock'] > 0)
+                            <img src="/images/accept.png" />
+                            @else
+                            <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
+                            @endif;
+                            <div class="product-code">{{ $item->product_sku }}</div>
+                            <div class="product-title">{{ $item->product_name }}</div>
+                        </div>
+                        <?php
+                        $count++;
+                    }
+                    ?>
                 </div>
 
                 <div id="searchBoxWrapper" class="col-lg-4 col-md-2">
@@ -241,26 +252,30 @@ function getInventoryForProduct($productId, $arrProducts) {
                 <div class="col-lg-12 col-md-8 response"></div>
                 <div id="currentLineWrap" class="col-lg-3 col-md-2">
                     <h3>Current Products</h3>
-                    @foreach($items as $item)
+                    <?php
+                    $count = 0;
+                    foreach ($items as $item) {
 
-<?php $activeState = $count === 0 ? 'active' : ''; 
- $arrInventory = getInventoryForProduct($item->id, $products);
+                        $activeState = $count === 0 ? 'active' : '';
+                        $arrInventory = getInventoryForProduct($item->id, $products);
+                        ?>
 
-?>
-
-                    <div class="current-line-ref btn btn-primary btn-outline {{ $activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
-                         }}"  data-warehouse-ref ="KW"
-                         data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
-                         data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
-                                                @if ($arrInventory['quantity'] > 0 || $arrInventory['reserved_stock'] > 0)
-                        <img src="/images/accept.png" />
-                                                @else;
-                                                <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
-                                                @endif;
-                        <div class="product-code">{{ $item->product_sku }}</div>
-                        <div class="product-title">{{ $item->product_name }}</div>
-                    </div>
-                    @endforeach;
+                        <div class="current-line-ref btn btn-primary btn-outline {{ $activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
+                             }}"  data-warehouse-ref ="KW"
+                             data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
+                             data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
+                            @if ($arrInventory['quantity'] > 0 || $arrInventory['reserved_stock'] > 0)
+                            <img src="/images/accept.png" />
+                            @else;
+                            <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
+                            @endif;
+                            <div class="product-code">{{ $item->product_sku }}</div>
+                            <div class="product-title">{{ $item->product_name }}</div>
+                        </div>
+                        <?php
+                        $count++;
+                    }
+                    ?>
 
                 </div>
 
@@ -404,12 +419,11 @@ function getInventoryForProduct($productId, $arrProducts) {
                     {{ csrf_field() }}
 
                     @foreach($items as $count => $item)
-                    
-                    <?php
-                     $arrInventory = getInventoryForProduct($item->id, $products);
 
+                    <?php
+                    $arrInventory = getInventoryForProduct($item->id, $products);
                     ?>
-                    <div data-line-ref="1">
+                    <div class="pull-left col-lg-12" data-line-ref="{{$item->id}}" style="margin:10px; border-bottom: 1px dashed #000;">
                         <input type="hidden" name='form[{{$count}}][line_id]' value='{{$item->id}}'>
 
                         <div class="form-row">
@@ -1030,13 +1044,15 @@ crossorigin="anonymous"></script>
                                                     newOrder.children().eq(ind).remove();
                                                 }
                                             });
+
+
                                             newOrder = newOrder.serializeArray();
                                             var customerRef = $('#order-details-content .customer-ref').text();
                                             var orderRef = $('#order-details-content .order-details').attr('data-order-ref');
                                             var dbID = $('#lostInPostBtn').attr('order-id');
                                             var lastUpdated = encodeURI($('#order-details-content .order-details').attr('data-last-updated'));
                                             var delivery = $('#onlyRMADeliveryDropDown2').val();
-                                            var channelCode = $('.replace-window #searchBoxWrapper #channel').val();
+                                            var channelCode = $('#searchBoxWrapper #channel').val();
                                             var objXhr = $.ajax({
                                                 type: "POST",
                                                 url: strUrl,
@@ -1057,15 +1073,19 @@ crossorigin="anonymous"></script>
                                                     var response = JSON.parse(response);
                                                     var strOut = "<div class='alert alert-success'>";
                                                     $.each(response.body[0], function (ind, val) {
+
                                                         if (ind === 'text' || ind === 'title' || ind === 'msg') {
                                                             strOut += "<p>" + val + "</p>";
                                                         }
                                                     });
                                                     strOut += '</div>';
                                                     $('.replace-window .response').html(strOut).addClass('active');
-                                                    $.each(response.koms[0].details, function (responseType, val) {
+
+                                                    $.each(response.data[0].details, function (responseType, val) {
+
                                                         $.each(val, function (dbId, detail) {
                                                             if (responseType === 'SUCCESS') {
+
                                                                 $('.replace-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                             } else {
                                                                 $.each(detail, function (key, value) {
@@ -1084,14 +1104,10 @@ crossorigin="anonymous"></script>
                                         }
                                         function replaceProductInOrder(lineRef) {
 
-                                            alert('mike ' + lineRef);
-
                                             var originalProduct = $('.replace-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]');
                                             var newProduct = $('.replace-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]').clone();
                                             var productForSwap = $('.replace-window .selected-for-swap');
                                             var newProductCode = productForSwap.find('.product-code').val();
-
-                                            alert(newProductCode);
 
                                             var newProductTitle = productForSwap.find('.product-title').val();
                                             var newProductWarehouse = productForSwap.find('#warehouse-ref').val();
@@ -1114,7 +1130,6 @@ crossorigin="anonymous"></script>
                                             //~BR - lets draw the drop down - this is messy as, but without recoding the whole thing, I need to allow a Qty to be selected for the Line
                                             var Quantity = originalProduct.attr('data-line-quantity');
 
-                                            alert(Quantity);
                                             var qtyDropdownHtml = '<br /><div class="col-sm-7 input-group input-group-sm pull-right">\n' +
                                                     '            <span class="input-group-addon order-details-label">Swap Quantity</span>\n' +
                                                     '        <select class="form-control quantity" name="quantity[' + lineRef + ']">';
@@ -1140,7 +1155,6 @@ crossorigin="anonymous"></script>
                                             var newproductCode = productForSwap.find('.product-code').val();
                                             var newproductTitle = productForSwap.find('.product-title').val();
 
-                                            alert('f ' + newproductTitle);
                                             newProduct.removeClass('active').attr('data-product-code', newproductCode).attr('data-line-ref', lineRef).attr('data-original-product-code', originalProduct.attr('data-product-code'));
                                             newProduct.find('.product-code').html(newproductCode);
                                             newProduct.find('.product-title').html(newproductTitle);
@@ -1169,7 +1183,9 @@ crossorigin="anonymous"></script>
 
                                                 // this needs to be the lines form
                                                 var lines = $('#order-details-line-container');
+
                                                 var updateLine = lines.find('div[data-line-ref="' + lineRef + '"]');
+
                                                 updateLine.find('.update-kondor-product-code').val(newProductCode);
                                                 updateLine.find('.update-customer-product-code').val("");
                                                 updateLine.find('[name="' + lineRef + '-line_status"]').append('<option value="2">Waiting Import</option>').val("2");
@@ -1180,19 +1196,16 @@ crossorigin="anonymous"></script>
                                             $.ajax({
                                                 type: "POST",
                                                 url: strUrl,
-                                                data: {
-                                                    order_id: $('#lostInPostBtn').attr('order-id'),
-                                                    lines: $('#linesForm').serializeArray()
-                                                },
+                                                data: $('#linesForm').serialize(),
                                                 success: function (response) {
-
-                                                    alert(response);
 
                                                     $('.swap-window #newOrder .fa-refresh').hide();
                                                     var response = JSON.parse(response);
                                                     if (response.http_code === 201 || response.http_code === 200) {
                                                         $.each(response.details, function (responseType, val) {
+
                                                             $.each(val, function (dbId, detail) {
+
                                                                 if (responseType === 'SUCCESS') {
                                                                     $('.swap-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                                 } else {

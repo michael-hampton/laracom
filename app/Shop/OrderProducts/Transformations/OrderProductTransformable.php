@@ -22,9 +22,6 @@ trait OrderProductTransformable {
         $product = $productRepo->findProductById($orderProduct->product_id);
         
         
-        echo $product->quantity;
-        die;
-        
         $orderProductObj->id = (int) $orderProduct->id;
         $orderProductObj->product_id = (int) $orderProduct->product_id;
         $orderProductObj->order_id = (int) $orderProduct->order_id;

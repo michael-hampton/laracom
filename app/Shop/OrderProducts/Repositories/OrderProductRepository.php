@@ -46,7 +46,7 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
      * @return Channel
      */
     public function findOrderProductById(int $id): OrderProduct {
-        try {
+        try {            
             return $this->transformOrderProduct($this->findOneOrFail($id));
         } catch (ModelNotFoundException $e) {
             throw new OrderProductNotFoundException($e->getMessage());

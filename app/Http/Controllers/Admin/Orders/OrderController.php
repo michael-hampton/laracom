@@ -468,15 +468,16 @@ class OrderController extends Controller {
      */
     public function cloneOrder(Request $request) {
 
-        echo '<pre>';
-        print_r($_POST);
-        die;
+        $lineId = $request->line_id;
 
-        $channel = $this->channelRepo->findByName(env('CHANNEL'));
-        $order = $this->orderRepo->findOrderById($request->order_id);
+        $orderedProduct = $this->orderProductRepo->findOrderProductById($lineId);
+        $channel = $this->channelRepo->findChannelById($request->channelCode);
+        $order = $this->orderRepo->findOrderById($request->dbID);
 
-        $newOrder = $this->orderRepo->cloneOrder($order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address)
+        $newOrder = $this->orderRepo->cloneOrder(
+                $order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address)
         );
+
         $blError = false;
 
         if (!$newOrder) {
@@ -494,7 +495,27 @@ class OrderController extends Controller {
         $orderId = $newOrder->id;
         $strMessage = $orderId . 'was created as RMA';
 
-        if (!$this->orderProductRepo->cloneOrderLines($order, $newOrder, $request->lineIds, true)) {
+        $productId = null;
+
+        foreach ($request->order as $arrOrder) {
+
+            if ($arrOrder['name'] == 'kondor_product_code[' . $lineId . ']') {
+                $productId = $arrOrder['value'];
+            }
+        }
+
+        if ($productId === null) {
+            die('no product id');
+        }
+
+        $arrProducts[0] = [
+            'id' => $productId,
+            'quantity' => $orderedProduct->quantity
+        ];
+
+        $newOrderRepo = new OrderRepository($newOrder);
+
+        if (!$newOrderRepo->buildOrderLinesForManualOrder($arrProducts)) {
             $strMessage .= 'failed to clone order lines';
             $blError = true;
         }
@@ -512,6 +533,20 @@ class OrderController extends Controller {
         if ($blError === true) {
             return response()->json(['error' => $strMessage], 404); // Status code here
         }
+
+        $arrTest[0] = array(
+            'msg' => 'Order was updated successfully',
+        );
+
+        $arrData[0] = array(
+            'details' => array(
+                'SUCCESS' => array(
+                    $orderId => ['Order was updated sucessfully']
+                )
+            )
+        );
+
+        echo json_encode(['body' => $arrTest, 'data' => $arrData]);
     }
 
     /**

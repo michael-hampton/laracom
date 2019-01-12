@@ -10,7 +10,7 @@
  * @return type
  */
 function getInventoryForProduct($productId, $arrProducts) {
-    $test = $arrProducts->filter(function ($item) {
+    $test = $arrProducts->filter(function ($item) use($productId) {
                 return $item->id == $productId;
             })->first();
 
