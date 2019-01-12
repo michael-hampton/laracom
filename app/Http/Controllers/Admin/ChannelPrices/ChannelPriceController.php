@@ -81,14 +81,14 @@ class ChannelPriceController extends Controller {
     }
     
     public function search(Request $request) {
-        $channels = $this->channelRepo->listChannels();
-        $statuses = $this->orderStatusRepo->listOrderStatuses();
-        
-       
-        return view('admin.orders.list', [
-            'products' => $this->channelPriceRepo->paginateArrayResults($products, 10),,
+        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
+        $channels = $this->channelRepo->listChannels('name', 'asc');
+
+        return view('admin.channel-prices.list', [
+            'categories' => $categories,
             'channels' => $channels,
-            'statuses' => $statuses,
+            'brands' => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
+            'products' => $this->channelPriceRepo->paginateArrayResults($products, 10)
                 ]
         );
     }
