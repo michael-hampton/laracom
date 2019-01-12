@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Search\Filters;
+
 use Illuminate\Database\Eloquent\Builder;
 class Brand
 {
@@ -11,6 +14,7 @@ class Brand
      */
     public static function apply(Builder $builder, $value)
     {
+        
         return $builder->where('brand_id', $value);
     }
 }

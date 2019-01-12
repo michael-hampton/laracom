@@ -35,35 +35,37 @@ function getInventoryForProduct($productId, $arrProducts) {
 
                     <div class="row">
                         <div class="pull-left col-lg-3">
-                            <div class="input-group">
-                                <input type="text" name="q" class="form-control" placeholder="Customer Ref" value="{{ old('q')}}">
+                            <div class="input-group" style="width:100%">
+                                <input type="text" name="customer_ref" class="form-control" placeholder="Customer Ref" value="{{ old('q')}}">
                             </div>
                         </div>
 
                         <div class="pull-left col-lg-3">
-                            <div class="input-group">
-                                <input type="text" name="name" class="form-control" placeholder="Customer Name" value="{{ old('q')}}">
+                            <div class="input-group" style="width:100%">
+                                <input type="text" name="customer_name" class="form-control" placeholder="Customer Name" value="{{ old('q')}}">
                             </div>
                         </div>
 
                         <div class="pull-left col-lg-3">
-                            <div class="input-group">
-                                <input type="text" name="email" class="form-control" placeholder="Customer Email" value="{{ old('email')}}">
+                            <div class="input-group" style="width:100%">
+                                <input type="text" name="customer_email" class="form-control" placeholder="Customer Email" value="{{ old('email')}}">
+                            </div>
+                        </div>
+
+                        <div class="pull-left col-lg-3">
+                            <div class="input-group" style="width:100%">
+                                <input type="text" name="product_name" class="form-control" placeholder="Product Name" value="{{ old('product_name')}}">
                             </div>
                         </div>
                     </div>
 
                     <div class="row" style="margin-top: 12px;">
-                        <div class="pull-left col-lg-3">
-                            <div class="input-group">
-                                <input type="text" name="product_name" class="form-control" placeholder="Product Name" value="{{ old('product_name')}}">
-                            </div>
-                        </div>
+
 
                         <div class="pull-left col-lg-2">
                             @if(!$channels->isEmpty())
                             <div class="form-group">
-                                <select name="channel" id="channel" class="form-control select2">
+                                <select name="order_channel" id="channel" class="form-control select2">
                                     <option value="">Channel</option>
                                     @foreach($channels as $channel)
                                     <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
@@ -76,8 +78,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                         <div class="pull-left col-lg-2">
                             @if(!$couriers->isEmpty())
                             <div class="form-group">
-                                <select name="courier[]" id="courier" multiple='multiple' class="form-control select2">
-                                    <option value="">Courier</option>
+                                <select name="line_courier[]" multiple='multiple' id="courier" class="form-control select2">
                                     @foreach($couriers as $courier)
                                     <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
                                     @endforeach
@@ -86,12 +87,14 @@ function getInventoryForProduct($productId, $arrProducts) {
                             @endif
                         </div>
 
-                        <input type="hidden" id="status" name="status" value="14">
+                        <span class="input-group-btn">
+                            <button type="submit" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i> Search </button>
+                        </span>
+
+                        <input type="hidden" id="status" name="line_status" value="14">
                         <input type="hidden" id="module" name="module" value="allocations">
                     </div>
-                    <span class="input-group-btn">
-                        <button type="submit" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i> Search </button>
-                    </span>
+
                 </form>
             </div>
             <!-- /.box-body -->
@@ -117,7 +120,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                         @foreach($items as $item)
 
                         <?php
-                        $arrInventory = getInventoryForProduct($item->id, $products);
+                        $arrInventory = getInventoryForProduct($item->product_id, $products);
 
                         if (strtotime($item->created_at) < strtotime('-30 days')) {
                             $color = '#FF6666';

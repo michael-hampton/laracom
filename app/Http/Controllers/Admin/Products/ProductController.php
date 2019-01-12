@@ -23,6 +23,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use App\Search\ProductSearch;
 
 class ProductController extends Controller {
 
@@ -98,6 +99,10 @@ class ProductController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
+
+        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
+        $brands = $this->brandRepo->listBrands();
+
         $list = $this->productRepo->listProducts('id');
 
         if (request()->has('q') && request()->input('q') != '') {
@@ -109,15 +114,17 @@ class ProductController extends Controller {
                 })->all();
 
         return view('admin.products.list', [
-            'products' => $this->productRepo->paginateArrayResults($products, 10)
+            'products' => $this->productRepo->paginateArrayResults($products, 10),
+            'categories' => $categories,
+            'brands' => $brands
         ]);
     }
-    
+
     public function search(Request $request) {
-      
+
+        $list = ProductSearch::apply($request);
+
         $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
-        
-        $list = $this->productRepo->listProducts('id');
 
         $products = $list->map(function (Product $item) {
                     return $this->transformProduct($item);
@@ -125,8 +132,8 @@ class ProductController extends Controller {
 
         return view('admin.products.list', [
             'categories' => $categories,
-            'brands' => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
-            'products' => $products
+            'brands' => $this->brandRepo->listBrands(),
+            'products' => $this->productRepo->paginateArrayResults($products, 10),
                 ]
         );
     }
@@ -408,7 +415,7 @@ class ProductController extends Controller {
 //                    return $this->transformProduct($item);
 //                })->all();
 
-       echo json_encode(['results' => $list->toArray()]);
+        echo json_encode(['results' => $list->toArray()]);
     }
 
     /**

@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Search\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
-class Country
-{
+
+class LineCourier {
+
     /**
      * Apply a given search value to the builder instance.
      *
@@ -11,8 +13,9 @@ class Country
      * @param mixed $value
      * @return Builder $builder
      */
-    public static function apply(Builder $builder, $value)
-    {
-        return $builder->where('country', $value);
+    public static function apply(Builder $builder, $value) {
+
+        return $builder->whereIn('orders.courier_id', $value);
     }
+
 }

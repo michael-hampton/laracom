@@ -34,7 +34,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::get('remove-image-product', 'ProductController@removeImage')->name('product.remove.image');
             Route::get('remove-image-thumb', 'ProductController@removeThumbnail')->name('product.remove.thumb');
            Route::post('getProductAutoComplete', 'ProductController@getProductAutoComplete')->name('product.getProductAutoComplete');
-           Route::post('search/{page?}', 'ProductController@search')->name('product.search');
+           Route::post('search/{page?}', 'ProductController@search')->name('products.search');
         });
         Route::namespace('Categories')->group(function () {
             Route::resource('categories', 'CategoryController');

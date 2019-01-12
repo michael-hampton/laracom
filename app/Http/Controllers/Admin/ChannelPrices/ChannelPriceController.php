@@ -8,12 +8,15 @@ use App\Shop\ChannelPrices\ChannelPrice;
 use App\Shop\ChannelPrices\Repositories\ChannelPriceRepository;
 use App\Shop\ChannelPrices\Requests\UpdateChannelPriceRequest;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
+use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Shop\Brands\Repositories\BrandRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Shop\ChannelPrices\Transformations\ChannelPriceTransformable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use App\Search\ChannelPriceSearch;
 
 class ChannelPriceController extends Controller {
 
@@ -35,17 +38,30 @@ class ChannelPriceController extends Controller {
     private $channelPriceRepo;
 
     /**
-     * ProductController constructor.
-     *
+     * @var CategoryRepositoryInterface
+     */
+    private $categoryRepo;
+
+    /**
+     * @var BrandRepositoryInterface
+     */
+    private $brandRepo;
+
+    /**
+     * 
      * @param ProductRepositoryInterface $productRepository
      * @param ChannelRepositoryInterface $channelRepository
+     * @param ChannelPriceRepositoryInterface $channelPriceRepository
+     * @param CategoryRepositoryInterface $categoryRepository
      */
     public function __construct(
-    ProductRepositoryInterface $productRepository, ChannelRepositoryInterface $channelRepository, ChannelPriceRepositoryInterface $channelPriceRepository
+    ProductRepositoryInterface $productRepository, ChannelRepositoryInterface $channelRepository, ChannelPriceRepositoryInterface $channelPriceRepository, CategoryRepositoryInterface $categoryRepository, BrandRepositoryInterface $brandRepository
     ) {
         $this->productRepo = $productRepository;
         $this->channelRepo = $channelRepository;
         $this->channelPriceRepo = $channelPriceRepository;
+        $this->categoryRepo = $categoryRepository;
+        $this->brandRepo = $brandRepository;
 
 //        $this->middleware(['permission:create-product, guard:employee'], ['only' => ['create', 'store']]);
 //        $this->middleware(['permission:update-product, guard:employee'], ['only' => ['edit', 'update']]);
@@ -61,13 +77,11 @@ class ChannelPriceController extends Controller {
     public function index($channel) {
 
 
-        $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
+        $channel = $this->channelRepo->findByName($channel);
+        $channels = $this->channelRepo->listChannels('name', 'asc');
+        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
+        $brands = $this->brandRepo->listBrands();
         $list = $this->channelPriceRepo->listChannelPrices()->where('channel_id', $channel->id);
-
-
-//        if (request()->has('q') && request()->input('q') != '') {
-//            $list = $this->productRepo->searchProduct(request()->input('q'));
-//        }
 
         $products = $list->map(function (ChannelPrice $item) {
 
@@ -76,18 +90,35 @@ class ChannelPriceController extends Controller {
 
         return view('admin.channel-price.list', [
             'products' => $this->channelPriceRepo->paginateArrayResults($products, 10),
-            'channel' => $channel
-        ]);
-    }
-    
-    public function search(Request $request) {
-        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
-        $channels = $this->channelRepo->listChannels('name', 'asc');
-
-        return view('admin.channel-prices.list', [
+            'channel' => $channel,
             'categories' => $categories,
             'channels' => $channels,
-            'brands' => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
+            'brands' => $brands
+        ]);
+    }
+
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function search(Request $request) {
+
+        $list = ChannelPriceSearch::apply($request);
+
+        $products = $list->map(function (ChannelPrice $item) {
+
+                    return $this->transformProduct($item);
+                })->all();
+
+        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
+        $channels = $this->channelRepo->listChannels('name', 'asc');
+        $brands = $this->brandRepo->listBrands();
+
+        return view('admin.channel-price.list', [
+            'categories' => $categories,
+            'channels' => $channels,
+            'brands' => $brands,
             'products' => $this->channelPriceRepo->paginateArrayResults($products, 10)
                 ]
         );

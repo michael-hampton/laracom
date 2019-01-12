@@ -5,29 +5,37 @@
 <section class="content">
 
     @include('layouts.errors-and-messages')
-    
-        <form action="{{$route}}" method="get" id="admin-search">
-    
-            <div class="form-group">
-                    <label for="channel">Channel</label>
-                    <select name="channel" id="channel" class="form-control select2">
-                        <option value="">--Select--</option>
-                        @foreach($channels as $channel)
-                        <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
 
-                <div class="form-group">
-                    <label for="country">Country </label>
-                    <select name="country" id="country" class="form-control">
-                        @foreach($countries as $country)
-                        <option value="{{ $country->id }}">{{ $country->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                </form>
-    
+    <form action="{{ route('admin.courier-rates.search') }}" method="post" id="admin-search">
+        
+         {{ csrf_field() }}
+
+        <div class="row">
+            <div class="form-group col-lg-2">
+                <label for="channel">Channel</label>
+                <select name="channel" id="channel" class="form-control select2">
+                    <option value="">--Select--</option>
+                    @foreach($channels as $channel)
+                    <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group col-lg-2">
+                <label for="country">Country </label>
+                <select name="country" id="country" class="form-control">
+                    <option value="">--Select--</option>
+                    @foreach($countries as $country)
+                    <option value="{{ $country->id }}">{{ $country->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button style="margin-top:26px;" type="submit" class="btn btn-primary">Search</button>
+            
+        </div>
+
+    </form>
+
     <!-- Default box -->
     @if($couriers)
     <div class="box">

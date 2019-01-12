@@ -40,6 +40,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Container\Container;
 use Psr\Log\NullLogger;
 use Illuminate\Events\Dispatcher;
+use App\Search\OrderSearch;
 use Validator;
 
 class OrderController extends Controller {
@@ -269,7 +270,7 @@ class OrderController extends Controller {
         $couriers = $this->courierRepo->listCouriers();
         $customers = $this->customerRepo->listCustomers();
 
-        $list = $this->orderRepo->searchOrder($request);
+        $list = OrderSearch::apply($request);
 
         $orders = $this->orderRepo->paginateArrayResults($this->transFormOrder($list), 10);
 

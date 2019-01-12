@@ -1,5 +1,13 @@
 <?php
+namespace App\Search;
+
 use Illuminate\Http\Request;
+
 interface FilterInterface {
-public static function apply(Request $filters);
+
+    /**
+     * 
+     * @param Request $filters
+     */
+    public static function apply(Request $filters);
 }

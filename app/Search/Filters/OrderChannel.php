@@ -2,8 +2,10 @@
 namespace App\Search\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
-class Country
+
+class OrderChannel
 {
+
     /**
      * Apply a given search value to the builder instance.
      *
@@ -13,6 +15,7 @@ class Country
      */
     public static function apply(Builder $builder, $value)
     {
-        return $builder->where('country', $value);
+        
+        return $builder->where('orders.channel', $value);
     }
 }

@@ -60,6 +60,8 @@ use App\Shop\States\Repositories\StateRepository;
 use App\Shop\States\Repositories\StateRepositoryInterface;
 use App\Shop\Comments\Repositories\OrderCommentRepository;
 use App\Shop\Comments\Repositories\CommentRepository;
+use App\Search\CourierRateSearch;
+use App\Search\FilterInterface;
 use App\Traits\MyTrait;
 use VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector;
 use Illuminate\Support\ServiceProvider;

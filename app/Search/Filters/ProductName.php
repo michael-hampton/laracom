@@ -2,7 +2,7 @@
 namespace App\Search\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
-class Country
+class ProductName
 {
     /**
      * Apply a given search value to the builder instance.
@@ -13,6 +13,6 @@ class Country
      */
     public static function apply(Builder $builder, $value)
     {
-        return $builder->where('country', $value);
+        return $builder->where('products.name', 'LIKE', $value.'%');
     }
 }

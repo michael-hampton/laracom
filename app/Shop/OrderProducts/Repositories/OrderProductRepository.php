@@ -156,52 +156,6 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
     }
 
     /**
-     * 
-     * @param Request $request
-     * @return Collection
-     */
-    public function searchOrderProducts(Request $request): Collection {
-        $q = OrderProduct::query()
-                ->select('order_product.*')
-                ->join('orders', 'order_product.order_id', '=', 'orders.id')
-                ->join('customers', 'orders.customer_id', '=', 'customers.id');
-
-        if ($request->has('q') && count($request->q)) {
-            $q->where('customer_ref', 'like', '%' . $request->q . '%');
-        }
-
-        if ($request->has('name') && count($request->name)) {
-            $q->where('customers.name', 'like', '%' . $request->name . '%');
-        }
-
-        if ($request->has('email') && count($request->email)) {
-            $q->where('customers.email', 'like', '%' . $request->email . '%');
-        }
-
-        if ($request->has('product_name') && count($request->product_name)) {
-            $q->where('products.sku', 'like', '%' . $request->product_name . '%');
-        }
-
-        if ($request->has('status') && count($request->status)) {
-
-            $q->where('order_product.status', $request->status);
-        }
-        
-        if ($request->has('courier') && count($request->courier)) {
-
-            $q->whereIn('orders.courier_id', $request->courier);
-        }
-
-        if ($request->has('channel') && count($request->channel)) {
-            $q->where('channel', $request->channel);
-        }
-
-        $q->groupBy('order_product.id');
-        $q->orderBy('orders.created_at', 'DESC')->orderBy('is_priority', 'ASC');
-        return $q->get();
-    }
-
-    /**
      * Create the product
      *
      * @param array $data

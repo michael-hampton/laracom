@@ -1,7 +1,11 @@
 <?php
+
+namespace App\Search\Filters;
+
 use Illuminate\Database\Eloquent\Builder;
-class Product
-{
+
+class LineStatus {
+
     /**
      * Apply a given search value to the builder instance.
      *
@@ -9,8 +13,9 @@ class Product
      * @param mixed $value
      * @return Builder $builder
      */
-    public static function apply(Builder $builder, $value)
-    {
-        return $builder->where('name', 'LIKE', $value.'%');
+    public static function apply(Builder $builder, $value) {
+        
+        return $builder->where('order_product.status', $value);
     }
+
 }

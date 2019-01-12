@@ -14,6 +14,9 @@ use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\OrderProducts\Requests\UpdateOrderProductRequest;
 use App\Shop\Comments\OrderCommentRepository;
+use App\Search\OrderProductSearch;
+use App\Shop\Couriers\Courier;
+use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -118,10 +121,21 @@ class OrderLineController extends Controller {
     }
 
     public function search(Request $request) {
+        
+         $module = $request->module;
+         unset($request->module);
 
         $channels = $this->channelRepo->listChannels();
         $statuses = $this->orderStatusRepo->listOrderStatuses();
-        $list = $this->orderLineRepo->searchOrderProducts($request)->transform(function (OrderProduct $order) {
+        
+        $courierRepo = new CourierRepository(new Courier);
+        $couriers = $courierRepo->listCouriers();
+        
+         $arrProducts = $this->productRepo->listProducts();
+        
+        $list = OrderProductSearch::apply($request);
+        
+        $list = $list->transform(function (OrderProduct $order) {
 
                     return $order;
                 })->all();
@@ -129,12 +143,14 @@ class OrderLineController extends Controller {
         $items = $this->orderLineRepo->paginateArrayResults($list, 10);
 
 
-        $module = $request->module;
+       
 
         return view('admin.orders.' . $module, [
             'items' => $items,
             'channels' => $channels,
-            'statuses' => $statuses
+            'statuses' => $statuses,
+            'couriers' => $couriers,
+            'products' => $arrProducts
                 ]
         );
     }

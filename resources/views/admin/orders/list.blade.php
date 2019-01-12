@@ -20,19 +20,19 @@
                     <div class="row">
                         <div class="pull-left col-lg-3">
                             <div class="input-group">
-                                <input type="text" name="q" class="form-control" placeholder="Customer Ref" value="{{ old('q')}}">
+                                <input type="text" name="customer_ref" class="form-control" placeholder="Customer Ref" value="{{ old('q')}}">
                             </div>
                         </div>
 
                         <div class="pull-left col-lg-3">
                             <div class="input-group">
-                                <input type="text" name="name" class="form-control" placeholder="Customer Name" value="{{ old('q')}}">
+                                <input type="text" name="customer_name" class="form-control" placeholder="Customer Name" value="{{ old('q')}}">
                             </div>
                         </div>
 
                         <div class="pull-left col-lg-3">
                             <div class="input-group">
-                                <input type="text" name="email" class="form-control" placeholder="Customer Email" value="{{ old('email')}}">
+                                <input type="text" name="customer_email" class="form-control" placeholder="Customer Email" value="{{ old('email')}}">
                             </div>
                         </div>
 
@@ -53,7 +53,7 @@
                         <div class="pull-left col-lg-2">
                             @if(!$channels->isEmpty())
                             <div class="form-group">
-                                <select name="channel" id="channel" class="form-control select2">
+                                <select name="order_channel" id="channel" class="form-control select2">
                                     <option value="">Channel</option>
                                     @foreach($channels as $channel)
                                     <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
@@ -67,7 +67,6 @@
                             @if(!$couriers->isEmpty())
                             <div class="form-group">
                                 <select name="courier[]" multiple='multiple' id="courier" class="form-control select2">
-                                    <option value="">Courier</option>
                                     @foreach($couriers as $courier)
                                     <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
                                     @endforeach
@@ -79,7 +78,7 @@
                         <div class="pull-left col-lg-2">
                             @if(!$statuses->isEmpty())
                             <div class="form-group">
-                                <select name="status" id="status" class="form-control select2">
+                                <select name="order_status" id="status" class="form-control select2">
                                     <option value="">Status</option>
                                     @foreach($statuses as $status)
                                     <option @if(old('$status') == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>

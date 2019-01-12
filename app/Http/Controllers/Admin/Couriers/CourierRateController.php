@@ -8,11 +8,13 @@ use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\CourierRates\Requests\CreateCourierRateRequest;
 use App\Shop\CourierRates\Requests\UpdateCourierRateRequest;
+use Illuminate\Http\Request;
 use App\Shop\Countries\Repositories\CountryRepository;
 use App\Shop\Countries\Country;
 use App\Shop\CourierRates\CourierRate;
 use App\Shop\CourierRates\Transformations\CourierRateTransformable;
 use App\Http\Controllers\Controller;
+use App\Search\CourierRateSearch;
 
 class CourierRateController extends Controller {
 
@@ -58,8 +60,30 @@ class CourierRateController extends Controller {
                     return $this->transformCourierRate($item);
                 })->all();
 
+        $countries = (new CountryRepository(new Country))->listCountries();
+
         return view('admin.courier-rates.list', [
-            'couriers' => $couriers
+            'couriers' => $couriers,
+            'countries' => $countries,
+            'channels' => $this->channelRepo->listChannels()
+                ]
+        );
+    }
+    
+    public function search(Request $request) {
+        
+        $list = CourierRateSearch::apply($request);
+
+        $couriers = $list->map(function (CourierRate $item) {
+                    return $this->transformCourierRate($item);
+                })->all();
+
+        $countries = (new CountryRepository(new Country))->listCountries();
+
+        return view('admin.courier-rates.list', [
+            'couriers' => $couriers,
+            'countries' => $countries,
+            'channels' => $this->channelRepo->listChannels()
                 ]
         );
     }
