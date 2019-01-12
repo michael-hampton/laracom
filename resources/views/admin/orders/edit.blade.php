@@ -1089,12 +1089,12 @@ crossorigin="anonymous"></script>
                                                                 $('.replace-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                             } else {
                                                                 $.each(detail, function (key, value) {
-                                                                    if ((key === 'generic_errors' && typeof (value) === 'object') || (key === 'extra_info' && typeof (value) === 'object')) {
+                                                                    
                                                                         $('.replace-window .response').append("<div class='alert alert-danger'></div>");
                                                                         $.each(value, function (errorType, message) {
                                                                             $('.replace-window .response .alert-danger').append("<p>" + message + "</p>");
                                                                         });
-                                                                    }
+                                                                    
                                                                 });
                                                             }
                                                         });
