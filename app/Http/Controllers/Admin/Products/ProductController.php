@@ -429,14 +429,21 @@ class ProductController extends Controller {
                 }
                 
                 list(
-                        $order['order_id'],
-                        $order['channel'],
-                        $order['customer'],
-                        $order['courier'],
-                        $order['voucher_code'],
-                        $order['product'],
+                        $order['name'],
+                        $order['channels'],
+                        $order['categories'],
+                        $order['brand'],
+                        $order['sku'],
+                        $order['description'],
                         $order['quantity'],
-                        $order['price']
+                        $order['price'],
+                        $order['sale_price'],
+                        $order['weight'],
+                        $order['mass_unit'],
+                        $order['length'],
+                        $order['width'],
+                        $order['height'],
+                        $order['distance_unit'],
                         ) = $data;
                 $line++;
                
