@@ -228,8 +228,11 @@ class OrderController extends Controller {
 
         $arrRefunds = $this->refundRepo->getRefundsForOrderByLineId($order);
 
+        $arrStatusMapping = $this->orderStatusRepo->buildStatusMapping();
+
         return view('admin.orders.edit', [
             'statuses' => $this->orderStatusRepo->listOrderStatuses(),
+            'status_mapping' => $arrStatusMapping,
             'products' => $arrProducts,
             'order' => $order,
             'couriers' => $couriers,
@@ -471,28 +474,27 @@ class OrderController extends Controller {
     public function cloneOrder(Request $request) {
 
         $lineId = $request->line_id;
-        
-        $blError = false;
-        $arrErrors['errors'] = [];
-        
-        try {
-                 $orderedProduct = $this->orderProductRepo->findOrderProductById($lineId);
-        $channel = $this->channelRepo->findChannelById($request->channelCode);
-        $order = $this->orderRepo->findOrderById($request->dbID);
 
-        $newOrder = $this->orderRepo->cloneOrder(
-                $order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address)
-        );
-            
-        } catch(Exception $e) {
-            $arrErrors['errors'][] = $e->getMessage();
+
+        $blError = false;
+
+        try {
+            $orderedProduct = $this->orderProductRepo->findOrderProductById($lineId);
+            $channel = $this->channelRepo->findChannelById($request->channelCode);
+            $order = $this->orderRepo->findOrderById($request->dbID);
+
+            $newOrder = $this->orderRepo->cloneOrder(
+                    $order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address)
+            );
+        } catch (Exception $e) {
+            $arrErrors['errors'][$request->dbID][] = $e->getMessage();
             $blError = true;
         }
-      
+
         if (!$newOrder) {
             $strMessage = 'failed to create rma order';
-            $arrErrors['errors'][] = $strMessage;
-            
+            $arrErrors['errors'][$request->dbID][] = $strMessage;
+
             $data = [
                 'content' => $strMessage,
                 'user_id' => auth()->guard('admin')->user()->id
@@ -515,56 +517,50 @@ class OrderController extends Controller {
         }
 
         if ($productId === null) {
-            $arrErrors['errors'][] = 'unable to find product';
+            $arrErrors['errors'][$request->dbID][] = 'unable to find product';
         }
 
         $arrProducts[0] = [
             'id' => $productId,
             'quantity' => $orderedProduct->quantity
         ];
-        
-        try {
-               $newOrderRepo = new OrderRepository($newOrder);
 
-        if (!$newOrderRepo->buildOrderLinesForManualOrder($arrProducts)) {
-            $strMessage .= 'failed to clone order lines';
-            $arrErrors['errors'][] = $strMessage;
-            $blError = true;
-        } else {
+        try {
+            $newOrderRepo = new OrderRepository($newOrder);
+
+            if (!$newOrderRepo->buildOrderLinesForManualOrder($arrProducts)) {
+                $strMessage .= 'failed to clone order lines';
+                $arrErrors['errors'][$request->dbID][] = $strMessage;
+                $blError = true;
+            } else {
                 $order->update(['customer_ref' => 'RMA_' . md5(uniqid(mt_rand(), true) . microtime(true))]);
-        }
-            
-        } catch(Exception $e) {
-            $arrErrors['errors'][] = $e->getMessage();
+            }
+        } catch (Exception $e) {
+            $arrErrors['errors'][$request->dbID][] = $e->getMessage();
             $blError = true;
         }
-        
+
         $data = [
             'content' => $strMessage,
             'user_id' => auth()->guard('admin')->user()->id
         ];
 
-    
-
         $postRepo = new OrderCommentRepository($order);
         $postRepo->createComment($data);
 
-        $arrData[0]['details'] = [];
-        
-        $arrTest[0] = array(
-            'msg' => 'Order was updated successfully',
+        $arrBody = array(0 => ['test']);
+
+        $arrResponse = array(
+            'body' => $arrBody
         );
-        
+
         if ($blError === true) {
-            $arrData[0]['details']['FAILURES'][$orderId] = $arrErrors;
+            $arrResponse['data']['details']['FAILURES'] = $arrErrors;
         } else {
-            $arrData[0]['details']['SUCCESS'][$orderId] = ['order updated successfully'];
+            $arrResponse['data']['details']['SUCCESS'][$orderId] = ['order updated successfully'];
         }
 
-        return response()->json([
-                "body" => $arrTest,
-                "data" => $arrData
-            ]);
+        echo json_encode($arrResponse);
     }
 
     /**

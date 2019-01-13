@@ -183,7 +183,7 @@ class BankTransferController extends Controller {
 
         $customerRepo = new CustomerRepository(new Customer);
         $customer = $customerRepo->findCustomerById($request->user()->id);
-
+        
         $os = $orderStatusRepo->findByName('ordered');
 
         $total = $this->cartRepo->getTotal(2, $this->shippingFee, $this->voucherId);
@@ -198,8 +198,8 @@ class BankTransferController extends Controller {
                 $total_paid = $total;
             }
         }
-
-        $objChannel = $this->channelRepo->findByName(env('CHANNEL'));
+        
+        $objChannel = $this->channelRepo->findByName('mike');
 
         $order = $checkoutRepo->buildCheckoutItems([
             'reference' => Uuid::uuid4()->toString(),

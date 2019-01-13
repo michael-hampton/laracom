@@ -93,12 +93,16 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
      */
     public function getTotal(int $decimals = 2, $shipping = 0.00, VoucherCode $voucher = null) {
 
-        $voucherRepo = new VoucherRepository(new Voucher);
+        $objVoucher = null;
+        
+        if($voucher !== null) {
+             $voucherRepo = new VoucherRepository(new Voucher);
 
-        $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
+            $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
 
-        $this->voucherAmount = $objVoucher->amount;
-
+            $this->voucherAmount = $objVoucher->amount;
+        }
+       
         return $this->model->total($decimals, '.', '', $shipping, $objVoucher);
     }
 

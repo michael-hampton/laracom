@@ -86,25 +86,36 @@ class OrderLineController extends Controller {
      * @param UpdateOrderProductRequest $request
      */
     public function update(Request $request) {
-        
-        $arrErrors['errors'] = [];
+
+        $arrResponse = array(
+            'http_code' => 201,
+        );
+
+        $blError = false;
+        $arrErrors = [];
+        $arrSuccess = [];
 
         foreach ($request->form as $arrLine) {
-                
-            try {
-                   $orderProduct = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
 
-                   $order = $this->orderRepo->findOrderById($orderProduct->order_id);
-                   $postRepo = new OrderCommentRepository($order);
-                   $orderProductRepo = new OrderProductRepository($orderProduct);
-                   $orderProductRepo->updateProduct($product, $orderProduct);
+            try {
+                $orderProduct = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
+
+                $orderId = $orderProduct->order_id;
+
+                $order = $this->orderRepo->findOrderById($orderProduct->order_id);
+                $postRepo = new OrderCommentRepository($order);
+                $orderProductRepo = new OrderProductRepository($orderProduct);
                 $product = $this->productRepo->findProductById($arrLine['product_id']);
+                $orderProductRepo->updateProduct($product, $orderProduct);
                 $productRepo = new ProductRepository($product);
                 $reservedStock = $product->reserved_stock + $orderProduct->quantity;
-  
+
                 $productRepo->update(['reserved_stock' => $reservedStock], $product->id);
-            } catch(Exception $e) {
-                $arrErrors['errors'][] = $e->getMessage();
+
+                $arrSuccess[$orderId][] = "order {$orderId} line {$arrLine['line_id']} was updated successfully";
+            } catch (Exception $e) {
+                $arrErrors['errors'][$orderId][] = $e->getMessage();
+                $blError = true;
             }
 
             $data = [
@@ -113,36 +124,33 @@ class OrderLineController extends Controller {
             ];
 
             $postRepo->createComment($data);
-            
-            if(!empty($arrErrors['errors']) {
-                $arrDetails['details']['FAILURES'][$order->id] = $arrErrors;
-            } else {
-                $arrDetails['details']['SUCCESS'][$order->id] = ['Order updated successfully'];
-            }
-               
-            return response()->json([
-                "http_code" => 201,
-                "details" => $arrDetails['details']]
-            ]);
-
         }
+
+        if ($blError === true) {
+            $arrResponse['details']['FAILURES'] = $arrErrors;
+        } else {
+            $arrResponse['details']['SUCCESS'] = $arrSuccess;
+        }
+
+        echo json_encode($arrResponse);
+        die;
     }
 
     public function search(Request $request) {
-        
-         $module = $request->module;
-         unset($request->module);
+
+        $module = $request->module;
+        unset($request->module);
 
         $channels = $this->channelRepo->listChannels();
         $statuses = $this->orderStatusRepo->listOrderStatuses();
-        
+
         $courierRepo = new CourierRepository(new Courier);
         $couriers = $courierRepo->listCouriers();
-        
-         $arrProducts = $this->productRepo->listProducts();
-        
+
+        $arrProducts = $this->productRepo->listProducts();
+
         $list = OrderProductSearch::apply($request);
-        
+
         $list = $list->transform(function (OrderProduct $order) {
 
                     return $order;
@@ -151,7 +159,7 @@ class OrderLineController extends Controller {
         $items = $this->orderLineRepo->paginateArrayResults($list, 10);
 
 
-       
+
 
         return view('admin.orders.' . $module, [
             'items' => $items,
@@ -210,12 +218,12 @@ class OrderLineController extends Controller {
                         try {
                             $objProductRepo = new ProductRepository($objProduct);
                             $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-                        } catch(Exception $e) {
+                        } catch (Exception $e) {
                             $arrFailed[$arrLine['line_id']][] = $e->getMessage();
                             $blError = true;
                         }
                     }
-                    
+
                     try {
                         // update line status
                         $orderLineRepo = new OrderProductRepository(new OrderProduct);
@@ -223,7 +231,7 @@ class OrderLineController extends Controller {
 
                         $order->order_status_id = $objNewStatus->id;
                         $order->save();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         $arrFailed[$arrLine['line_id']][] = $e->getMessage();
                         $blError = true;
                     }
@@ -236,29 +244,29 @@ class OrderLineController extends Controller {
                     // update stock
                     $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
                     //$quantity = $objProduct->quantity - $objLine2->quantity;
-                    
+
                     try {
                         $objProductRepo = new ProductRepository($objProduct);
                         $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         $arrFailed[$arrLine['line_id']][] = $e->getMessage();
                         $blError = true;
                     }
                 }
-                
+
                 try {
                     // update line status
                     $orderLineRepo = new OrderProductRepository(new OrderProduct);
                     $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
-                } catch(Exception $e) {
-                        $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                } catch (Exception $e) {
+                    $arrFailed[$arrLine['line_id']][] = $e->getMessage();
                     $blError = true;
                 }
             }
         }
-        
+
         $http_code = $blError === true ? 400 : 200;
-        return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone);
+        return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
     }
 
     /**
@@ -330,9 +338,9 @@ class OrderLineController extends Controller {
                     $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
 
                     if ($availiableQty > $objLine2->quantity) {
-                        
+
                         try {
-                             $reserved_stock = $objProduct->reserved_stock - $objLine2->quantity;
+                            $reserved_stock = $objProduct->reserved_stock - $objLine2->quantity;
                             //$quantity = $objProduct->quantity - $objLine2->quantity;
 
                             $objProductRepo = new ProductRepository($objProduct);
@@ -340,12 +348,10 @@ class OrderLineController extends Controller {
 
                             $objLine2->status = $objNewStatus->id;
                             $objLine2->save();
-                        } catch(Exception $e) {
+                        } catch (Exception $e) {
                             $arrFailed[$arrLine['line_id']][] = $e->getMessage();
                             $blError = true;
                         }
-                        
-      
                     } else {
                         $arrFailed[$arrLine['line_id']][] = 'unable to move';
                         $blError = true;
@@ -355,12 +361,11 @@ class OrderLineController extends Controller {
                 try {
                     $order->order_status_id = $objNewStatus->id;
                     $order->save();
-                     $arrDone[] = $arrLine['order_id'];
-                } catch(Exception $e) {
-                     $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                    $arrDone[] = $arrLine['order_id'];
+                } catch (Exception $e) {
+                    $arrFailed[$arrLine['line_id']][] = $e->getMessage();
                     $blError = true;
                 }
-           
             } elseif (($backorderCount === $total && $backorderCount === 1) || $channel->partial_shipment === 1) {
 
                 $objLine2 = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
@@ -370,9 +375,9 @@ class OrderLineController extends Controller {
 
                 // check enough quantity to fulfil line if not reject
                 if ($availiableQty > $objLine2->quantity) {
-                    
+
                     try {
-                            // update stock
+                        // update stock
                         $reserved_stock = $objProduct->reserved_stock + $objLine2->quantity;
                         //$quantity = $objProduct->quantity - $objLine2->quantity;
                         $objProductRepo = new ProductRepository($objProduct);
@@ -387,23 +392,20 @@ class OrderLineController extends Controller {
                             $order->order_status_id = $objNewStatus->id;
                             $order->save();
                         }
-                        } catch(Exception $e) {
-                            $arrFailed[$arrLine['line_id']][] = $e->getMessage();
-                            $blError = true;
-                        }
-                    
-                    
+                    } catch (Exception $e) {
+                        $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                        $blError = true;
+                    }
                 } else {
 
                     $arrFailed[$arrLine['line_id']] = 'unable to move';
-                    $blError = true;o
+                    $blError = true;
                 }
             }
         }
 
         $http_code = $blError === true ? 400 : 200;
-        return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone);
-        
+        return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
     }
 
 }

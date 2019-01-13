@@ -192,7 +192,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                     <input type="text" placeholder="Start typing to find a swappable product" class="form-control" data-channel="EEA/3/14" name="freeTextLostinPost" id="freeTextLostinPost">
                     <p class="no-products"></p>
                     <h4 class="title">Notice: Product codes may ONLY contain "a-z 0-9 - _"</h4>
-                    <input type="hidden" name="channel" id="channel" value="{{$order->channel}}">
+                    <input type="hidden" name="channel" id="channel" value="{{$order->channel->id}}">
                     <input type="hidden" name="current-line" id="current-line" value="">
                     <input type="hidden" name="warehouse-ref" id="warehouse-ref" value="">
                 </div>
@@ -284,7 +284,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                 <div id="searchBoxWrapper" class="col-lg-4 col-md-2">
                     <h3>Replace to...</h3>
                     <input type="text" placeholder="Start typing to find a swappable product" class="form-control" data-channel="EEA/3/14" name="freeTextLostinPost" id="SwapFinder">
-                    <input type="hidden" name="channel" id="channel" value="{{$order->channel}}">
+                    <input type="hidden" name="channel" id="channel" value="{{$order->channel->id}}">
                     <input type="hidden" name="current-line" id="current-line" value="">
                     <p class="no-products"></p>
                     <h4 class="title">Notice: Product codes may ONLY contain "a-z 0-9 - _"</h4>
@@ -473,7 +473,8 @@ function getInventoryForProduct($productId, $arrProducts) {
                                 <label for="inputCity">Status</label>
 
                                 <select id="status" name='form[{{$count}}][status]' class="form-control">
-                                    @foreach($statuses as $status)
+                                    <option value="">{{$currentStatus->name}}</option>
+                                    @foreach($status_mapping[$item->status] as $status)
                                     <option @if($item->status == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
                                     @endforeach
                                 </select>
@@ -1071,9 +1072,11 @@ crossorigin="anonymous"></script>
                                                     type: type
                                                 },
                                                 success: function (response) {
+                                                                                                        
                                                     $('#createOrderSpinner').fadeOut(600);
                                                     var response = JSON.parse(response);
                                                     var strOut = "<div class='alert alert-success'>";
+                                                                                                        
                                                     $.each(response.body[0], function (ind, val) {
 
                                                         if (ind === 'text' || ind === 'title' || ind === 'msg') {
@@ -1083,20 +1086,22 @@ crossorigin="anonymous"></script>
                                                     strOut += '</div>';
                                                     $('.replace-window .response').html(strOut).addClass('active');
 
-                                                    $.each(response.data[0].details, function (responseType, val) {
-
+                                                    $.each(response.data.details, function (responseType, val) {
+                                                    
                                                         $.each(val, function (dbId, detail) {
                                                             if (responseType === 'SUCCESS') {
 
                                                                 $('.replace-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                             } else {
+                                                                                                                                                                                                
                                                                 $.each(detail, function (key, value) {
                                                                     
-                                                                        $('.replace-window .response').append("<div class='alert alert-danger'></div>");
-                                                                        $.each(value, function (errorType, message) {
-                                                                            $('.replace-window .response .alert-danger').append("<p>" + message + "</p>");
-                                                                        });
-                                                                    
+                                                                    $('.replace-window .response').append("<div class='alert alert-danger'></div>");
+                                                                    $.each(value, function (errorType, message) {
+                                                                                                                                                
+                                                                        $('.replace-window .response .alert-danger').append("<p>" + message + "</p>");
+                                                                    });
+
                                                                 });
                                                             }
                                                         });
@@ -1204,18 +1209,20 @@ crossorigin="anonymous"></script>
                                                     $('.swap-window #newOrder .fa-refresh').hide();
                                                     var response = JSON.parse(response);
                                                     if (response.http_code === 201 || response.http_code === 200) {
+                                                                                                                
                                                         $.each(response.details, function (responseType, val) {
-
+                                                            
                                                             $.each(val, function (dbId, detail) {
-
+                                                                
                                                                 if (responseType === 'SUCCESS') {
                                                                     $('.swap-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                                 } else {
+                                                                                                                                        
                                                                     $.each(detail, function (key, value) {
-                                                                            $('.swap-window .response').append("<div class='alert alert-danger'></div>");
-                                                                            $.each(value, function (errorType, message) {
-                                                                                $('.swap-window .response .alert-danger').append("<p>" + message + "</p>");
-                                                                            });
+                                                                        $('.swap-window .response').append("<div class='alert alert-danger'></div>");
+                                                                        $.each(value, function (errorType, message) {
+                                                                            $('.swap-window .response .alert-danger').append("<p>" + message + "</p>");
+                                                                        });
                                                                     });
                                                                 }
                                                             });
