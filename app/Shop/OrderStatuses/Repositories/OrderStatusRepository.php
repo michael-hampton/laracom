@@ -98,12 +98,15 @@ class OrderStatusRepository extends BaseRepository implements OrderStatusReposit
         return $this->model->where('name', $name)->first();
     }
     
-    public function getAvailableStatuses(OrderStatus $orderStatus) {
-        $newQuery = OrderStatus::->query()
-                ->select('order_status.*')
-                ->join('order_status_mapping', 'order_status_mapping.order_status_id', '=', 'order_status.id')
-                 ->where('order_status.id', $orderStatus->id)
+    public function buildStatusMapping() {
+        $results = OrderStatus::->query()
+                ->select(array('order_status.*', 'order_status_mapping.status_from'))
+                ->join('order_status_mapping', 'order_status_mapping.status_to', '=', 'order_status.id')
                  ->get();
+        
+        foreach($results as $result) {
+            
+        }
     }
 
 }
