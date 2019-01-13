@@ -23,7 +23,7 @@ function getInventoryForProduct($productId, $arrProducts) {
     @include('layouts.errors-and-messages')
     <!-- Default box -->
 
-    <div class="box">
+    <div class="box col-lg-2">
         <div class="box-body">
             <h2>Allocations</h2>
 
@@ -102,7 +102,7 @@ function getInventoryForProduct($productId, $arrProducts) {
         </div>
         <!-- /.box -->
 
-        <div class="box">
+        <div class="box col-lg-10">
             @if(!$items->isEmpty())
             <div class="box-body">
                 <h4> <i class="fa fa-gift"></i> Items</h4>
