@@ -34,6 +34,14 @@
                     </div>
                     
                     <div class="form-group">
+                    <label for="rma_enabled">RMA Enabled? </label>
+                    <select name="rma_enabled" id="rma_enabled" class="form-control">
+                        <option value="0" @if($courier->rma_enabled == 0) selected="selected" @endif>No</option>
+                            <option value="1" @if($courier->rma_enabled == 1) selected="selected" @endif>Yes</option>
+                    </select>
+                </div>
+                    
+                    <div class="form-group">
                         <label for="is_priority">Is Priority? </label>
                         <select name="is_priority" id="is_priority" class="form-control">
                             <option value="0" @if($courier->is_priority == 0) selected="selected" @endif>No</option>
