@@ -363,7 +363,7 @@ class OrderController extends Controller {
             $voucherAmount = $objVoucher->amount;
         }
 
-        $orderTotal += $voucherAmount;
+        $orderTotal -= $voucherAmount;
 
         $order = $orderRepo->createOrder([
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
@@ -724,7 +724,7 @@ class OrderController extends Controller {
                     $voucherAmount = $objVoucher->amount;
                 }
 
-                $orderTotal += $voucherAmount;
+                $orderTotal -= $voucherAmount;
 
                 $product = $this->productRepo->searchProduct($order['product'])->first();
 
