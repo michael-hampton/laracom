@@ -5,10 +5,9 @@
 <section class="content">
     @include('layouts.errors-and-messages')
     <!-- Default box -->
-    @if($products)
-    <div class="box">
+ 
+    <div class="box col-lg-2">
         <div class="box-body">
-            <h2>Products</h2>
 
             <form action="{{ route('admin.channel-prices.search') }}" method="post" id="admin-search">
                 
@@ -53,13 +52,21 @@
 
             </form>
 
-            @include('admin.shared.channel-products')
-            {{ $products->links() }}
+            
         </div>
         <!-- /.box-body -->
     </div>
     <!-- /.box -->
-    @endif
+    
+    <div class="box col-lg-10">
+        <div class="box-body">
+            <h2>Products</h2>
+            @if($products)
+            @include('admin.shared.channel-products')
+            {{ $products->links() }}
+            @endif
+            </div>
+            </div>
 
 </section>
 <!-- /.content -->
