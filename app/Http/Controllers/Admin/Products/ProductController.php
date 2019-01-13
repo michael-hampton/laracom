@@ -415,7 +415,7 @@ class ProductController extends Controller {
         echo json_encode(['results' => $list->toArray()]);
     }
     
-    public function saveImport(ProductImportRequest $request) {
+    public function saveImport(Request $request) {
         $file_path = $request->csv_file->path();
         $line = 0;
         $arrProducts = [];
@@ -449,7 +449,7 @@ class ProductController extends Controller {
                 $line++;
                
                 $csv_errors = Validator::make(
-                                $order, (new ImportRequest())->rules()
+                                $order, (new ProductImportRequest())->rules()
                         )->errors();
                
                 $categories = explode(',', $order['categories']);
