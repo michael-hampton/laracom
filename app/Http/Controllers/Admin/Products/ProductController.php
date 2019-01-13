@@ -414,7 +414,7 @@ class ProductController extends Controller {
         echo json_encode(['results' => $list->toArray()]);
     }
     
-    public function saveImport(Request $request) {
+    public function saveImport(ProductImportRequest $request) {
         $file_path = $request->csv_file->path();
         $line = 0;
         $arrProducts = [];
