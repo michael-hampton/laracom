@@ -174,6 +174,7 @@ class OrderLineController extends Controller {
         $objNewStatus = $this->orderStatusRepo->findByName('ordered');
         $arrDone = [];
         $arrFailed = [];
+        $blError = false;
 
         foreach ($request->lineIds as $arrLine) {
 
@@ -211,6 +212,7 @@ class OrderLineController extends Controller {
                             $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
                         } catch(Exception $e) {
                             $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                            $blError = true;
                         }
                     }
                     
@@ -223,6 +225,7 @@ class OrderLineController extends Controller {
                         $order->save();
                     } catch(Exception $e) {
                         $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                        $blError = true;
                     }
                 }
             } elseif ($channel->partial_shipment === 1) {
@@ -239,6 +242,7 @@ class OrderLineController extends Controller {
                         $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
                     } catch(Exception $e) {
                         $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                        $blError = true;
                     }
                 }
                 
@@ -248,9 +252,13 @@ class OrderLineController extends Controller {
                     $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
                 } catch(Exception $e) {
                         $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                    $blError = true;
                 }
             }
         }
+        
+        $http_code = $blError === true ? 400 : 200;
+        return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone);
     }
 
     /**
@@ -264,6 +272,7 @@ class OrderLineController extends Controller {
         $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
         $arrDone = [];
         $arrFailed = [];
+        $blError = false;
 
         foreach ($request->lineIds as $arrLine) {
 
@@ -309,6 +318,7 @@ class OrderLineController extends Controller {
 
                 // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
                 $arrFailed[$arrLine['line_id']][] = 'Unable to move';
+                $blError = true;
 
                 // if partial shipping allowed and more than 1 line backordered then move single line
             } elseif ($intCantMove === 0 && $backorderCount > 1) {
@@ -332,11 +342,13 @@ class OrderLineController extends Controller {
                             $objLine2->save();
                         } catch(Exception $e) {
                             $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                            $blError = true;
                         }
                         
       
                     } else {
                         $arrFailed[$arrLine['line_id']][] = 'unable to move';
+                        $blError = true;
                     }
                 }
 
@@ -346,6 +358,7 @@ class OrderLineController extends Controller {
                      $arrDone[] = $arrLine['order_id'];
                 } catch(Exception $e) {
                      $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                    $blError = true;
                 }
            
             } elseif (($backorderCount === $total && $backorderCount === 1) || $channel->partial_shipment === 1) {
@@ -376,19 +389,21 @@ class OrderLineController extends Controller {
                         }
                         } catch(Exception $e) {
                             $arrFailed[$arrLine['line_id']][] = $e->getMessage();
+                            $blError = true;
                         }
                     
                     
                 } else {
 
                     $arrFailed[$arrLine['line_id']] = 'unable to move';
+                    $blError = true;o
                 }
             }
         }
 
-        if (count($arrFailed) > 0) {
-            return response()->json(['FAILURES' => $arrFailed, 'SUCCESS' => $arrDone);
-        }
+        $http_code = $blError === true ? 400 : 200;
+        return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone);
+        
     }
 
 }
