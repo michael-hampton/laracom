@@ -227,7 +227,9 @@ function getInventoryForProduct($productId, $arrProducts) {
                             <span class="input-group-addon order-details-label">Select Delivery Code:</span>
                             <select class="form-control" name="courier_id" id="onlyRMADeliveryDropDown2">
                                 @foreach($couriers as $courier)
+                                @if($courier->rma_enabled === 1)
                                 <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                @endif;
                                 @endforeach;
                             </select>
                         </div>
