@@ -411,11 +411,117 @@ class ProductController extends Controller {
 
         $list = $this->productRepo->searchProduct($request->product_code);
 
-//         $products = $list->map(function (Product $item) {
-//                    return $this->transformProduct($item);
-//                })->all();
-
         echo json_encode(['results' => $list->toArray()]);
+    }
+    
+    public function saveImport(Request $request) {
+        $file_path = $request->csv_file->path();
+        $line = 0;
+        $arrProducts = [];
+        
+        if (($handle = fopen($file_path, "r")) !== FALSE) {
+            $flag = true;
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                
+                if ($flag) {
+                    $flag = false;
+                    continue;
+                }
+                
+                list(
+                        $order['order_id'],
+                        $order['channel'],
+                        $order['customer'],
+                        $order['courier'],
+                        $order['voucher_code'],
+                        $order['product'],
+                        $order['quantity'],
+                        $order['price']
+                        ) = $data;
+                $line++;
+               
+                $csv_errors = Validator::make(
+                                $order, (new ImportRequest())->rules()
+                        )->errors();
+               
+                $categories = explode(',', $order['categories']);
+                
+                $arrCategories = [];
+                
+                foreach($categories as $category) {
+                    $categoryId = $this->categoryRepo->findByName($category);
+                    
+                    if (empty($channelId)) {
+                        $csv_errors->add('brand', "Brand is invalid.");
+                    } else {
+                        $arrChannels[] = $channelId;
+                    }
+                }
+                $category = $this->categoryRepo->findByName($category);
+               
+                if (empty($category)) {
+                    $csv_errors->add('category', "Category is invalid.");
+                }
+                
+                $brand = $this->brandRepo->findByName($order['brand']);
+                
+                if (empty($brand)) {
+                    $csv_errors->add('brand', "Brand is invalid.");
+                }
+               
+                $channels = explode(',', $order['channels']);
+                
+                $arrChannels = [];
+                
+                foreach($channels as $channel) {
+                    $channelId = $this->channelRepo->findByName($channel);
+                    
+                    if (empty($channelId)) {
+                        $csv_errors->add('brand', "Brand is invalid.");
+                    } else {
+                        $arrChannels[] = $channelId;
+                    }
+                }
+                
+                if ($csv_errors->any()) {
+                    return redirect()->back()
+                                    ->withErrors($csv_errors, 'import')
+                                    ->with('error_line', $line);
+                }
+                
+                $arrProducts[] = [
+                    'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
+                    'courier_id' => $courier->id,
+                    'customer_id' => $customer[0]->id,
+                    'voucher_code' => $voucherCodeId,
+                    'voucher_id' => !empty($order['voucher_code']) ? $order['voucher_code'] : null,
+                    'address_id' => $deliveryAddress->id,
+                    'order_status_id' => $os->id,
+                    'payment' => 'import',
+                    'discounts' => $voucherAmount,
+                    'total_shipping' => $shippingCost,
+                    'total_products' => 0,
+                    'total' => $orderTotal,
+                    'total_paid' => 0,
+                    'categories' => $arrCategories,
+                    'channels' => $arrChannels,
+                    'tax' => 0
+                ];
+               
+                
+            }
+            fclose($handle);
+        }
+        foreach ($arrOrders as $orderId => $arrOrder) {
+            $order = $this->orderRepo->createOrder($arrOrder, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new Addressrepository(new Address));
+            $orderRepo = new OrderRepository($order);
+            $orderRepo->buildOrderLinesForManualOrder($arrProducts[$orderId]);
+        }
+        request()->session()->flash('message', 'Import successful');
+        return redirect()->route('admin.orders.importCsv');
+    }
+    public function importCsv() {
+        return view('admin.orders.importCsv');
     }
 
     /**
