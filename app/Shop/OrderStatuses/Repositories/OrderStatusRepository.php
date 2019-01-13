@@ -104,9 +104,17 @@ class OrderStatusRepository extends BaseRepository implements OrderStatusReposit
                 ->join('order_status_mapping', 'order_status_mapping.status_to', '=', 'order_status.id')
                  ->get();
         
+        $arrStatuses = [];
+        
         foreach($results as $result) {
+            $statusFrom = $result['status_from'];
             
+            unset($result['status_from']);
+            
+            $arrStatuses[$statusFrom][] = OrderStatus::hydrate($result);
         }
+        
+        return $arrStatuses;
     }
 
 }
