@@ -97,5 +97,9 @@ class OrderStatusRepository extends BaseRepository implements OrderStatusReposit
     public function findByName(string $name) {
         return $this->model->where('name', $name)->first();
     }
+    
+    public function getAvailableStatuses(OrderStatus) {
+        
+    }
 
 }
