@@ -118,4 +118,17 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
             $product->save();
         });
     }
+    
+    
+    /**
+     * 
+     * @param type $name
+     * @return type
+     */
+    public function findByName(string $name) {
+        $query = DB::table('brands');
+        $query->whereRaw('LOWER(`name`) = ? ', [trim(strtolower($name))]);
+        $result = $query->get();
+        return Brand::hydrate($result->toArray())[0];
+    }
 }
