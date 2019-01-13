@@ -215,5 +215,17 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
     public function findChildren() {
         return $this->model->children;
     }
+    
+       /**
+     * 
+     * @param type $name
+     * @return type
+     */
+    public function findByName(string $name) {
+        $query = DB::table('categories');
+        $query->whereRaw('LOWER(`name`) = ? ', [trim(strtolower($name))]);
+        $result = $query->get();
+        return Category::hydrate($result->toArray())[0];
+    }
 
 }
