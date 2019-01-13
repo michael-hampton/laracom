@@ -472,7 +472,7 @@ class ProductController extends Controller {
                     $channelId = $this->channelRepo->findByName($channel);
                     
                     if (empty($channelId)) {
-                        $csv_errors->add('brand', "Brand is invalid.");
+                        $csv_errors->add('channel', "Channel is invalid.");
                     } else {
                         $arrChannels[] = $channelId;
                     }
@@ -485,6 +485,7 @@ class ProductController extends Controller {
                 }
                 
                 $arrProducts[] = [
+                    'name' => $order['name'],
                     'categories' => $arrCategories,
                     'channels' => $arrChannels,
                     'brand' => $brand->id
@@ -494,14 +495,36 @@ class ProductController extends Controller {
             }
             fclose($handle);
         }
-        foreach ($arrOrders as $orderId => $arrOrder) {
-            $order = $this->orderRepo->createOrder($arrOrder, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new Addressrepository(new Address));
-            $orderRepo = new OrderRepository($order);
-            $orderRepo->buildOrderLinesForManualOrder($arrProducts[$orderId]);
+        
+        foreach ($arrProducts as $arrProduct) {
+            
+            $arrCategories = $arrProduct['categories'];
+            $arrChannels = $arrProduct['channels'];
+            
+            unset($arrProduct['categories']);
+            unset($arrProduct['channels']);
+            
+            $data['slug'] = str_slug($arrProduct['name']);
+
+            $product = $this->productRepo->createProduct($arrProduct);
+            $productRepo = new ProductRepository($product);
+
+            // categories
+            if (!empty($arrCategories)) {
+                $productRepo->syncCategories($arrCategories);
+            }
+
+            // channels
+            if (!empty($arrChannels)) {
+
+                $productRepo->syncChannels($arrChannels);
+            } 
         }
+        
         request()->session()->flash('message', 'Import successful');
-        return redirect()->route('admin.orders.importCsv');
+        return redirect()->route('admin.products.importCsv');
     }
+    
     public function importCsv() {
         return view('admin.orders.importCsv');
     }
