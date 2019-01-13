@@ -19,7 +19,8 @@ class Courier extends Model
         'is_free',
         'is_priority',
         'cost',
-        'status'
+        'status',
+        'rma_enabled'
     ];
 
     /**
