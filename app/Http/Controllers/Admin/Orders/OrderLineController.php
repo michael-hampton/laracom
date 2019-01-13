@@ -206,16 +206,26 @@ class OrderLineController extends Controller {
                         $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
 
                         //$quantity = $objProduct->quantity - $objLine2->quantity;
-                        $objProductRepo = new ProductRepository($objProduct);
-                        $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
+                        try {
+                            $objProductRepo = new ProductRepository($objProduct);
+                            $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
+                        } catch(Exception $e) {
+                            
+                        }
+                    }
+                    
+                    try {
+                        // update line status
+                        $orderLineRepo = new OrderProductRepository(new OrderProduct);
+                        $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
+
+                        $order->order_status_id = $objNewStatus->id;
+                        $order->save();
+                    } catch(Exception $e) {
+                        
                     }
 
-                    // update line status
-                    $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                    $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
-
-                    $order->order_status_id = $objNewStatus->id;
-                    $order->save();
+                    
                 }
             } elseif ($channel->partial_shipment === 1) {
                 $objLine = $this->orderLineRepo->findOrderProductById($arrLine['line_id']);
@@ -225,13 +235,22 @@ class OrderLineController extends Controller {
                     // update stock
                     $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
                     //$quantity = $objProduct->quantity - $objLine2->quantity;
-                    $objProductRepo = new ProductRepository($objProduct);
-                    $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
+                    
+                    try {
+                        $objProductRepo = new ProductRepository($objProduct);
+                        $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
+                    } catch(Exception $e) {
+                        
+                    }
                 }
-
-                // update line status
-                $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
+                
+                try {
+                    // update line status
+                    $orderLineRepo = new OrderProductRepository(new OrderProduct);
+                    $orderLineRepo->update(['status' => $objNewStatus->id], $arrLine['line_id']);
+                } catch(Exception $e) {
+                        
+                }
             }
         }
     }
