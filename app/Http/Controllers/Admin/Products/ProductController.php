@@ -451,16 +451,11 @@ class ProductController extends Controller {
                 foreach($categories as $category) {
                     $categoryId = $this->categoryRepo->findByName($category);
                     
-                    if (empty($channelId)) {
-                        $csv_errors->add('brand', "Brand is invalid.");
+                    if (empty($categoryId)) {
+                        $csv_errors->add('category', "Category is invalid.");
                     } else {
-                        $arrChannels[] = $channelId;
+                        $arrCategories[] = $categoryId;
                     }
-                }
-                $category = $this->categoryRepo->findByName($category);
-               
-                if (empty($category)) {
-                    $csv_errors->add('category', "Category is invalid.");
                 }
                 
                 $brand = $this->brandRepo->findByName($order['brand']);
@@ -490,22 +485,9 @@ class ProductController extends Controller {
                 }
                 
                 $arrProducts[] = [
-                    'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-                    'courier_id' => $courier->id,
-                    'customer_id' => $customer[0]->id,
-                    'voucher_code' => $voucherCodeId,
-                    'voucher_id' => !empty($order['voucher_code']) ? $order['voucher_code'] : null,
-                    'address_id' => $deliveryAddress->id,
-                    'order_status_id' => $os->id,
-                    'payment' => 'import',
-                    'discounts' => $voucherAmount,
-                    'total_shipping' => $shippingCost,
-                    'total_products' => 0,
-                    'total' => $orderTotal,
-                    'total_paid' => 0,
                     'categories' => $arrCategories,
                     'channels' => $arrChannels,
-                    'tax' => 0
+                    'brand' => $brand->id
                 ];
                
                 
