@@ -32,6 +32,14 @@
                     </select>
                 </div>
                 
+                <div class="form-group">
+                    <label for="rma_enabled">RMA Enabled? </label>
+                    <select name="rma_enabled" id="rma_enabled" class="form-control">
+                        <option value="0">No</option>
+                        <option value="1" selected="selected">Yes</option>
+                    </select>
+                </div>
+                
                  <div class="form-group">
                     <label for="is_priority">Is Priority? </label>
                     <select name="is_priority" id="is_priority" class="form-control">
