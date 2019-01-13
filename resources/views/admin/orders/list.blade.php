@@ -7,7 +7,7 @@
     @include('layouts.errors-and-messages')
     <!-- Default box -->
     @if($orders)
-    <div class="box">
+    <div class="box col-lg-2">
         <div class="box-body">
             <h2>Orders</h2>
 
@@ -94,7 +94,7 @@
                 </form>
             </div>
 
-
+<div class='col-lg-10'>
 
             <table class="table">
                 <thead>
@@ -122,6 +122,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
         <!-- /.box-body -->
         <div class="box-footer">
