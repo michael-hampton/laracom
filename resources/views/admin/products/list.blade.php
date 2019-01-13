@@ -5,10 +5,8 @@
 <section class="content">
     @include('layouts.errors-and-messages')
     <!-- Default box -->
-    @if($products)
-    <div class="box">
+    <div class="box col-lg-2">
         <div class="box-body">
-            <h2>Products</h2>
             <form action="{{ route('admin.products.search') }}" method="post" id="admin-search">
                 
                  {{ csrf_field() }}
@@ -41,13 +39,20 @@
                 <button style="margin-top:26px;" type="submit" class="btn btn-primary">Search</button>
                 
             </form>
-            @include('admin.shared.products')
-            {{ $products->links() }}
         </div>
         <!-- /.box-body -->
     </div>
     <!-- /.box -->
-    @endif
+    
+    <div class="box col-lg-10">
+        <div class="box-body">
+            <h2>Products</h2>
+            @if($products)
+            include('admin.shared.products')
+            {{ $products->links() }}
+            @endif
+            </div>
+            </div>
 
 </section>
 <!-- /.content -->
