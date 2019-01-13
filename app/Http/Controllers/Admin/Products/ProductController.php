@@ -486,6 +486,18 @@ class ProductController extends Controller {
                 
                 $arrProducts[] = [
                     'name' => $order['name'],
+                    'sku' => $order['sku'],
+                    'description' => $order['description'],
+                    'quantity' => $order['quantity'],
+                    'price' => $order['price'],
+                    'status' => 1,
+                    'weight' => $order['weight'],
+                    'mass_unit' => $order['mass_unit'],
+                    'sale_price' => $order['sale_price'],
+                    'length' => $order['length'],
+                    'width' => $order['width'],
+                    'height' => $order['height'],
+                    'distance_unit' => $order['distance_unit'],
                     'categories' => $arrCategories,
                     'channels' => $arrChannels,
                     'brand' => $brand->id
