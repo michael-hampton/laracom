@@ -68,8 +68,10 @@ class BrandController extends Controller {
      */
     public function update(UpdateBrandRequest $request, $id) {
         $brand = $this->brandRepo->findBrandById($id);
-        $brandRepo = new BrandRepository($brand);
-        $brandRepo->updateBrand($request->all());
+        $update = new BrandRepository($brand);
+        $update->updateBrand($request->except('_token', '_method'));
+        
+        
         return redirect()->route('admin.brands.edit', $id)->with('message', 'Update successful!');
     }
 
