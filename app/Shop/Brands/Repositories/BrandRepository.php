@@ -37,11 +37,19 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
     public function createBrand(array $data) : Brand
     {
         try {
+            $collection = collect($data);
+            
             if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile)) {
                 $cover = $this->uploadOne($data['cover'], 'brands');
             }
+           
+            $merge = $collection->merge(compact('cover'));
+            $brand = new Brand($merge->all());
+           
+            $brand->save();
+            return $brand;
             
-            return $this->create($data);
+            //return $this->create($data);
         } catch (QueryException $e) {
             throw new CreateBrandErrorException($e);
         }
