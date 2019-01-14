@@ -14,6 +14,8 @@ use Illuminate\Support\Collection;
 
 class BrandRepository extends BaseRepository implements BrandRepositoryInterface
 {
+   use UploadableTrait;
+    
     /**
      * BrandRepository constructor.
      *
@@ -34,6 +36,10 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
     public function createBrand(array $data) : Brand
     {
         try {
+            if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile)) {
+                $cover = $this->uploadOne($data['cover'], 'brands');
+            }
+            
             return $this->create($data);
         } catch (QueryException $e) {
             throw new CreateBrandErrorException($e);
