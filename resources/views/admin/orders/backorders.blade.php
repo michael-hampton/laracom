@@ -149,8 +149,9 @@ function getInventoryForProduct($productId, $arrProducts) {
                                     <?php
                                      $quantityAvailiable = $arrInventory['quantity'] - $arrInventory['reserved_stock'];
                                      $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
+                                     $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
                             ?>
-                                        <input type="checkbox" {{ $checked }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                        <input type="checkbox" {{ $checked }} {{ $disabled }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
                                     </td>
                                 </tr>
                                 <?php
