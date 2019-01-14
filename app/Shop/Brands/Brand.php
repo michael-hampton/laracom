@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Brand extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+        'cover',
+        'status'
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
