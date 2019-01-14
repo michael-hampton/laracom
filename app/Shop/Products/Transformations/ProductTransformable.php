@@ -26,8 +26,8 @@ trait ProductTransformable {
             $price = !empty($channelPrice[0]) ? $channelPrice[0]->price : $product->price;
         }
 
-
-
+        $brandRepo = new BrandRepository(new \App\Shop\Brands\Brand);
+        $brand = $brandRepo->findBrandById($product->brand);
 
         $prod = new Product;
         $prod->id = (int) $product->id;
@@ -44,6 +44,7 @@ trait ProductTransformable {
         $prod->mass_unit = $product->mass_unit;
         $prod->sale_price = $product->sale_price;
         $prod->brand_id = (int) $product->brand_id;
+        $prod->brand_name = $brand->name;
         return $prod;
     }
 
