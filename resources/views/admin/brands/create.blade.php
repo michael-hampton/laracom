@@ -8,9 +8,15 @@
             <form action="{{ route('admin.brands.store') }}" method="post" class="form" enctype="multipart/form-data">
                 <div class="box-body">
                     {{ csrf_field() }}
+                    
                     <div class="form-group">
                         <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="name" placeholder="Name" class="form-control" value="{{ old('name') }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cover">Cover </label>
+                        <input type="file" name="cover" id="cover" class="form-control">
                     </div>
                 </div>
                 <!-- /.box-body -->
