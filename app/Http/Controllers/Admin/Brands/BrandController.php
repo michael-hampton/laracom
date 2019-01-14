@@ -45,7 +45,8 @@ class BrandController extends Controller {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(CreateBrandRequest $request) {
-        $this->brandRepo->createBrand($request->all());
+        //$this->brandRepo->createBrand($request->all());
+        $this->brandRepo->createBrand($request->except('_token', '_method'));
         return redirect()->route('admin.brands.index')->with('message', 'Create brand successful!');
     }
 
