@@ -85,8 +85,8 @@
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="delete">
                     <div class="btn-group">
-                        <a href="{{ route('admin.channel-prices.edit', [$product->id]) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i> Edit</a>
-                        <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
+                        <a href="{{ route('admin.channel-prices.edit', [$product->id]) }}" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> Edit</a>
+                        <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-xs"><i class="fa fa-times"></i> Delete</button>
                     </div>
                 </form>
 
@@ -108,6 +108,10 @@
 
                     <div class="small m-t-xs">
                         {{$product->description}}
+                    </div>
+                    
+                     <div class="small m-t-xs">
+                        {{$product->sku}}
                     </div>
 
                     <div class="small m-t-xs">
