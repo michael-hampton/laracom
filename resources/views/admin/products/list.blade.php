@@ -35,6 +35,15 @@
                                 @endforeach
                             </select>
                         </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label for="status">Status </label>
+                            <select name="product_status" id="status" class="form-control"
+                                <option value="1">Enabled</option>
+                                <option value="0">Disabled</option>
+                                @endforeach
+                            </select>
+                        </div>
 
                         <div style="margin-bottom: 10px;">
                             <label for="product_name">Product Name</label>
