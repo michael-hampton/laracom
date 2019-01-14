@@ -11,6 +11,6 @@ class ProductStatus {
      */
     public static function apply(Builder $builder, $value) {
                 
-        return $builder->where('order_status_id', $value);
+        return $builder->where('status', $value);
     }
 }
