@@ -115,7 +115,7 @@
                     </div>
 
                     <div class="small m-t-xs">
-                        {{$product->brand}}
+                        {{$product->brand_name}}
                     </div>
 
 
