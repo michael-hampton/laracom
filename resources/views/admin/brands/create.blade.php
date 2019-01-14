@@ -18,6 +18,14 @@
                         <label for="cover">Cover </label>
                         <input type="file" name="cover" id="cover" class="form-control">
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status </label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="0">Disable</option>
+                            <option value="1">Enable</option>
+                        </select>
+                    </div>
                 </div>
                 <!-- /.box-body -->
                 <div class="box-footer">
