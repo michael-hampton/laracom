@@ -4,6 +4,7 @@
     <!-- Main content -->
     <section class="content">
     @include('layouts.errors-and-messages')
+    @include('layouts.search', ['route' => route('admin.brands.index')])
     <!-- Default box -->
         @if(!$brands->isEmpty())
             <div class="box">
