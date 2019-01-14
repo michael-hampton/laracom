@@ -20,4 +20,14 @@ class Brand extends Model
     {
         return $this->hasMany(Product::class);
     }
+    
+    /**
+     * @param $term
+     *
+     * @return mixed
+     */
+    public function searchBrand($term)
+    {
+        return self::search($term);
+    }
 }
