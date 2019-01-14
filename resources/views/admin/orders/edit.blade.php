@@ -347,7 +347,9 @@ function getInventoryForProduct($productId, $arrProducts) {
                                 {{ csrf_field() }}
                                 <input type="hidden" name="_method" value="put">
                                 <label for="order_status_id" class="hidden">Update status</label>
-                                <input type="text" name="total_paid" class="form-control" placeholder="Total paid" style="margin-bottom: 5px; display: none" value="{{ old('total_paid') ?? $order->total_paid }}" />
+                                @if($order->total_paid != $order->total ):
+                                <input type="text" name="total_paid" class="form-control" placeholder="Total paid" style="margin-bottom: 5px;" value="{{ old('total_paid') ?? $order->total_paid }}" />
+                                @endif
                                 <div class="input-group">
                                     <select name="order_status_id" id="order_status_id" class="form-control select2">
                                         @foreach($statuses as $status)
