@@ -117,6 +117,14 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
     {
         return $this->all($columns, $orderBy, $sortBy);
     }
+   
+     /**
+     * @param string $text
+     * @return mixed
+     */
+    public function searchBrand(string $text): Collection {
+        return $this->model->searchBrand($text, ['name' => 10])->get();
+    }
 
     /**
      * @return Collection
