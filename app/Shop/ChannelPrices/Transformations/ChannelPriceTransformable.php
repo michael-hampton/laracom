@@ -5,6 +5,8 @@ namespace App\Shop\ChannelPrices\Transformations;
 use App\Shop\ChannelPrices\ChannelPrice;
 use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\ProductRepository;
+use App\Shop\Brands\Repositories\BrandRepository;
+use App\Shop\Brands\Brand;
 
 use Illuminate\Support\Facades\Storage;
 
@@ -28,8 +30,8 @@ trait ChannelPriceTransformable {
         $productRepo = new ProductRepository(new Product);
         $product = $productRepo->findProductById($chann->product_id);
         
-        $brandRepo = new BrandRepository(new \App\Shop\Brands\Brand);
-        $brand = $brandRepo->findBrandById($product->brand);
+        $brandRepo = new BrandRepository(new Brand);
+        $brand = $brandRepo->findBrandById($product->brand_id);
         
         $chann->name = $product->name;
         $chann->description = $product->description;

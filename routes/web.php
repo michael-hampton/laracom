@@ -96,6 +96,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('roles', 'Roles\RoleController');
         Route::resource('permissions', 'Permissions\PermissionController');
         Route::resource('brands', 'Brands\BrandController');
+	Route::get('remove-image-brand', 'Brands\BrandController@removeImage')->name('brand.remove.image');
         Route::resource('channel-prices', 'ChannelPrices\ChannelPriceController');
         Route::get('channel-prices/get/{channel}', 'ChannelPrices\ChannelPriceController@index')->name('channel-prices.index');
         Route::get('channel-prices/editForm/{product}/{channel}', 'ChannelPrices\ChannelPriceController@editForm')->name('channel-prices.editForm');

@@ -13,17 +13,16 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use App\Shop\Tools\UploadableTrait;
 
-class BrandRepository extends BaseRepository implements BrandRepositoryInterface
-{
-   use UploadableTrait;
-    
+class BrandRepository extends BaseRepository implements BrandRepositoryInterface {
+
+    use UploadableTrait;
+
     /**
      * BrandRepository constructor.
      *
      * @param Brand $brand
      */
-    public function __construct(Brand $brand)
-    {
+    public function __construct(Brand $brand) {
         parent::__construct($brand);
         $this->model = $brand;
     }
@@ -34,21 +33,20 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
      * @return Brand
      * @throws CreateBrandErrorException
      */
-    public function createBrand(array $data) : Brand
-    {
+    public function createBrand(array $data): Brand {
         try {
             $collection = collect($data);
-            
+
             if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile)) {
                 $cover = $this->uploadOne($data['cover'], 'brands');
             }
-           
+
             $merge = $collection->merge(compact('cover'));
             $brand = new Brand($merge->all());
-           
+
             $brand->save();
             return $brand;
-            
+
             //return $this->create($data);
         } catch (QueryException $e) {
             throw new CreateBrandErrorException($e);
@@ -61,8 +59,7 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
      * @return Brand
      * @throws BrandNotFoundErrorException
      */
-    public function findBrandById(int $id) : Brand
-    {
+    public function findBrandById(int $id): Brand {
         try {
             return $this->findOneOrFail($id);
         } catch (ModelNotFoundException $e) {
@@ -77,21 +74,20 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
      * @return bool
      * @throws UpdateBrandErrorException
      */
-    public function updateBrand(array $data) : bool
-    {
+    public function updateBrand(array $data): Brand {
         try {
             $brand = $this->findBrandById($this->model->id);
             $collection = collect($data)->except('_token');
-       
+
             if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile)) {
                 $cover = $this->uploadOne($data['cover'], 'brands');
             }
-           
+
             $merge = $collection->merge(compact('cover'));
-        
+
             $brand->update($merge->all());
-        
-           return $brand;
+
+            return $brand;
         } catch (QueryException $e) {
             throw new UpdateBrandErrorException($e);
         }
@@ -101,8 +97,7 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
      * @return bool
      * @throws \Exception
      */
-    public function deleteBrand() : bool
-    {
+    public function deleteBrand(): bool {
         return $this->delete();
     }
 
@@ -113,12 +108,11 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
      *
      * @return Collection
      */
-    public function listBrands($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc') : Collection
-    {
+    public function listBrands($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection {
         return $this->all($columns, $orderBy, $sortBy);
     }
-   
-     /**
+
+    /**
      * @param string $text
      * @return mixed
      */
@@ -129,31 +123,36 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
     /**
      * @return Collection
      */
-    public function listProducts() : Collection
-    {
+    public function listProducts(): Collection {
         return $this->model->products()->get();
     }
 
     /**
      * @param Product $product
      */
-    public function saveProduct(Product $product)
-    {
+    public function saveProduct(Product $product) {
         $this->model->products()->save($product);
+    }
+
+    /**
+     * @param $file
+     * @param null $disk
+     * @return bool
+     */
+    public function deleteFile(array $file, $disk = null): bool {
+        return $this->update(['cover' => null], $file['brand']);
     }
 
     /**
      * Dissociate the products
      */
-    public function dissociateProducts()
-    {
+    public function dissociateProducts() {
         $this->model->products()->each(function (Product $product) {
             $product->brand_id = null;
             $product->save();
         });
     }
-    
-    
+
     /**
      * 
      * @param type $name
@@ -165,4 +164,5 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
         $result = $query->get();
         return Brand::hydrate($result->toArray())[0];
     }
+
 }

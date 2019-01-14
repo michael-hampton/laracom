@@ -16,7 +16,7 @@ trait SearchableTrait {
             }
 
             
-            if(empty($value)) {
+            if(empty($value) && (int)$value !== 0 || $value === null) {
                 continue;
             }
 

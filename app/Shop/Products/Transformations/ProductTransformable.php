@@ -3,6 +3,8 @@
 namespace App\Shop\Products\Transformations;
 
 use App\Shop\Products\Product;
+use App\Shop\Brands\Repositories\BrandRepository;
+use App\Shop\Brands\Brand;
 use App\Shop\ChannelPrices\Repositories\ChannelPriceRepository;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use Illuminate\Support\Facades\Storage;
@@ -25,9 +27,11 @@ trait ProductTransformable {
             $channelPrice = $channelPriceRepo->listChannelPrices()->where('product_id', $product->id)->where('channel_id', $channel->id);
             $price = !empty($channelPrice[0]) ? $channelPrice[0]->price : $product->price;
         }
+        
+        $brandId = $product->brand_id;
 
-        $brandRepo = new BrandRepository(new \App\Shop\Brands\Brand);
-        $brand = $brandRepo->findBrandById($product->brand);
+        $brandRepo = new BrandRepository(new Brand);
+        $brand = $brandRepo->findBrandById($brandId);
 
         $prod = new Product;
         $prod->id = (int) $product->id;

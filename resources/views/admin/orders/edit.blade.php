@@ -616,21 +616,24 @@ function getInventoryForProduct($productId, $arrProducts) {
     @endif
 
     <div class="box">
-        @if(!$audits->isEmpty())
-        <div class="box-body">
-            <h4> <i class="fa fa-gift"></i> Audit</h4>
+        <div style="width:100%; overflow: auto; max-height: 250px">
+            @if(!$audits->isEmpty())
+            <div class="box-body">
+                <h4> <i class="fa fa-gift"></i> Audit</h4>
 
-            @foreach($audits as $audit)
-            <div class="row">
-                {{ json_encode($audit->old_values) }}
-            </div>
+                @foreach($audits as $audit)
+                <div class="row">
+                    {{ json_encode($audit->old_values) }}
+                </div>
 
-            <div class="row col-lg-12">
-                {{ json_encode($audit->new_values) }}
+                <div class="row col-lg-12">
+                    {{ json_encode($audit->new_values) }}
+                </div>
+                @endforeach
             </div>
-            @endforeach
+            @endif
         </div>
-        @endif
+       
     </div>
 
 
@@ -646,24 +649,27 @@ function getInventoryForProduct($productId, $arrProducts) {
 
             </form>
 
-            @if (!empty($comments))
-            <br><br>
-            <ul class="list-group">
-                @foreach($comments as $comment)
+            <div style="width:100%; overflow: auto; max-height: 250px">
+                @if (!empty($comments))
+                <br><br>
+                <ul class="list-group">
+                    @foreach($comments as $comment)
 
-                <li class="list-group-item">
+                    <li class="list-group-item">
 
-                    <p>
-                        <a class="text-info" href="#">
-                            @ {{ $comment->user }} </a> 
-                        {{ $comment->content }}
-                    </p>
-                    <small class="block text-muted"><i class="fa fa-clock-o"></i> {{ $comment->created_at }}</small>
-                <li>
-                    @endforeach
-            </ul>
+                        <p>
+                            <a class="text-info" href="#">
+                                @ {{ $comment->user }} </a> 
+                            {{ $comment->content }}
+                        </p>
+                        <small class="block text-muted"><i class="fa fa-clock-o"></i> {{ $comment->created_at }}</small>
+                    <li>
+                        @endforeach
+                </ul>
 
-            @endif
+                @endif
+            </div>
+
         </div>
     </div>
 
@@ -1072,11 +1078,11 @@ crossorigin="anonymous"></script>
                                                     type: type
                                                 },
                                                 success: function (response) {
-                                                                                                        
+
                                                     $('#createOrderSpinner').fadeOut(600);
                                                     var response = JSON.parse(response);
                                                     var strOut = "<div class='alert alert-success'>";
-                                                                                                        
+
                                                     $.each(response.body[0], function (ind, val) {
 
                                                         if (ind === 'text' || ind === 'title' || ind === 'msg') {
@@ -1087,18 +1093,18 @@ crossorigin="anonymous"></script>
                                                     $('.replace-window .response').html(strOut).addClass('active');
 
                                                     $.each(response.data.details, function (responseType, val) {
-                                                    
+
                                                         $.each(val, function (dbId, detail) {
                                                             if (responseType === 'SUCCESS') {
 
                                                                 $('.replace-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                             } else {
-                                                                                                                                                                                                
+
                                                                 $.each(detail, function (key, value) {
-                                                                    
+
                                                                     $('.replace-window .response').append("<div class='alert alert-danger'></div>");
                                                                     $.each(value, function (errorType, message) {
-                                                                                                                                                
+
                                                                         $('.replace-window .response .alert-danger').append("<p>" + message + "</p>");
                                                                     });
 
@@ -1209,15 +1215,15 @@ crossorigin="anonymous"></script>
                                                     $('.swap-window #newOrder .fa-refresh').hide();
                                                     var response = JSON.parse(response);
                                                     if (response.http_code === 201 || response.http_code === 200) {
-                                                                                                                
+
                                                         $.each(response.details, function (responseType, val) {
-                                                            
+
                                                             $.each(val, function (dbId, detail) {
-                                                                
+
                                                                 if (responseType === 'SUCCESS') {
                                                                     $('.swap-window .response').append("<div class='alert alert-success'>" + detail + "</div>");
                                                                 } else {
-                                                                                                                                        
+
                                                                     $.each(detail, function (key, value) {
                                                                         $('.swap-window .response').append("<div class='alert alert-danger'></div>");
                                                                         $.each(value, function (errorType, message) {

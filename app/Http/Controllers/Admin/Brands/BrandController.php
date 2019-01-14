@@ -7,6 +7,7 @@ use App\Shop\Brands\Repositories\BrandRepository;
 use App\Shop\Brands\Repositories\BrandRepositoryInterface;
 use App\Shop\Brands\Requests\CreateBrandRequest;
 use App\Shop\Brands\Requests\UpdateBrandRequest;
+use Illuminate\Http\Request;
 
 class BrandController extends Controller {
 
@@ -97,6 +98,17 @@ class BrandController extends Controller {
         $brandRepo->dissociateProducts();
         $brandRepo->deleteBrand();
         return redirect()->route('admin.brands.index')->with('message', 'Delete successful!');
+    }
+    
+    
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function removeImage(Request $request) {
+        $this->brandRepo->deleteFile($request->only('brand'));
+        request()->session()->flash('message', 'Image delete successful');
+        return redirect()->route('admin.brands.edit', $request->input('brand'));
     }
 
 }

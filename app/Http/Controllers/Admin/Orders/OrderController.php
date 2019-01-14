@@ -204,7 +204,7 @@ class OrderController extends Controller {
         $order->courier = $this->courierRepo->findCourierById($order->courier_id);
         $order->address = $this->addressRepo->findAddressById($order->address_id);
         $order->channel = $this->channelRepo->findChannelById($order->channel);
-        $couriers = $this->courierRepo->listCouriers()->where('channel', $order->channel);
+        $couriers = $this->courierRepo->listCouriers()->where('channel', $order->channel->id);
 
         $items = $this->orderProductRepo->listOrderProducts()->where('order_id', $orderId);
 

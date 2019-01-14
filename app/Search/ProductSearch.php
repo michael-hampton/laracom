@@ -14,8 +14,6 @@ class ProductSearch implements FilterInterface {
 
     use SearchableTrait;
 
-    const MODEL = App\Shop\ChannelPrices\ChannelPrice;
-
     /**
      * 
      * @param Request $filters

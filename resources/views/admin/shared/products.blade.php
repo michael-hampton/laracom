@@ -76,16 +76,16 @@
 <div class="col-lg-12">
     @if(isset($products))
     @foreach ($products as $product)
-    <div class="col-md-3 product-div">
+    <div class="col-md-3 product-div" style="margin-top:10px;">
         <div class="">
             <div class="product-box">
 
                 <form action="{{ route('admin.products.destroy', $product->id) }}" method="post" class="form-horizontal">
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="delete">
-                    <div class="btn-group">
-                        <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> Edit</a>
-                        <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-xs"><i class="fa fa-times"></i> Delete</button>
+                    <div class="btn-group" style="margin-top:10px;">
+                        <a style="margin-left: 10px;" href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> Edit</a>
+                        <button style="margin-left: 10px;" onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-xs"><i class="fa fa-times"></i> Delete</button>
                     </div>
                 </form>
 
@@ -95,23 +95,23 @@
                     @endif
                     @include('layouts.status', ['status' => $product->status])
                 </div>
-                <div class="product-desc">
+                <div class="product-desc" style="max-height:200px">
                     <span class="product-price">
                         £{{ $product->price }}
                     </span>
                     <small class="text-muted"> {{$product->category}}</small>
-                    <a href="{{ route('admin.products.show', $product->id) }}" class="product-name"> {{ $product->name }}</a>
+                    <a href="{{ route('admin.products.show', $product->id) }}" class="product-name"> {{ mb_substr($product->name, 0, 20) }}</a>
 
                    <div class="small m-t-xs">
-                        {{$product->brand_name}}
+                        Brand: {{$product->brand_name}}
                     </div>
 
                     <div class="small m-t-xs">
-                        {{$product->sku}}
+                        Sku: {{$product->sku}}
                     </div>
 
                     <div class="small m-t-xs">
-                        {{$product->description}}
+                        {{ mb_substr($product->description, 0, 30) }}
                     </div>
 
                     <div class="small m-t-xs">
