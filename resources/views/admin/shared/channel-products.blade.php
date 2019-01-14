@@ -1,31 +1,86 @@
-@if(isset($products))
-<table class="table">
-    <thead>
-        <tr>
-            <td class="col-md-2">Name</td>
-            <td class="col-md-2 text-center">Cover</td>
-            <td class="col-md-2 text-center">Quantity</td>
-            <td class="col-md-2 text-center">Price</td>
-            <td class="col-md-2">Status</td>
-            <td class="col-md-2">Actions</td>
-        </tr>
-    </thead>
-    <tbody>
+<style>
+    .product-box {
+        padding: 0;
+        border: 1px solid #e7eaec;
+    }
+    .product-box:hover,
+    .product-box.active {
+        border: 1px solid transparent;
+        -webkit-box-shadow: 0 3px 7px 0 #a8a8a8;
+        -moz-box-shadow: 0 3px 7px 0 #a8a8a8;
+        box-shadow: 0 3px 7px 0 #a8a8a8;
+    }
+    .product-imitation {
+        text-align: center;
+        padding: 90px 0;
+        background-color: #f8f8f9;
+        color: #bebec3;
+        font-weight: 600;
+    }
+    .cart-product-imitation {
+        text-align: center;
+        padding-top: 30px;
+        height: 80px;
+        width: 80px;
+        background-color: #f8f8f9;
+    }
+    .product-imitation.xl {
+        padding: 120px 0;
+    }
+    .product-desc {
+        padding: 20px;
+        position: relative;
+    }
+
+    .product-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #676a6c;
+        display: block;
+        margin: 2px 0 5px 0;
+    }
+    .product-name:hover,
+    .product-name:focus {
+        color: #1ab394;
+    }
+    .product-price {
+        font-size: 14px;
+        font-weight: 600;
+        color: #ffffff;
+        background-color: #1ab394;
+        padding: 6px 12px;
+        position: absolute;
+        top: -32px;
+        right: 0;
+    }
+    .product-detail .ibox-content {
+        padding: 30px 30px 50px 30px;
+    }
+    .image-imitation {
+        background-color: #f8f8f9;
+        text-align: center;
+        padding: 200px 0;
+    }
+    .product-main-price small {
+        font-size: 10px;
+    }
+    .product-images {
+        margin: 0 20px;
+    }
     
-        @foreach ($products as $product)
-        <tr>
-            <td><a href="{{ route('admin.products.show', $product->id) }}">{{ $product->name }}</a></td>
-            <td class="text-center">
-                @if(isset($product->cover))
-                <img src="{{ asset("storage/$product->cover") }}" alt="" class="img-responsive">
-                @else
-                -
-                @endif
-            </td>
-            <td class="text-center">{{ $product->quantity }}</td>
-            <td class="text-center">Php {{ $product->price }}</td>
-            <td>@include('layouts.status', ['status' => $product->status])</td>
-            <td>
+    .btn-group {
+        display:none;
+    }
+</style>
+
+<div class="col-lg-12">
+    @if(isset($products))
+    @foreach ($products as $product)
+
+    <div class="col-md-3 product-div">
+        <div class="">
+            <div class="product-box">
+
                 <form action="{{ route('admin.channel-prices.destroy', $product->id) }}" method="post" class="form-horizontal">
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="delete">
@@ -34,9 +89,51 @@
                         <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
                     </div>
                 </form>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-@endif
+
+                <div class="product-imitation">
+                    @if(isset($product->cover))
+                    <img src="{{ asset("storage/$product->cover") }}" alt="" class="img-responsive">
+
+                    @endif;
+                    @include('layouts.status', ['status' => $product->status])
+                </div>
+                <div class="product-desc">
+                    <span class="product-price">
+                        £{{ $product->price }}
+                    </span>
+                    <small class="text-muted"> {{$product->category}}</small>
+                    <a href="{{ route('admin.products.show', $product->id) }}" class="product-name"> {{ $product->name }}</a>
+
+
+
+                    <div class="small m-t-xs">
+                        {{$product->description}}
+                    </div>
+
+                    <div class="small m-t-xs">
+                        {{$product->brand}}
+                    </div>
+
+
+
+                    <div class="small m-t-xs">
+                        Quantity Available: {{ $product->quantity }}
+                    </div>
+
+
+                    <div class="m-t text-righ">
+
+                        <a href="#" class="btn btn-xs btn-outline btn-primary">Info <i class="fa fa-long-arrow-right"></i> </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @endforeach;
+
+    @endif;
+</div>
+
+

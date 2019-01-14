@@ -80,3 +80,17 @@
 </section>
 <!-- /.content -->
 @endsection
+
+@section('js')
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(document).on('mouseenter', '.product-div', function () {
+
+            $(this).find(".btn-group").show();
+        }).on('mouseleave', '.product-div', function () {
+            $(this).find(".btn-group").hide();
+        });
+    });
+</script>
+@endsection;

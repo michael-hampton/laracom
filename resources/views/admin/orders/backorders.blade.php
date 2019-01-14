@@ -106,6 +106,9 @@ function getInventoryForProduct($productId, $arrProducts) {
                 @if(!$items->isEmpty())
                 <div class="box-body">
                     <h4> <i class="fa fa-gift"></i> Items</h4>
+                    
+                     <a href="#" class="uncheck">Uncheck</a>
+                     
                     <table class="table">
                         <thead>
                         <th class="col-md-2">SKU</th>
@@ -197,12 +200,16 @@ function getInventoryForProduct($productId, $arrProducts) {
                 alert('Please select atleast one checkbox');
                 return false;
             }
-            var cb = [];
+            var cb = {};
             $.each($('.cb:checked'), function () {
-                cb.push({
-                    order_id: $(this).attr('order-id'),
-                    line_id: $(this).val()
-                });
+
+                var orderId = $(this).attr('order-id');
+
+                if (cb[orderId] === undefined) {
+                    cb[orderId] = [];
+                }
+
+                cb[orderId].push($(this).val());
             });
 
             $.ajax({
@@ -212,8 +219,28 @@ function getInventoryForProduct($productId, $arrProducts) {
                     lineIds: cb,
                     _token: '{{ csrf_token() }}'
                 },
-                success: function (msg) {
-                    alert(msg);
+                success: function (response) {
+                    var response = JSON.parse(response);
+                    
+                    if (response.http_code === 400) {
+
+                        $('.content').prepend("<div class='alert alert-danger'></div>");
+
+                        $.each(response.FAILURES, function (lineId, val) {
+
+                            $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
+
+                        });
+                    } else {
+                        $('.content').prepend("<div class='alert alert-success'></div>");
+
+                        $.each(response.SUCCESS, function (lineId, val) {
+
+                            $('.content .alert-success').append("<p>" + val + "</p>");
+
+                        });
+
+                    }
                 }
             });
             return false;

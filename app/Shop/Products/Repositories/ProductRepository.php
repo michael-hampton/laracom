@@ -68,7 +68,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      * @throws ProductUpdateErrorException
      */
     public function updateProduct(array $data) : bool
-    {
+    {        
         $filtered = collect($data)->except('image')->all();
         try {
             return $this->model->where('id', $this->model->id)->update($filtered);
