@@ -80,7 +80,18 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
     public function updateBrand(array $data) : bool
     {
         try {
-            return $this->update($data);
+            $brand = $this->findBrandById($this->model->id);
+            $collection = collect($data)->except('_token');
+       
+            if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile)) {
+                $cover = $this->uploadOne($data['cover'], 'brands');
+            }
+           
+            $merge = $collection->merge(compact('cover'));
+        
+            $brand->update($merge->all());
+        
+           return $brand;
         } catch (QueryException $e) {
             throw new UpdateBrandErrorException($e);
         }
