@@ -102,6 +102,10 @@
                     <small class="text-muted"> {{$product->category}}</small>
                     <a href="{{ route('admin.products.show', $product->id) }}" class="product-name"> {{ $product->name }}</a>
 
+                   <div class="small m-t-xs">
+                        {{$product->brand_name}}
+                    </div>
+
                     <div class="small m-t-xs">
                         {{$product->sku}}
                     </div>
