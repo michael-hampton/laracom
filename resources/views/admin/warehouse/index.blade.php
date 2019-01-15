@@ -168,7 +168,7 @@
                                     {{$key}}
                                 </h5>
                             </a>
-                           
+
                         </div>
                     </div>
                     @endforeach
@@ -190,7 +190,7 @@
                                     {{$key}}
                                 </h5>
                             </a>
-                           
+
                         </div>
                     </div>
                     @endforeach
@@ -210,8 +210,8 @@
                         <div class='panel-heading'>
                             <a href="#" class="open-picklist" status="">
                                 <h5 class='panel-title'>
-                                {{$key}}
-                            </h5>
+                                    {{$key}}
+                                </h5>
                             </a>
                         </div>
                     </div>
@@ -241,6 +241,27 @@
             </div>
         </div>
     </div>
+
+    <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Modal title</h4>
+                    <small class="font-bold">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</small>
+                </div>
+                <div class="modal-body">
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </section>
 <!-- /.content -->
 @endsection
@@ -248,6 +269,19 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
+        $('.open-picklist').on('click', function () {
+            
+            $.ajax({
+                type: "GET",
+                url: '/admin/warehouse/getPicklist',
+                success: function (response) {
+                    $('.modal-body').html(response);
+                    $('#myModal5').modal('show');
+                }
+            });
+            
+           
+        });
 
     });
 </script>
