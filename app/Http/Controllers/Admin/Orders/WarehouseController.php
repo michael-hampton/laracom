@@ -58,12 +58,30 @@ class WarehouseController extends Controller {
 
         //$this->middleware(['permission:update-order, guard:employee'], ['only' => ['edit', 'update']]);
     }
+    
+    public function index();
+    {
+        $items = $this->orderLineRepo->listOrderProducts()->whereIn('status', [5, 15, 16, 17]);
 
-    public function index() {
+        $items = $items->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
+
+                    return $order;
+                })->all();
+        
+        $channels = $this->channelRepo->listChannels();
+        
+        return view('admin.warehouse.index', [
+            'items' => $items,
+            'channels' => $channels
+                ]
+        );
+    }
+
+    public function getPicklist($status) {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Backorder');
 
-        $items = $this->orderLineRepo->listOrderProducts()->whereIn('status', [5, 15, 16, 17]);
+        $items = $this->orderLineRepo->listOrderProducts()->where('status', $status);
 
         $items = $items->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
 
@@ -74,7 +92,7 @@ class WarehouseController extends Controller {
 
         $channels = $this->channelRepo->listChannels();
 
-        return view('admin.warehouse.index', [
+        return view('admin.warehouse.getPicklist', [
             'items' => $items,
             'channels' => $channels
                 ]
