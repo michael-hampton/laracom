@@ -91,6 +91,15 @@ class WarehouseController extends Controller {
                 ]
         );
     }
+    
+    private function orderArrayByOrderId(array $arrData) {
+        
+        $arrOrders = [];
+        
+        foreach($arrData as $arrLine) {
+            
+        }
+    }
 
     public function getPicklist($status) {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
