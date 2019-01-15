@@ -176,5 +176,53 @@ class WarehouseController extends Controller {
             //complete order
         }
     }
+    
+        /**
+     * Generate order invoice
+     *
+     * @param int $id
+     * @return mixed
+     */
+    public function generateDispatchNote(int $id) {
+        $order = $this->orderRepo->findOrderById($id);
+        $channel = $this->channelRepo->findChannelById($order->channel);
+        $data = [
+            'order' => $order,
+            'products' => $order->products,
+            'customer' => $order->customer,
+            'courier' => $order->courier,
+            'address' => $this->transformAddress($order->address),
+            'status' => $order->orderStatus,
+            'channel' => $channel
+        ];
+        $pdf = app()->make('dompdf.wrapper');
+        $pdf->loadView('dispatchNote.dispatchNote', $data)->stream();
+        return $pdf->stream();
+    }
+    
+        /**
+     * Generate order invoice
+     *
+     * @param int $id
+     * @return mixed
+     */
+    public function generatePicklist(int $id) {
+        $order = $this->orderRepo->findOrderById($id);
+        $channel = $this->channelRepo->findChannelById($order->channel);
+        $data = [
+            'order' => $order,
+            'products' => $order->products,
+            'customer' => $order->customer,
+            'courier' => $order->courier,
+            'address' => $this->transformAddress($order->address),
+            'status' => $order->orderStatus,
+            'channel' => $channel
+        ];
+        $pdf = app()->make('dompdf.wrapper');
+        $pdf->loadView('pickingList.pickingList', $data)->stream();
+        return $pdf->stream();
+    }
+    
+    
 
 }
