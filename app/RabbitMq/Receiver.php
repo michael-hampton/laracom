@@ -12,6 +12,8 @@ use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\VoucherCodes\VoucherCode;
 use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\Orders\Repositories\OrderRepository;
+use App\Shop\Channels\Channel;
+use App\Shop\Channels\Repositories\ChannelRepository;
 
 /**
  * Description of Receiver
@@ -32,7 +34,6 @@ class Receiver extends Queue {
      * @throws Exception
      */
     public function __construct($queue, $method) {
-
         parent::__construct($queue);
         $this->method = $method;
     }
@@ -42,37 +43,24 @@ class Receiver extends Queue {
      * @return boolean
      */
     public function listen() {
-
         if (!$this->connect()) {
-
             return false;
         }
-
         if (!$this->declareQueue()) {
-
             return false;
         }
-
         if (!$this->setPrefetch()) {
-
             return false;
         }
-
         if (!$this->consume()) {
-
             return false;
         }
-
         if (!$this->closeChannel()) {
-
             return false;
         }
-
         if (!$this->closeConnection()) {
-
             return false;
         }
-
         return true;
     }
 
@@ -83,13 +71,11 @@ class Receiver extends Queue {
      * @return boolean
      */
     private function setPrefetch() {
-
         $this->channel->basic_qos(
                 null, #prefetch size - prefetch window size in octets, null meaning "no specific limit"
                 1, #prefetch count - prefetch window in terms of whole messages
                 null    #global - global=null to mean that the QoS settings should apply per-consumer, global=true to mean that the QoS settings should apply per-channel
         );
-
         return true;
     }
 
@@ -107,12 +93,10 @@ class Receiver extends Queue {
                 false, #no wait - TRUE: the server will not respond to the method. The client should not wait for a reply method
                 array($this, 'process') #callback
         );
-
         while (count($this->channel->callbacks)) {
             //$this->log->addInfo('Waiting for incoming messages');
             $this->channel->wait();
         }
-
         return true;
     }
 
@@ -130,7 +114,6 @@ class Receiver extends Queue {
          * for the same queue before attempting redelivery
          */
         $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-
         return true;
     }
 
@@ -140,20 +123,16 @@ class Receiver extends Queue {
      * @return WorkerReceiver
      */
     private function importOrder(AMQPMessage $msg) {
-
         $data = json_decode($msg->body, true);
 
-       
+        $arrProducts = $data['products'];
+        unset($data['products']);
 
+        $order = (new OrderRepository(new \App\Shop\Orders\Order))->create($data);
+        $orderRepo = new OrderRepository($order);
+        $orderRepo->buildOrderLinesForManualOrder($arrProducts);
 
-        //$order = (new OrderRepository(new \App\Shop\Orders\Order))->create($data);
-
-        //$orderRepo = new OrderRepository($order);
-        //$orderRepo->buildOrderLinesForManualOrder($arrProducts);
-
-        echo '<pre>';
-        print_r($data);
-        die;
+        return $this;
     }
 
     /**
@@ -165,18 +144,25 @@ class Receiver extends Queue {
 
         $arrOrders = json_decode($msg->body, true);
 
+        $objChannelRepo = (new ChannelRepository(new Channel));
+
+        $arrDone = [];
+        
         foreach ($arrOrders as $orderId => $arrOrder) {
 
+            if (isset($arrOrder['channel']['id'])) {
+                $arrOrder['channel'] = $objChannelRepo->findChannelById($arrOrder['channel']['id']);
+            }
+
+            $arrProducts = $arrOrder['products'];
+            unset($arrOrder['products']);
+
             $order = (new OrderRepository(new \App\Shop\Orders\Order))->createOrder($arrOrder, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new Addressrepository(new Address));
-
             $orderRepo = new OrderRepository($order);
-
-            $orderRepo->buildOrderLinesForManualOrder($arrOrder['products']);
+            $orderRepo->buildOrderLinesForManualOrder($arrProducts);
+            
+            $arrDone[] = $orderId;
         }
-
-        echo '<pre>';
-        print_r($arrOrders);
-        die;
     }
 
 }

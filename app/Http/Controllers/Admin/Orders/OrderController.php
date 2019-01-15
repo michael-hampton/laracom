@@ -337,16 +337,16 @@ class OrderController extends Controller {
 
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
-        
+
         $orderTotal = $request->total;
 
         $objCourierRate = new CourierRateRepository(new CourierRate);
         $courier = $this->courierRepo->findCourierById($request->courier);
 
         $country_id = $deliveryAddress->country_id;
-        
+
         $shipping = $objCourierRate->findShippingMethod($request->total, $courier, $channel, $country_id);
-                
+
         $shippingCost = 0;
 
         if (!empty($shipping)) {
@@ -388,11 +388,10 @@ class OrderController extends Controller {
             'tax' => 0,
             'products' => $request->products
         ];
- 
-        
+
+
         (new \App\RabbitMq\Worker('order_import'))->execute(json_encode($arrData));
-        (new \App\RabbitMq\Receiver('order_import', 'importOrder'))->listen();
-        die;
+        //(new \App\RabbitMq\Receiver('order_import', 'importOrder'))->listen();
 
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.orders.index');
@@ -631,8 +630,7 @@ class OrderController extends Controller {
         $line = 0;
         $arrDone = [];
         $arrOrders = [];
-        $totalPrice = 0;
-        $arrProducts = [];
+        $intCount = 0;
 
         if (($handle = fopen($file_path, "r")) !== FALSE) {
 
@@ -768,30 +766,29 @@ class OrderController extends Controller {
                     'tax' => 0,
                 ];
 
-
-                $arrOrders[$order['order_id']]['products'][] = array(
+                $arrProducts[$order['order_id']][] = array(
                     'product' => $product->name,
                     'id' => $product->id,
                     'quantity' => $order['quantity']
                 );
-                
-                
 
-
+                $arrOrders[$order['order_id']]['products'] = $arrProducts[$order['order_id']];
 
                 $arrDone[] = $order['order_id'];
+                $intCount++;
             }
 
             fclose($handle);
         }
-        
-         (new \App\RabbitMq\Worker('bulk_import'))->execute(json_encode($arrOrders));
+
+
+        (new \App\RabbitMq\Worker('bulk_import'))->execute(json_encode($arrOrders));
         (new \App\RabbitMq\Receiver('bulk_import', 'bulkOrderImport'))->listen();
         die;
 
-       
-        
-        
+
+
+
 
 
         request()->session()->flash('message', 'Import successful');
