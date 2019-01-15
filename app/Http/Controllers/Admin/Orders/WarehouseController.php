@@ -61,8 +61,10 @@ class WarehouseController extends Controller {
     
     public function index();
     {
-        $items = $this->orderLineRepo->listOrderProducts()->whereIn('status', [5, 15, 16, 17]);
-
+        $pending = $this->orderLineRepo->listOrderProducts()->where('status', 5);
+        $availiable = $this->orderLineRepo->listOrderProducts()->where('status', [5, 15, 16, 17]);
+        $active = $this->orderLineRepo->listOrderProducts()->where('status', [5, 15, 16, 17]);
+        
         $items = $items->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
 
                     return $order;
