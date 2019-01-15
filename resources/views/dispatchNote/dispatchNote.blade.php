@@ -23,7 +23,10 @@
         </div>
         <div class="pull-right col-lg-6">
            <img style="width:50px;" src="/storage/{{ $channel->cover }}">
-            From: {{$channel->name}}
+            From: {{$channel->name}}<br>
+            Dispatch Date: {{ date('d-m-Y H:i') }}<br>
+            Dispatched By: Michael Hampton
+            
         </div>
         
     </section>
