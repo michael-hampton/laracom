@@ -72,7 +72,16 @@ class WarehouseController extends Controller {
         
         $channels = $this->channelRepo->listChannels();
         
-        $picklists = ['pending' => [], 'availiable' => [], 'active' => []];
+        $picklists = [
+            'pending' => [
+                1 => [1]
+            ], 
+            'availiable' => [
+                2 => [2]
+            ], 
+            'active' => [
+                3 => [4]]
+        ];
         
         return view('admin.warehouse.index', [
             'availiable' => $items,
