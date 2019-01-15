@@ -62,8 +62,8 @@ class WarehouseController extends Controller {
     public function index();
     {
         $pending = $this->orderLineRepo->listOrderProducts()->where('status', 5);
-        $availiable = $this->orderLineRepo->listOrderProducts()->where('status', [5, 15, 16, 17]);
-        $active = $this->orderLineRepo->listOrderProducts()->where('status', [5, 15, 16, 17]);
+        $availiable = $this->orderLineRepo->listOrderProducts()->where('status', 15);
+        $active = $this->orderLineRepo->listOrderProducts()->where('status', 16);
         
         $items = $items->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
 
@@ -72,8 +72,12 @@ class WarehouseController extends Controller {
         
         $channels = $this->channelRepo->listChannels();
         
+        $picklists = ['pending' => [], 'availiable' => [], 'active' => []];
+        
         return view('admin.warehouse.index', [
-            'items' => $items,
+            'availiable' => $items,
+            'pending' => $pending
+            'active' => $active,
             'channels' => $channels
                 ]
         );
