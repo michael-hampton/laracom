@@ -206,7 +206,7 @@ class OrderController extends Controller {
         $order->channel = $this->channelRepo->findChannelById($order->channel);
         //$couriers = $this->courierRepo->listCouriers()->where('channel', $order->channel->id);
         $couriers = $this->courierRepo->listCouriers();
-        
+
         $items = $this->orderProductRepo->listOrderProducts()->where('order_id', $orderId);
 
         $voucher = null;
@@ -337,16 +337,16 @@ class OrderController extends Controller {
 
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
-
+        
         $orderTotal = $request->total;
 
         $objCourierRate = new CourierRateRepository(new CourierRate);
         $courier = $this->courierRepo->findCourierById($request->courier);
 
         $country_id = $deliveryAddress->country_id;
-
+        
         $shipping = $objCourierRate->findShippingMethod($request->total, $courier, $channel, $country_id);
-
+                
         $shippingCost = 0;
 
         if (!empty($shipping)) {
@@ -369,12 +369,12 @@ class OrderController extends Controller {
 
         $orderTotal -= $voucherAmount;
 
-        $order = $orderRepo->createOrder([
+        $arrData = [
             'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
             'courier_id' => $request->courier,
             'customer_id' => $customer->id,
             'voucher_id' => !empty($request->voucher_code) ? $request->voucher_code : null,
-            'voucher_code' => $voucherCode->id,
+            'voucher_code' => isset($voucherCode) ? $voucherCode->id : null,
             'address_id' => $deliveryAddress->id,
             'order_status_id' => $os->id,
             'delivery_method' => $shipping,
@@ -385,12 +385,14 @@ class OrderController extends Controller {
             'total' => $orderTotal,
             'total_paid' => 0,
             'channel' => $channel,
-            'tax' => 0
-                ], new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address), true
-        );
-
-        $orderRepo = new OrderRepository($order);
-        $orderRepo->buildOrderLinesForManualOrder($request->products);
+            'tax' => 0,
+            'products' => $request->products
+        ];
+ 
+        
+        (new \App\RabbitMq\Worker('order_import'))->execute(json_encode($arrData));
+        (new \App\RabbitMq\Receiver('order_import', 'importOrder'))->listen();
+        die;
 
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.orders.index');
@@ -763,15 +765,17 @@ class OrderController extends Controller {
                     'total_paid' => 0,
                     'delivery_method' => $shipping,
                     'channel' => $channel,
-                    'tax' => 0
+                    'tax' => 0,
                 ];
 
 
-                $arrProducts[$order['order_id']][] = array(
+                $arrOrders[$order['order_id']]['products'][] = array(
                     'product' => $product->name,
                     'id' => $product->id,
                     'quantity' => $order['quantity']
                 );
+                
+                
 
 
 
@@ -780,15 +784,14 @@ class OrderController extends Controller {
 
             fclose($handle);
         }
+        
+         (new \App\RabbitMq\Worker('bulk_import'))->execute(json_encode($arrOrders));
+        (new \App\RabbitMq\Receiver('bulk_import', 'bulkOrderImport'))->listen();
+        die;
 
-        foreach ($arrOrders as $orderId => $arrOrder) {
-
-            $order = $this->orderRepo->createOrder($arrOrder, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new Addressrepository(new Address));
-
-            $orderRepo = new OrderRepository($order);
-
-            $orderRepo->buildOrderLinesForManualOrder($arrProducts[$orderId]);
-        }
+       
+        
+        
 
 
         request()->session()->flash('message', 'Import successful');
@@ -798,71 +801,6 @@ class OrderController extends Controller {
     public function importCsv() {
 
         return view('admin.orders.importCsv');
-    }
-
-    private function addToQueue($data) {
-
-        $config = [
-            'factory_class' => \Enqueue\AmqpLib\AmqpConnectionFactory::class,
-            'dsn' => null,
-            'host' => 'localhost',
-            'port' => 15672,
-            'login' => 'guest',
-            'password' => 'guest',
-            'vhost' => '/',
-            'options' => [
-                'exchange' => [
-                    'name' => null,
-                    'declare' => true,
-                    'type' => \Interop\Amqp\Impl\AmqpTopic::TYPE_DIRECT,
-                    'passive' => false,
-                    'durable' => true,
-                    'auto_delete' => false,
-                ],
-                'queue' => [
-                    'name' => 'mike',
-                    'declare' => true,
-                    'bind' => true,
-                    'passive' => false,
-                    'durable' => true,
-                    'exclusive' => false,
-                    'auto_delete' => false,
-                    'arguments' => '[]',
-                ],
-            ],
-            'ssl_params' => [
-                'ssl_on' => false,
-                'cafile' => null,
-                'local_cert' => null,
-                'local_key' => null,
-                'verify_peer' => true,
-                'passphrase' => null,
-            ],
-        ];
-
-        require_once($_SERVER['DOCUMENT_ROOT'] . '../VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector.php');
-        require_once($_SERVER['DOCUMENT_ROOT'] . '../VladimirYuldashev\LaravelQueueRabbitMQ\Queue\RabbitMQQueue.php');
-
-        $connector = new \VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Connectors\RabbitMQConnector(new Dispatcher());
-        /** @var RabbitMQQueue $queue */
-        $queue = $connector->connect($config);
-
-        $queue->setContainer($this->createDummyContainer());
-        // we need it to declare exchange\queue on RabbitMQ side.
-        $queue->pushRaw('something');
-        $queue->getContext()->purgeQueue($queue->getContext()->createQueue('default'));
-        $expectedPayload = json_encode($data);
-        $queue->pushRaw($expectedPayload);
-        sleep(1);
-        $job = $queue->pop();
-
-        var_dump($job);
-    }
-
-    private function createDummyContainer() {
-        $container = new Container();
-        $container['log'] = new NullLogger();
-        return $container;
     }
 
 }

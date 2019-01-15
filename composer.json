@@ -24,6 +24,7 @@
         "nicolaslopezj/searchable": "^1.10",
         "owen-it/laravel-auditing": "^8.0",
         "paypal/rest-api-sdk-php": "*",
+        "php-amqplib/php-amqplib": "^2.8",
         "santigarcor/laratrust": "5.0.*",
         "shippo/shippo-php": "^1.4",
         "sofa/eloquence": "^5.5"
