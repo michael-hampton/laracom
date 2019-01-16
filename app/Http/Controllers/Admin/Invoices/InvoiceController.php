@@ -107,5 +107,20 @@ class InvoiceController extends Controller {
                 ]
         );
     }
+    
+    public function invoiceOrder(Request $request) {
+        foreach($request->lineIds as $lineId) {
+        $order = $this->orderRepo->findOrderById($lineId);
+        //$channel = $this->channelRepo->findChannelById($order->channel);
+        //$objLine = $this->orderLineRepo->findOrderProductById($lineId);
+        $newStatus = $this->orderStatusRepo->findByName('Invoiced');
+        //$objOrderLineRepo = new OrderProductRepository($objLine);
+        //$objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+        //if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
+            $orderRepo = new OrderRepository($order);
+           $orderRepo->updateOrder(['order_status_id' => $newStatus->id]);
+       // }
+    }
+    }
 
 }
