@@ -60,17 +60,12 @@ class WarehouseController extends Controller {
 
     public function index() {
         $arrLines = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->whereIn('status', [5, 15, 16, 17]));
-        //$picking = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 15));
-        //$packing = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 16));
-        //$dispatch = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 17));
+
 
         $channels = $this->channelRepo->listChannels();
 
         return view('admin.warehouse.index', [
             'arrLines' => $arrLines,
-            //'picking' => $picking,
-            //'packing' => $packing,
-            //'dispatch' => $dispatch,
             'channels' => $channels
                 ]
         );
@@ -78,33 +73,39 @@ class WarehouseController extends Controller {
 
     private function orderArrayByPicklist($arrLines) {
 
-        $arrOrders = ['pending' => [], 'picking' => [], 'packing' => [], 'dispatch' => []];
+        $arrOrders = [
+            'pending' => [
+                'picklists' => [],
+                'count' => 0
+            ],
+            'picking' => [
+                'picklists' => [],
+                'count' => 0
+            ],
+            'packing' => [
+                'picklists' => [],
+                'count' => 0
+            ]
+        ];
 
         foreach ($arrLines as $objLine) {
-            
-            switch($objLine->status) {
-               
+
+            switch ($objLine->status) {
+
                 case 5:
-                    $arrOrders['pending'][$objLine->picklist_ref]['data'][] = $objLine;
-                    $arrOrders['pending']['count']++;
+                    $arrOrders['pending']['picklists'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['pending']['count'] ++;
                     break;
-                
+
                 case 15:
-                    $arrOrders['picking'][$objLine->picklist_ref]['data'][] = $objLine;
-                    $arrOrders['picking']['count']++;
+                    $arrOrders['picking']['picklists'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['picking']['count'] ++;
                     break;
-                    
+
                 case 16:
-                    $arrOrders['packing'][$objLine->picklist_ref]['data'][] = $objLine;
-                    $arrOrders['packing']['count']++;
+                    $arrOrders['packing']['picklists'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['packing']['count'] ++;
                     break;
-                    
-                case 17:
-                    $arrOrders['dispatch'][$objLine->picklist_ref]['data'][] = $objLine;
-                    $arrOrders['dispatch']['count']++;
-                    break;
-                    
-                    
             }
         }
 
@@ -200,8 +201,8 @@ class WarehouseController extends Controller {
             //complete order
         }
     }
-    
-        /**
+
+    /**
      * Generate order invoice
      *
      * @param int $id
@@ -223,8 +224,8 @@ class WarehouseController extends Controller {
         $pdf->loadView('dispatchNote.dispatchNote', $data)->stream();
         return $pdf->stream();
     }
-    
-        /**
+
+    /**
      * Generate order invoice
      *
      * @param int $id
@@ -246,7 +247,5 @@ class WarehouseController extends Controller {
         $pdf->loadView('pickingList.pickingList', $data)->stream();
         return $pdf->stream();
     }
-    
-    
 
 }

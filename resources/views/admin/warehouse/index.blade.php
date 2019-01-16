@@ -148,8 +148,8 @@
             margin-bottom: 0;
             border-radius: 4px;
         }
-        .main {
-            min-height: 250px;
+        .panel-body {
+            height: 250px;
         }
     </style>
 
@@ -157,15 +157,15 @@
         <div class="col-lg-4 main">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    Pending
+                    Pending {{ $arrLines['pending']['count'] }}
                 </div>
                 <div class="panel-body">
-                    @foreach($pending as $key => $picklists):
+                    @foreach($arrLines['pending']['picklists'] as $key => $picklists):
                     <div class='panel panel-default'>
                         <div class='panel-heading'>
-                            <a href="#" class="open-picklist" status="">
+                            <a href="#" class="open-picklist" picklist="{{$key}}">
                                 <h5 class='panel-title'>
-                                    {{$key}}
+                                    {{$key}} ({{ count($arrLines['pending']['picklists'][$key]['data']) }})
                                 </h5>
                             </a>
 
@@ -179,15 +179,15 @@
         <div class="col-lg-4 main">
             <div class="panel panel-success">
                 <div class="panel-heading">
-                    Picking
+                    Picking {{ $arrLines['picking']['count'] }}
                 </div>
                 <div class="panel-body">
-                    @foreach($picking as $key => $picklists):
+                    @foreach($arrLines['picking']['picklists'] as $key => $picklists):
                     <div class='panel panel-default'>
                         <div class='panel-heading'>
-                            <a href="#" class="open-picklist" status="">
+                            <a href="#" class="open-picklist" picklist="{{$key}}">
                                 <h5 class='panel-title'>
-                                    {{$key}}
+                                    {{$key}} ({{ count($arrLines['picking']['picklists'][$key]['data']) }})
                                 </h5>
                             </a>
 
@@ -202,15 +202,15 @@
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <i class="fa fa-info-circle"></i> 
-                    Packing
+                    Packing {{ $arrLines['packing']['count'] }}
                 </div>
                 <div class="panel-body">
-                    @foreach($packing as $key => $picklists):
+                    @foreach($arrLines['packing']['picklists'] as $key => $picklists):
                     <div class='panel panel-default'>
                         <div class='panel-heading'>
-                            <a href="#" class="open-picklist" status="">
+                            <a href="#" class="open-picklist" picklist="{{$key}}">
                                 <h5 class='panel-title'>
-                                    {{$key}}
+                                     {{$key}} ({{ count($arrLines['packing']['picklists'][$key]['data']) }})
                                 </h5>
                             </a>
                         </div>
@@ -221,25 +221,7 @@
             </div>
         </div>
 
-        <div class="col-lg-4 main">
-            <div class="panel panel-warning">
-                <div class="panel-heading">
-                    Ready To Dispatch
-                </div>
-                <div class="panel-body">
-                    @foreach($dispatch as $key => $picklists):
-                    <div class='panel panel-default'>
-                        <div class='panel-heading'>
-                            <h5 class='panel-title'>
-                                {{$key}}
-                            </h5>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-
-            </div>
-        </div>
+       
     </div>
 
     <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog"  aria-hidden="true">
@@ -247,8 +229,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title">Modal title</h4>
-                    <small class="font-bold">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</small>
+                    <h4 class="modal-title">Picklist</h4>
                 </div>
                 <div class="modal-body">
 
@@ -270,17 +251,20 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $('.open-picklist').on('click', function () {
-            
+
+            var picklist = $(this).attr('picklist');
+
             $.ajax({
                 type: "GET",
-                url: '/admin/warehouse/getPicklist',
+                url: '/admin/warehouse/getPicklist/' + picklist,
                 success: function (response) {
                     $('.modal-body').html(response);
                     $('#myModal5').modal('show');
                 }
             });
-            
-           
+
+            return false;
+
         });
 
     });

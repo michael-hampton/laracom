@@ -133,7 +133,6 @@ class OrderLineController extends Controller {
         }
 
         echo json_encode($arrResponse);
-        die;
     }
 
     public function search(Request $request) {
@@ -171,6 +170,17 @@ class OrderLineController extends Controller {
         );
     }
 
+    private function generatePIN(int $digits = 4) {
+        $i = 0; //counter
+        $pin = ""; //our default pin is blank.
+        while ($i < $digits) {
+            //generate a random number between 0 and 9.
+            $pin .= mt_rand(0, 9);
+            $i++;
+        }
+        return $pin;
+    }
+
     /**
      * 
      * @param Request $request
@@ -183,6 +193,8 @@ class OrderLineController extends Controller {
         $arrDone = [];
         $arrFailed = [];
         $blError = false;
+
+        $picklistRef = $this->generatePIN();
 
         foreach ($request->lineIds as $orderId => $arrLines) {
 
@@ -230,7 +242,7 @@ class OrderLineController extends Controller {
                         try {
                             // update line status
                             $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                            $orderLineRepo->update(['status' => $objNewStatus->id], $lineId);
+                            $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $picklistRef], $lineId);
 
                             $order->order_status_id = $objNewStatus->id;
                             $order->save();
@@ -261,7 +273,7 @@ class OrderLineController extends Controller {
                     try {
                         // update line status
                         $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                        $orderLineRepo->update(['status' => $objNewStatus->id], $lineId);
+                        $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $picklistRef], $lineId);
                     } catch (\Exception $e) {
                         $arrFailed[$lineId][] = $e->getMessage();
                         $blError = true;
@@ -332,14 +344,14 @@ class OrderLineController extends Controller {
 
 
                 if ($total > $backorderCount && $channel->partial_shipment === 0) {
-                    
+
                     // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
                     $arrFailed[$lineId][] = 'Unable to move';
                     $blError = true;
 
                     // if partial shipping allowed and more than 1 line backordered then move single line
                 } elseif ($intCantMove === 0 && $backorderCount > 1) {
-                    
+
                     foreach ($arrProducts as $objLine2) {
 
                         $objProduct = $productRepo->findProductById($objLine2->product_id);
@@ -371,22 +383,21 @@ class OrderLineController extends Controller {
                     try {
                         $order->order_status_id = $objNewStatus->id;
                         $order->save();
-                        
                     } catch (\Exception $e) {
                         $arrFailed[$lineId][] = $e->getMessage();
                         $blError = true;
                     }
                 } elseif (($backorderCount === $total && $backorderCount === 1) || $channel->partial_shipment === 1) {
-                                        
+
                     $objLine2 = $this->orderLineRepo->findOrderProductById($lineId);
                     $objProduct = $productRepo->findProductById($objLine2->product_id);
 
                     $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
-                    
+
 
                     // check enough quantity to fulfil line if not reject
                     if ($availiableQty > $objLine2->quantity) {
-                        
+
                         try {
                             // update stock
                             $reserved_stock = $objProduct->reserved_stock + $objLine2->quantity;
@@ -404,7 +415,7 @@ class OrderLineController extends Controller {
                                 $order->save();
                             }
                         } catch (\Exception $e) {
-                                                                                    
+
                             $arrFailed[$lineId][] = $e->getMessage();
                             $blError = true;
                             continue;
@@ -415,7 +426,7 @@ class OrderLineController extends Controller {
                         $blError = true;
                     }
                 }
-                
+
                 $arrDone[$lineId] = "Order {$orderId} Line {$lineId} was updated successfully";
             }
         }

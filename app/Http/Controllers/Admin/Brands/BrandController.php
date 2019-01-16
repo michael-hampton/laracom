@@ -33,12 +33,9 @@ class BrandController extends Controller {
         $list = $this->brandRepo->listBrands(['*'], 'name', 'asc')->all();
         
         if (request()->has('q')) {
-            $list = $this->brandRepo->searchBrand(request()->input('q'));
+            $list = $this->brandRepo->searchBrand(request()->input('q'))->all();
         }
-        
-        //$customers = $list->map(function (Customer $customer) {
-                    //return $this->transformCustomer($customer);
-                //})->all();
+
         $data = $this->brandRepo->paginateArrayResults($list);
         return view('admin.brands.list', ['brands' => $data]);
     }

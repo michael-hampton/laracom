@@ -141,12 +141,12 @@ function getInventoryForProduct($productId, $arrProducts) {
                             <td>{{ $item->product_price }}</td>
 
                             <td>
-                            <?php
-                            $quantityAvailiable = $arrInventory['quantity'] - $arrInventory['reserved_stock'];
-                            $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
-                            $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
-                            ?>
-                                <input type="checkbox" {{ $checked }} {{ $disabled }}class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                <?php
+                                $quantityAvailiable = $arrInventory['quantity'] - $arrInventory['reserved_stock'];
+                                //$checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
+                                //$disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+                                ?>
+                                <input type="checkbox" checked="checked" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
                             </td>
                         </tr>
                         @endforeach
@@ -207,6 +207,8 @@ function getInventoryForProduct($productId, $arrProducts) {
                     cb[orderId] = [];
                 }
 
+                $(this).parent().parent().addClass('toBeRemoved');
+
                 cb[orderId].push($(this).val());
             });
 
@@ -233,12 +235,15 @@ function getInventoryForProduct($productId, $arrProducts) {
                         $('.content').prepend("<div class='alert alert-success'></div>");
 
                         $.each(response.SUCCESS, function (lineId, val) {
-                            
+
                             $('.content .alert-success').append("<p>" + val + "</p>");
 
                         });
 
+                        $('.toBeRemoved').remove();
+
                     }
+
                 }
             });
             return false;
