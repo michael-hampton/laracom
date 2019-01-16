@@ -60,7 +60,10 @@
                     <thead>
                     <th class="col-md-2">Order Id</th>
                     <th class="col-md-2">Channel</th>
+                    <th class="col-md-2">Voucher Amount</th>
+                    <th class="col-md-2">Delivery</th>
                     <th class="col-md-2">Actions</th>
+                    
                     </thead>
                     <tbody>
 
@@ -98,6 +101,8 @@
                     <thead>
                     <th class="col-md-2">Order Id</th>
                     <th class="col-md-2">Channel</th>
+                    <th class="col-md-2">Voucher Amount</th>
+                    <th class="col-md-2">Delivery</th>
                     <th class="col-md-2">Actions</th>
                     </thead>
                     <tbody>
