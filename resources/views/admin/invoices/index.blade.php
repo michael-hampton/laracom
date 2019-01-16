@@ -51,10 +51,9 @@
         </div>
     </div>
     <div class="col-lg-9">
-        <div class="box">
-            <div class="box-body">
+        
 
-                <a href="#" class="uncheck">Uncheck</a>
+                
                 
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
   <li class="nav-item">
@@ -66,6 +65,8 @@
 </ul>
 <div class="tab-content" id="myTabContent">
   <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+  
+  <a href="#" class="uncheck">Uncheck</a>
   <table class="table">
                     <thead>
                     <th class="col-md-2">Order Id</th>
@@ -96,10 +97,22 @@
                         @endforeach
                     </tbody>
                 </table>
+                
+                <div class="box-footer col-lg-12">
+
+        <div class="btn-group pull-right">
+            <button type="button" class="btn btn-primary do-allocation">Invoice</button>
+        </div>
+
+        <div class='checkbox-count'></div>
+
+       
+
+    </div>
   </div>
   
   <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-  table class="table">
+  <table class="table">
                     <thead>
                     <th class="col-md-2">Order Id</th>
                     <th class="col-md-2">Channel</th>
@@ -131,28 +144,9 @@
   </div>
   </div>
 
-                
-            </div>
 
 
-
-        </div>
-        
-             
-    </div>
-
-
-    <div class="box-footer col-lg-12">
-
-        <div class="btn-group pull-right">
-            <button type="button" class="btn btn-primary do-allocation">Invoice</button>
-        </div>
-
-        <div class='checkbox-count'></div>
-
-       
-
-    </div>
+    
 
 </section>
 <!-- /.content -->
