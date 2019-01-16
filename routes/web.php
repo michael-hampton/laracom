@@ -33,8 +33,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::resource('products', 'ProductController');
             Route::get('remove-image-product', 'ProductController@removeImage')->name('product.remove.image');
             Route::get('remove-image-thumb', 'ProductController@removeThumbnail')->name('product.remove.thumb');
-           Route::post('getProductAutoComplete', 'ProductController@getProductAutoComplete')->name('product.getProductAutoComplete');
-           Route::post('search/{page?}', 'ProductController@search')->name('products.search');
+            Route::post('getProductAutoComplete', 'ProductController@getProductAutoComplete')->name('product.getProductAutoComplete');
+            Route::post('search/{page?}', 'ProductController@search')->name('products.search');
         });
         Route::namespace('Categories')->group(function () {
             Route::resource('categories', 'CategoryController');
@@ -50,13 +50,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::post('orders/saveImport', 'OrderController@saveImport')->name('orders.saveImport');
         });
 
-         Route::get('invoice/index/{channel?}', 'Invoices\InvoiceController@index')->name('invoice.index');
+        Route::post('invoice/invoiceOrder/', 'Invoices\InvoiceController@invoiceOrder')->name('invoice.invoiceOrder');
+        Route::get('invoice/index', 'Invoices\InvoiceController@index')->name('invoice.index');
         Route::post('orderLine/processBackorders/', 'Orders\OrderLineController@processBackorders')->name('orderLine.processBackorders');
         Route::post('orderLine/doAllocation/', 'Orders\OrderLineController@doAllocation')->name('orderLine.doAllocation');
         Route::post('warehouse/pickOrder/', 'Orders\WarehouseController@pickOrder')->name('warehouse.pickOrder');
         Route::post('warehouse/packOrder/', 'Orders\WarehouseController@packOrder')->name('warehouse.packOrder');
         Route::get('warehouse/index/', 'Orders\WarehouseController@index')->name('warehouse.index');
-         Route::get('warehouse/getPicklist/{picklist}', 'Orders\WarehouseController@getPicklist')->name('warehouse.index');
+        Route::get('warehouse/getPicklist/{picklist}', 'Orders\WarehouseController@getPicklist')->name('warehouse.index');
         Route::post('warehouse/dispatchOrder/', 'Orders\WarehouseController@dispatchOrder')->name('warehouse.getPicklist');
         Route::post('orderLine/search/{page?}', 'Orders\OrderLineController@search')->name('orderLine.search');
         Route::post('orders/search/{page?}', 'Orders\OrderController@search')->name('orders.search');
@@ -98,7 +99,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('roles', 'Roles\RoleController');
         Route::resource('permissions', 'Permissions\PermissionController');
         Route::resource('brands', 'Brands\BrandController');
-	Route::get('remove-image-brand', 'Brands\BrandController@removeImage')->name('brand.remove.image');
+        Route::get('remove-image-brand', 'Brands\BrandController@removeImage')->name('brand.remove.image');
         Route::resource('channel-prices', 'ChannelPrices\ChannelPriceController');
         Route::get('channel-prices/get/{channel}', 'ChannelPrices\ChannelPriceController@index')->name('channel-prices.index');
         Route::get('channel-prices/editForm/{product}/{channel}', 'ChannelPrices\ChannelPriceController@editForm')->name('channel-prices.editForm');

@@ -83,19 +83,25 @@ class InvoiceController extends Controller {
                 })->all();
     }
 
-    public function index($channel) {
+    /**
+     * 
+     * @param type $channel
+     * @return type
+     */
+    public function index($channel = null) {
         $os = $this->orderStatusRepo->findByName('Dispatch');
         $invoicedStatus = $this->orderStatusRepo->findByName('Invoiced');
-       
-        if(!empty($channel)) {
+
+        if (!empty($channel)) {
             $list = $this->orderRepo->listOrders()->where('order_status_id', $os->id)->where('channel', $channel);
             $invoiced = $this->orderRepo->listOrders()->where('order_status_id', $invoicedStatus->id)->where('channel', $channel);
         } else {
             $list = $this->orderRepo->listOrders()->where('order_status_id', $os->id);
             $invoiced = $this->orderRepo->listOrders()->where('order_status_id', $invoicedStatus->id);
         }
-        
+
         $orders = $this->orderRepo->paginateArrayResults($this->transFormOrder($list), 10);
+        $invoiced = $this->orderRepo->paginateArrayResults($this->transFormOrder($invoiced), 10);
         $channels = $this->channelRepo->listChannels();
         $couriers = (new \App\Shop\Couriers\Repositories\CourierRepository(new \App\Shop\Couriers\Courier))->listCouriers();
 
@@ -107,20 +113,42 @@ class InvoiceController extends Controller {
                 ]
         );
     }
-    
+
     public function invoiceOrder(Request $request) {
-        foreach($request->lineIds as $lineId) {
-        $order = $this->orderRepo->findOrderById($lineId);
-        //$channel = $this->channelRepo->findChannelById($order->channel);
-        //$objLine = $this->orderLineRepo->findOrderProductById($lineId);
-        $newStatus = $this->orderStatusRepo->findByName('Invoiced');
-        //$objOrderLineRepo = new OrderProductRepository($objLine);
-        //$objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
-        //if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
-            $orderRepo = new OrderRepository($order);
-           $orderRepo->updateOrder(['order_status_id' => $newStatus->id]);
-       // }
-    }
+
+        $arrSuccesses = [];
+        $blError = false;
+        $arrErrors = [];
+
+        foreach ($request->orderIds as $orderId) {
+
+            $order = $this->orderRepo->findOrderById($orderId);
+            $newStatus = $this->orderStatusRepo->findByName('Invoiced');
+            $invoiceNo = time() . rand(10 * 45, 100 * 98);
+
+            try {
+                $orderRepo = new OrderRepository($order);
+                $orderRepo->updateOrder([
+                    'order_status_id' => $newStatus->id,
+                    'amount_invoiced' => $order->total,
+                    'invoice_reference' => $invoiceNo
+                ]);
+                
+            } catch (Exception $ex) {
+                $arrErrors[$orderId][] = $ex->getMessage();
+                $blError = true;
+            }
+
+            $arrSuccesses[] = "Order {$orderId} was updated successfully";
+        }
+
+        $http_code = $blError === true ? 400 : 201;
+
+        echo json_encode([
+            'http_code' => $http_code,
+            'errors' => $arrErrors,
+            'SUCCESS' => $arrSuccesses
+        ]);
     }
 
 }

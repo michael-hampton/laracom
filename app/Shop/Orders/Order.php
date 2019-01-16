@@ -38,7 +38,6 @@ class Order extends Model implements Auditable {
         'total',
         'tax',
         'total_paid',
-        'invoice',
         'label_url',
         'tracking_number',
         'total_shipping',
@@ -46,7 +45,9 @@ class Order extends Model implements Auditable {
         'voucher_code',
         'is_priority',
         'amount_refunded',
-        'channel'
+        'channel',
+        'invoice_reference',
+        'amount_invoiced'
     ];
 
     /**
