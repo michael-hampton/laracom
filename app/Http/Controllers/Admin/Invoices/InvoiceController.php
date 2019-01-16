@@ -83,15 +83,25 @@ class InvoiceController extends Controller {
                 })->all();
     }
 
-    public function index() {
+    public function index($channel) {
         $os = $this->orderStatusRepo->findByName('Dispatch');
-        $list = $this->orderRepo->listOrders()->where('order_status_id', $os->id);
+        $invoicedStatus = $this->orderStatusRepo->findByName('Invoiced');
+       
+        if(!empty($channel)) {
+            $list = $this->orderRepo->listOrders()->where('order_status_id', $os->id)->where('channel', $channel);
+            $invoiced = $this->orderRepo->listOrders()->where('order_status_id', $invoicedStatus->id)->where('channel', $channel);
+        } else {
+            $list = $this->orderRepo->listOrders()->where('order_status_id', $os->id);
+            $invoiced = $this->orderRepo->listOrders()->where('order_status_id', $invoicedStatus->id);
+        }
+        
         $orders = $this->orderRepo->paginateArrayResults($this->transFormOrder($list), 10);
         $channels = $this->channelRepo->listChannels();
         $couriers = (new \App\Shop\Couriers\Repositories\CourierRepository(new \App\Shop\Couriers\Courier))->listCouriers();
 
         return view('admin.invoices.index', [
             'orders' => $orders,
+            'invoiced' => $invoiced,
             'channels' => $channels,
             'couriers' => $couriers,
                 ]
