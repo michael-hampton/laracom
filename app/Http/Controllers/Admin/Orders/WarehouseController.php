@@ -86,24 +86,26 @@ class WarehouseController extends Controller {
                
                 case 5:
                     $arrOrders['pending'][$objLine->picklist_ref]['data'][] = $objLine;
-                    $arrOrders['pending'][$objLine->picklist_ref]['count']++;
+                    $arrOrders['pending']['count']++;
                     break;
                 
                 case 15:
-                    $arrOrders['pending'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['picking'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['picking']['count']++;
                     break;
                     
                 case 16:
-                    $arrOrders['pending'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['packing'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['packing']['count']++;
                     break;
                     
                 case 17:
-                    $arrOrders['pending'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['dispatch'][$objLine->picklist_ref]['data'][] = $objLine;
+                    $arrOrders['dispatch']['count']++;
                     break;
                     
                     
             }
-            $arrOrders[$objLine->picklist_ref][] = $objLine;
         }
 
         return $arrOrders;
