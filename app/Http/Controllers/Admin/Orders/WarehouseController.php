@@ -111,10 +111,10 @@ class WarehouseController extends Controller {
         return $arrOrders;
     }
 
-    public function getPicklist($status = 5) {
+    public function getPicklist($picklistRef) {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Backorder');
-        $items = $this->orderLineRepo->listOrderProducts()->where('status', $status);
+        $items = $this->orderLineRepo->listOrderProducts()->where('picklist_ref', $picklistRef);
         $items = $items->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
                     return $order;
                 })->all();
