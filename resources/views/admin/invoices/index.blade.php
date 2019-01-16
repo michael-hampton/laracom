@@ -103,7 +103,7 @@
                     <tbody>
 
 
-                        @foreach($orders as $order)
+                        @foreach($invoiced as $order)
 
 
                         <tr>
@@ -115,7 +115,7 @@
 
                             <td>
 
-                                <input type="checkbox" checked="checked" class="cb" name="services[]" order-id="{{ $order->id }}" value="{{ $order->id }}">
+                               
                             </td>
                         </tr>
                         @endforeach
