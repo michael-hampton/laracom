@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin\Messages;
 use App\User;
 use Carbon\Carbon;
 use Cmgmyr\Messenger\Models\Message;
@@ -24,7 +24,7 @@ class MessagesController extends Controller
         // $threads = Thread::forUser(Auth::id())->latest('updated_at')->get();
         // All threads that user is participating in, with new messages
         // $threads = Thread::forUserWithNewMessages(Auth::id())->latest('updated_at')->get();
-        return view('messenger.index', compact('threads'));
+        return view('admin.messages.index', compact('threads'));
     }
     /**
      * Shows a message thread.
@@ -46,7 +46,7 @@ class MessagesController extends Controller
         $userId = Auth::id();
         $users = User::whereNotIn('id', $thread->participantsUserIds($userId))->get();
         $thread->markAsRead($userId);
-        return view('messenger.show', compact('thread', 'users'));
+        return view('admin.messages.show', compact('thread', 'users'));
     }
     /**
      * Creates a new message thread.
@@ -56,7 +56,7 @@ class MessagesController extends Controller
     public function create()
     {
         $users = User::where('id', '!=', Auth::id())->get();
-        return view('messenger.create', compact('users'));
+        return view('admin.messages.create', compact('users'));
     }
     /**
      * Stores a new message thread.
