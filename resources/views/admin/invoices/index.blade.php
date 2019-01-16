@@ -18,29 +18,7 @@
                         {{ csrf_field() }}
 
 
-                        <div style="margin-bottom: 10px;">
-                            <div class="input-group" style="width:100%">
-                                <input type="text" name="customer_ref" class="form-control" placeholder="Customer Ref" value="{{ old('q')}}">
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 10px;">
-                            <div class="input-group" style="width:100%">
-                                <input type="text" name="customer_name" class="form-control" placeholder="Customer Name" value="{{ old('q')}}">
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 10px;">
-                            <div class="input-group" style="width:100%">
-                                <input type="text" name="customer_email" class="form-control" placeholder="Customer Email" value="{{ old('email')}}">
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 10px;">
-                            <div class="input-group" style="width:100%">
-                                <input type="text" name="product_name" class="form-control" placeholder="Product Name" value="{{ old('product_name')}}">
-                            </div>
-                        </div>
+ 
 
 
                         <div style="margin-bottom: 10px;">
@@ -56,16 +34,7 @@
                             @endif
                         </div>
 
-                        <div style="margin-bottom: 10px;">
-                            @if(!$couriers->isEmpty())
-                            <div class="form-group">
-                                <select name="line_courier[]" multiple='multiple' id="courier" class="form-control select2">
-                                    @foreach($couriers as $courier)
-                                    <option @if(old('courier') == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @endif
+                        
 
 
                             <span class="input-group-btn">
@@ -83,6 +52,44 @@
     </div>
     <div class="col-lg-9">
         <div class="box">
+            <div class="box-body">
+
+                <a href="#" class="uncheck">Uncheck</a>
+
+                <table class="table">
+                    <thead>
+                    <th class="col-md-2">Order Id</th>
+                    <th class="col-md-2">Channel</th>
+                    <th class="col-md-2">Actions</th>
+                    </thead>
+                    <tbody>
+
+
+                        @foreach($orders as $order)
+
+
+                        <tr>
+                            <td>{{ $order->id }}</td>
+                            <td>
+                                {{ $order->channel->name }}
+                            </td>
+                           
+
+                            <td>
+
+                                <input type="checkbox" checked="checked" class="cb" name="services[]" order-id="{{ $order->id }}" value="{{ $order->id }}">
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+
+
+        </div>
+        
+               <div class="box">
             <div class="box-body">
 
                 <a href="#" class="uncheck">Uncheck</a>
