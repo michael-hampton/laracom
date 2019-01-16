@@ -59,18 +59,18 @@ class WarehouseController extends Controller {
     }
 
     public function index() {
-        $pending = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 5));
-        $picking = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 15));
-        $packing = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 16));
-        $dispatch = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 17));
+        $arrLines = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->whereIn('status', [5, 15, 16, 17]));
+        //$picking = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 15));
+        //$packing = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 16));
+        //$dispatch = $this->orderArrayByPicklist($this->orderLineRepo->listOrderProducts()->where('status', 17));
 
         $channels = $this->channelRepo->listChannels();
 
         return view('admin.warehouse.index', [
-            'pending' => $pending,
-            'picking' => $picking,
-            'packing' => $packing,
-            'dispatch' => $dispatch,
+            'arrLines' => $arrLines,
+            //'picking' => $picking,
+            //'packing' => $packing,
+            //'dispatch' => $dispatch,
             'channels' => $channels
                 ]
         );
@@ -78,9 +78,13 @@ class WarehouseController extends Controller {
 
     private function orderArrayByPicklist($arrLines) {
 
-        $arrOrders = [];
+        $arrOrders = ['pending' => [], 'picking' => [], 'packing' => [], 'dispatch' => []];
 
         foreach ($arrLines as $objLine) {
+            
+            switch($objLine->status) {
+                    
+            }
             $arrOrders[$objLine->picklist_ref][] = $objLine;
         }
 
