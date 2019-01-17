@@ -68,6 +68,8 @@
     $(document).ready(function () {
 
         $('.pick').on('click', function () {
+        
+        var $this = $(this);
 
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
@@ -82,6 +84,7 @@
                 },
                 success: function (msg) {
                     alert(msg);
+                    $this.hide();
                 }
             });
             return false;
@@ -91,6 +94,7 @@
 
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
+            var $this = $(this);
 
             $.ajax({
                 type: "POST",
@@ -102,6 +106,7 @@
                 },
                 success: function (msg) {
                     alert(msg);
+                    $this.hide();
                 }
             });
             return false;
@@ -111,6 +116,7 @@
 
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
+            var $this = $(this);
 
             $.ajax({
                 type: "POST",
@@ -122,6 +128,7 @@
                 },
                 success: function (msg) {
                     alert(msg);
+                    $this.hide();
                 }
             });
             return false;
