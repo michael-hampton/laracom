@@ -271,6 +271,10 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
+    
+    $('#channel').on('change', function () {
+         window.location.href = '/admin/invoice/index'+$(this).val();
+    });
 
         $('.uncheck').click(function () {
             var checkboxes = $('.cb');
