@@ -199,7 +199,10 @@ function getInventoryForProduct($productId, $arrProducts) {
             </div>
             <div class="modal-body">
             
-           
+           <div class="form-group">
+                <label>Subject</label> 
+                <input type='text' id='subject' name='subject' class='form-control'>
+           </div>
                 
                 <div class="form-group">
                 <label>Comment</label> 
