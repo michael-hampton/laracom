@@ -225,6 +225,10 @@ function getInventoryForProduct($productId, $arrProducts) {
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
+    
+    $('#saveBackorderForm').on('click', function () {
+    var formdata = $('#backorderForm').serialize();
+    });
 
         $('.open-message').on('click', function () {
             $('#myModal').show();
