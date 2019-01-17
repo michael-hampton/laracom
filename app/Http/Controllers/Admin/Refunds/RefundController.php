@@ -144,11 +144,7 @@ class RefundController extends Controller {
         $refundAmount = $order->amount_refunded + $refundAmount;
 
         try {
-            
-        } catch(\Exception $e) {
-            
-        }
-        $orderRepo = new OrderRepository($order);
+             $orderRepo = new OrderRepository($order);
 
         $orderRepo->updateOrder(
                 [
@@ -157,11 +153,18 @@ class RefundController extends Controller {
                     'order_status_id' => $order->status
                 ]
         );
-
-        $data = [
+            
+                   $data = [
             'content' => 'Order refund created',
             'user_id' => auth()->guard('admin')->user()->id
         ];
+        } catch(\Exception $e) {
+                   $data = [
+            'content' => 'failed to refund order',
+            'user_id' => auth()->guard('admin')->user()->id
+        ];
+        }
+      
 
         $postRepo = new OrderCommentRepository($order);
         $postRepo->createComment($data);
