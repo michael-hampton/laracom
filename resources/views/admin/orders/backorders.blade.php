@@ -199,6 +199,8 @@ function getInventoryForProduct($productId, $arrProducts) {
             </div>
             <div class="modal-body">
             
+            <form id='backorderContact'>
+            
             <input type='hidden' id='order_id' name='order_id' class='form-control'>
             
            <div class="form-group">
@@ -210,10 +212,11 @@ function getInventoryForProduct($productId, $arrProducts) {
                 <label>Comment</label> 
                 <textarea id='comment' name='comment' class='form-control'></textarea>
                 </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-primary saveBackorderForm">Save changes</button>
             </div>
         </div>
     </div>
