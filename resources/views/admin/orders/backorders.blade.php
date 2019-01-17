@@ -194,10 +194,12 @@ function getInventoryForProduct($productId, $arrProducts) {
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                 <i class="fa fa-laptop modal-icon"></i>
-                <h4 class="modal-title">Modal title</h4>
-                <small class="font-bold">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</small>
+                <h4 class="modal-title">Messages</h4>
+                
             </div>
             <div class="modal-body">
+            
+            <input type='hidden' id='order_id' name='order_id' class='form-control'>
             
            <div class="form-group">
                 <label>Subject</label> 
