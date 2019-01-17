@@ -1,5 +1,5 @@
 <?php
-namespace App\Shop\Refunds\Requests;
+namespace App\Shop\Returns\Requests;
 use App\Shop\Base\BaseFormRequest;
 class CreateReturnRequest extends BaseFormRequest {
     /**
