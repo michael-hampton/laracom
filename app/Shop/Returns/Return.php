@@ -1,4 +1,4 @@
-php
+<?php
 namespace App\Shop\Returns;
 use App\Shop\Orders\Order;
 use Illuminate\Database\Eloquent\Model;
