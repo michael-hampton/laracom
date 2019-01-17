@@ -215,6 +215,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                 }
 
                 cb[orderId].push($(this).val());
+                $(this).parent().parent().addClass('toBeRemoved');
             });
 
             $.ajax({
@@ -244,6 +245,8 @@ function getInventoryForProduct($productId, $arrProducts) {
                             $('.content .alert-success').append("<p>" + val + "</p>");
 
                         });
+                        
+                        $('.toBeRemoved').remove();
 
                     }
                 }
