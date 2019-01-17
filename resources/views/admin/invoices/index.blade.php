@@ -273,7 +273,7 @@
     $(document).ready(function () {
     
     $('#channel').on('change', function () {
-         window.location.href = '/admin/invoice/index'+$(this).val();
+         window.location.href = '/admin/invoice/index'+$(this).find('option:selected').text();
     });
 
         $('.uncheck').click(function () {
