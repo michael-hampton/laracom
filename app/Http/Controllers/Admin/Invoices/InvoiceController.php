@@ -93,6 +93,7 @@ class InvoiceController extends Controller {
         $invoicedStatus = $this->orderStatusRepo->findByName('Invoiced');
 
         if (!empty($channel)) {
+            $channel = $this->channelRepo->findByName($channel);
             $list = $this->orderRepo->listOrders()->where('order_status_id', $os->id)->where('channel', $channel);
             $invoiced = $this->orderRepo->listOrders()->where('order_status_id', $invoicedStatus->id)->where('channel', $channel);
         } else {
