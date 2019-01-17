@@ -143,6 +143,11 @@ class RefundController extends Controller {
         $totalPaid = $order->total_paid - $refundAmount;
         $refundAmount = $order->amount_refunded + $refundAmount;
 
+        try {
+            
+        } catch(\Exception $e) {
+            
+        }
         $orderRepo = new OrderRepository($order);
 
         $orderRepo->updateOrder(
