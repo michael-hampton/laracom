@@ -228,6 +228,27 @@ function getInventoryForProduct($productId, $arrProducts) {
     
     $('#saveBackorderForm').on('click', function () {
     var formdata = $('#backorderForm').serialize();
+    
+    
+            $.ajax({
+                type: "POST",
+                url: '/admin/orderLine/processBackorders',
+                data: formdata,
+                success: function (response) {
+                    var response = JSON.parse(response);
+
+                    if (response.http_code === 400) {
+
+                        $('.content').prepend("<div class='alert alert-danger'></div>");
+
+                       
+                    } else {
+                        $('.content').prepend("<div class='alert alert-success'></div>");
+
+                    }
+                }
+            });
+          
     });
 
         $('.open-message').on('click', function () {
