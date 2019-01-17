@@ -1,13 +1,11 @@
-php
+<?php
 namespace App\Http\Controllers\Admin\Returns;
 use App\Shop\Returns\Return;
 use App\Shop\Returns\Repositories\ReturnRepository;
 use App\Shop\Comments\OrderCommentRepository;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Customer;
-use App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository;
-use App\Shop\PaymentMethods\Stripe\StripeRepository;
-use App\Shop\Refunds\Repositories\Interfaces\RefundRepositoryInterface;
+use App\Shop\Returns\Repositories\Interfaces\ReturnRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\Returns\Requests\CreateReturnRequest;
 use App\Shop\Returns\Requests\UpdateReturnRequest;
@@ -22,33 +20,43 @@ use Illuminate\Http\Request;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
 use App\Http\Controllers\Controller;
+
 class ReturnController extends Controller {
+    
+
     use ReturnTransformable;
+    
+
     /* @param ReturnRepositoryInterface $refundRepo */
     private $returnRepo;
+   
     /* @param OrderRepositoryInterface $orderRepo */
     private $orderRepo;
+    
     /**
      * @var OrderStatusRepositoryInterface
      */
     private $orderStatusRepo;
+   
     /**
      * @var OrderProductRepositoryInterface
      */
     private $orderProductRepo;
+    
     /**
      * 
      * @param ReturnRepositoryInterface $refundRepository
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
-    ReturnRepositoryInterface $refundRepository, OrderRepositoryInterface $orderRepository, OrderStatusRepositoryInterface $orderStatusRepository, OrderProductRepositoryInterface $orderProductRepository
+    ReturnRepositoryInterface $returnRepository, OrderRepositoryInterface $orderRepository, OrderStatusRepositoryInterface $orderStatusRepository, OrderProductRepositoryInterface $orderProductRepository
     ) {
         $this->returnRepo = $returnRepository;
         $this->orderRepo = $orderRepository;
         $this->orderStatusRepo = $orderStatusRepository;
         $this->orderProductRepo = $orderProductRepository;
     }
+   
     /**
      * Display a listing of the resource.
      *
@@ -64,6 +72,7 @@ class ReturnController extends Controller {
                 })->all();
         return view('admin.returns.list', ['returns' => $this->returnRepo->paginateArrayResults($returns)]);
     }
+   
     /**
      * Show the form for creating a new resource.
      *
@@ -75,6 +84,7 @@ class ReturnController extends Controller {
             'order' => $order,
         ]);
     }
+   
     /**
      * Store a newly created resource in storage.
      *
@@ -82,10 +92,9 @@ class ReturnController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(CreateReturnRequest $request) {
-        $list = $this->orderProductRepo->listOrderProducts()->where('order_id', $request->order_id)->where('product_id', $request->line_id)->first();
+        
         $data = $request->except('_token', '_method');
-        $data['date_returned'] = date('Y-m-d'); //add request
-        $this->orderProductRepo->updateOrderProduct(['status' => 8], $list->id);
+        
         $this->returnRepo->createReturn($data);
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.returns.index');
