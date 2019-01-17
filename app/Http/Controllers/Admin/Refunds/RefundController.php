@@ -123,12 +123,16 @@ class RefundController extends Controller {
         $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
         $orderProducts = (new OrderProductRepository(new OrderProduct))->listOrderProducts()->where('order_id', $request->order_id);
         $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
+        $blError = false;
+        $arrSuccesses = [];
+        $arrFailures = [];
 
-//        if ($order->total_paid <= 0) {
-//
-//            return response()->json(['error' => 'paid total cant be 0'], 404); // Status code here
-//            //die('total cant be 0');
-//        }
+
+        if ($order->total_paid <= 0) {
+            $arrFailures[$request->order_id][] = 'The order has not yet been paid';
+            echo json_encode(['http_code' => 400, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
+            die;
+        }
 
         $objCustomerRepository = new CustomerRepository(new Customer);
 
@@ -144,34 +148,28 @@ class RefundController extends Controller {
         $refundAmount = $order->amount_refunded + $refundAmount;
 
         try {
-             $orderRepo = new OrderRepository($order);
+            $orderRepo = new OrderRepository($order);
 
-        $orderRepo->updateOrder(
-                [
-                    'total_paid' => $totalPaid,
-                    'amount_refunded' => $refundAmount,
-                    'order_status_id' => $order->status
-                ]
-        );
-            
-                   $data = [
-            'content' => 'Order refund created',
-            'user_id' => auth()->guard('admin')->user()->id
-        ];
-        } catch(\Exception $e) {
-                   $data = [
-            'content' => 'failed to refund order',
-            'user_id' => auth()->guard('admin')->user()->id
-        ];
+            $orderRepo->updateOrder(
+                    [
+                        'total_paid' => $totalPaid,
+                        'amount_refunded' => $refundAmount,
+                        'order_status_id' => $order->status
+                    ]
+            );
+
+            $strMessage = "Order has been refunded";
+        } catch (\Exception $e) {
+            $strMessage = "Unable to refund order {$e->getMessage()}";
+            $blError = true;
+            $arrFailures[$request->order_id][] = $e->getMessage();
         }
-      
-
-        $postRepo = new OrderCommentRepository($order);
-        $postRepo->createComment($data);
 
         if (!$this->authorizePayment($order, $customer)) {
 
-            return response()->json(['error' => 'failed to authorize payment'], 404); // Status code here
+            $strMessage = "Order was refunded but we failed to authorize payment";
+            $arrFailures[$request->order_id][] = $strMessage;
+            $blError = true;
         }
 
         if ($customer->customer_type == 'credit') {
@@ -179,8 +177,19 @@ class RefundController extends Controller {
             $objCustomerRepository->addCredit($customer->id, 10);
         }
 
+        $data = [
+            'content' => $strMessage,
+            'user_id' => auth()->guard('admin')->user()->id
+        ];
 
-        $request->session()->flash('message', 'Creation successful');
+
+        $postRepo = new OrderCommentRepository($order);
+        $postRepo->createComment($data);
+
+
+        $http_code = $blError === true ? 400 : 200;
+        echo json_encode(['http_code' => $http_code, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
+        die;
     }
 
     /**

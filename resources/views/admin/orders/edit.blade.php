@@ -99,7 +99,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                 </div>
 
                 <div class="col-lg-12">
-                    <button type="button" class="btn btn-primary koms-submit-button" id="continue-refund">
+                    <button type="button" class="btn btn-primary koms-submit-button" order-id="{{$order->id}}" id="continue-refund">
                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Continue
                     </button>
                     <button type="button" class="btn btn-danger koms-cancel-button" id="cancelRefundBtn">
@@ -635,7 +635,7 @@ function getInventoryForProduct($productId, $arrProducts) {
             </div>
             @endif
         </div>
-       
+
     </div>
 
 
@@ -858,6 +858,9 @@ crossorigin="anonymous"></script>
                                             $('#continue-refund').on('click', function () {
                                                 var status = 8;
                                                 var orderId = $(this).attr('order-id');
+
+                                                alert(orderId);
+
                                                 if ($('.cb:checked').length == 0)
                                                 {
                                                     alert('Please select atleast one checkbox');
@@ -876,8 +879,30 @@ crossorigin="anonymous"></script>
                                                         lineIds: cb,
                                                         _token: '{{ csrf_token() }}'
                                                     },
-                                                    success: function (msg) {
-                                                        alert('success');
+                                                    success: function (response) {
+                                                        var response = JSON.parse(response);
+
+                                                        if (response.http_code === 400) {
+                                                            
+                                                            $('.content').prepend("<div class='alert alert-danger'></div>");
+
+                                                            $.each(response.FAILURES, function (lineId, val) {
+
+                                                                $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
+
+                                                            });
+                                                        } else {
+                                                            $('.content').prepend("<div class='alert alert-success'></div>");
+
+                                                            $.each(response.SUCCESS, function (lineId, val) {
+
+                                                                $('.content .alert-success').append("<p>" + val + "</p>");
+
+                                                            });
+
+                                                            $('.toBeRemoved').remove();
+
+                                                        }
                                                     },
                                                     error: function (data) {
                                                         alert('unable to complete action');

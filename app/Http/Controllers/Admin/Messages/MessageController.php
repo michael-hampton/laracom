@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Admin\Messages;
+
 use App\User;
 use Carbon\Carbon;
 use Cmgmyr\Messenger\Models\Message;
@@ -9,31 +11,32 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
-class MessagesController extends Controller
-{
+use App\Http\Controllers\Controller;
+
+class MessageController extends Controller {
+
     /**
      * Show all of the message threads to the user.
      *
      * @return mixed
      */
-    public function index()
-    {
+    public function index() {
         // All threads, ignore deleted/archived participants
-        $threads = Thread::getAllLatest()->get();
+        $threads = \App\Shop\Messages\Thread::getAllLatest()->get();
         // All threads that user is participating in
         // $threads = Thread::forUser(Auth::id())->latest('updated_at')->get();
         // All threads that user is participating in, with new messages
         // $threads = Thread::forUserWithNewMessages(Auth::id())->latest('updated_at')->get();
         return view('admin.messages.index', compact('threads'));
     }
+
     /**
      * Shows a message thread.
      *
      * @param $id
      * @return mixed
      */
-    public function show($id)
-    {
+    public function show($id) {
         try {
             $thread = Thread::findOrFail($id);
         } catch (ModelNotFoundException $e) {
@@ -48,53 +51,57 @@ class MessagesController extends Controller
         $thread->markAsRead($userId);
         return view('admin.messages.show', compact('thread', 'users'));
     }
+
     /**
      * Creates a new message thread.
      *
      * @return mixed
      */
-    public function create()
-    {
-        $users = User::where('id', '!=', Auth::id())->get();
+    public function create() {
+        $users = \App\Shop\Employees\Employee::where('id', '!=', Auth::id())->get();
+
         return view('admin.messages.create', compact('users'));
     }
+
     /**
      * Stores a new message thread.
      *
      * @return mixed
      */
-    public function store()
-    {
+    public function store() {
+
         $input = Input::all();
-        $thread = Thread::create([
-            'subject' => $input['subject'],
+        $thread = \App\Shop\Messages\Thread::create([
+                    'subject' => $input['subject'],
+                    'order_id' => 1
         ]);
         // Message
-        Message::create([
+        \App\Shop\Messages\Message::create([
             'thread_id' => $thread->id,
-            'user_id' => Auth::id(),
+            'user_id' => auth()->guard('admin')->user()->id,
             'body' => $input['message'],
+            'direction' => 'OUT'
         ]);
         // Sender
-        Participant::create([
+        \App\Shop\Messages\Participant::create([
             'thread_id' => $thread->id,
-            'user_id' => Auth::id(),
+            'user_id' => auth()->guard('admin')->user()->id,
             'last_read' => new Carbon,
         ]);
         // Recipients
         if (Input::has('recipients')) {
             $thread->addParticipant($input['recipients']);
         }
-        return redirect()->route('messages');
+        return redirect()->route('admin.messages.index');
     }
+
     /**
      * Adds a new message to a current thread.
      *
      * @param $id
      * @return mixed
      */
-    public function update($id)
-    {
+    public function update($id) {
         try {
             $thread = Thread::findOrFail($id);
         } catch (ModelNotFoundException $e) {
@@ -110,8 +117,8 @@ class MessagesController extends Controller
         ]);
         // Add replier as a participant
         $participant = Participant::firstOrCreate([
-            'thread_id' => $thread->id,
-            'user_id' => Auth::id(),
+                    'thread_id' => $thread->id,
+                    'user_id' => Auth::id(),
         ]);
         $participant->last_read = new Carbon;
         $participant->save();
@@ -121,4 +128,5 @@ class MessagesController extends Controller
         }
         return redirect()->route('messages.show', $id);
     }
+
 }

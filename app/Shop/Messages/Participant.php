@@ -1,45 +1,48 @@
 <?php
+
 namespace App\Shop\Messages;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
-class Participant extends Eloquent
-{
+
+class Participant extends Eloquent {
+
     use SoftDeletes;
+
     /**
      * The database table used by the model.
      *
      * @var string
      */
     protected $table = 'participants';
-    
+
     /**
      * The attributes that can be set with Mass Assignment.
      *
      * @var array
      */
     protected $fillable = [
-    'thread_id',
-    'user_id', 
-    'last_read',
-    'order_id'
+        'thread_id',
+        'user_id',
+        'last_read',
+        'order_id'
     ];
-    
+
     /**
      * The attributes that should be mutated to dates.
      *
      * @var array
      */
     protected $dates = ['deleted_at', 'last_read'];
-   
-   /**
+
+    /**
      * {@inheritDoc}
      */
-    public function __construct(array $attributes = [])
-    {
-        $this->table = Models::table('participants');
+    public function __construct(array $attributes = []) {
+        $this->table = 'participants';
         parent::__construct($attributes);
     }
+
     /**
      * Thread relationship.
      *
@@ -47,10 +50,10 @@ class Participant extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function thread()
-    {
-        return $this->belongsTo(Models::classname(Thread::class), 'thread_id', 'id');
+    public function thread() {
+        return $this->belongsTo(Thread::class, 'thread_id', 'id');
     }
+
     /**
      * User relationship.
      *
@@ -58,8 +61,8 @@ class Participant extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function user()
-    {
-        return $this->belongsTo(Models::user(), 'user_id');
+    public function user() {
+        return $this->belongsTo(\App\Shop\Employees\Employee::class, 'user_id');
     }
+
 }

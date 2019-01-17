@@ -4,6 +4,7 @@ namespace App\Shop\Messages;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Shop\Messages\Thread;
 class Message extends Eloquent
 {
     use SoftDeletes;
@@ -44,7 +45,7 @@ class Message extends Eloquent
      */
     public function __construct(array $attributes = [])
     {
-        $this->table = Models::table('messages');
+        $this->table = 'messages';
         parent::__construct($attributes);
     }
     /**
@@ -56,7 +57,7 @@ class Message extends Eloquent
      */
     public function thread()
     {
-        return $this->belongsTo(Models::classname(Thread::class), 'thread_id', 'id');
+        return $this->belongsTo(Thread::class, 'thread_id', 'id');
     }
     /**
      * User relationship.
@@ -67,7 +68,7 @@ class Message extends Eloquent
      */
     public function user()
     {
-        return $this->belongsTo(Models::user(), 'user_id');
+        return $this->belongsTo(\App\Shop\Employees\Employee::class, 'user_id');
     }
     /**
      * Participants relationship.

@@ -49,6 +49,20 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::get('orders/importCsv/get', 'OrderController@importCsv')->name('orders.importCsv');
             Route::post('orders/saveImport', 'OrderController@saveImport')->name('orders.saveImport');
         });
+        
+          Route::get('message/index/', 'Messages\MessageController@index')->name('messages.index');
+          Route::get('message/create/', 'Messages\MessageController@create')->name('messages.create');
+          Route::get('message/show/', 'Messages\MessageController@show')->name('messages.show');
+          Route::post('message/store/', 'Messages\MessageController@store')->name('messages.store');
+
+//        Route::group(['prefix' => 'messages'], function () {
+//            Route::get('/', ['as' => 'messages', 'uses' => 'Messages/MessageController@index']);
+//            Route::get('create', ['as' => 'messages.create', 'uses' => 'Messages/MessageController@create']);
+//            Route::post('/', ['as' => 'messages.store', 'uses' => 'Messages/MessageController@store']);
+//            Route::get('{id}', ['as' => 'messages.show', 'uses' => 'Messages/MessageController@show']);
+//            Route::put('{id}', ['as' => 'messages.update', 'uses' => 'Messages/MessageController@update']);
+//        });
+
 
         Route::post('invoice/invoiceOrder/', 'Invoices\InvoiceController@invoiceOrder')->name('invoice.invoiceOrder');
         Route::get('invoice/index/{channel?}', 'Invoices\InvoiceController@index')->name('invoice.index');

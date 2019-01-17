@@ -1,6 +1,8 @@
+@extends('layouts.admin.app')
+
 @section('content')
     <h1>Create a new message</h1>
-    <form action="{{ route('messages.store') }}" method="post">
+    <form action="{{ route('admin.messages.store') }}" method="post">
         {{ csrf_field() }}
         <div class="col-md-6">
             <!-- Subject Form Input -->

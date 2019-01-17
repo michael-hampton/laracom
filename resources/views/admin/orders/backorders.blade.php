@@ -106,9 +106,9 @@ function getInventoryForProduct($productId, $arrProducts) {
                 @if(!$items->isEmpty())
                 <div class="box-body">
                     <h4> <i class="fa fa-gift"></i> Items</h4>
-                    
-                     <a href="#" class="uncheck">Uncheck</a>
-                     
+
+                    <a href="#" class="uncheck">Uncheck</a>
+
                     <table class="table">
                         <thead>
                         <th class="col-md-2">SKU</th>
@@ -146,12 +146,13 @@ function getInventoryForProduct($productId, $arrProducts) {
                                     <td>{{ $item->product_price }}</td>
 
                                     <td>
-                                    <?php
-                                     $quantityAvailiable = $arrInventory['quantity'] - $arrInventory['reserved_stock'];
-                                     $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
-                                     $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
-                            ?>
+                                        <?php
+                                        $quantityAvailiable = $arrInventory['quantity'] - $arrInventory['reserved_stock'];
+                                        $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
+                                        $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+                                        ?>
                                         <input type="checkbox" {{ $checked }} {{ $disabled }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                        <i order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
                                     </td>
                                 </tr>
                                 <?php
@@ -180,12 +181,44 @@ function getInventoryForProduct($productId, $arrProducts) {
     </div>
 
 </section>
+
+
+
+
 <!-- /.content -->
 @endsection
+
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <i class="fa fa-laptop modal-icon"></i>
+                <h4 class="modal-title">Modal title</h4>
+                <small class="font-bold">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</small>
+            </div>
+            <div class="modal-body">
+                <p><strong>Lorem Ipsum is simply dummy</strong> text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+                    printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting,
+                    remaining essentially unchanged.</p>
+                <div class="form-group"><label>Sample Input</label> <input type="email" placeholder="Enter your email" class="form-control"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $('.open-message').on('click', function () {
+            $('#myModal').show();
+        });
+
         $('.uncheck').click(function () {
             var checkboxes = $('.cb');
             $('.cb').prop('checked', !checkboxes.prop('checked'));
@@ -227,7 +260,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                 },
                 success: function (response) {
                     var response = JSON.parse(response);
-                    
+
                     if (response.http_code === 400) {
 
                         $('.content').prepend("<div class='alert alert-danger'></div>");
@@ -245,7 +278,7 @@ function getInventoryForProduct($productId, $arrProducts) {
                             $('.content .alert-success').append("<p>" + val + "</p>");
 
                         });
-                        
+
                         $('.toBeRemoved').remove();
 
                     }

@@ -45,7 +45,7 @@ class Thread extends Eloquent
      */
     public function __construct(array $attributes = [])
     {
-        $this->table = Models::table('threads');
+        $this->table = 'threads';
         parent::__construct($attributes);
     }
     
@@ -58,7 +58,7 @@ class Thread extends Eloquent
      */
     public function messages()
     {
-        return $this->hasMany(Models::classname(Message::class), 'thread_id', 'id');
+        return $this->hasMany(Message::class, 'thread_id', 'id');
     }
     
     /**
@@ -79,7 +79,7 @@ class Thread extends Eloquent
      */
     public function participants()
     {
-        return $this->hasMany(Models::classname(Participant::class), 'thread_id', 'id');
+        return $this->hasMany(Participant::class, 'thread_id', 'id');
     }
     /**
      * User's relationship.
@@ -90,7 +90,7 @@ class Thread extends Eloquent
      */
     public function users()
     {
-        return $this->belongsToMany(Models::classname('User'), Models::table('participants'), 'thread_id', 'user_id');
+        return $this->belongsToMany(\App\Shop\Employees\Employee::class, Participant::class, 'thread_id', 'user_id');
     }
     /**
      * Returns the user object that created the thread.
@@ -297,9 +297,9 @@ class Thread extends Eloquent
      */
     public function participantsString($userId = null, $columns = ['name'])
     {
-        $participantsTable = Models::table('participants');
-        $usersTable = Models::table('users');
-        $userPrimaryKey = Models::user()->getKeyName();
+        $participantsTable = 'participants';
+        $usersTable = 'employees';
+        $userPrimaryKey = 'id';
         $selectString = $this->createSelectString($columns);
         $participantNames = $this->getConnection()->table($usersTable)
             ->join($participantsTable, $usersTable . '.' . $userPrimaryKey, '=', $participantsTable . '.user_id')
@@ -336,7 +336,7 @@ class Thread extends Eloquent
     {
         $dbDriver = $this->getConnection()->getDriverName();
         $tablePrefix = $this->getConnection()->getTablePrefix();
-        $usersTable = Models::table('users');
+        $usersTable = 'employees';
         switch ($dbDriver) {
         case 'pgsql':
         case 'sqlite':
