@@ -51,7 +51,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         });
 
         Route::post('invoice/invoiceOrder/', 'Invoices\InvoiceController@invoiceOrder')->name('invoice.invoiceOrder');
-        Route::get('invoice/index', 'Invoices\InvoiceController@index')->name('invoice.index');
+        Route::get('invoice/index/{channel?}', 'Invoices\InvoiceController@index')->name('invoice.index');
         Route::post('orderLine/processBackorders/', 'Orders\OrderLineController@processBackorders')->name('orderLine.processBackorders');
         Route::post('orderLine/doAllocation/', 'Orders\OrderLineController@doAllocation')->name('orderLine.doAllocation');
         Route::post('warehouse/pickOrder/', 'Orders\WarehouseController@pickOrder')->name('warehouse.pickOrder');
