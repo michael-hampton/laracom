@@ -99,63 +99,7 @@ class ReturnController extends Controller {
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.returns.index');
     }
-    /**
-     * 
-     * @param CreateReturnRequest $request
-     */
-    public function doRefund(Request $request) {
-        $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
-        $orderProducts = (new OrderProductRepository(new OrderProduct))->listOrderProducts()->where('order_id', $request->order_id);
-        $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
-        $blError = false;
-        $arrSuccesses = [];
-        $arrFailures = [];
-        if ($order->total_paid <= 0) {
-            $arrFailures[$request->order_id][] = 'The order has not yet been paid';
-            echo json_encode(['http_code' => 400, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
-            die;
-        }
-        $objCustomerRepository = new CustomerRepository(new Customer);
-        $customer = $objCustomerRepository->findCustomerById($order->customer_id);
-        $refundAmount = $this->refundRepo->refundLinesForOrder($request, $order, $channel, $orderProducts);
-        if (!$refundAmount) {
-            return response()->json(['error' => 'failed to update order lines'], 404); // Status code here
-        }
-        $totalPaid = $order->total_paid - $refundAmount;
-        $refundAmount = $order->amount_refunded + $refundAmount;
-        try {
-            $orderRepo = new OrderRepository($order);
-            $orderRepo->updateOrder(
-                    [
-                        'total_paid' => $totalPaid,
-                        'amount_refunded' => $refundAmount,
-                        'order_status_id' => $order->status
-                    ]
-            );
-            $strMessage = "Order has been refunded";
-        } catch (\Exception $e) {
-            $strMessage = "Unable to refund order {$e->getMessage()}";
-            $blError = true;
-            $arrFailures[$request->order_id][] = $e->getMessage();
-        }
-        if (!$this->authorizePayment($order, $customer)) {
-            $strMessage = "Order was refunded but we failed to authorize payment";
-            $arrFailures[$request->order_id][] = $strMessage;
-            $blError = true;
-        }
-        if ($customer->customer_type == 'credit') {
-            $objCustomerRepository->addCredit($customer->id, 10);
-        }
-        $data = [
-            'content' => $strMessage,
-            'user_id' => auth()->guard('admin')->user()->id
-        ];
-        $postRepo = new OrderCommentRepository($order);
-        $postRepo->createComment($data);
-        $http_code = $blError === true ? 400 : 200;
-        echo json_encode(['http_code' => $http_code, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
-        die;
-    }
+    
     /**
      * Display the specified resource.
      *
@@ -185,34 +129,13 @@ class ReturnController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateReturnRequest $request, $id) {
-        $refund = $this->returnRepo->findReturnById($id);
-        $update = new ReturnRepository($refund);
+        $return = $this->returnRepo->findReturnById($id);
+        $update = new ReturnRepository($return);
         $update->updateReturn($request->except('_method', '_token'));
         $request->session()->flash('message', 'Update successful');
         return redirect()->route('admin.returns.edit', $id);
     }
-    /**
-     * 
-     * @param Order $order
-     * @param Customer $customer
-     * @return boolean
-     */
-    private function authorizePayment(Order $order, Customer $customer) {
-        return true;
-        switch ($order->payment) {
-            case 'paypal':
-                if (!(new PayPalExpressCheckoutRepository())->doRefund($order)) {
-                    return response()->json(['error' => 'failed to authorize'], 404); // Status code here
-                }
-                break;
-            case 'stripe':
-                if (!(new StripeRepository($customer))->doRefund($order)) {
-                    return response()->json(['error' => 'failed to authorize'], 404); // Status code here
-                }
-                break;
-        }
-        return true;
-    }
+  
     /**
      * Remove the specified resource from storage.
      *
@@ -220,10 +143,10 @@ class ReturnController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $refund = $this->refundRepo->findRefundById($id);
-        $delete = new RefundRepository($refund);
-        $delete->deleteRefund();
+        $return = $this->returnRepo->findReturnById($id);
+        $delete = new ReturnRepository($return);
+        $delete->deleteReturn();
         request()->session()->flash('message', 'Delete successful');
-        return redirect()->route('admin.refunds.index');
+        return redirect()->route('admin.returns.index');
     }
 }
