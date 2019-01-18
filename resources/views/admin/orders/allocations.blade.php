@@ -104,11 +104,14 @@ function getInventoryForProduct($productId, $arrProducts) {
                 <a href="#" class="uncheck">Uncheck</a>
 
                 <table class="table">
-                    <thead>
+                                     <thead>
                     <th class="col-md-2">Customer Ref</th>
+                    <th class="col-md-2">Channel</th>
+                    <th class="col-md-2">Order Date</th>
+                    <th class="col-md-2">Customer Name</th>
                     <th class="col-md-2">Name</th>
                     <th class="col-md-2">Quantity</th>
-                    <th class="col-md-2">Price</th>
+        
                     <th class="col-md-2">Actions</th>
                     </thead>
                     <tbody>
