@@ -6,6 +6,8 @@ use App\Shop\OrderProducts\OrderProduct;
 use Illuminate\Support\Facades\Storage;
 use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\ProductRepository;
+use App\Shop\Orders\Order;
+use App\Shop\Orders\Repositories\OrderRepository;
 
 trait OrderProductTransformable {
 
@@ -20,6 +22,8 @@ trait OrderProductTransformable {
         
         $productRepo = new ProductRepository(new Product);
         $product = $productRepo->findProductById($orderProduct->product_id);
+        
+        
         
         
         $orderProductObj->id = (int) $orderProduct->id;
