@@ -9,6 +9,25 @@
         <form action="{{ route('admin.returns.store') }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
+                
+                @foreach($items as $item)
+                <div class='form-inline'>
+                <div class="form-group">
+                        <label for="address_2">Quantity</label>
+                        <input type="text" name="quantity" id="quantity" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address_2">Address 2 </label>
+                        <input type="text" name="address_2" id="address_2" placeholder="Address 2" class="form-control" value="{{ old('address_2') }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address_2">Address 2 </label>
+                        <input type="text" name="address_2" id="address_2" placeholder="Address 2" class="form-control" value="{{ old('address_2') }}">
+                    </div>
+                    </div>
+                    @endforeach
 
                 <input type="hidden" name="order_id" id="order_id"  value="1">
                 
