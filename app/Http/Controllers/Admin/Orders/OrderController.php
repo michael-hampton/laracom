@@ -592,12 +592,15 @@ class OrderController extends Controller {
         $couriers = $this->courierRepo->listCouriers();
 
         $arrProducts = $this->productRepo->listProducts();
+        
+        $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
 
         return view('admin.orders.backorders', [
             'items' => $items,
             'channels' => $channels,
             'couriers' => $couriers,
-            'products' => $arrProducts
+            'products' => $arrProducts,
+            'orders' => $orders
                 ]
         );
     }
@@ -616,11 +619,13 @@ class OrderController extends Controller {
 
         $arrProducts = $this->productRepo->listProducts();
 
+        $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id);
         return view('admin.orders.allocations', [
             'items' => $items,
             'channels' => $channels,
             'couriers' => $couriers,
-            'products' => $arrProducts
+            'products' => $arrProducts,
+            'orders' => $orders
                 ]
         );
     }
