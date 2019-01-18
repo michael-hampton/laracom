@@ -69,6 +69,10 @@ class MessageController extends Controller {
      * @return mixed
      */
     public function store() {
+        
+        echo '<pre>';
+        print_r($_POST);
+        die;
 
         $input = Input::all();
         $thread = \App\Shop\Messages\Thread::create([
