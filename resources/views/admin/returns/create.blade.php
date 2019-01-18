@@ -11,29 +11,28 @@
                 {{ csrf_field() }}
 
                 <input type="hidden" name="order_id" id="order_id"  value="1">
-                <input type="hidden" name="status" id="status"  value="1">
-
+                
                 <div class="form-group">
                     <label for="alias">Condition <span class="text-danger">*</span></label>
                     <select name="condition" id="condition" class="form-control">
-                                        @foreach($provinces as $province)
-                                <option value="{{ $province->id }}">{{ $province->name }}</option>
+                                        @foreach($conditions as $condition)
+                                <option value="{{ $condition }}">{{ $condition }}</option>
                             @endforeach
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="address_1">Resolution <span class="text-danger">*</span></label>
                     <select name="resolution" id="resolution" class="form-control">
-                                        @foreach($provinces as $province)
-                                <option value="{{ $province->id }}">{{ $province->name }}</option>
+                                        @foreach($resolutions as $resolution)
+                                <option value="{{ $resolution }}">{{ $resolution }}</option>
                             @endforeach
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="address_2">Status </label>
                     <select name="status" id="status" class="form-control">
-                                        @foreach($provinces as $province)
-                                <option value="{{ $province->id }}">{{ $province->name }}</option>
+                                        @foreach($statuses as $status)
+                                <option value="{{ $status->id }}">{{ $status->name }}</option>
                             @endforeach
                     </select>
                 </div>
