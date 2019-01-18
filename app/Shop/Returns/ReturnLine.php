@@ -13,6 +13,7 @@ class ReturnLine extends Model {
      * @var array
      */
     public $fillable = [
+        'return_id',
         'line_id',
         'quantity',
         'reason',
