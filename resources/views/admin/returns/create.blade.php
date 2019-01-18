@@ -14,12 +14,16 @@
                 <div class='form-inline'>
                 <div class="form-group">
                         <label for="address_2">Quantity</label>
-                        <input type="text" name="quantity" id="quantity" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
+                        <input type="text" name="lines[{{$item->id}}][quantity]" id="quantity" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
                     </div>
                     
                     <div class="form-group">
-                        <label for="address_2">Address 2 </label>
-                        <input type="text" name="address_2" id="address_2" placeholder="Address 2" class="form-control" value="{{ old('address_2') }}">
+                        <label for="address_2">reason </label>
+                        <select name="lines[{{$item->id}}][reason]" id="reason" class="form-control">
+                                        @foreach($reason as $reason)
+                                <option value="{{ $reason }}">{{ $reason }}</option>
+                            @endforeach
+                    </select>
                     </div>
                     
                     <div class="form-group">
