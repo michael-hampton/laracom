@@ -14,7 +14,7 @@ use App\Shop\Base\BaseRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
-class ReturnRepository extends BaseRepository implements ReturnRepositoryInterface {
+class ReturnLineRepository extends BaseRepository implements ReturnLineRepositoryInterface {
     use ReturnTransformable;
     /**
      * ReturnRepository constructor.
