@@ -13,24 +13,19 @@
                 @foreach($items as $item)
                 <div class='form-inline'>
                 <div class="form-group">
-                        <label for="address_2">Quantity</label>
+                        <label class='sr-only' for="address_2">Quantity</label>
                         <input type="text" name="lines[{{$item->id}}][quantity]" id="quantity" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
                     </div>
                     
                     <div class="form-group">
-                        <label for="address_2">reason </label>
+                        <label class='sr-only' for="address_2">reason </label>
                         <select name="lines[{{$item->id}}][reason]" id="reason" class="form-control">
                                         @foreach($reason as $reason)
                                 <option value="{{ $reason }}">{{ $reason }}</option>
                             @endforeach
                     </select>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="address_2">Address 2 </label>
-                        <input type="text" name="address_2" id="address_2" placeholder="Address 2" class="form-control" value="{{ old('address_2') }}">
-                    </div>
-                    </div>
+                    </div>i
                     @endforeach
 
                 <input type="hidden" name="order_id" id="order_id"  value="1">
