@@ -143,7 +143,7 @@
                                     <td>
 
                                         <input type="checkbox" {{ $checked }} {{ $disabled }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
-                                        <i email='{{$arrOrder->customer->email_address}}'order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
+                                        <i email='{{$arrOrder->customer->email}}'order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
                                     </td>
                                 </tr>
                                 <?php
