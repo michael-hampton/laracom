@@ -134,7 +134,7 @@
 
                             <td>
 
-                                <input type="checkbox" {{ $checked }} {{ $disabled }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                <input type="checkbox" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
                                 <i order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
                             </td>
                         </tr>
