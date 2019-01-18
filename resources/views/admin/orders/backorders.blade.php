@@ -199,7 +199,7 @@ function getInventoryForProduct($productId, $arrProducts) {
             </div>
             <div class="modal-body">
             
-            <form id='backorderContact'>
+            <form id='backorderForm'>
             
             <input type='hidden' id='order_id' name='order_id' class='form-control'>
             
@@ -232,7 +232,7 @@ function getInventoryForProduct($productId, $arrProducts) {
     
             $.ajax({
                 type: "POST",
-                url: '/admin/orderLine/processBackorders',
+                url: '/admin/messages/store',
                 data: formdata,
                 success: function (response) {
                     var response = JSON.parse(response);
