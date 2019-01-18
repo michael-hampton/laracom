@@ -15,15 +15,27 @@
 
                 <div class="form-group">
                     <label for="alias">Condition <span class="text-danger">*</span></label>
-                    <select name="condition" id="condition" class="form-control"></select>
+                    <select name="condition" id="condition" class="form-control">
+                                        @foreach($provinces as $province)
+                                <option value="{{ $province->id }}">{{ $province->name }}</option>
+                            @endforeach
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="address_1">Resolution <span class="text-danger">*</span></label>
-                    <select name="resolution" id="resolution" class="form-control"></select>
+                    <select name="resolution" id="resolution" class="form-control">
+                                        @foreach($provinces as $province)
+                                <option value="{{ $province->id }}">{{ $province->name }}</option>
+                            @endforeach
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="address_2">Status </label>
-                    <select name="status" id="status" class="form-control"></select>
+                    <select name="status" id="status" class="form-control">
+                                        @foreach($provinces as $province)
+                                <option value="{{ $province->id }}">{{ $province->name }}</option>
+                            @endforeach
+                    </select>
                 </div>
 
             </div>
