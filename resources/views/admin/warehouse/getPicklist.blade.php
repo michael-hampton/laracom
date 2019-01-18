@@ -84,7 +84,7 @@
                 },
                 success: function (msg) {
                     alert(msg);
-                    $this.hide();
+                    $this.removeClass('pick').addClass('pack').text('Pack');
                 }
             });
             return false;
@@ -106,7 +106,7 @@
                 },
                 success: function (msg) {
                     alert(msg);
-                    $this.hide();
+                    $this.removeClass('pack').addClass('dispatch').text('Dispatch');
                 }
             });
             return false;
