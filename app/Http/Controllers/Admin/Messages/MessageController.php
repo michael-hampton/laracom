@@ -105,6 +105,8 @@ class MessageController extends Controller {
         if (Input::has('recipients')) {
             $thread->addParticipant($input['recipients']);
         }
+        
+        mail($input['email_address'], $input['subject'], $input['message']);
         return redirect()->route('admin.messages.index');
     }
 
