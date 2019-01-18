@@ -13,11 +13,9 @@ class ReturnLine extends Model {
      * @var array
      */
     public $fillable = [
-        'order_id',
         'line_id',
         'quantity',
-        'amount',
-        'date_refunded',
+        'reason',
         'status'
     ];
     /**
