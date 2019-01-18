@@ -143,7 +143,7 @@
                                     <td>
 
                                         <input type="checkbox" {{ $checked }} {{ $disabled }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
-                                        <i order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
+                                        <i email='{{$arrOrder->customer->email_address}}'order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
                                     </td>
                                 </tr>
                                 <?php
@@ -219,6 +219,7 @@
                     <input type='hidden' id='order_id' name='order_id' value="" class='form-control'>
                     <input type='hidden' id='message_type' name='message_type' value="1" class='form-control'>
                     <input type="hidden" name="thread_id" value="{{$messages[0]->thread_id}}">
+                    <input type="hidden" id='email_address' name="email_address" value="">
                     
                     <div class="form-group">
                         <label>Subject</label> 
@@ -271,6 +272,7 @@
         $('.open-message').on('click', function () {
             $('#myModal').show();
             $('#order_id').val($(this).attr('order-id'));
+            $('#email_address').val($(this).attr('email'));
         });
 
         $('.uncheck').click(function () {
