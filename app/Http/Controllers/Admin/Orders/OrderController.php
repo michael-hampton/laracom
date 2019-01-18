@@ -584,7 +584,7 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Backorder');
 
-        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id);
+        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->orderBy('order_id', 'ASC');
 
         $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
@@ -607,7 +607,7 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
 
-        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id);
+        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->orderBy('order_id', 'ASC');
 
         $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
