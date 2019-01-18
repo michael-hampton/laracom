@@ -17,13 +17,14 @@ class Refund extends Model {
      *
      * @var array
      */
-    public $fillable = [
-        'order_id',
-        'condition',
-        'resolution',
-        'status'
-    ];
-
+   public $fillable = [
+	        'order_id',
+	        'line_id',
+	        'quantity',
+	        'amount',
+	        'date_refunded',
+	        'status'
+	    ];
     /**
      * The attributes that should be hidden for arrays.
      *
