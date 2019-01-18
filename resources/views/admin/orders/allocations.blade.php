@@ -4,22 +4,6 @@
 
 @include('layouts.errors-and-messages')
 
-<?php
-
-/**
- * 
- * @param type $productId
- * @param type $arrProducts
- * @return type
- */
-function getInventoryForProduct($productId, $arrProducts) {
-    $test = $arrProducts->filter(function ($item) use($productId) {
-                return $item->id == $productId;
-            })->first();
-
-    return array('quantity' => $test->quantity, 'reserved_stock' => $test->reserved_stock);
-}
-?>
 <!-- Main content -->
 <section class="content">
     <div class="col-lg-3">
@@ -104,14 +88,14 @@ function getInventoryForProduct($productId, $arrProducts) {
                 <a href="#" class="uncheck">Uncheck</a>
 
                 <table class="table">
-                                     <thead>
+                    <thead>
                     <th class="col-md-2">Customer Ref</th>
                     <th class="col-md-2">Channel</th>
                     <th class="col-md-2">Order Date</th>
                     <th class="col-md-2">Customer Name</th>
                     <th class="col-md-2">Name</th>
                     <th class="col-md-2">Quantity</th>
-        
+
                     <th class="col-md-2">Actions</th>
                     </thead>
                     <tbody>
@@ -120,36 +104,38 @@ function getInventoryForProduct($productId, $arrProducts) {
                         @foreach($items as $item)
 
                         <?php
-                        $arrInventory = getInventoryForProduct($item->product_id, $products);
-
-                        if (strtotime($item->created_at) < strtotime('-30 days')) {
-                            $color = '#FF6666';
-                        } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
-                            $color = '#C0C0C0';
-                        } else {
-                            $color = '#FFFF99';
-                        }
+                         $arrOrder = $orders[$item->order_id];
+                        $color = $arrOrder->is_priority === 1 ? '#C0C0C0' : '';
+                       
                         ?>
 
                         <tr style="background-color: {{ $color }}">
-                            <td>{{ $item->product_sku }}</td>
+                            <td>{{$arrOrder->id}}</td>
+                            <td>{{$arrOrder->channel->name}}</td>
+                            <td>{{$arrOrder->created_at}}</td>
+                            <td>{{$arrOrder->customer->name}}</td>
                             <td>
                                 {{ $item->product_name }}
 
                             </td>
+
+                            <?php
+                            $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
+                            $reservedStock = $products[$item->product_id]['reserved_stock'];
+                            $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
+                            $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+                            ?>
+
                             <td>{{ $item->quantity }}
-                                <br>Free Stock {{$arrInventory['quantity']}}
-                                <br>Reserved Stock {{$arrInventory['reserved_stock']}}
+                                <br>Free Stock {{$quantityAvailiable}}
+                                <br>Reserved Stock {{$reservedStock}}
                             </td>
                             <td>{{ $item->product_price }}</td>
 
                             <td>
-                                <?php
-                                $quantityAvailiable = $arrInventory['quantity'] - $arrInventory['reserved_stock'];
-                                //$checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
-                                //$disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
-                                ?>
-                                <input type="checkbox" checked="checked" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+
+                                <input type="checkbox" {{ $checked }} {{ $disabled }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                <i order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
                             </td>
                         </tr>
                         @endforeach

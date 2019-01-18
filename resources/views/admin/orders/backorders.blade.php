@@ -2,25 +2,6 @@
 
 @section('content')
 
-
-<?php
-
-/**
- * 
- * @param type $productId
- * @param type $arrProducts
- * @return type
- */
-function getInventoryForProduct($productId, $arrProducts) {
-    $test = $arrProducts->filter(function ($item) use($productId) {
-                return $item->id == $productId;
-            })->first();
-
-    return array('quantity' => $test->quantity, 'reserved_stock' => $test->reserved_stock);
-}
-?>
-
-
 @include('layouts.errors-and-messages')
 <!-- Main content -->
 <section class="content">
@@ -110,48 +91,57 @@ function getInventoryForProduct($productId, $arrProducts) {
                     <a href="#" class="uncheck">Uncheck</a>
 
                     <table class="table">
-                                         <thead>
-                    <th class="col-md-2">Customer Ref</th>
-                    <th class="col-md-2">Channel</th>
-                    <th class="col-md-2">Order Date</th>
-                    <th class="col-md-2">Customer Name</th>
-                    <th class="col-md-2">Name</th>
-                    <th class="col-md-2">Quantity</th>
-        
-                    <th class="col-md-2">Actions</th>
-                    </thead>
+                        <thead>
+                        <th class="col-md-2">Order Id</th>
+                        <th class="col-md-2">Channel</th>
+                        <th class="col-md-2">Order Date</th>
+                        <th class="col-md-2">Customer Name</th>
+                        <th class="col-md-2">Name</th>
+                        <th class="col-md-2">Quantity</th>
+
+                        <th class="col-md-2">Actions</th>
+                        </thead>
                         <tbody>
 
                             <?php
                             foreach ($items as $item) {
-                            
-                            $arrOrder = $orders[$item->order_id];
 
-                                $arrInventory = getInventoryForProduct($item->product_id, $products);
+                                $arrOrder = $orders[$item->order_id];
 
-$color = $arrOrder->is_priority === 1 ? '#FF6666' : '#C0C0C0';
-
-                                
+                                if (strtotime($item->created_at) < strtotime('-30 days')) {
+                                    $color = '#FF6666';
+                                } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
+                                    $color = '#C0C0C0';
+                                } else {
+                                    $color = '#FFFF99';
+                                }
                                 ?>
 
                                 <tr style="background-color: {{ $color }}">
-                                    <td>{{ $item->product_sku }}</td>
+                                    <td>{{$arrOrder->id}}</td>
+                                    <td>{{$arrOrder->channel->name}}</td>
+                                    <td>{{$arrOrder->created_at}}</td>
+                                    <td>{{$arrOrder->customer->name}}</td>
                                     <td>
                                         {{ $item->product_name }}
 
                                     </td>
+
+                                    <?php
+                                    $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
+                                    $reservedStock = $products[$item->product_id]['reserved_stock'];
+                                    $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
+                                    $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+                                    ?>
+
                                     <td>{{ $item->quantity }}
-                                        <br>Free Stock {{$arrInventory['quantity']}}
-                                        <br>Reserved Stock {{$arrInventory['reserved_stock']}}
+                                        <br>Free Stock {{$quantityAvailiable}}
+                                        <br>Reserved Stock {{$reservedStock}}
                                     </td>
                                     <td>{{ $item->product_price }}</td>
 
                                     <td>
-                                        <?php
-                                        $quantityAvailiable = $arrInventory['quantity'] - $arrInventory['reserved_stock'];
-                                        $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
-                                        $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
-                                        ?>
+
                                         <input type="checkbox" {{ $checked }} {{ $disabled }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
                                         <i order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
                                     </td>
@@ -196,23 +186,49 @@ $color = $arrOrder->is_priority === 1 ? '#FF6666' : '#C0C0C0';
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                 <i class="fa fa-laptop modal-icon"></i>
                 <h4 class="modal-title">Messages</h4>
-                
+
             </div>
             <div class="modal-body">
-            
-            <form id='backorderForm'>
-            
-            <input type='hidden' id='order_id' name='order_id' class='form-control'>
-            
-           <div class="form-group">
-                <label>Subject</label> 
-                <input type='text' id='subject' name='subject' class='form-control'>
-           </div>
-                
-                <div class="form-group">
-                <label>Comment</label> 
-                <textarea id='comment' name='comment' class='form-control'></textarea>
+
+                <div class="existing-messages col-lg-12" style="margin-bottom: 12px; border: 1px solid #CCC;">
+                    
+                    @foreach($messages as $message):
+                    <div style="border-bottom: 1px #CCC dotted; padding:6px;" class="col-lg-12">
+                        
+                        <div class="col-lg-4 pull-right">
+                            {{$message->created_at}}
+                        </div>
+                        
+                        <div class="col-lg-8 pull-right">
+                             {{$message->subject}}
+                        </div>
+                        {{$message->body}}<br>
+                    </div>
+                    
+                     
+                    
+                    @endforeach;
                 </div>
+
+
+
+                <form id='backorderForm'>
+                    
+                     {{ csrf_field() }}
+
+                    <input type='hidden' id='order_id' name='order_id' value="" class='form-control'>
+                    <input type='hidden' id='message_type' name='message_type' value="1" class='form-control'>
+                    <input type="hidden" name="thread_id" value="{{$messages[0]->thread_id}}">
+                    
+                    <div class="form-group">
+                        <label>Subject</label> 
+                        <input type='text' id='subject' name='subject' class='form-control'>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Comment</label> 
+                        <textarea id='comment' name='message' class='form-control'></textarea>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -226,14 +242,14 @@ $color = $arrOrder->is_priority === 1 ? '#FF6666' : '#C0C0C0';
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
-    
-    $('#saveBackorderForm').on('click', function () {
-    var formdata = $('#backorderForm').serialize();
-    
-    
+
+        $('.saveBackorderForm').on('click', function () {
+            var formdata = $('#backorderForm').serialize();
+
+
             $.ajax({
                 type: "POST",
-                url: '/admin/messages/store',
+                url: '/admin/message/store',
                 data: formdata,
                 success: function (response) {
                     var response = JSON.parse(response);
@@ -242,18 +258,19 @@ $color = $arrOrder->is_priority === 1 ? '#FF6666' : '#C0C0C0';
 
                         $('.content').prepend("<div class='alert alert-danger'></div>");
 
-                       
+
                     } else {
                         $('.content').prepend("<div class='alert alert-success'></div>");
 
                     }
                 }
             });
-          
-    });
+
+        });
 
         $('.open-message').on('click', function () {
             $('#myModal').show();
+            $('#order_id').val($(this).attr('order-id'));
         });
 
         $('.uncheck').click(function () {

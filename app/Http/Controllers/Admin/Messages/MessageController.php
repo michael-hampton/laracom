@@ -69,16 +69,25 @@ class MessageController extends Controller {
      * @return mixed
      */
     public function store() {
-        
-        echo '<pre>';
-        print_r($_POST);
-        die;
 
         $input = Input::all();
-        $thread = \App\Shop\Messages\Thread::create([
-                    'subject' => $input['subject'],
-                    'order_id' => 1
-        ]);
+
+        if (!isset($input['thread_id'])) {
+            $thread = \App\Shop\Messages\Thread::create([
+                        'subject' => $input['subject'],
+                        'order_id' => $input['order_id'],
+                        'message_type' => $input['message_type']
+            ]);
+        } else {
+            try {
+               
+                
+                $thread = \App\Shop\Messages\Thread::findOrFail($input['thread_id']);
+            } catch (ModelNotFoundException $e) {
+                Session::flash('error_message', 'The thread with ID: ' . $id . ' was not found.');
+                return redirect()->route('messages');
+            }
+        }
         // Message
         \App\Shop\Messages\Message::create([
             'thread_id' => $thread->id,

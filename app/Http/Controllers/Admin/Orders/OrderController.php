@@ -435,6 +435,7 @@ class OrderController extends Controller {
                     $order->courier = $courierRepo->findCourierById($order->courier_id);
                     $order->customer = $customerRepo->findCustomerById($order->customer_id);
                     $order->status = $orderStatusRepo->findOrderStatusById($order->order_status_id);
+                    $order->channel = $this->channelRepo->findChannelById($order->channel);
                     return $order;
                 })->all();
     }
@@ -584,23 +585,27 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Backorder');
 
-        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->orderBy('order_id', 'ASC');
+        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->sortBy('order_id', false);
 
         $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
         $channels = $this->channelRepo->listChannels();
         $couriers = $this->courierRepo->listCouriers();
 
-        $arrProducts = $this->productRepo->listProducts();
-        
         $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
+        $orders = $this->transFormOrder($orders);
+        
+        $messages = (new \App\Shop\Messages\Thread)->getByOrderIdAndType(1, 1);
+
+        $products = $this->productRepo->listProducts()->keyBy('id');
 
         return view('admin.orders.backorders', [
             'items' => $items,
+            'products' => $products,
             'channels' => $channels,
             'couriers' => $couriers,
-            'products' => $arrProducts,
-            'orders' => $orders
+            'orders' => $orders,
+            'messages' => $messages
                 ]
         );
     }
@@ -610,21 +615,23 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
 
-        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->orderBy('order_id', 'ASC');
+        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->sortBy('order_id', false);
 
         $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
         $channels = $this->channelRepo->listChannels();
         $couriers = $this->courierRepo->listCouriers();
 
-        $arrProducts = $this->productRepo->listProducts();
+        $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
+        $orders = $this->transFormOrder($orders);
 
-        $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id);
+        $products = $this->productRepo->listProducts()->keyBy('id');
+
         return view('admin.orders.allocations', [
             'items' => $items,
+            'products' => $products,
             'channels' => $channels,
             'couriers' => $couriers,
-            'products' => $arrProducts,
             'orders' => $orders
                 ]
         );
