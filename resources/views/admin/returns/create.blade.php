@@ -25,7 +25,7 @@
                             @endforeach
                     </select>
                     </div>
-                    </div>i
+                    </div>
                     @endforeach
 
                 <input type="hidden" name="order_id" id="order_id"  value="1">
