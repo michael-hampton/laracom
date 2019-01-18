@@ -105,7 +105,7 @@ function getInventoryForProduct($productId, $arrProducts) {
 
                 <table class="table">
                     <thead>
-                    <th class="col-md-2">SKU</th>
+                    <th class="col-md-2">Customer Ref</th>
                     <th class="col-md-2">Name</th>
                     <th class="col-md-2">Quantity</th>
                     <th class="col-md-2">Price</th>
