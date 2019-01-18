@@ -124,16 +124,14 @@ function getInventoryForProduct($productId, $arrProducts) {
 
                             <?php
                             foreach ($items as $item) {
+                            
+                            $arrOrder = $orders[$item->order_id];
 
                                 $arrInventory = getInventoryForProduct($item->product_id, $products);
 
-                                if (strtotime($item->created_at) < strtotime('-30 days')) {
-                                    $color = '#FF6666';
-                                } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
-                                    $color = '#C0C0C0';
-                                } else {
-                                    $color = '#FFFF99';
-                                }
+$color = $arrOrder->is_priority === 1 ? '#FF6666' : '#C0C0C0';
+
+                                
                                 ?>
 
                                 <tr style="background-color: {{ $color }}">
