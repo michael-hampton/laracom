@@ -118,10 +118,17 @@
                                 ?>
 
                                 <tr class="{{ $color }}">
+                                @if($customerRef !== $arrOrder['customer_ref'])
                                     <td>{{$arrOrder->id}}</td>
                                     <td>{{$arrOrder->channel->name}}</td>
                                     <td>{{$arrOrder->created_at}}</td>
                                     <td>{{$arrOrder->customer->name}}</td>
+                                    @else
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    @endif
                                     <td>
                                         {{ $item->product_name }}
 
