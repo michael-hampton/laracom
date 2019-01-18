@@ -8,30 +8,7 @@
             <form action="{{ route('admin.returns.update', $refund->id) }}" method="post" class="form" enctype="multipart/form-data">
                 <div class="box-body">
                     {{ csrf_field() }}
-                    <input type="hidden" name="_method" value="put">
-                    <input type="hidden" name="order_id" id="order_id"  value="1">
                     
-                    <div class="form-group">
-                        <label for="alias">Quantity <span class="text-danger">*</span></label>
-                        <input type="text" name="quantity" id="quantity" placeholder="Quantity" class="form-control" value="{{ $refund->quantity ?: old('quantity') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="amount">Amount<span class="text-danger">*</span></label>
-                        <input type="text" name="amount" id="amount" placeholder="Amount" class="form-control" value="{{ $refund->amount ?: old('amount') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="date_refunded">Date Refunded</label>
-                        <input type="text" name="date_refunded" id="date_refunded" placeholder="Date Refunded" class="form-control" value="{{ $refund->date_refunded ?: old('date_refunded') }}">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select name="status" id="status" class="form-control">
-                            <option value="">--Select Status--</option>
-                            <option value="2">Approved</option>
-                            <option value="3">Rejected</option>
-                        </select>
-                    </div>
                 </div>
                 <!-- /.box-body -->
                 <div class="box-footer">
