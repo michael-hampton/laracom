@@ -15,7 +15,7 @@
                     <label for="alias">Condition <span class="text-danger">*</span></label>
                     <select name="condition" id="condition" class="form-control">
                                         @foreach($conditions as $condition)
-                                <option value="{{ $condition }}">{{ $condition }}</option>
+                                <option @if($condition == $return->condition) selected="selected" @endif  value="{{ $condition }}">{{ $condition }}</option>
                             @endforeach
                     </select>
                 </div>
@@ -23,7 +23,7 @@
                     <label for="address_1">Resolution <span class="text-danger">*</span></label>
                     <select name="resolution" id="resolution" class="form-control">
                                         @foreach($resolutions as $resolution)
-                                <option value="{{ $resolution }}">{{ $resolution }}</option>
+                                <option @if($resolution == $return->resolution) selected="selected" @endif  value="{{ $resolution }}">{{ $resolution }}</option>
                             @endforeach
                     </select>
                 </div>
@@ -31,7 +31,7 @@
                     <label for="address_2">Status </label>
                     <select name="status" id="status" class="form-control">
                                         @foreach($statuses as $status)
-                                <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                <option @if($status->id == $return->status) selected="selected" @endif  value="{{ $status->id }}">{{ $status->name }}</option>
                             @endforeach
                     </select>
                 </div>
