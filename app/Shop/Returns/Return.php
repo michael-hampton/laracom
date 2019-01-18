@@ -14,10 +14,8 @@ class Return extends Model {
      */
     public $fillable = [
         'order_id',
-        'line_id',
-        'quantity',
-        'amount',
-        'date_refunded',
+        'condition',
+        'resolution',
         'status'
     ];
     /**
