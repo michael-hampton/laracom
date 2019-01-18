@@ -4,7 +4,7 @@ use App\Shop\Returns\Return;
 use App\Shop\Base\Interfaces\BaseRepositoryInterface;
 use App\Shop\Orders\Order;
 use Illuminate\Support\Collection;
-interface RefundRepositoryInterface extends BaseRepositoryInterface {
+interface ReturnRepositoryInterface extends BaseRepositoryInterface {
     /**
      * 
      * @param array $params
