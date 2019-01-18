@@ -90,7 +90,7 @@
 
                     <a href="#" class="uncheck">Uncheck</a>
 
-                    <table class="table">
+                    <table class="table table-striped table-hover">
                         <thead>
                         <th class="col-md-2">Order Id</th>
                         <th class="col-md-2">Channel</th>
@@ -109,11 +109,11 @@
                                 $arrOrder = $orders[$item->order_id];
 
                                 if (strtotime($item->created_at) < strtotime('-30 days')) {
-                                    $color = '#FF6666';
+                                    $color = 'table-danger';
                                 } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
-                                    $color = '#C0C0C0';
+                                    $color = 'table-warning';
                                 } else {
-                                    $color = '#FFFF99';
+                                    $color = 'table-info';
                                 }
                                 ?>
 
