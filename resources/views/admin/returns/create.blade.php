@@ -14,16 +14,16 @@
                 <input type="hidden" name="status" id="status"  value="1">
 
                 <div class="form-group">
-                    <label for="alias">Quantity <span class="text-danger">*</span></label>
-                    <input type="text" name="quantity" id="quantity" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
+                    <label for="alias">Condition <span class="text-danger">*</span></label>
+                    <select name="condition" id="condition" class="form-control"></select>
                 </div>
                 <div class="form-group">
-                    <label for="address_1">Amount <span class="text-danger">*</span></label>
-                    <input type="text" name="amount" id="amount" placeholder="Amount" class="form-control" value="{{ old('amount') }}">
+                    <label for="address_1">Resolution <span class="text-danger">*</span></label>
+                    <select name="resolution" id="resolution" class="form-control"></select>
                 </div>
                 <div class="form-group">
-                    <label for="address_2">Date Refunded </label>
-                    <input type="text" name="date_refunded" id="date_refunded" placeholder="Date Refunded" class="form-control" value="{{ old('date_refunded') }}">
+                    <label for="address_2">Status </label>
+                    <select name="status" id="status" class="form-control"></select>
                 </div>
 
             </div>
