@@ -117,7 +117,7 @@
                                 }
                                 ?>
 
-                                <tr style="background-color: {{ $color }}">
+                                <tr class="{{ $color }}">
                                     <td>{{$arrOrder->id}}</td>
                                     <td>{{$arrOrder->channel->name}}</td>
                                     <td>{{$arrOrder->created_at}}</td>
@@ -147,6 +147,7 @@
                                     </td>
                                 </tr>
                                 <?php
+                                $customerRef = $arrOrder['customer_ref'];
                             }
                             ?>
                         </tbody>
