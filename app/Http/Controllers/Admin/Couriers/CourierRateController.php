@@ -149,6 +149,11 @@ class CourierRateController extends Controller {
                                 $rate, (new UpdateCourierRateRequest())->rules()
                         )->errors();
             
+            if ($csv_errors->any()) {
+                echo json_encode(['http_code' => 400]);
+                die;
+            }
+            
             $courierRate = $this->courierRateRepo->findCourierRateById($rateId);
             $courierRepo = new CourierRateRepository($courierRate);
             
