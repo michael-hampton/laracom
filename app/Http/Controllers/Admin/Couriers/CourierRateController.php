@@ -144,6 +144,11 @@ class CourierRateController extends Controller {
     public function update(Request $request, $id) {
 
         foreach($request->rates as $rateId => $rate) {
+           
+            $csv_errors = Validator::make(
+                                $rate, (new UpdateCourierRateRequest())->rules()
+                        )->errors();
+            
             $courierRate = $this->courierRateRepo->findCourierRateById($rateId);
             $courierRepo = new CourierRateRepository($courierRate);
             
