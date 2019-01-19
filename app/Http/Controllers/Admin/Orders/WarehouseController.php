@@ -263,9 +263,11 @@ class WarehouseController extends Controller {
         $order = $this->orderRepo->findOrderById($id);
         $channel = $this->channelRepo->findChannelById($order->channel);
         $newStatus = $this->orderStatusRepo->findByName('Dispatch');
+        $items = $this->orderLineRepo->listOrderProducts()->where('order_id', $id);
         
         $data = [
             'order' => $order,
+            'items' => $items,
             'allowed_status' => $newStatus,
             'products' => $order->products,
             'customer' => $order->customer,
@@ -274,8 +276,10 @@ class WarehouseController extends Controller {
             'status' => $order->orderStatus,
             'channel' => $channel
         ];
+        
         $pdf = app()->make('dompdf.wrapper');
         $pdf->loadView('dispatchNote.dispatchNote', $data)->stream();
+        
         return $pdf->stream();
     }
 
@@ -286,19 +290,15 @@ class WarehouseController extends Controller {
      * @return mixed
      */
     public function generatePicklist(int $picklistRef) {
-        $order = $this->orderRepo->listOrder->where('picklist_ref', $picklistRef);
-        $channel = $this->channelRepo->findChannelById($order->channel);
+        $items = $this->orderLineRepo->listOrderProducts()->where('picklist_ref', $picklistRef);
+        //$channel = $this->channelRepo->findChannelById($order->channel);
         $data = [
-            'order' => $order,
-            'products' => $order->products,
-            'customer' => $order->customer,
-            'courier' => $order->courier,
-            'address' => $this->transformAddress($order->address),
-            'status' => $order->orderStatus,
-            'channel' => $channel
+           'items' => $items,
         ];
+        
         $pdf = app()->make('dompdf.wrapper');
         $pdf->loadView('pickingList.pickingList', $data)->stream();
+        
         return $pdf->stream();
     }
 
