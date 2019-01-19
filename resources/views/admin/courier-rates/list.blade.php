@@ -157,6 +157,39 @@
                 }
             });
         });
+        
+        $(document).on("click","#updateCourierRates",function() {
+        
+            e.preventDefault();
+
+            var channel = $('#channel').val();
+
+            if ($.trim(channel) === '') {
+                alert('You must select a channel');
+                return false;
+            }
+
+            $('.channel').val(channel);
+            
+            var formdata = $('#editCourierRateForm').serializeArray();
+
+            $.ajax({
+                type: "POST",
+                url: '/admin/courierRates/update,
+                data: formdata,
+                success: function (response) {
+                    if (response.http_code === 400) {
+
+                        $('.content').prepend("<div class='alert alert-danger'>Unable to save shipping rate</div>");
+
+
+                    } else {
+                        $('.content').prepend("<div class='alert alert-success'>Shipping rate saved successfully</div>");
+                        $('.Search').click();
+                    }
+                }
+            });
+        });
     });
 
 </script>
