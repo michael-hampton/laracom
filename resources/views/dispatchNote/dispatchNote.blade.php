@@ -47,7 +47,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach($products as $product)
+                
+                <?php
+                foreach($items as $product) {
+                
+                if($product->status !== $allowed_status) {
+                
+                continue;
+                
+                }
+                ?>
+                
                     <tr>
                         <td>{{$product->sku}}</td>
                         <td>{{$product->name}}</td>
@@ -55,7 +65,10 @@
                         <td>{{$product->pivot->quantity}}</td>
                         <td></td>
                     </tr>
-                @endforeach
+                    
+                    <?php
+                }
+                ?>
                 </tbody>
             </table>
         </div>
