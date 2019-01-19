@@ -3,12 +3,15 @@
 <div class="box">
     <div class="box-body">
         <h2> <i class="fa fa-truck"></i> Couriers</h2>
-            
+            <form id='editCourierRateForm'>
                 @foreach ($courier_rates as $courier_rate)
                 <div class='inline-form'>
                     <div class="form-group col-lg-3">
-                        <label for="rates[$courier_rate->id][courier]" class="sr-only">Courier</label>
-                        <select name="courier" id="courier" class="form-control select2">
+                        <label for="courier" class="sr-only">Courier</label>
+                        
+                        <input type='hidden' class='channel' name='rates[$courier_rate->id][courier]'>
+                        
+                        <select name="rates[$courier_rate->id][courier]" id="courier" class="form-control select2">
                             <option value="">--Select--</option>
                             @foreach($couriers as $courier)
                             <option @if($courier_rate->courier == $courier->id) selected="selected" @endif value="{{ $courier->id }}">{{ $courier->name }}</option>
@@ -46,6 +49,9 @@
                         </select>
                     </div>
                 @endforeach
+                </form>
+                
+                <button type='button' class='btn btn-primary' id='updateCourierRates'></button>
     </div>
     <!-- /.box-body -->
 </div>
