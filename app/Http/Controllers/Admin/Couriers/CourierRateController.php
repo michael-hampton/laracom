@@ -141,20 +141,17 @@ class CourierRateController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCourierRateRequest $request, $id) {
+    public function update(Request $request, $id) {
 
-        $courierRate = $this->courierRateRepo->findCourierRateById($id);
-        $courierRepo = new CourierRateRepository($courierRate);
+        foreach($request->rates as $rateId => $rate) {
+            $courierRate = $this->courierRateRepo->findCourierRateById($rateId);
+            $courierRepo = new CourierRateRepository($courierRate);
+            
+            $courierRepo->updateCourierRate($rate);
+        }
+        
 
-        $data = $request->except(
-                '_token', '_method'
-        );
-
-
-        $courierRepo->updateCourierRate($data);
-
-        $request->session()->flash('message', 'Update successful');
-        return redirect()->route('admin.courier-rates.edit', $id);
+        echo json_encode(['http_code' => 200]);
     }
 
     /**
