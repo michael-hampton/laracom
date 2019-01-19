@@ -141,6 +141,13 @@ Route::namespace('Front')->group(function () {
         Route::resource('country.state', 'CountryStateController');
         Route::resource('state.city', 'StateCityController');
     });
+  
+   
+  Route::get('customer-returns/index/', 'CustomerReturnController@index')->name('customer-returns.index');
+  Route::get('customer-returns/create/{orderId}', 'CustomerReturnController@create')->name('customer-returns.create');
+  Route::get('customer-returns/show/', 'CustomerReturnController@show')->name('customer-returns.show');
+  Route::post('customer-returns/store/', 'CustomerReturnController@store')->name('customer-returns.store');
+  
 
     Route::namespace('Payments')->group(function () {
         Route::get('bank-transfer', 'BankTransferController@index')->name('bank-transfer.index');
