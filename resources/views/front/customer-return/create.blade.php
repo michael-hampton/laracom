@@ -55,6 +55,7 @@
                 @endforeach
 
                 <input type="hidden" name="order_id" id="order_id"  value="{{ $order->id }}">
+                <input type="hidden" name="customer" id="customer"  value="">
 
                 <div class="form-group">
                     <label for="alias">Condition <span class="text-danger">*</span></label>
