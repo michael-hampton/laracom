@@ -51,7 +51,7 @@
                 @endforeach
                 </form>
                 
-                <button type='button' class='btn btn-primary' id='updateCourierRates'></button>
+                <button type='button' class='btn btn-primary' id='updateCourierRates'>Save</button>
     </div>
     <!-- /.box-body -->
 </div>
