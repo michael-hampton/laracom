@@ -99,9 +99,14 @@ class ReturnController extends Controller {
      */
     public function store(CreateReturnRequest $request) {
         
-        $data = $request->except('_token', '_method');
+        $data = $request->except('_token', '_method', 'lines');
         
-        $this->returnRepo->createReturn($data);
+        $return = $this->returnRepo->createReturn($data);
+        
+        foreach($request->lines as $line) {
+            $this->returnLineRepo->createReturnLine($line, $return);
+        }
+        
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.returns.index');
     }
