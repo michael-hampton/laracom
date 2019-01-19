@@ -124,6 +124,7 @@ class WarehouseController extends Controller {
         return view('admin.warehouse.getPicklist', [
             'items' => $items,
             'channels' => $channels
+            'picklist_ref' => $picklistRef
                 ]
         );
     }
@@ -281,8 +282,8 @@ class WarehouseController extends Controller {
      * @param int $id
      * @return mixed
      */
-    public function generatePicklist(int $id) {
-        $order = $this->orderRepo->findOrderById($id);
+    public function generatePicklist(int $picklistRef) {
+        $order = $this->orderRepo->listOrder->where('picklist_ref', $picklistRef);
         $channel = $this->channelRepo->findChannelById($order->channel);
         $data = [
             'order' => $order,
