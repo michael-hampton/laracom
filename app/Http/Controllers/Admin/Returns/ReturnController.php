@@ -78,10 +78,16 @@ class ReturnController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function create() {
-        $order = $this->orderRepo->findOrderById(1);
+    public function create($orderId) {
+        $order = $this->orderRepo->findOrderById($orderId);
+       
+        $orderRepo = new OrderRepository($order);
+        
+        $items = $orderRepo->listOrderedProducts();
+        
         return view('admin.returns.create', [
             'order' => $order,
+            'items' => $items
         ]);
     }
    
@@ -117,6 +123,12 @@ class ReturnController extends Controller {
      */
     public function edit(int $id) {
         $return = $this->returnRepo->findReturnById($id);
+        $order = $this->orderRepo->findOrderById($orderId);
+        
+        $orderRepo = new OrderRepository($order);
+        
+        $items = $orderRepo->listOrderedProducts();
+        
         return view('admin.returns.edit', [
             'return' => $return,
         ]);
