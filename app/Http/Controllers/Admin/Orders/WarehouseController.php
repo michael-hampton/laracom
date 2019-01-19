@@ -141,18 +141,18 @@ class WarehouseController extends Controller {
         $arrErrors = [];
         $arrSuccesses = [];
 
-//        if ($order->total_paid <= 0 || empty($order->payment)) {
-//            $message = 'Failed to pick order as payment information is incorrect or missing';
-//            $data = [
-//                'content' => $message,
-//                'user_id' => auth()->guard('admin')->user()->id
-//            ];
-//            $postRepo = new OrderCommentRepository($order);
-//            $postRepo->createComment($data);
-//            $arrErrors[$request->orderId][] = $message;
-//            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
-//            die;
-//        }
+        if ($order->total_paid <= 0 || empty($order->payment)) {
+            $message = 'Failed to pick order as payment information is incorrect or missing';
+            $data = [
+                'content' => $message,
+                'user_id' => auth()->guard('admin')->user()->id
+            ];
+            $postRepo = new OrderCommentRepository($order);
+            $postRepo->createComment($data);
+            $arrErrors[$request->orderId][] = $message;
+            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
+            die;
+        }
 
         try {
             $objOrderLineRepo = new OrderProductRepository($objLine);
