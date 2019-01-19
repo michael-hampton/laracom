@@ -145,6 +145,7 @@ class Thread extends Eloquent {
                         ->whereNull($participantTable . '.deleted_at')
                         ->where($threadsTable . '.order_id', $orderID)
                         ->where('message_type', $messageType)
+                        ->groupBy('messages.id')
                         ->select('messages.*', 'threads.subject')->get();
     }
 

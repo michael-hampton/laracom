@@ -1,6 +1,6 @@
 <?php
 namespace App\Shop\Returns\Repositories;
-use App\Shop\Returns\Return;
+use App\Shop\Returns\Returns;
 use App\Events\ReturnsCreateEvent;
 use App\Shop\Orders\Order;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
@@ -9,7 +9,7 @@ use App\Events\OrderCreateEvent;
 use Illuminate\Http\Request;
 use App\Shop\Returns\Exceptions\ReturnInvalidArgumentException;
 use App\Shop\Returns\Exceptions\ReturnNotFoundException;
-use App\Shop\Returns\Repositories\Interfaces\RefundRepositoryInterface;
+use App\Shop\Returns\Repositories\Interfaces\ReturnRepositoryInterface;
 use App\Shop\Returns\Transformations\ReturnTransformable;
 use App\Shop\Base\BaseRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -21,7 +21,7 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
      * ReturnRepository constructor.
      * @param Return $return
      */
-    public function __construct(Return $return) {
+    public function __construct(Returns $return) {
         parent::__construct($return);
         $this->model = $return;
     }
@@ -31,9 +31,9 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
      * @param array $params
      * @return Address
      */
-    public function createReturn(array $params): Return {
+    public function createReturn(array $params): Returns {
         try {
-            $return = new Return($params);
+            $return = new Returns($params);
             $return->save();
             return $return;
         } catch (QueryException $e) {
@@ -72,7 +72,7 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
      * @param int $id
      * @return Return
      */
-    public function findReturnById(int $id): Return {
+    public function findReturnById(int $id): Returns {
         try {
             return $this->findOneOrFail($id);
         } catch (ModelNotFoundException $e) {

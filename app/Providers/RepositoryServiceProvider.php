@@ -59,6 +59,12 @@ use App\Shop\Shipping\Shippo\ShippoShipmentRepository;
 use App\Shop\States\Repositories\StateRepository;
 use App\Shop\States\Repositories\StateRepositoryInterface;
 use App\Shop\Comments\Repositories\OrderCommentRepository;
+use App\Shop\Returns\Returns;
+use App\Shop\Returns\Repositories\ReturnRepository;
+use App\Shop\Returns\ReturnLine;
+use App\Shop\Returns\Repositories\ReturnLineRepository;
+use App\Shop\Returns\Repositories\Interfaces\ReturnRepositoryInterface;
+use App\Shop\Returns\Repositories\Interfaces\ReturnLineRepositoryInterface;
 use App\Shop\Comments\Repositories\CommentRepository;
 use App\Search\CourierRateSearch;
 use App\Search\FilterInterface;
@@ -134,7 +140,7 @@ class RepositoryServiceProvider extends ServiceProvider {
         $this->app->bind(
                 CourierRepositoryInterface::class, CourierRepository::class
         );
-            $this->app->bind(
+        $this->app->bind(
                 CourierRateRepositoryInterface::class, CourierRateRepository::class
         );
         $this->app->bind(
@@ -152,6 +158,18 @@ class RepositoryServiceProvider extends ServiceProvider {
         );
         $this->app->bind(
                 ChannelPriceRepositoryInterface::class, ChannelPriceRepository::class
+        );
+
+        $this->app->bind(
+                OrderProductRepositoryInterface::class, OrderProductRepository::class
+        );
+
+        $this->app->bind(
+        ReturnRepositoryInterface::class, ReturnRepository::class
+        );
+        
+         $this->app->bind(
+                 ReturnLineRepositoryInterface::class, ReturnLineRepository::class
         );
 
         $this->app->bind(

@@ -9,49 +9,77 @@
         <form action="{{ route('admin.returns.store') }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
-                
+
                 @foreach($items as $item)
-                <div class='form-inline'>
-                <div class="form-group">
-                        <label class='sr-only' for="address_2">Quantity</label>
-                        <input type="text" name="lines[{{$item->id}}][quantity]" id="quantity" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
+                <div class='form-inline' style="margin-bottom: 12px;">
+
+                    <div class="pull-left col-lg-2">
+                        {{ $item->name }}
                     </div>
-                    
-                    <div class="form-group">
+
+                    <div class="pull-left col-lg-2">
+                        {{ $item->sku }}
+                    </div>
+
+                    <div class="pull-left col-lg-2">
+                        {{ $item->price }}
+                    </div>
+
+                    <div class="pull-left col-lg-1">
+                        {{ $item->quantity }}
+                    </div>
+
+                    <input type="hidden" name="lines[{{$item->id}}][line_id]" value="{{ $item->id }}">
+
+                    <div class="form-group" style="margin-right:10px;">
+                        <label class='sr-only' for="address_2">Quantity</label>
+                        <select name="lines[{{$item->id}}][quantity]" id="quantity" class="form-control">
+                            <?php
+                            for ($x = 1; $x <= $item->quantity; $x++) {
+                                echo '<option value="' . $x . '">' . $x . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-right:10px;">
                         <label class='sr-only' for="address_2">reason </label>
                         <select name="lines[{{$item->id}}][reason]" id="reason" class="form-control">
-                                        @foreach($reason as $reason)
-                                <option value="{{ $reason }}">{{ $reason }}</option>
+                            <option value="">Select Reason</option>
+                            @foreach($reasons as $reason)
+                            <option value="{{ $reason }}">{{ $reason }}</option>
                             @endforeach
-                    </select>
+                        </select>
                     </div>
-                    </div>
-                    @endforeach
+                </div>
+                @endforeach
 
-                <input type="hidden" name="order_id" id="order_id"  value="1">
-                
+                <input type="hidden" name="order_id" id="order_id"  value="{{ $order->id }}">
+
                 <div class="form-group">
                     <label for="alias">Condition <span class="text-danger">*</span></label>
-                    <select name="condition" id="condition" class="form-control">
-                                        @foreach($conditions as $condition)
-                                <option value="{{ $condition }}">{{ $condition }}</option>
-                            @endforeach
+                    <select name="item_condition" id="condition" class="form-control">
+                        <option value="">Select Condition</option>
+                        @foreach($conditions as $condition)
+                        <option value="{{ $condition }}">{{ $condition }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="address_1">Resolution <span class="text-danger">*</span></label>
                     <select name="resolution" id="resolution" class="form-control">
-                                        @foreach($resolutions as $resolution)
-                                <option value="{{ $resolution }}">{{ $resolution }}</option>
-                            @endforeach
+                        <option value="">Select Resolution</option>
+                        @foreach($resolutions as $resolution)
+                        <option value="{{ $resolution }}">{{ $resolution }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="address_2">Status </label>
-                    <select name="status" id="status" class="form-control">
-                                        @foreach($statuses as $status)
-                                <option value="{{ $status->id }}">{{ $status->name }}</option>
-                            @endforeach
+                    <select name="status" id="status" class="form-control" disabled="disabled">
+                        @foreach($statuses as $status)
+                        <option value="{{ $status->id }}">{{ $status->name }}</option>
+                        @endforeach
                     </select>
                 </div>
 

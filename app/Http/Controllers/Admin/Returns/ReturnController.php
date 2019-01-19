@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Http\Controllers\Admin\Returns;
-use App\Shop\Returns\Return;
+
+use App\Shop\Returns\Returns;
+use App\Shop\Returns\Repositories\Interfaces\ReturnLineRepositoryInterface;
 use App\Shop\Returns\Repositories\ReturnRepository;
 use App\Shop\Comments\OrderCommentRepository;
 use App\Shop\Customers\Repositories\CustomerRepository;
@@ -10,6 +13,8 @@ use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterfa
 use App\Shop\Returns\Requests\CreateReturnRequest;
 use App\Shop\Returns\Requests\UpdateReturnRequest;
 use App\Shop\Returns\Transformations\ReturnTransformable;
+use App\Shop\Returns\Repositories\ReturnLineRepository;
+use App\Shop\Returns\ReturnLine;
 use App\Shop\Orders\Order;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\Channels\Channel;
@@ -22,30 +27,30 @@ use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterfac
 use App\Http\Controllers\Controller;
 
 class ReturnController extends Controller {
-    
 
     use ReturnTransformable;
-    
+
 
     /* @param ReturnRepositoryInterface $refundRepo */
+
     private $returnRepo;
-    
+
     /* @param ReturnRepositoryInterface $refundRepo */
     private $returnLineRepo;
-   
+
     /* @param OrderRepositoryInterface $orderRepo */
     private $orderRepo;
-    
+
     /**
      * @var OrderStatusRepositoryInterface
      */
     private $orderStatusRepo;
-   
+
     /**
      * @var OrderProductRepositoryInterface
      */
     private $orderProductRepo;
-    
+
     /**
      * 
      * @param ReturnRepositoryInterface $refundRepository
@@ -60,23 +65,24 @@ class ReturnController extends Controller {
         $this->orderStatusRepo = $orderStatusRepository;
         $this->orderProductRepo = $orderProductRepository;
     }
-   
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index() {
+
         $list = $this->returnRepo->listReturn('created_at', 'desc');
         if (request()->has('q')) {
             $list = $this->returnRepo->searchReturn(request()->input('q'));
         }
-        $returns = $list->map(function (Return $return) {
+        $returns = $list->map(function (Returns $return) {
                     return $this->transformReturn($return);
                 })->all();
         return view('admin.returns.list', ['returns' => $this->returnRepo->paginateArrayResults($returns)]);
     }
-   
+
     /**
      * Show the form for creating a new resource.
      *
@@ -84,17 +90,23 @@ class ReturnController extends Controller {
      */
     public function create($orderId) {
         $order = $this->orderRepo->findOrderById($orderId);
-       
+
         $orderRepo = new OrderRepository($order);
-        
+
         $items = $orderRepo->listOrderedProducts();
-        
+
+        $status = (new \App\Shop\Returns\ReturnStatus())->get();
+
         return view('admin.returns.create', [
             'order' => $order,
-            'items' => $items
+            'items' => $items,
+            'reasons' => explode(',', env('RETURN_REASON')),
+            'statuses' => $status,
+            'conditions' => explode(',', env('RETURN_CONDITIONS')),
+            'resolutions' => explode(',', env('RETURN_RESOLUTIONS'))
         ]);
     }
-   
+
     /**
      * Store a newly created resource in storage.
      *
@@ -102,19 +114,19 @@ class ReturnController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(CreateReturnRequest $request) {
-        
+
         $data = $request->except('_token', '_method', 'lines');
-        
+
         $return = $this->returnRepo->createReturn($data);
-        
-        foreach($request->lines as $line) {
+
+        foreach ($request->lines as $line) {
             $this->returnLineRepo->createReturnLine($line, $return);
         }
-        
+
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.returns.index');
     }
-    
+
     /**
      * Display the specified resource.
      *
@@ -124,6 +136,7 @@ class ReturnController extends Controller {
     public function show(int $id) {
         return view('admin.returns.show', ['return' => $this->returnRepo->findReturnById($id)]);
     }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -132,16 +145,27 @@ class ReturnController extends Controller {
      */
     public function edit(int $id) {
         $return = $this->returnRepo->findReturnById($id);
-        $order = $this->orderRepo->findOrderById($orderId);
-        
+        $order = $this->orderRepo->findOrderById($return->order_id);
+
         $orderRepo = new OrderRepository($order);
-        
-        $items = $orderRepo->listOrderedProducts();
-        
+
+        $items = $orderRepo->listOrderedProducts()->keyBy('id');
+        $returnLines = $this->returnLineRepo->listReturnLine()->where('return_id', $return->id);
+
+        $status = (new \App\Shop\Returns\ReturnStatus())->get();
+
         return view('admin.returns.edit', [
             'return' => $return,
+            'order' => $order,
+            'items' => $items,
+            'returnLines' => $returnLines,
+            'reasons' => explode(',', env('RETURN_REASON')),
+            'statuses' => $status,
+            'conditions' => explode(',', env('RETURN_CONDITIONS')),
+            'resolutions' => explode(',', env('RETURN_RESOLUTIONS'))
         ]);
     }
+
     /**
      * Update the specified resource in storage.
      *
@@ -153,15 +177,18 @@ class ReturnController extends Controller {
         $return = $this->returnRepo->findReturnById($id);
         $update = new ReturnRepository($return);
         $update->updateReturn($request->except('_method', '_token', 'lines'));
-        
-        foreach($request->lines as $line) {
-            $this->returnLineRepo->createReturnLine($line);
+
+        foreach ($request->lines as $returnLineId => $line) {
+
+            $return = $this->returnLineRepo->findReturnLineById($returnLineId);
+            $update = new ReturnLineRepository($return);
+            $update->updateReturnLine($line);
         }
-        
+
         $request->session()->flash('message', 'Update successful');
         return redirect()->route('admin.returns.edit', $id);
     }
-  
+
     /**
      * Remove the specified resource from storage.
      *
@@ -169,10 +196,12 @@ class ReturnController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
+
         $return = $this->returnRepo->findReturnById($id);
         $delete = new ReturnRepository($return);
         $delete->deleteReturn();
         request()->session()->flash('message', 'Delete successful');
         return redirect()->route('admin.returns.index');
     }
+
 }

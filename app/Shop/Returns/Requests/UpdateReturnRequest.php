@@ -1,7 +1,11 @@
 <?php
+
 namespace App\Shop\Returns\Requests;
+
 use App\Shop\Base\BaseFormRequest;
+
 class UpdateReturnRequest extends BaseFormRequest {
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -9,12 +13,10 @@ class UpdateReturnRequest extends BaseFormRequest {
      */
     public function rules() {
         return [
-            'order_id' => ['required'],
-            'quantity' => ['required'],
-            'amount' => ['required'],
-            'date_refunded' => ['required'],
-            'status' => ['required']
-            
+            'item_condition' => ['required'],
+            'resolution' => ['required'],
+            'lines' => ['required']
         ];
     }
+
 }

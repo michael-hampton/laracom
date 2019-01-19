@@ -9,10 +9,9 @@ class CreateReturnRequest extends BaseFormRequest {
      */
     public function rules() {
         return [
-            'order_id' => ['required'],
-            'quantity' => ['required'],
-            'amount' => ['required'],
-            'status' => ['required']
+            'item_condition' => ['required'],
+            'resolution' => ['required'],
+            'lines' => ['required']
         ];
     }
 }

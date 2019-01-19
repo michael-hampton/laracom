@@ -6,6 +6,8 @@ use App\User;
 use Carbon\Carbon;
 use Cmgmyr\Messenger\Models\Message;
 use Cmgmyr\Messenger\Models\Participant;
+use App\Shop\Orders\Order;
+use App\Shop\Orders\Repositories\OrderRepository;
 use Cmgmyr\Messenger\Models\Thread;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
@@ -80,8 +82,8 @@ class MessageController extends Controller {
             ]);
         } else {
             try {
-               
-                
+
+
                 $thread = \App\Shop\Messages\Thread::findOrFail($input['thread_id']);
             } catch (ModelNotFoundException $e) {
                 Session::flash('error_message', 'The thread with ID: ' . $id . ' was not found.');
@@ -105,9 +107,23 @@ class MessageController extends Controller {
         if (Input::has('recipients')) {
             $thread->addParticipant($input['recipients']);
         }
+
+        //mail($input['email_address'], $input['subject'], $input['message']);
+
+        echo json_encode(['http_code' => 200, 'Message sent successfully']);
+    }
+
+    /**
+     * 
+     * @param type $orderId
+     */
+    public function get($orderId) {
+
+        $order = (new OrderRepository(new Order))->findOrderById($orderId);
+
+        $messages = (new \App\Shop\Messages\Thread)->getByOrderIdAndType($orderId, 1);
         
-        mail($input['email_address'], $input['subject'], $input['message']);
-        return redirect()->route('admin.messages.index');
+        return view('admin.messages.get', ['messages' => $messages, 'order' => $order]);
     }
 
     /**

@@ -67,9 +67,10 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $('.pick').on('click', function () {
-        
-        var $this = $(this);
+        $(document).off('.pick');
+        $(document).on("click", ".pick", function () {
+
+            var $this = $(this);
 
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
@@ -82,15 +83,37 @@
                     lineId: lineId,
                     _token: '{{ csrf_token() }}'
                 },
-                success: function (msg) {
-                    alert(msg);
-                    $this.removeClass('pick').addClass('pack').text('Pack');
+                success: function (response) {
+
+                    var response = JSON.parse(response);
+
+                    if (response.http_code === 400) {
+
+                        $('.content').prepend("<div class='alert alert-danger'></div>");
+
+                        $.each(response.FAILURES, function (lineId, val) {
+
+                            $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
+
+                        });
+                    } else {
+                        $('.modal-body').prepend("<div class='alert alert-success'></div>");
+
+                        $.each(response.SUCCESS, function (lineId, val) {
+
+                            $('.modal-body .alert-success').append("<p>" + val + "</p>");
+
+                        });
+
+                        $this.replaceWith('<button class="pack" order-id="' + orderId + '" line-id="' + lineId + '">Pack</button>');
+                    }
                 }
             });
             return false;
         });
 
-        $('.pack').on('click', function () {
+        $(document).off('.pack');
+        $(document).on("click", ".pack", function () {
 
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
@@ -104,15 +127,37 @@
                     lineId: lineId,
                     _token: '{{ csrf_token() }}'
                 },
-                success: function (msg) {
-                    alert(msg);
-                    $this.removeClass('pack').addClass('dispatch').text('Dispatch');
+                success: function (response) {
+
+                    var response = JSON.parse(response);
+
+                    if (response.http_code === 400) {
+
+                        $('.content').prepend("<div class='alert alert-danger'></div>");
+
+                        $.each(response.FAILURES, function (lineId, val) {
+
+                            $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
+
+                        });
+                    } else {
+                        $('.modal-body').prepend("<div class='alert alert-success'></div>");
+
+                        $.each(response.SUCCESS, function (lineId, val) {
+
+                            $('.modal-body .alert-success').append("<p>" + val + "</p>");
+
+                        });
+
+                        $this.replaceWith('<button class="dispatch" order-id="' + orderId + '" line-id="' + lineId + '">Dispatch</button>');
+                    }
                 }
             });
             return false;
         });
 
-        $('.dispatch').on('click', function () {
+        $(document).off('.dispatch');
+        $(document).on("click", ".dispatch", function () {
 
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
@@ -126,9 +171,8 @@
                     lineId: lineId,
                     _token: '{{ csrf_token() }}'
                 },
-                success: function (msg) {
-                    alert(msg);
-                    $this.hide();
+                success: function (response) {
+                    $this.remove();
                 }
             });
             return false;

@@ -1,24 +1,31 @@
 <?php
+
 namespace App\Shop\Returns\Repositories\Interfaces;
-use App\Shop\Returns\Return;
+
+use App\Shop\Returns\Returns;
 use App\Shop\Base\Interfaces\BaseRepositoryInterface;
 use App\Shop\Orders\Order;
 use Illuminate\Support\Collection;
+
 interface ReturnRepositoryInterface extends BaseRepositoryInterface {
+
     /**
      * 
      * @param array $params
      */
-    public function createReturn(array $params): Return;
+    public function createReturn(array $params): Returns;
+
     /**
      * 
      * @param array $update
      */
     public function updateReturn(array $update): bool;
+
     /**
      * 
      */
     public function deleteReturn();
+
     /**
      * 
      * @param string $order
@@ -26,11 +33,13 @@ interface ReturnRepositoryInterface extends BaseRepositoryInterface {
      * @param array $columns
      */
     public function listReturn(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection;
+
     /**
      * 
      * @param int $id
      */
-    public function findReturnById(int $id): Return;
+    public function findReturnById(int $id): Returns;
+
     /**
      * 
      * @param string $text

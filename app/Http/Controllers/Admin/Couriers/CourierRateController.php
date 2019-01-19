@@ -54,8 +54,6 @@ class CourierRateController extends Controller {
      */
     public function index() {
 
-
-
         $courier_rates = $this->courierRateRepo->listCourierRates('id');
         $couriers = $this->courierRepo->listCouriers()->keyBy('id');
 
@@ -74,16 +72,16 @@ class CourierRateController extends Controller {
 
     public function search(Request $request) {
 
-        $list = CourierRateSearch::apply($request);
-
-        $couriers = $list->map(function (CourierRate $item) {
-                    return $this->transformCourierRate($item);
-                })->all();
+        $courier_rates = CourierRateSearch::apply($request);
+        $couriers = $this->courierRepo->listCouriers()->keyBy('id');
 
         $countries = (new CountryRepository(new Country))->listCountries();
 
-        return view('admin.courier-rates.list', [
+
+
+        return view('admin.courier-rates.search', [
             'couriers' => $couriers,
+            'courier_rates' => $courier_rates,
             'countries' => $countries,
             'channels' => $this->channelRepo->listChannels()
                 ]
@@ -113,9 +111,9 @@ class CourierRateController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(CreateCourierRateRequest $request) {
+
         $this->courierRateRepo->createCourierRate($request->all());
-        $request->session()->flash('message', 'Create successful');
-        return redirect()->route('admin.courier-rates.index');
+        echo json_encode(['http_code' => 200]);
     }
 
     /**

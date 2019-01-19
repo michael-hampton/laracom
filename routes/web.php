@@ -49,19 +49,22 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::get('orders/importCsv/get', 'OrderController@importCsv')->name('orders.importCsv');
             Route::post('orders/saveImport', 'OrderController@saveImport')->name('orders.saveImport');
         });
-        
-          Route::get('message/index/', 'Messages\MessageController@index')->name('messages.index');
-          Route::get('message/create/', 'Messages\MessageController@create')->name('messages.create');
-          Route::get('message/show/', 'Messages\MessageController@show')->name('messages.show');
-          Route::post('message/store/', 'Messages\MessageController@store')->name('messages.store');
 
-//        Route::group(['prefix' => 'messages'], function () {
-//            Route::get('/', ['as' => 'messages', 'uses' => 'Messages/MessageController@index']);
-//            Route::get('create', ['as' => 'messages.create', 'uses' => 'Messages/MessageController@create']);
-//            Route::post('/', ['as' => 'messages.store', 'uses' => 'Messages/MessageController@store']);
-//            Route::get('{id}', ['as' => 'messages.show', 'uses' => 'Messages/MessageController@show']);
-//            Route::put('{id}', ['as' => 'messages.update', 'uses' => 'Messages/MessageController@update']);
-//        });
+        /** Messages * */
+        Route::get('message/index/', 'Messages\MessageController@index')->name('messages.index');
+        Route::get('message/get/{orderId}', 'Messages\MessageController@get')->name('messages.get');
+        Route::get('message/create/', 'Messages\MessageController@create')->name('messages.create');
+        Route::get('message/show/', 'Messages\MessageController@show')->name('messages.show');
+        Route::post('message/store/', 'Messages\MessageController@store')->name('messages.store');
+
+        /** Returns * */
+        Route::get('returns/index/', 'Returns\ReturnController@index')->name('returns.index');
+        Route::get('returns/create/{orderId}', 'Returns\ReturnController@create')->name('returns.create');
+        Route::get('returns/show/', 'Returns\ReturnController@show')->name('returns.show');
+        Route::post('returns/store/', 'Returns\ReturnController@store')->name('returns.store');
+        Route::put('returns/update/{id}', 'Returns\ReturnController@update')->name('returns.update');
+        Route::delete('returns/destroy/{id}', 'Returns\ReturnController@destroy')->name('returns.destroy');
+        Route::get('returns/edit/{id}', 'Returns\ReturnController@edit')->name('returns.edit');
 
 
         Route::post('invoice/invoiceOrder/', 'Invoices\InvoiceController@invoiceOrder')->name('invoice.invoiceOrder');

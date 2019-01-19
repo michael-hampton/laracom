@@ -199,7 +199,7 @@ class BankTransferController extends Controller {
             }
         }
         
-        $objChannel = $this->channelRepo->findByName('mike');
+        $objChannel = $this->channelRepo->findByName(env('CHANNEL'));
 
         $order = $checkoutRepo->buildCheckoutItems([
             'reference' => Uuid::uuid4()->toString(),

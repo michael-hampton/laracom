@@ -137,21 +137,42 @@ class WarehouseController extends Controller {
         $channel = $this->channelRepo->findChannelById($order->channel);
         $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
         $newStatus = $this->orderStatusRepo->findByName('Picking');
-        if ($order->total_paid <= 0 || empty($order->payment)) {
-            $data = [
-                'content' => 'Failed to pick order as payment information is incorrect or missing',
-                'user_id' => auth()->guard('admin')->user()->id
-            ];
-            $postRepo = new OrderCommentRepository($order);
-            $postRepo->createComment($data);
-            return response()->json(['error' => 'picking failed. The total paid is 0'], 404);
+
+        $arrErrors = [];
+        $arrSuccesses = [];
+
+//        if ($order->total_paid <= 0 || empty($order->payment)) {
+//            $message = 'Failed to pick order as payment information is incorrect or missing';
+//            $data = [
+//                'content' => $message,
+//                'user_id' => auth()->guard('admin')->user()->id
+//            ];
+//            $postRepo = new OrderCommentRepository($order);
+//            $postRepo->createComment($data);
+//            $arrErrors[$request->orderId][] = $message;
+//            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
+//            die;
+//        }
+
+        try {
+            $objOrderLineRepo = new OrderProductRepository($objLine);
+            $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+        } catch (Exception $ex) {
+            $arrErrors[$request->orderId][] = $ex->getMessage();
+            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
+            die;
         }
-        $objOrderLineRepo = new OrderProductRepository($objLine);
-        $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+
+        $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
+
+
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
             $orderRepo = new OrderRepository($order);
             $orderRepo->updateOrder(['order_status_id' => $newStatus->id]);
         }
+
+        echo json_encode(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
+        die;
     }
 
     /**
@@ -159,16 +180,30 @@ class WarehouseController extends Controller {
      * @param WarehouseRequest $request
      */
     public function packOrder(WarehouseRequest $request) {
-        $order = $this->orderRepo->findOrderById($request->orderId);
-        $channel = $this->channelRepo->findChannelById($order->channel);
-        $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
-        $newStatus = $this->orderStatusRepo->findByName('Packing');
-        $objOrderLineRepo = new OrderProductRepository($objLine);
-        $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+        $arrErrors = [];
+        $arrSuccesses = [];
+
+        try {
+            $order = $this->orderRepo->findOrderById($request->orderId);
+            $channel = $this->channelRepo->findChannelById($order->channel);
+            $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
+            $newStatus = $this->orderStatusRepo->findByName('Packing');
+            $objOrderLineRepo = new OrderProductRepository($objLine);
+            $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+        } catch (Exception $ex) {
+            $arrErrors[$request->orderId][] = $ex->getMessage();
+            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
+            die;
+        }
+
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
             $orderRepo = new OrderRepository($order);
             $orderRepo->updateOrder(['order_status_id' => $newStatus->id]);
         }
+
+        $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
+        echo json_encode(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
+        die;
     }
 
     /**
@@ -176,23 +211,34 @@ class WarehouseController extends Controller {
      * @param WarehouseRequest $request
      */
     public function dispatchOrder(WarehouseRequest $request) {
-        $order = $this->orderRepo->findOrderById($request->orderId);
-        $channel = $this->channelRepo->findChannelById($order->channel);
-        $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
-        $newStatus = $this->orderStatusRepo->findByName('Dispatch');
-        $completeStatus = $this->orderStatusRepo->findByName('Order Completed');
-        $productRepo = new ProductRepository(new Product);
-        $objProduct = $productRepo->findProductById($objLine->product_id);
-        $quantity = $objProduct->quantity - $objLine->quantity;
-        $reserved_stock = $objProduct->reserved_stock - $objLine->quantity;
-        $objProductRepo = new ProductRepository($objProduct);
-        $objProductRepo->updateProduct(['quantity' => $quantity, 'reserved_stock' => $reserved_stock]);
-        $objOrderLineRepo = new OrderProductRepository($objLine);
-        $objOrderLineRepo->updateOrderProduct(
-                ['status' => $newStatus->id,
-                    'dispatch_date' => date('Y-m-d')
-                ]
-        );
+        $arrErrors = [];
+        $arrSuccesses = [];
+
+        try {
+            $order = $this->orderRepo->findOrderById($request->orderId);
+            $channel = $this->channelRepo->findChannelById($order->channel);
+            $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
+            $newStatus = $this->orderStatusRepo->findByName('Dispatch');
+            $completeStatus = $this->orderStatusRepo->findByName('Order Completed');
+            $productRepo = new ProductRepository(new Product);
+            $objProduct = $productRepo->findProductById($objLine->product_id);
+            $quantity = $objProduct->quantity - $objLine->quantity;
+            $reserved_stock = $objProduct->reserved_stock - $objLine->quantity;
+            $objProductRepo = new ProductRepository($objProduct);
+            $objProductRepo->updateProduct(['quantity' => $quantity, 'reserved_stock' => $reserved_stock]);
+            $objOrderLineRepo = new OrderProductRepository($objLine);
+            $objOrderLineRepo->updateOrderProduct(
+                    ['status' => $newStatus->id,
+                        'dispatch_date' => date('Y-m-d')
+                    ]
+            );
+        } catch (Exception $ex) {
+            $arrErrors[$request->orderId][] = $ex->getMessage();
+            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
+            die;
+        }
+
+
 
         (new \App\RabbitMq\Worker('dispatch'))->execute($request->lineId);
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
@@ -200,6 +246,10 @@ class WarehouseController extends Controller {
             $order->save();
             //complete order
         }
+
+        $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
+        echo json_encode(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
+        die;
     }
 
     /**

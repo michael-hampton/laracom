@@ -594,8 +594,6 @@ class OrderController extends Controller {
 
         $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
         $orders = $this->transFormOrder($orders);
-        
-        $messages = (new \App\Shop\Messages\Thread)->getByOrderIdAndType(1, 1);
 
         $products = $this->productRepo->listProducts()->keyBy('id');
 
@@ -604,8 +602,7 @@ class OrderController extends Controller {
             'products' => $products,
             'channels' => $channels,
             'couriers' => $couriers,
-            'orders' => $orders,
-            'messages' => $messages
+            'orders' => $orders
                 ]
         );
     }
