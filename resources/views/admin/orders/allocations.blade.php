@@ -4,6 +4,12 @@
 
 @include('layouts.errors-and-messages')
 
+<style>
+    .table-warning, .table-warning>td, .table-warning>th {
+        background-color: #ffeeba;
+    }
+</style>
+
 <!-- Main content -->
 <section class="content">
     <div class="col-lg-3">
@@ -87,7 +93,7 @@
 
                 <a href="#" class="uncheck">Uncheck</a>
 
-                <table class="table">
+                <table class="table table-striped table-hover">
                     <thead>
                     <th class="col-md-2">Customer Ref</th>
                     <th class="col-md-2">Channel</th>
@@ -100,45 +106,55 @@
                     </thead>
                     <tbody>
 
-
-                        @foreach($items as $item)
-
                         <?php
-                         $arrOrder = $orders[$item->order_id];
-                        $color = $arrOrder->is_priority === 1 ? '#C0C0C0' : '';
-                       
-                        ?>
+                        $customerRef = ''; 
+                        foreach ($items as $item) {
 
-                        <tr style="background-color: {{ $color }}">
-                            <td>{{$arrOrder->id}}</td>
-                            <td>{{$arrOrder->channel->name}}</td>
-                            <td>{{$arrOrder->created_at}}</td>
-                            <td>{{$arrOrder->customer->name}}</td>
-                            <td>
-                                {{ $item->product_name }}
 
-                            </td>
-
-                            <?php
-                            $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
-                            $reservedStock = $products[$item->product_id]['reserved_stock'];
-                            $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
-                            $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+                            $arrOrder = $orders[$item->order_id];
+                            $color = $arrOrder->is_priority == 1 ? 'table-warning' : '';
                             ?>
 
-                            <td>{{ $item->quantity }}
-                                <br>Free Stock {{$quantityAvailiable}}
-                                <br>Reserved Stock {{$reservedStock}}
-                            </td>
-                            <td>{{ $item->product_price }}</td>
+                            <tr class="{{ $color }}">
+                                @if($customerRef !== $arrOrder->customer_ref)
+                                <td>{{$arrOrder->id}}</td>
+                                <td>{{$arrOrder->channel->name}}</td>
+                                <td>{{$arrOrder->created_at}}</td>
+                                <td>{{$arrOrder->customer->name}}</td>
+                                @else
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                @endif
+                                <td>
+                                    {{ $item->product_name }}
 
-                            <td>
+                                </td>
 
-                                <input type="checkbox" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
-                                <i order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
-                            </td>
-                        </tr>
-                        @endforeach
+                                <?php
+                                $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
+                                $reservedStock = $products[$item->product_id]['reserved_stock'];
+                                $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
+                                $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+                                ?>
+
+                                <td>{{ $item->quantity }}
+                                    <br>Free Stock {{$quantityAvailiable}}
+                                    <br>Reserved Stock {{$reservedStock}}
+                                </td>
+                                <td>{{ $item->product_price }}</td>
+
+                                <td>
+
+                                    <input type="checkbox" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                    <i order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
+                                </td>
+                            </tr>
+                            <?php
+                            $customerRef = $arrOrder['customer_ref'];
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>

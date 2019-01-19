@@ -43,7 +43,7 @@
                 
                 <div class='inline-form'>
                 <div class="form-group col-lg-3">
-                    <label for="courier">Courier</label>
+                    <label for="courier" class="sr-only">Courier</label>
                     <select name="courier" id="courier" class="form-control select2">
                         <option value="">--Select--</option>
                         @foreach($couriers as $courier)
@@ -100,9 +100,10 @@
                     <button type="submit" class="btn btn-primary">Create</button>
                 </div>
             </div>
+        </form>
 
     <!-- Default box -->
-    @if($couriers)
+    @if($courier_rates)
     <div class="box">
         <div class="box-body">
             <h2> <i class="fa fa-truck"></i> Couriers</h2>
@@ -119,9 +120,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($couriers as $courier)
+                    @foreach ($courier_rates as $courier)
                     <tr>
-                        <td>{{ $courier->courier_name }}</td>
+                        <td>{{ $couriers[$courier->courier]->name }}</td>
                         <td>{{ $courier->country }}</td>
                         <td>{{ $courier->channel_name }}</td>
                         <td>{{ $courier->range_from }}</td>

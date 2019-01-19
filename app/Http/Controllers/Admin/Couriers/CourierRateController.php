@@ -54,24 +54,26 @@ class CourierRateController extends Controller {
      */
     public function index() {
 
-        $list = $this->courierRateRepo->listCourierRates('id');
 
-        $couriers = $list->map(function (CourierRate $item) {
-                    return $this->transformCourierRate($item);
-                })->all();
+
+        $courier_rates = $this->courierRateRepo->listCourierRates('id');
+        $couriers = $this->courierRepo->listCouriers()->keyBy('id');
 
         $countries = (new CountryRepository(new Country))->listCountries();
 
+
+
         return view('admin.courier-rates.list', [
             'couriers' => $couriers,
+            'courier_rates' => $courier_rates,
             'countries' => $countries,
             'channels' => $this->channelRepo->listChannels()
                 ]
         );
     }
-    
+
     public function search(Request $request) {
-        
+
         $list = CourierRateSearch::apply($request);
 
         $couriers = $list->map(function (CourierRate $item) {

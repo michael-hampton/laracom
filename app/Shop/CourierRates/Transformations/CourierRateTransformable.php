@@ -23,12 +23,16 @@ trait CourierRateTransformable {
 
         $courierRepo = new CourierRepository(new Courier);
         $courier = $courierRepo->findCourierById($courierRate->courier);
+        
+      
 
         $channelRepo = new ChannelRepository(new Channel);
         $channel = $channelRepo->findChannelById($courierRate->channel);
 
         $countryRepo = new CountryRepository(new Country);
         $country = $countryRepo->findCountryById($courierRate->country);
+        
+          
 
         $courierObj = new CourierRate;
         $courierObj->id = (int) $courierRate->id;
@@ -41,7 +45,8 @@ trait CourierRateTransformable {
         $courierObj->channel_name = $channel->name;
          $courierObj->channel = $channel->id;
         $courierObj->country = $country->name;
-
+        
+       
         return $courierObj;
     }
 

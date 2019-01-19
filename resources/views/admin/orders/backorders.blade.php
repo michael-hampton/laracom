@@ -2,6 +2,12 @@
 
 @section('content')
 
+<style>
+    .table-danger, .table-danger>td, .table-danger>th {
+    background-color: #f5c6cb;
+}
+</style>
+
 @include('layouts.errors-and-messages')
 <!-- Main content -->
 <section class="content">
@@ -104,6 +110,7 @@
                         <tbody>
 
                             <?php
+                            $customerRef = '';
                             foreach ($items as $item) {
 
                                 $arrOrder = $orders[$item->order_id];
@@ -118,7 +125,7 @@
                                 ?>
 
                                 <tr class="{{ $color }}">
-                                @if($customerRef !== $arrOrder['customer_ref'])
+                                @if($customerRef !== $arrOrder->customer_ref)
                                     <td>{{$arrOrder->id}}</td>
                                     <td>{{$arrOrder->channel->name}}</td>
                                     <td>{{$arrOrder->created_at}}</td>
