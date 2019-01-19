@@ -262,8 +262,11 @@ class WarehouseController extends Controller {
     public function generateDispatchNote(int $id) {
         $order = $this->orderRepo->findOrderById($id);
         $channel = $this->channelRepo->findChannelById($order->channel);
+        $newStatus = $this->orderStatusRepo->findByName('Dispatch');
+        
         $data = [
             'order' => $order,
+            'allowed_status' => $newStatus,
             'products' => $order->products,
             'customer' => $order->customer,
             'courier' => $order->courier,
