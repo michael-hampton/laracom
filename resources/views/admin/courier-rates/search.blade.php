@@ -9,7 +9,7 @@
                     <div class="form-group col-lg-3">
                         <label for="courier" class="sr-only">Courier</label>
                         
-                        <input type='hidden' class='channel' name='rates[$courier_rate->id][courier]'>
+                        <input type='hidden' class='channel' name='rates[$courier_rate->id][channel]'>
                         
                         <select name="rates[$courier_rate->id][courier]" id="courier" class="form-control select2">
                             <option value="">--Select--</option>
