@@ -150,7 +150,7 @@ class CourierRateController extends Controller {
                         )->errors();
             
             if ($csv_errors->any()) {
-                echo json_encode(['http_code' => 400]);
+                echo json_encode(['http_code' => 400, 'errors' => $csv_errors]);
                 die;
             }
             
