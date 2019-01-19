@@ -6,8 +6,7 @@ use App\Shop\Returns\Returns;
 use App\Shop\Returns\Repositories\Interfaces\ReturnLineRepositoryInterface;
 use App\Shop\Returns\Repositories\ReturnRepository;
 use App\Shop\Comments\OrderCommentRepository;
-use App\Shop\Customers\Repositories\CustomerRepository;
-use App\Shop\Customers\Customer;
+use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Returns\Repositories\Interfaces\ReturnRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\Returns\Requests\CreateReturnRequest;
@@ -32,7 +31,6 @@ class ReturnController extends Controller {
 
 
     /* @param ReturnRepositoryInterface $refundRepo */
-
     private $returnRepo;
 
     /* @param ReturnRepositoryInterface $refundRepo */
@@ -45,6 +43,11 @@ class ReturnController extends Controller {
      * @var OrderStatusRepositoryInterface
      */
     private $orderStatusRepo;
+    
+     /**
+     * @var CustomerRepositoryInterface
+     */
+    private $customerRepo;
 
     /**
      * @var OrderProductRepositoryInterface
@@ -57,9 +60,15 @@ class ReturnController extends Controller {
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
-    ReturnRepositoryInterface $returnRepository, ReturnLineRepositoryInterface $returnLineRepository, OrderRepositoryInterface $orderRepository, OrderStatusRepositoryInterface $orderStatusRepository, OrderProductRepositoryInterface $orderProductRepository
+        ReturnRepositoryInterface $returnRepository, 
+        ReturnLineRepositoryInterface $returnLineRepository, 
+        OrderRepositoryInterface $orderRepository, 
+        OrderStatusRepositoryInterface $orderStatusRepository,
+        OrderProductRepositoryInterface $orderProductRepository,
+        CustomerRepositoryInterface $customerRepository
     ) {
         $this->returnRepo = $returnRepository;
+        $this->customerRepo = $customerRepository;
         $this->returnLineRepo = $returnLineRepository;
         $this->orderRepo = $orderRepository;
         $this->orderStatusRepo = $orderStatusRepository;
@@ -74,13 +83,21 @@ class ReturnController extends Controller {
     public function index() {
 
         $list = $this->returnRepo->listReturn('created_at', 'desc');
+        
         if (request()->has('q')) {
             $list = $this->returnRepo->searchReturn(request()->input('q'));
         }
+        
         $returns = $list->map(function (Returns $return) {
                     return $this->transformReturn($return);
                 })->all();
-        return view('admin.returns.list', ['returns' => $this->returnRepo->paginateArrayResults($returns)]);
+        
+        $customers = $this->customerRepo->listCustomers('created_at', 'desc')->keyBy('id');
+        
+        return view('admin.returns.list', [
+            'returns' => $this->returnRepo->paginateArrayResults($returns),
+            'customers' => $customers
+        ]);
     }
 
     /**
@@ -89,19 +106,19 @@ class ReturnController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function create($orderId) {
+        
         $order = $this->orderRepo->findOrderById($orderId);
-
         $orderRepo = new OrderRepository($order);
-
         $items = $orderRepo->listOrderedProducts();
-
         $status = (new \App\Shop\Returns\ReturnStatus())->get();
-
+        $customers = $this->customerRepo->listCustomers('created_at', 'desc');
+        
         return view('admin.returns.create', [
             'order' => $order,
             'items' => $items,
             'reasons' => explode(',', env('RETURN_REASON')),
             'statuses' => $status,
+            'customers' => $customers,
             'conditions' => explode(',', env('RETURN_CONDITIONS')),
             'resolutions' => explode(',', env('RETURN_RESOLUTIONS'))
         ]);
@@ -144,19 +161,19 @@ class ReturnController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit(int $id) {
+       
         $return = $this->returnRepo->findReturnById($id);
         $order = $this->orderRepo->findOrderById($return->order_id);
-
         $orderRepo = new OrderRepository($order);
-
         $items = $orderRepo->listOrderedProducts()->keyBy('id');
         $returnLines = $this->returnLineRepo->listReturnLine()->where('return_id', $return->id);
-
         $status = (new \App\Shop\Returns\ReturnStatus())->get();
-
+        $customers = $this->customerRepo->listCustomers('created_at', 'desc');
+        
         return view('admin.returns.edit', [
             'return' => $return,
             'order' => $order,
+            'customers' => $customers,
             'items' => $items,
             'returnLines' => $returnLines,
             'reasons' => explode(',', env('RETURN_REASON')),
