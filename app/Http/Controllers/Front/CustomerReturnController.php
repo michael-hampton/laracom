@@ -1,8 +1,30 @@
 <?php
 namespace App\Http\Controllers\Front;
-use App\Shop\Categories\Repositories\CategoryRepository;
-use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
+
+use App\Shop\Returns\Returns;
+use App\Shop\Returns\Repositories\Interfaces\ReturnLineRepositoryInterface;
+use App\Shop\Returns\Repositories\ReturnRepository;
+use App\Shop\Comments\OrderCommentRepository;
+use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\Customers\Customer;
+use App\Shop\Returns\Repositories\Interfaces\ReturnRepositoryInterface;
+use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
+use App\Shop\Returns\Requests\CreateReturnRequest;
+use App\Shop\Returns\Requests\UpdateReturnRequest;
+use App\Shop\Returns\Transformations\ReturnTransformable;
+use App\Shop\Returns\Repositories\ReturnLineRepository;
+use App\Shop\Returns\ReturnLine;
+use App\Shop\Orders\Order;
+use App\Shop\Orders\Repositories\OrderRepository;
+use App\Shop\Channels\Channel;
+use App\Shop\OrderProducts\Repositories\OrderProductRepository;
+use App\Shop\OrderProducts\OrderProduct;
+use App\Shop\Channels\Repositories\ChannelRepository;
+use Illuminate\Http\Request;
+use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
+use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
 use App\Http\Controllers\Controller;
+
 class CustomerReturnController extends Controller
 {
     use ReturnTransformable;
