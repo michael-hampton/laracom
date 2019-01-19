@@ -74,6 +74,17 @@
                         @endforeach
                     </select>
                 </div>
+                
+                <div class="form-group">
+                    <label for="customer">Customer<span class="text-danger">*</span></label>
+                    <select name="customer" id="customer" class="form-control">
+                        <option value="">Select Customer</option>
+                        @foreach($customers as $customer)
+                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                
                 <div class="form-group">
                     <label for="address_2">Status </label>
                     <select name="status" id="status" class="form-control" disabled="disabled">
