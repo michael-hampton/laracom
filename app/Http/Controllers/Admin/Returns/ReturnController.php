@@ -29,6 +29,9 @@ class ReturnController extends Controller {
 
     /* @param ReturnRepositoryInterface $refundRepo */
     private $returnRepo;
+    
+    /* @param ReturnRepositoryInterface $refundRepo */
+    private $returnLineRepo;
    
     /* @param OrderRepositoryInterface $orderRepo */
     private $orderRepo;
@@ -49,9 +52,10 @@ class ReturnController extends Controller {
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
-    ReturnRepositoryInterface $returnRepository, OrderRepositoryInterface $orderRepository, OrderStatusRepositoryInterface $orderStatusRepository, OrderProductRepositoryInterface $orderProductRepository
+    ReturnRepositoryInterface $returnRepository, ReturnLineRepositoryInterface $returnLineRepository, OrderRepositoryInterface $orderRepository, OrderStatusRepositoryInterface $orderStatusRepository, OrderProductRepositoryInterface $orderProductRepository
     ) {
         $this->returnRepo = $returnRepository;
+        $this->returnLineRepo = $returnLineRepository;
         $this->orderRepo = $orderRepository;
         $this->orderStatusRepo = $orderStatusRepository;
         $this->orderProductRepo = $orderProductRepository;
@@ -148,7 +152,12 @@ class ReturnController extends Controller {
     public function update(UpdateReturnRequest $request, $id) {
         $return = $this->returnRepo->findReturnById($id);
         $update = new ReturnRepository($return);
-        $update->updateReturn($request->except('_method', '_token'));
+        $update->updateReturn($request->except('_method', '_token', 'lines'));
+        
+        foreach($request->lines as $line) {
+            $this->returnLineRepo->createReturnLine($line);
+        }
+        
         $request->session()->flash('message', 'Update successful');
         return redirect()->route('admin.returns.edit', $id);
     }
