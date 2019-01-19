@@ -21,6 +21,7 @@ class Returns extends Model {
         'order_id',
         'item_condition',
         'resolution',
+        'customer',
         'status'
     ];
 
