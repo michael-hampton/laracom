@@ -159,5 +159,6 @@
         
         $('.Search').click();
 });
+</script>
 
 @endsection
