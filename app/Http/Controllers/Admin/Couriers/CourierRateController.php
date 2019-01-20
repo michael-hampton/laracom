@@ -15,6 +15,7 @@ use App\Shop\CourierRates\CourierRate;
 use App\Shop\CourierRates\Transformations\CourierRateTransformable;
 use App\Http\Controllers\Controller;
 use App\Search\CourierRateSearch;
+use Validator;
 
 class CourierRateController extends Controller {
 
@@ -141,7 +142,7 @@ class CourierRateController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id) {
+    public function update(Request $request) {
 
         foreach($request->rates as $rateId => $rate) {
            

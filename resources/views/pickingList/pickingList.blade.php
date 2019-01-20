@@ -13,21 +13,11 @@
     </style>
 </head>
 <body>
-    <section class="row col-lg-12">
-        <div class="pull-right col-lg-6">
-           <img style="width:50px;" src="/storage/{{ $channel->cover }}">
-            From: {{$channel->name}}<br>
-            Date: {{ date('d-m-Y H:i') }}<br>
-            
-        </div>
-        
-    </section>
+
     <section class="row">
         <div class="col-md-12">
             <h2>Details</h2>
-            
-            <small>Customer Ref: <strong>{{ $order->customer_ref }}</strong></small>
-            
+                        
             <table class="table table-striped" width="100%" border="0" cellspacing="0" cellpadding="0">
                 <thead>
                     <tr>
@@ -41,13 +31,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach($products as $product)
+                @foreach($items as $item)
                     <tr>
-                        <td>{{$product->sku}}</td>
-                        <td>{{$product->name}}</td>
-                        <td>{{$product->description}}</td>
-                        <td>{{$product->pivot->quantity}}</td>
-                        <td>{{$product->weight}}</td>
+                        <td>{{$item->product_sku}}</td>
+                        <td>{{$item->product_name}}</td>
+                        <td>{{$item->product_description}}</td>
+                        <td>{{$item->quantity}}</td>
+                        <td>{{$item->product_weight}}</td>
                         <td>abc</td>
                     </tr>
                 @endforeach

@@ -19,8 +19,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Shop\Orders\Requests\WarehouseRequest;
+use App\Shop\Addresses\Transformations\AddressTransformable;
 
 class WarehouseController extends Controller {
+    
+    use AddressTransformable;
 
     /**
      * @var OrderRepositoryInterface
@@ -123,7 +126,7 @@ class WarehouseController extends Controller {
         $channels = $this->channelRepo->listChannels();
         return view('admin.warehouse.getPicklist', [
             'items' => $items,
-            'channels' => $channels
+            'channels' => $channels,
             'picklist_ref' => $picklistRef
                 ]
         );
@@ -260,15 +263,16 @@ class WarehouseController extends Controller {
      * @return mixed
      */
     public function generateDispatchNote(int $id) {
+              
         $order = $this->orderRepo->findOrderById($id);
         $channel = $this->channelRepo->findChannelById($order->channel);
         $newStatus = $this->orderStatusRepo->findByName('Dispatch');
         $items = $this->orderLineRepo->listOrderProducts()->where('order_id', $id);
-        
+
         $data = [
             'order' => $order,
             'items' => $items,
-            'allowed_status' => $newStatus,
+            'allowed_status' => $newStatus->id,
             'products' => $order->products,
             'customer' => $order->customer,
             'courier' => $order->courier,
@@ -279,7 +283,7 @@ class WarehouseController extends Controller {
         
         $pdf = app()->make('dompdf.wrapper');
         $pdf->loadView('dispatchNote.dispatchNote', $data)->stream();
-        
+
         return $pdf->stream();
     }
 
@@ -293,12 +297,12 @@ class WarehouseController extends Controller {
         $items = $this->orderLineRepo->listOrderProducts()->where('picklist_ref', $picklistRef);
         //$channel = $this->channelRepo->findChannelById($order->channel);
         $data = [
-           'items' => $items,
+            'items' => $items,
         ];
-        
+
         $pdf = app()->make('dompdf.wrapper');
         $pdf->loadView('pickingList.pickingList', $data)->stream();
-        
+
         return $pdf->stream();
     }
 

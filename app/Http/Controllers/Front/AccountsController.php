@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
+use App\Shop\Returns\Repositories\Interfaces\ReturnRepositoryInterface;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Http\Controllers\Controller;
@@ -19,6 +20,11 @@ class AccountsController extends Controller {
     private $customerRepo;
 
     /**
+     * @var ReturnRepositoryInterface
+     */
+    private $returnRepo;
+
+    /**
      * @var CourierRepositoryInterface
      */
     private $courierRepo;
@@ -28,12 +34,14 @@ class AccountsController extends Controller {
      *
      * @param CourierRepositoryInterface $courierRepository
      * @param CustomerRepositoryInterface $customerRepository
+     * * @param ReturnRepositoryInterface $returnRepository
      */
     public function __construct(
-    CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository
+    CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, ReturnRepositoryInterface $returnRepository
     ) {
         $this->customerRepo = $customerRepository;
         $this->courierRepo = $courierRepository;
+        $this->returnRepo = $returnRepository;
     }
 
     public function index() {
@@ -43,11 +51,16 @@ class AccountsController extends Controller {
         $orders->transform(function (Order $order) {
             return $this->transformOrder($order);
         });
+
         $addresses = $customerRepo->findAddresses();
+
+        $returns = $this->returnRepo->listReturn('created_at', 'desc')->where('customer', auth()->user()->id);
+
         return view('front.accounts', [
             'customer' => $customer,
             'orders' => $this->customerRepo->paginateArrayResults($orders->toArray(), 15),
-            'addresses' => $addresses
+            'addresses' => $addresses,
+            'returns' => $returns
         ]);
     }
 

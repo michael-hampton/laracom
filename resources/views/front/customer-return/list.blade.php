@@ -29,14 +29,14 @@
                                 <td>{{ $return->item_condition }}</td>
                                 <td>{{ $return->resolution }}</td>
                                 <td>
-                                    <form action="{{ route('admin.returns.destroy', $return->id) }}" method="post" class="form-horizontal">
+<!--                                    <form action="{{ route('admin.returns.destroy', $return->id) }}" method="post" class="form-horizontal">
                                         {{ csrf_field() }}
                                         <input type="hidden" name="_method" value="delete">
                                         <div class="btn-group">
                                             <a href="{{ route('admin.returns.edit', $return->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i> Edit</a>
                                             <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
                                         </div>
-                                    </form>
+                                    </form>-->
                                 </td>
                             </tr>
                         @endforeach

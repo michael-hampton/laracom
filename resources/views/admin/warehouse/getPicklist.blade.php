@@ -3,9 +3,9 @@
 <section class="content">
 
     @include('layouts.errors-and-messages')
-    
-    <a class='btn btn-primary' href="{{route('warehouse.generatePicklist', $picklist_ref)}}">Download Picking List</a>
-    <a class='btn btn-primary' href="{{route('warehouse.generateDispatchNote', $order->id)}}">Download Dispatch Note</a>
+        
+    <a class='btn btn-primary' href="{{route('admin.warehouse.generatePicklist', $picklist_ref)}}">Download Picking List</a>
+    <a class='btn btn-primary' href="{{route('admin.warehouse.generateDispatchNote', 51)}}">Download Dispatch Note</a>
 
 
     <div class="box">

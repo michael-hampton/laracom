@@ -103,11 +103,8 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-
-       
-
         $('.Search').on('click', function (e) {
-            
+
             href = $('#admin-search').attr('action');
             var formdata = $('#admin-search').serialize();
 
@@ -120,8 +117,9 @@
                 }
             });
         });
-        
-         $('.Search').click();
+
+
+        $('.Search').click();
 
         $('#shippingForm').on('submit', function (e) {
 
@@ -157,10 +155,8 @@
                 }
             });
         });
-        
-        $(document).on("click","#updateCourierRates",function() {
-        
-            e.preventDefault();
+
+        $(document).on("click", "#updateCourierRates", function () {
 
             var channel = $('#channel').val();
 
@@ -170,12 +166,12 @@
             }
 
             $('.channel').val(channel);
-            
-            var formdata = $('#editCourierRateForm').serializeArray();
+
+            var formdata = $('#editCourierRateForm').serialize();
 
             $.ajax({
                 type: "POST",
-                url: '/admin/courierRates/update,
+                url: '/admin/courier-rates/update',
                 data: formdata,
                 success: function (response) {
                     if (response.http_code === 400) {

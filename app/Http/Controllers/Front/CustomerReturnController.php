@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Front;
 
 use App\Shop\Returns\Returns;
@@ -25,29 +26,30 @@ use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
 use App\Http\Controllers\Controller;
 
-class CustomerReturnController extends Controller
-{
+class CustomerReturnController extends Controller {
+
     use ReturnTransformable;
-    
+
     /* @param ReturnRepositoryInterface $refundRepo */
+
     private $returnRepo;
-    
+
     /* @param ReturnRepositoryInterface $refundRepo */
     private $returnLineRepo;
-    
+
     /* @param OrderRepositoryInterface $orderRepo */
     private $orderRepo;
-    
+
     /**
      * @var OrderStatusRepositoryInterface
      */
     private $orderStatusRepo;
-    
+
     /**
      * @var OrderProductRepositoryInterface
      */
     private $orderProductRepo;
-    
+
     /**
      * 
      * @param ReturnRepositoryInterface $refundRepository
@@ -62,23 +64,50 @@ class CustomerReturnController extends Controller
         $this->orderStatusRepo = $orderStatusRepository;
         $this->orderProductRepo = $orderProductRepository;
     }
-    
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $list = $this->returnRepo->listReturn('created_at', 'desc');
-        if (request()->has('q')) {
-            $list = $this->returnRepo->searchReturn(request()->input('q'));
-        }
+
+        $list = $this->returnRepo->listReturn('created_at', 'desc')->where('customer', auth()->user()->id);
+
         $returns = $list->map(function (Returns $return) {
                     return $this->transformReturn($return);
                 })->all();
-        return view('admin.returns.list', ['returns' => $this->returnRepo->paginateArrayResults($returns)]);
+
+        return view('front.customer-return.list', ['returns' => $this->returnRepo->paginateArrayResults($returns)]);
     }
-    
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(int $id) {
+
+        $return = $this->returnRepo->findReturnById($id);
+        $order = $this->orderRepo->findOrderById($return->order_id);
+        $orderRepo = new OrderRepository($order);
+        $items = $orderRepo->listOrderedProducts()->keyBy('id');
+        $returnLines = $this->returnLineRepo->listReturnLine()->where('return_id', $return->id);
+        $status = (new \App\Shop\Returns\ReturnStatus())->get();
+
+        return view('front.customer-return.edit', [
+            'return' => $return,
+            'order' => $order,
+            'items' => $items,
+            'returnLines' => $returnLines,
+            'reasons' => explode(',', env('RETURN_REASON')),
+            'statuses' => $status,
+            'conditions' => explode(',', env('RETURN_CONDITIONS')),
+            'resolutions' => explode(',', env('RETURN_RESOLUTIONS'))
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -89,7 +118,7 @@ class CustomerReturnController extends Controller
         $orderRepo = new OrderRepository($order);
         $items = $orderRepo->listOrderedProducts();
         $status = (new \App\Shop\Returns\ReturnStatus())->get();
-        return view('admin.returns.create', [
+        return view('front.customer-return.create', [
             'order' => $order,
             'items' => $items,
             'reasons' => explode(',', env('RETURN_REASON')),
@@ -98,6 +127,7 @@ class CustomerReturnController extends Controller
             'resolutions' => explode(',', env('RETURN_RESOLUTIONS'))
         ]);
     }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -105,12 +135,14 @@ class CustomerReturnController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(CreateReturnRequest $request) {
+        
         $data = $request->except('_token', '_method', 'lines');
         $return = $this->returnRepo->createReturn($data);
         foreach ($request->lines as $line) {
             $this->returnLineRepo->createReturnLine($line, $return);
         }
         $request->session()->flash('message', 'Creation successful');
-        return redirect()->route('admin.returns.index');
+        return redirect()->route('accounts');
     }
+
 }

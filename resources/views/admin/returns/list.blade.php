@@ -16,6 +16,7 @@
                             <tr>
                                 <td class="col-md-1">Order Id</td>
                                 <td class="col-md-1">Date</td>
+                                <td class="col-md-1">Customer</td>
                                 <td class="col-md-2">Item Condition</td>
                                 <td class="col-md-1">Resolution</td>
                                 <td class="col-md-3">Actions</td>
@@ -26,6 +27,7 @@
                             <tr>
                                 <td>{{ $return->order_id }}</td>
                                 <td>{{ $return->created_at }}</td>
+                                 <td>{{ $customers[$return->customer]->name }}</td>
                                 <td>{{ $return->item_condition }}</td>
                                 <td>{{ $return->resolution }}</td>
                                 <td>

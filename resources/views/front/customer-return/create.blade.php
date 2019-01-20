@@ -6,7 +6,7 @@
 <section class="content">
     @include('layouts.errors-and-messages')
     <div class="box">
-        <form action="{{ route('admin.returns.store') }}" method="post" class="form" enctype="multipart/form-data">
+        <form action="{{ route('customer-returns.store') }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
 
@@ -55,16 +55,18 @@
                 @endforeach
 
                 <input type="hidden" name="order_id" id="order_id"  value="{{ $order->id }}">
-                <input type="hidden" name="customer" id="customer"  value="">
+                <input type="hidden" name="customer" id="customer"  value="{{auth()->user()->id}}">
+
+
 
                 <div class="form-group">
                     <label for="alias">Condition <span class="text-danger">*</span></label>
                     <select name="item_condition" id="condition" class="form-control">
-                        <option value="">Select Condition</option>
-                        @foreach($conditions as $condition)
-                        <option value="{{ $condition }}">{{ $condition }}</option>
-                        @endforeach
-                    </select>
+                            <option value="">Select Condition</option>
+                            @foreach($conditions as $condition)
+                            <option value="{{ $condition }}">{{ $condition }}</option>
+                            @endforeach
+                        </select>
                 </div>
                 <div class="form-group">
                     <label for="address_1">Resolution <span class="text-danger">*</span></label>

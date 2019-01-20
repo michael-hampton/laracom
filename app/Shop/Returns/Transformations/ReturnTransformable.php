@@ -20,7 +20,7 @@ trait ReturnTransformable {
         $obj->order_id = $return->order_id;
         $obj->item_condition = $return->item_condition;
         $obj->resolution = $return->resolution;
-
+        $obj->customer = $return->customer;
 
         return $obj;
     }

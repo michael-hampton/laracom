@@ -36,7 +36,7 @@
                     <div class="form-group" style="margin-right:10px;">
                         <label class='sr-only' for="address_2">Quantity</label>
 
-                        <select name="lines[{{$returnLine->id}}][quantity]" id="quantity" class="form-control">
+                        <select disabled="disabled" name="lines[{{$returnLine->id}}][quantity]" id="quantity" class="form-control">
                             @for ($i = 1; $i <= $items[$returnLine->line_id]->quantity; $i++)
                             <option value="{{ $i }}" @if($i == $returnLine->quantity) selected="selected" @endif>{{ $i }}</option>
                             @endfor
@@ -45,7 +45,7 @@
 
                     <div class="form-group" style="margin-right:10px;">
                         <label class='sr-only' for="address_2">reason </label>
-                        <select name="lines[{{$returnLine->id}}][reason]" id="reason" class="form-control">
+                        <select disabled="disabled" name="lines[{{$returnLine->id}}][reason]" id="reason" class="form-control">
                             <option value="">Select Reason</option>
                             @foreach($reasons as $reason)
                             <option value="{{ $reason }}" @if($reason == $returnLine->reason) selected="selected" @endif>{{ $reason }}</option>
@@ -57,7 +57,7 @@
 
                 <div class="form-group">
                     <label for="alias">Condition <span class="text-danger">*</span></label>
-                    <select name="item_condition" id="condition" class="form-control">
+                    <select disabled="disabled" name="item_condition" id="condition" class="form-control">
                         @foreach($conditions as $condition)
                         <option @if($condition == $return->item_condition) selected="selected" @endif  value="{{ $condition }}">{{ $condition }}</option>
                         @endforeach
@@ -66,7 +66,7 @@
                 
                 <div class="form-group">
                     <label for="address_1">Resolution <span class="text-danger">*</span></label>
-                    <select name="resolution" id="resolution" class="form-control">
+                    <select disabled="disabled" name="resolution" id="resolution" class="form-control">
                         @foreach($resolutions as $resolution)
                         <option @if($resolution == $return->resolution) selected="selected" @endif  value="{{ $resolution }}">{{ $resolution }}</option>
                         @endforeach
@@ -74,18 +74,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="customer">Customer<span class="text-danger">*</span></label>
-                    <select name="customer" id="customer" class="form-control">
-                        <option value="">Select Customer</option>
-                        @foreach($customers as $customer)
-                        <option  @if($customer->id == $return->customer) selected="selected" @endif value="{{ $customer->id }}">{{ $customer->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                
-                <div class="form-group">
                     <label for="address_2">Status </label>
-                    <select name="status" id="status" class="form-control">
+                    <select disabled="disabled" name="status" id="status" class="form-control">
                         @foreach($statuses as $status)
                         <option @if($status->id == $return->status) selected="selected" @endif  value="{{ $status->id }}">{{ $status->name }}</option>
                         @endforeach
@@ -93,12 +83,12 @@
                 </div>
             </div>
             <!-- /.box-body -->
-            <div class="box-footer">
+<!--            <div class="box-footer">
                 <div class="btn-group">
                     <a href="{{ route('admin.refunds.index') }}" class="btn btn-default">Back</a>
                     <button type="submit" class="btn btn-primary">Update</button>
                 </div>
-            </div>
+            </div>-->
         </form>
     </div>
     <!-- /.box -->
