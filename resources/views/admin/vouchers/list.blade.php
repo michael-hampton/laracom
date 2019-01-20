@@ -24,7 +24,7 @@
                 </thead>
                 <tbody>
                     @foreach ($vouchers as $voucher)
-                    <tr>
+                    <tr class='clickable-row' data-href="{{ route('admin.vouchers.edit', $voucher->id) }}">
                         <td>{{ $voucher->amount }}</td>
                         <td>{{ $voucher->amount_type }}</td>
                         <td>{{ $voucher->start_date }}</td>
