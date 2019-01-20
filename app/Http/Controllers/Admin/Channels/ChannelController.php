@@ -43,7 +43,8 @@ class ChannelController extends Controller {
         $this->channelRepo = $channelRepository;
     }
     
-    public function addProductToChannel($channel) {
+    public function addProductToChannel(Request $request) {
+        echo $request->channel;
         die('yes');
     }
 
@@ -51,11 +52,11 @@ class ChannelController extends Controller {
      * 
      * @param type $channelId
      */
-    public function saveChannelTemplate($channelId, Request $request) {
+    public function saveChannelTemplate(Request $request) {
         
         foreach($request->templates as $template) {
             (new \App\Shop\Channels\Repositories\ChannelTemplateRepository(new \App\Shop\Channels\ChannelTemplate))->create([
-            'channel_id' => $channelId,
+            'channel_id' => $request->channel,
             'section_id' => 1,
             'title' => 'test title',
             'description' => 'test description'
@@ -70,9 +71,9 @@ class ChannelController extends Controller {
      * 
      * @param type $channelId
      */
-    public function addChannelProvider($channel, Request $request) {
+    public function addChannelProvider(Request $request) {
         (new \App\Shop\Channels\Repositories\ChannelPaymentProviderRepository(new \App\Shop\Channels\ChannelPaymentProvider))->create([
-            'channel_id' => $channel,
+            'channel_id' => $request->channel,
             'payment_provider_id' => $request->provider
                 ]
         );
