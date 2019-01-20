@@ -20,7 +20,7 @@ function buildcheckBox($value, $label) {
 
     <div class="col-lg-6 pull-left">
         <div class="box">
-            <div class="box-body">
+            <div class="box-body channel-div">
                 <form id="channelForm" channel-id="{{ $channel->id }}" action="{{ route('admin.channels.update', $channel->id) }}" method="post" class="form" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="put">
@@ -122,7 +122,7 @@ function buildcheckBox($value, $label) {
 
     <div class="col-lg-6 pull-right">
         <div class="box">
-            <div class="box-body">
+            <div class="box-body product-div">
                 <h2>Products</h2>
 
                 <div class="form-inline">
@@ -141,19 +141,19 @@ function buildcheckBox($value, $label) {
 
                     <button channel-id="{{ $channel->id }}"  class="btn btn-primary addProduct">+</button>
                 </div>
-
-
-
             </div>
         </div>
     </div>
 
     <div class="col-lg-6 pull-right">
         <div class="box">
-            <div class="box-body">
+            <div class="box-body template-div">
                 <h2>Templates</h2>
 
                 <form id='templateForm'>
+                           
+                {{ csrf_field() }}
+                
                 <div class="form-group">
                     <label>Return</label>
                     <textarea name='templates[{{ $channel->id }}][return]' class="form-control"></textarea>
@@ -174,7 +174,7 @@ function buildcheckBox($value, $label) {
     
     <div class="col-lg-6 pull-right">
         <div class="box">
-            <div class="box-body">
+            <div class="box-body provider-div">
                 <h2>Channel Providers</h2>
 
 
@@ -223,7 +223,7 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (msg) {
-                alert(msg);
+                $('.provider-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
             });
     });
@@ -238,7 +238,7 @@ $(document).ready(function () {
             url: '/admin/channels/saveChannelTemplate/'+channel,
             data: formdata,
             success: function (msg) {
-                alert(msg);
+                $('.template-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
             });
     });
@@ -258,7 +258,7 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (msg) {
-                alert(msg);
+                $('.product-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
             });
     });
@@ -273,7 +273,7 @@ $(document).ready(function () {
             url: '/admin/channels/update/'+channel,
             data: formdata,
             success: function (msg) {
-                alert(msg);
+                $('.channel-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
             });
     });
