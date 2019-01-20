@@ -60,5 +60,14 @@ class ChannelTemplateRepository extends BaseRepository {
             throw new \Exception($e);
         }
     }
-
+    
+    public function updateOrCreate($data, $params) {
+    
+        // If there's a flight from Oakland to San Diego, set the price to $99.
+        // If no matching model exists, create one.
+        $template = $this->updateOrCreate(
+            $params,
+            $data
+        );
+    }
 }
