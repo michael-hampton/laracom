@@ -184,6 +184,21 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
+    
+      $('.Search').on('click', function (e) {
+            href = $('#admin-search').attr('action');
+            var formdata = $('#admin-search').serialize();
+            $.ajax({
+                type: "POST",
+                url: href,
+                data: formdata,
+                success: function (response) {
+                    $('.search-results').html(response);
+                }
+            });
+        });
+        
+        $('.Search').click();
 
         $('.uncheck').click(function () {
             var checkboxes = $('.cb');
