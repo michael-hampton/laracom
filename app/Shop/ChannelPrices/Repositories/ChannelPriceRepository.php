@@ -6,7 +6,9 @@ use App\Shop\Base\BaseRepository;
 use App\Shop\ChannelPrices\Exceptions\ChannelPriceNotFoundException;
 use App\Shop\ChannelPrices\Transformations\ChannelPriceTransformable;
 use App\Shop\ChannelPrices\ChannelPrice;
+use App\Shop\Channels\Channel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 
 class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepositoryInterface {
 
@@ -33,13 +35,12 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
             throw new ChannelPriceNotFoundException($e);
         }
     }
-    
+
     /**
      * @param array $update
      * @return bool
      */
-    public function updateChannelPrice(array $update): bool
-    {
+    public function updateChannelPrice(array $update): bool {
         return $this->model->update($update);
     }
 
@@ -52,6 +53,24 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
      */
     public function listChannelPrices(string $order = 'id', string $sort = 'desc', array $columns = ['*']) {
         return $this->all($columns, $order, $sort);
+    }
+
+   /**
+    * 
+    * @param Channel $channel
+    * @return type
+    */
+    public function getAvailiableProducts(Channel $channel) {
+
+        $query = DB::table('products');
+
+        $productIds = $this->model->where('channel_id', $channel->id)->pluck('product_id')->all();
+
+        $result = $query->select('products.*')
+                ->whereNotIn('id', $productIds)
+                ->get();
+
+        return $result;
     }
 
 }

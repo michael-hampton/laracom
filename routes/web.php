@@ -102,6 +102,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('channels', 'Channels\ChannelController');
         Route::resource('channels', 'Channels\ChannelController');
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');
+         Route::get('channels/getAvailiableProducts/{channelId}', 'Channels\ChannelController@getAvailiableProducts')->name('channels.getAvailiableProducts');
 
         Route::post('products/getProductAutoComplete/get/', 'Products\ProductController@getProductAutoComplete')->name('products.getProductAutoComplete');
 

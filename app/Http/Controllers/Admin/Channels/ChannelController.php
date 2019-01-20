@@ -44,6 +44,42 @@ class ChannelController extends Controller {
     }
 
     /**
+     * 
+     * @param type $channelId
+     */
+    public function saveChannelTemplate($channelId) {
+        (new \App\Shop\Channels\Repositories\ChannelTemplateRepository(new \App\Shop\Channels\ChannelTemplate))->create([
+            'channel_id' => $channelId,
+            'section_id' => 1,
+            'title' => 'test title',
+            'description' => 'test description'
+                ]
+        );
+    }
+
+    /**
+     * 
+     * @param type $channelId
+     */
+    public function saveChannelPaymentProvider($channelId) {
+        (new \App\Shop\Channels\Repositories\ChannelPaymentProviderRepository(new \App\Shop\Channels\ChannelPaymentProvider))->create([
+            'channel_id' => $channelId,
+            'payment_provider_id' => 1
+                ]
+        );
+    }
+    
+    public function getAvailiableProducts($channelId) {
+         $channel = $this->channelRepo->findChannelById(4);
+
+        $test = (new \App\Shop\ChannelPrices\Repositories\ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
+
+        echo '<pre>';
+        print_r($test);
+        die;
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -51,7 +87,6 @@ class ChannelController extends Controller {
     public function index($all = false) {
 
         $currentAuthUserId = Auth::guard('admin')->user()->id;
-
 
         if ($all === true || $currentAuthUserId === 1) {
             $list = $this->channelRepo->listChannels('id');
