@@ -151,17 +151,19 @@ function buildcheckBox($value, $label) {
                 <h2>Templates</h2>
 
                 <form id='templateForm'>
+                
+                <input type='hidden' name='channel' value='{{ $channel->id }}'>
                            
                 {{ csrf_field() }}
                 
                 <div class="form-group">
                     <label>Return</label>
-                    <textarea name='templates[{{ $channel->id }}][return]' class="form-control"></textarea>
+                    <textarea name='templates[1][return]' class="form-control"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label>Dispatch</label>
-                    <textarea name='templates[{{ $channel->id }}][dispatch]' class="form-control"></textarea>
+                    <textarea name='templates[2][dispatch]' class="form-control"></textarea>
                 </div>
 
                 <button channel-id="{{ $channel->id }}"  class="btn btn-primary saveTemplate">Save</button>
