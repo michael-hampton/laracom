@@ -247,7 +247,7 @@ $(document).ready(function () {
     
     var channel = $(this).attr('channel-id');
     var product = $('#productSelect').val();
-    var price = $('#productPrice).val();
+    var price = $('#productPrice').val();
     
       $.ajax({
             type: "POST",
