@@ -100,9 +100,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         /* channels */
         Route::post('channels/saveChannelAttribute/', 'Channels\ChannelController@saveChannelAttribute')->name('channels.saveChannelAttribute');
       
-      Route::post('channels/addProductToChannel/{channel}', 'Channels\ChannelController@addProductToChannel')->name('channels.addProductToChannel');
-      Route::post('channels/saveChannelTemplate/{channel}', 'Channels\ChannelController@saveChannelTemplate')->name('channels.saveChannelTemplate');
-      Route::post('channels/addChannelProvider/{channel}', 'Channels\ChannelController@addChannelProvider')->name('channels.addChannelProvider');
+      Route::post('channels/addProductToChannel/', 'Channels\ChannelController@addProductToChannel')->name('channels.addProductToChannel');
+      Route::post('channels/saveChannelTemplate/', 'Channels\ChannelController@saveChannelTemplate')->name('channels.saveChannelTemplate');
+      Route::post('channels/addChannelProvider/', 'Channels\ChannelController@addChannelProvider')->name('channels.addChannelProvider');
       
         Route::resource('channels', 'Channels\ChannelController');
         Route::resource('channels', 'Channels\ChannelController');
