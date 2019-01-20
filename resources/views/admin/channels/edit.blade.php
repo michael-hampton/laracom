@@ -127,14 +127,19 @@ function buildcheckBox($value, $label) {
 
                 <div class="form-inline">
                     <div class="form-group">
-                        <input placeholder="Search Product" type="text" class="form-control">
+                        <!-- <input placeholder="Search Product" type="text" class="form-control">-->
+                        <select id='productSelect' class="form-control">
+                            <option value="paypal">Paypal</option>
+                            <option value="stripe">Stripe</option>
+                            <option value="bank-transfer">Bank Transfer</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
-                        <input placeholder="Price" type="text" class="form-control">
+                        <input id='productPrice' placeholder="Price" type="text" class="form-control">
                     </div>
 
-                    <button class="btn btn-primary addProduct">+</button>
+                    <button channel-id="{{ $channel->id }}"  class="btn btn-primary addProduct">+</button>
                 </div>
 
 
@@ -148,18 +153,19 @@ function buildcheckBox($value, $label) {
             <div class="box-body">
                 <h2>Templates</h2>
 
+                <form id='templateForm'>
                 <div class="form-group">
                     <label>Return</label>
-                    <textarea class="form-control"></textarea>
+                    <textarea name='templates[{{ $channel->id }}][return]' class="form-control"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label>Dispatch</label>
-                    <textarea class="form-control"></textarea>
+                    <textarea name='templates[{{ $channel->id }}][dispatch]' class="form-control"></textarea>
                 </div>
 
-                <button class="btn btn-primary saveTemplate">Save</button>
-
+                <button channel-id="{{ $channel->id }}"  class="btn btn-primary saveTemplate">Save</button>
+                </form>
 
 
             </div>
@@ -174,14 +180,14 @@ function buildcheckBox($value, $label) {
 
                 <div class="form-inline">
                     <div class="form-group">
-                        <select class="form-control">
+                        <select id='paymentProviderSelect' class="form-control">
                             <option value="paypal">Paypal</option>
                             <option value="stripe">Stripe</option>
                             <option value="bank-transfer">Bank Transfer</option>
                         </select>
                     </div>
 
-                    <button class="btn btn-primary addProvider">+</button>
+                    <button channel-id="{{ $channel->id }}" class="btn btn-primary addProvider">+</button>
                 </div>
             </div>
         </div>
@@ -203,6 +209,74 @@ function buildcheckBox($value, $label) {
 $(document).ready(function () {
 
     $('.test').bootstrapSwitch();
+    
+    $('.addProvider').on('click', function () {
+     
+     var channel = $(this).attr('channel-id');
+     var provider = $('#paymentProviderSelect').val();
+     
+       $.ajax({
+            type: "POST",
+            url: '/admin/channels/addChannelProvider/'+channel,
+            data: {
+                provider: provider,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (msg) {
+                alert(msg);
+            }
+            });
+    });
+    
+    $('.saveTemplate').on('click', function () {
+    
+    var channel = $(this).attr('channel-id');
+    var formdata = $('#templateForm').serialize();
+    
+      $.ajax({
+            type: "POST",
+            url: '/admin/channels/saveChannelTemplate/'+channel,
+            data: formdata,
+            success: function (msg) {
+                alert(msg);
+            }
+            });
+    });
+    
+    $('.addProduct').on('click', function () {
+    
+    var channel = $(this).attr('channel-id');
+    var product = $('#productSelect').val();
+    var price = $('#productPrice).val();
+    
+      $.ajax({
+            type: "POST",
+            url: '/admin/channels/addProductToChannel/'+channel,
+            data: {
+                product: product,
+                price: price,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (msg) {
+                alert(msg);
+            }
+            });
+    });
+    
+    $('.updateChannel').on('click', function () {
+    
+    var channel = $(this).attr('channel-id');
+    var formdata = $('#channelForm').serialize();
+    
+      $.ajax({
+            type: "POST",
+            url: '/admin/channels/update/'+channel,
+            data: formdata,
+            success: function (msg) {
+                alert(msg);
+            }
+            });
+    });
 
     $('.test').on('switchChange.bootstrapSwitch', function () {
 
