@@ -56,3 +56,15 @@
 </section>
 <!-- /.content -->
 @endsection
+
+@section('js')
+<script type="text/javascript">
+    $(document).ready(function () {
+    
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+</script>
+
+@endsection
