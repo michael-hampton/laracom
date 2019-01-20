@@ -42,29 +42,38 @@ class ChannelController extends Controller {
         $this->employeeRepo = $employeeRepository;
         $this->channelRepo = $channelRepository;
     }
-
-    /**
-     * 
-     * @param type $channelId
-     */
-    public function saveChannelTemplate($channelId) {
-        (new \App\Shop\Channels\Repositories\ChannelTemplateRepository(new \App\Shop\Channels\ChannelTemplate))->create([
-            'channel_id' => $channelId,
-            'section_id' => 1,
-            'title' => 'test title',
-            'description' => 'test description'
-                ]
-        );
+    
+    public function addProductToChannel($channel) {
+        die('yes');
     }
 
     /**
      * 
      * @param type $channelId
      */
-    public function saveChannelPaymentProvider($channelId) {
-        (new \App\Shop\Channels\Repositories\ChannelPaymentProviderRepository(new \App\Shop\Channels\ChannelPaymentProvider))->create([
+    public function saveChannelTemplate($channelId, Request $request) {
+        
+        foreach($request->templates as $template) {
+            (new \App\Shop\Channels\Repositories\ChannelTemplateRepository(new \App\Shop\Channels\ChannelTemplate))->create([
             'channel_id' => $channelId,
-            'payment_provider_id' => 1
+            'section_id' => 1,
+            'title' => 'test title',
+            'description' => 'test description'
+                ]
+        );
+        }
+        
+        
+    }
+
+    /**
+     * 
+     * @param type $channelId
+     */
+    public function addChannelProvider($channel, Request $request) {
+        (new \App\Shop\Channels\Repositories\ChannelPaymentProviderRepository(new \App\Shop\Channels\ChannelPaymentProvider))->create([
+            'channel_id' => $channel,
+            'payment_provider_id' => $request->provider
                 ]
         );
     }
