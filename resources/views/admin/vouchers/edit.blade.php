@@ -7,6 +7,19 @@
 <!-- Main content -->
 <section class="content">
     @include('layouts.errors-and-messages')
+    
+    <form action="{{ route('admin.vouchers.destroy', $voucher->id) }}" method="post" class="form-horizontal">
+        {{ csrf_field() }}
+        <input type="hidden" name="_method" value="delete">
+                              
+        <div class="btn-group">
+            <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
+        </div>
+    </form>
+                            
+    <a href="{{ route('admin.voucher-codes.batch', $voucher->id) }}" class="btn btn-default btn-sm">Show Codes</a>
+    <a href="{{ route('admin.voucher-codes.add', $voucher->id) }}" class="btn btn-default btn-sm">Add Codes</a>
+            
     <div class="box">
         <form action="{{ route('admin.vouchers.update', $voucher->id) }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
