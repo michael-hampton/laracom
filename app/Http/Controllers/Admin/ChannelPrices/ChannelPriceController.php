@@ -13,6 +13,7 @@ use App\Shop\Brands\Repositories\BrandRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Shop\ChannelPrices\Transformations\ChannelPriceTransformable;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -111,14 +112,7 @@ class ChannelPriceController extends Controller {
                     return $this->transformProduct($item);
                 })->all();
 
-        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
-        $channels = $this->channelRepo->listChannels('name', 'asc');
-        $brands = $this->brandRepo->listBrands();
-
-        return view('admin.channel-price.list', [
-            'categories' => $categories,
-            'channels' => $channels,
-            'brands' => $brands,
+        return view('admin.channel-price.search', [
             'products' => $this->channelPriceRepo->paginateArrayResults($products, 10)
                 ]
         );
@@ -149,9 +143,11 @@ class ChannelPriceController extends Controller {
 
 
         $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
+        $product = $this->productRepo->findProductById($channelPrice->product_id);
 
         return view('admin.channel-price.edit', [
-            'channelPrice' => $channelPrice
+            'channelPrice' => $channelPrice,
+            'product' => $product
         ]);
     }
 
@@ -164,18 +160,32 @@ class ChannelPriceController extends Controller {
      * @return \Illuminate\Http\Response
      * @throws \App\Shop\Products\Exceptions\ProductUpdateErrorException
      */
-    public function update(UpdateChannelPriceRequest $request, int $id) {
+    public function update(Request $request, int $id) {
+
         $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
         $channelPriceRepo = new ChannelPriceRepository($channelPrice);
 
-
         $data = $request->except('_token', '_method');
+
+        $validator = Validator::make($data, (new UpdateChannelPriceRequest())->rules());
+
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+           echo json_encode(array(
+                        'http_code' => 400,
+                        'errors' => $validator->getMessageBag()->toArray()
+            ));
+           die;
+        }
 
 
         $channelPriceRepo->updateChannelPrice($data);
 
-        return redirect()->route('admin.channel-prices.edit', $id)
-                        ->with('message', 'Update successful');
+        echo json_encode(array(
+                        'http_code' => 200,
+                        'message' => 'Product updated successfully'
+            ));
+           die;
     }
 
     /**

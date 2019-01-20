@@ -31,6 +31,8 @@
 
                     <input type="hidden" name="lines[{{$item->id}}][line_id]" value="{{ $item->id }}">
 
+                    <input type="checkbox" name="lines[{{$item->id}}][return]">
+
                     <div class="form-group" style="margin-right:10px;">
                         <label class='sr-only' for="address_2">Quantity</label>
                         <select name="lines[{{$item->id}}][quantity]" id="quantity" class="form-control">
@@ -62,11 +64,11 @@
                 <div class="form-group">
                     <label for="alias">Condition <span class="text-danger">*</span></label>
                     <select name="item_condition" id="condition" class="form-control">
-                            <option value="">Select Condition</option>
-                            @foreach($conditions as $condition)
-                            <option value="{{ $condition }}">{{ $condition }}</option>
-                            @endforeach
-                        </select>
+                        <option value="">Select Condition</option>
+                        @foreach($conditions as $condition)
+                        <option value="{{ $condition }}">{{ $condition }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="address_1">Resolution <span class="text-danger">*</span></label>

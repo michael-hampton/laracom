@@ -96,6 +96,8 @@ class CustomerReturnController extends Controller {
         $returnLines = $this->returnLineRepo->listReturnLine()->where('return_id', $return->id);
         $status = (new \App\Shop\Returns\ReturnStatus())->get();
 
+        $messages = (new \App\Shop\Messages\Thread)->getByOrderIdAndType($return->order_id, 2);
+
         return view('front.customer-return.edit', [
             'return' => $return,
             'order' => $order,
@@ -104,7 +106,8 @@ class CustomerReturnController extends Controller {
             'reasons' => explode(',', env('RETURN_REASON')),
             'statuses' => $status,
             'conditions' => explode(',', env('RETURN_CONDITIONS')),
-            'resolutions' => explode(',', env('RETURN_RESOLUTIONS'))
+            'resolutions' => explode(',', env('RETURN_RESOLUTIONS')),
+            'messages' => $messages
         ]);
     }
 
@@ -135,10 +138,17 @@ class CustomerReturnController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(CreateReturnRequest $request) {
-        
+
         $data = $request->except('_token', '_method', 'lines');
         $return = $this->returnRepo->createReturn($data);
+
         foreach ($request->lines as $line) {
+
+            if (!isset($line['return']) || $line['return'] != 'on') {
+
+                continue;
+            }
+
             $this->returnLineRepo->createReturnLine($line, $return);
         }
         $request->session()->flash('message', 'Creation successful');

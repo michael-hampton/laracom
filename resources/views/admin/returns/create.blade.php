@@ -31,6 +31,8 @@
 
                     <input type="hidden" name="lines[{{$item->id}}][line_id]" value="{{ $item->id }}">
 
+                    <input type="checkbox" name="lines[{{$item->id}}][return]">
+                    
                     <div class="form-group" style="margin-right:10px;">
                         <label class='sr-only' for="address_2">Quantity</label>
                         <select name="lines[{{$item->id}}][quantity]" id="quantity" class="form-control">

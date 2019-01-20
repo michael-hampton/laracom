@@ -63,7 +63,7 @@
                         @endforeach
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="address_1">Resolution <span class="text-danger">*</span></label>
                     <select disabled="disabled" name="resolution" id="resolution" class="form-control">
@@ -72,7 +72,7 @@
                         @endforeach
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="address_2">Status </label>
                     <select disabled="disabled" name="status" id="status" class="form-control">
@@ -83,15 +83,56 @@
                 </div>
             </div>
             <!-- /.box-body -->
-<!--            <div class="box-footer">
-                <div class="btn-group">
-                    <a href="{{ route('admin.refunds.index') }}" class="btn btn-default">Back</a>
-                    <button type="submit" class="btn btn-primary">Update</button>
-                </div>
-            </div>-->
+            <!--            <div class="box-footer">
+                            <div class="btn-group">
+                                <a href="{{ route('admin.refunds.index') }}" class="btn btn-default">Back</a>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
+                        </div>-->
         </form>
     </div>
     <!-- /.box -->
+
+    <h2>Messages</h2>
+
+    <div class="existing-messages col-lg-12" style="margin-bottom: 12px; border: 1px solid #CCC;">
+
+        @foreach($messages as $message)
+        <div style="border-bottom: 1px #CCC dotted; padding:6px;" class="col-lg-12">
+
+            <div class="col-lg-4 pull-right">
+                {{$message->created_at}}
+            </div>
+
+            <div class="col-lg-8 pull-right">
+                {{$message->subject}}
+            </div>
+            {{$message->body}}<br>
+        </div>
+        @endforeach
+    </div>
+
+    <form id='messageForm'>
+
+        {{ csrf_field() }}
+
+        <input type='hidden' id='order_id' name='order_id' value="{{$order->id}}" class='form-control'>
+        <input type='hidden' id='message_type' name='message_type' value="2" class='form-control'>
+        <input type="hidden" name="thread_id" value="<?= (isset($messages[0]) ? $messages[0]->thread_id : '') ?>">
+        <input type="hidden" id='email_address' name="email_address" value="{{$order->customer->email}}">
+
+        <div class="form-group">
+            <label>Subject</label> 
+            <input type='text' id='subject' name='subject' class='form-control'>
+        </div>
+
+        <div class="form-group">
+            <label>Comment</label> 
+            <textarea id='comment' name='message' class='form-control'></textarea>
+        </div>
+
+        <button class="btn btn-primary saveMessage">Save</button>
+    </form>
 
 </section>
 <!-- /.content -->
@@ -99,25 +140,34 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#province_id').change(function () {
-            var provinceId = $(this).val();
+        $('.saveMessage').on('click', function (e) {
+
+            e.preventDefault();
+
+            var formdata = $('#messageForm').serialize();
+
             $.ajax({
-                url: '/api/v1/country/169/province/' + provinceId + '/city',
-                contentType: 'json',
-                success: function (data) {
-                    var html = '<label for="city_id">City </label>';
-                    html += '<select name="city_id" id="city_id" class="form-control">';
-                    $(data.data).each(function (idx, v) {
-                        html += '<option value="' + v.id + '">' + v.name + '</option>';
-                    });
-                    html += '</select>';
-                    $('#cities').html(html).show();
-                },
-                errors: function (data) {
-                    console.log(data);
+                type: "POST",
+                url: '/admin/message/store',
+                data: formdata,
+                success: function (response) {
+                    var response = JSON.parse(response);
+
+                    if (response.http_code === 400) {
+
+                        $('.modal-body').prepend("<div class='alert alert-danger'>Unable to save message</div>");
+
+
+                    } else {
+
+                        $('.modal-body').prepend("<div class='alert alert-success'>Message was saved successfully</div>");
+                        location.reload();
+                    }
                 }
             });
+
         });
     });
+
 </script>
 @endsection
