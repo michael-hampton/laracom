@@ -167,6 +167,9 @@
 
             $('.channel').val(channel);
 
+            $('.alert-danger').remove();
+            $('.alert-success').remove();
+
             var formdata = $('#editCourierRateForm').serialize();
 
             $.ajax({
@@ -174,14 +177,18 @@
                 url: '/admin/courier-rates/update',
                 data: formdata,
                 success: function (response) {
-                    if (response.http_code === 400) {
+                    var obj = jQuery.parseJSON(response);
 
-                        $('.content').prepend("<div class='alert alert-danger'>Unable to save shipping rate</div>");
+                    if (obj.http_code == 400) {
 
+                        $('.search-results').prepend("<div class='alert alert-danger'></div>");
 
+                        $.each(obj.errors, function (key, value) {
+
+                            $('.search-results .alert-danger').append("<p>" + value + "</p>");
+                        });
                     } else {
-                        $('.content').prepend("<div class='alert alert-success'>Shipping rate saved successfully</div>");
-                        $('.Search').click();
+                        $('.search-results').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
                     }
                 }
             });
