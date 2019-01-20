@@ -217,8 +217,9 @@ $(document).ready(function () {
      
        $.ajax({
             type: "POST",
-            url: '/admin/channels/addChannelProvider/'+channel,
+            url: '/admin/channels/addChannelProvider',
             data: {
+            channel: channel,
                 provider: provider,
                 _token: '{{ csrf_token() }}'
             },
@@ -235,7 +236,7 @@ $(document).ready(function () {
     
       $.ajax({
             type: "POST",
-            url: '/admin/channels/saveChannelTemplate/'+channel,
+            url: '/admin/channels/saveChannelTemplate',
             data: formdata,
             success: function (msg) {
                 $('.template-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
@@ -251,10 +252,11 @@ $(document).ready(function () {
     
       $.ajax({
             type: "POST",
-            url: '/admin/channels/addProductToChannel/'+channel,
+            url: '/admin/channels/addProductToChannel',
             data: {
                 product: product,
                 price: price,
+                channel: channel,
                 _token: '{{ csrf_token() }}'
             },
             success: function (msg) {
@@ -270,7 +272,7 @@ $(document).ready(function () {
     
       $.ajax({
             type: "POST",
-            url: '/admin/channels/update/'+channel,
+            url: '/admin/channels/update',
             data: formdata,
             success: function (msg) {
                 $('.channel-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
