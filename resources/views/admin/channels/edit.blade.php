@@ -276,6 +276,8 @@ $(document).ready(function () {
             type: "POST",
             url: '/admin/channels/update',
             data: formdata,
+            cache: false,
+            processData: false,
             success: function (msg) {
                 $('.channel-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
