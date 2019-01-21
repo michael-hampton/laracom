@@ -130,6 +130,52 @@
 <script type="text/javascript">
 $(document).ready(function () {
 
+$('.UpdateVoucher').on('click', function (e) {
+        e.preventDefault();
+        $('.modal-body .alert-danger').remove();
+        var formdata = $('#channelPriceForm').serialize();
+        var href = $('#channelPriceForm').attr('action');
+        $.ajax({
+            type: "POST",
+            url: href,
+            data: formdata,
+            success: function (response) {
+                var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+            }
+        });
+    });
+    
+    $('.saveCode').on('click', function (e) {
+        e.preventDefault();
+        $('.modal-body .alert-danger').remove();
+        var formdata = $('#channelPriceForm').serialize();
+        var href = $('#channelPriceForm').attr('action');
+        $.ajax({
+            type: "POST",
+            url: href,
+            data: formdata,
+            success: function (response) {
+                var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+            }
+        });
+    });
+
     $('.scope-select').on('change', function () {
         $('#scope_value').val($(this).val());
     });
