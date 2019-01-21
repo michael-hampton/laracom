@@ -88,24 +88,7 @@
         </div>
     </div>
     <div class="col-lg-9 search-results">
-        <div class="box">
-            <div class="box-body">
-                @if(!$items->isEmpty())
-                <div class="box-body">
-                    <h4> <i class="fa fa-gift"></i> Items</h4>
-
-                    <a href="#" class="uncheck">Uncheck</a>
-
-                    <table class="table table-striped table-hover">
-                        <thead>
-                        <th class="col-md-2">Order Id</th>
-                        <th class="col-md-2">Channel</th>
-                        <th class="col-md-2">Order Date</th>
-                        <th class="col-md-2">Customer Name</th>
-                        <th class="col-md-2">Name</th>
-                        <th class="col-md-2">Quantity</th>
-
-                        <th class="col-md-2">Actions</th>
+        
 
     </div>
 
