@@ -24,8 +24,10 @@
                             foreach ($items as $item) {
 
                                 $arrOrder = $orders[$item->order_id];
-
-                                if (strtotime($item->created_at) < strtotime('-30 days')) {
+                                
+                                if($item->status === 14) {
+                                    $color = $arrOrder->is_priority == 1 ? 'table-warning' : '';
+                               } elseif (strtotime($item->created_at) < strtotime('-30 days')) {
                                     $color = 'table-danger';
                                 } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
                                     $color = 'table-warning';
