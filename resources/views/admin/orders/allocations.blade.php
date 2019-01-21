@@ -75,7 +75,7 @@
 
 
                             <span class="input-group-btn">
-                                <button type="submit" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i> Search </button>
+                                <button type="button" id="search-btn" class="btn btn-flat Search"><i class="fa fa-search"></i> Search </button>
                             </span>
 
                             <input type="hidden" id="status" name="line_status" value="14">
@@ -87,81 +87,8 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-9">
-        <div class="box">
-            <div class="box-body">
-
-                <a href="#" class="uncheck">Uncheck</a>
-
-                <table class="table table-striped table-hover">
-                    <thead>
-                    <th class="col-md-2">Customer Ref</th>
-                    <th class="col-md-2">Channel</th>
-                    <th class="col-md-2">Order Date</th>
-                    <th class="col-md-2">Customer Name</th>
-                    <th class="col-md-2">Name</th>
-                    <th class="col-md-2">Quantity</th>
-
-                    <th class="col-md-2">Actions</th>
-                    </thead>
-                    <tbody>
-
-                        <?php
-                        $customerRef = ''; 
-                        foreach ($items as $item) {
-
-
-                            $arrOrder = $orders[$item->order_id];
-                            $color = $arrOrder->is_priority == 1 ? 'table-warning' : '';
-                            ?>
-
-                            <tr class="{{ $color }}">
-                                @if($customerRef !== $arrOrder->customer_ref)
-                                <td>{{$arrOrder->id}}</td>
-                                <td>{{$arrOrder->channel->name}}</td>
-                                <td>{{$arrOrder->created_at}}</td>
-                                <td>{{$arrOrder->customer->name}}</td>
-                                @else
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                @endif
-                                <td>
-                                    {{ $item->product_name }}
-
-                                </td>
-
-                                <?php
-                                $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
-                                $reservedStock = $products[$item->product_id]['reserved_stock'];
-                                $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
-                                $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
-                                ?>
-
-                                <td>{{ $item->quantity }}
-                                    <br>Free Stock {{$quantityAvailiable}}
-                                    <br>Reserved Stock {{$reservedStock}}
-                                </td>
-                                <td>{{ $item->product_price }}</td>
-
-                                <td>
-
-                                    <input type="checkbox" class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
-                                    <i order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
-                                </td>
-                            </tr>
-                            <?php
-                            $customerRef = $arrOrder['customer_ref'];
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-
-
-
-        </div>
+    <div class="col-lg-9 search-results">
+        
     </div>
 
 
