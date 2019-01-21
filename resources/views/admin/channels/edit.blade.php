@@ -18,6 +18,13 @@ function buildcheckBox($value, $label) {
     @include('layouts.errors-and-messages')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap2/bootstrap-switch.min.css" rel="stylesheet" type="text/css">
 
+     <select name="channelSelect" id="channelSelect" class="form-control select2">
+                    @foreach($channels as $channel)
+                    <option value="{{ $channel->id }}">{{ $channel->name }}</option>
+                    @endforeach
+                </select>
+
+
     <div class="col-lg-6 pull-left">
         <div class="box">
             <div class="box-body channel-div">
@@ -240,6 +247,10 @@ function buildcheckBox($value, $label) {
 <script type="text/javascript">
 
 $(document).ready(function () {
+
+$('#channelSelect').on('change', function () {
+    location.href = '/admin/channels'+$(this).val()+'/edit';
+});
 
     $('.saveNewChannel').on('click', function (e) {
         e.preventDefault();
