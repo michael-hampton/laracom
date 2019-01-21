@@ -15,6 +15,10 @@ use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\OrderProducts\Requests\UpdateOrderProductRequest;
 use App\Shop\Comments\OrderCommentRepository;
 use App\Search\OrderProductSearch;
+use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\Customers\Customer;
+use App\Shop\Orders\Order;
+use App\Shop\OrderStatuses\OrderStatus;
 use App\Shop\Couriers\Courier;
 use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Http\Controllers\Controller;
@@ -140,13 +144,10 @@ class OrderLineController extends Controller {
         $module = $request->module;
         unset($request->module);
 
-        $channels = $this->channelRepo->listChannels();
-        $statuses = $this->orderStatusRepo->listOrderStatuses();
+        $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
+        $orders = $this->transFormOrder($orders);
 
-        $courierRepo = new CourierRepository(new Courier);
-        $couriers = $courierRepo->listCouriers();
-
-        $arrProducts = $this->productRepo->listProducts();
+        $arrProducts = $this->productRepo->listProducts()->keyBy('id');
 
         $list = OrderProductSearch::apply($request);
 
@@ -157,17 +158,29 @@ class OrderLineController extends Controller {
 
         $items = $this->orderLineRepo->paginateArrayResults($list, 10);
 
-
-
-
-        return view('admin.orders.' . $module, [
+        return view('admin.order-lines.search', [
             'items' => $items,
-            'channels' => $channels,
-            'statuses' => $statuses,
-            'couriers' => $couriers,
+            'orders' => $orders,
             'products' => $arrProducts
                 ]
         );
+    }
+
+    /**
+     * @param Collection $list
+     * @return array
+     */
+    private function transFormOrder(Collection $list) {
+        $courierRepo = new CourierRepository(new Courier());
+        $customerRepo = new CustomerRepository(new Customer());
+        $orderStatusRepo = new OrderStatusRepository(new OrderStatus());
+        return $list->transform(function (Order $order) use ($courierRepo, $customerRepo, $orderStatusRepo) {
+                    $order->courier = $courierRepo->findCourierById($order->courier_id);
+                    $order->customer = $customerRepo->findCustomerById($order->customer_id);
+                    $order->status = $orderStatusRepo->findOrderStatusById($order->order_status_id);
+                    $order->channel = $this->channelRepo->findChannelById($order->channel);
+                    return $order;
+                })->all();
     }
 
     private function generatePIN(int $digits = 4) {

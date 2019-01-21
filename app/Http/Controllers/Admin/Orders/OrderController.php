@@ -270,21 +270,12 @@ class OrderController extends Controller {
 
     public function search(Request $request) {
 
-        $channels = $this->channelRepo->listChannels();
-        $statuses = $this->orderStatusRepo->listOrderStatuses();
-        $couriers = $this->courierRepo->listCouriers();
-        $customers = $this->customerRepo->listCustomers();
-
         $list = OrderSearch::apply($request);
 
         $orders = $this->orderRepo->paginateArrayResults($this->transFormOrder($list), 10);
 
-        return view('admin.orders.list', [
-            'orders' => $orders,
-            'channels' => $channels,
-            'statuses' => $statuses,
-            'couriers' => $couriers,
-            'customers' => $customers
+        return view('admin.orders.search', [
+            'orders' => $orders
                 ]
         );
     }

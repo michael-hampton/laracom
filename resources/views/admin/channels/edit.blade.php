@@ -21,10 +21,12 @@ function buildcheckBox($value, $label) {
     <div class="col-lg-6 pull-left">
         <div class="box">
             <div class="box-body channel-div">
-                <form id="channelForm" channel-id="{{ $channel->id }}" action="{{ route('admin.channels.update', $channel->id) }}" method="post" class="form" enctype="multipart/form-data">
+                <form id="channelForm" channel-id="{{ $channel->id }}" class="form" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="put">
                     <h2>{{ ucfirst($channel->name) }}</h2>
+                    
+                    <input type="hidden" name="channel" value="{{$channel->id}}">
 
                     <div class="form-group">
                         <label for="name">Name <span class="text-danger">*</span></label>
@@ -126,12 +128,12 @@ function buildcheckBox($value, $label) {
                 <h2>Products</h2>
 
                 <div class="form-inline">
-                    <div class="form-group">
+                    <div class="form-group col-lg-6">
                         <!-- <input placeholder="Search Product" type="text" class="form-control">-->
-                        <select id='productSelect' class="form-control">
-                            <option value="paypal">Paypal</option>
-                            <option value="stripe">Stripe</option>
-                            <option value="bank-transfer">Bank Transfer</option>
+                        <select style="width:100%;" id='productSelect' class="form-control">
+                            @foreach($products as $product)
+                            <option value="{{$product->id}}">{{$product->name}}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -151,29 +153,29 @@ function buildcheckBox($value, $label) {
                 <h2>Templates</h2>
 
                 <form id='templateForm'>
-                
-                <input type='hidden' name='channel' value='{{ $channel->id }}'>
-                           
-                {{ csrf_field() }}
-                
-                <div class="form-group">
-                    <label>Return</label>
-                    <textarea name='templates[1][return]' class="form-control"></textarea>
-                </div>
 
-                <div class="form-group">
-                    <label>Dispatch</label>
-                    <textarea name='templates[2][dispatch]' class="form-control"></textarea>
-                </div>
+                    <input type='hidden' name='channel' value='{{ $channel->id }}'>
 
-                <button channel-id="{{ $channel->id }}"  class="btn btn-primary saveTemplate">Save</button>
+                    {{ csrf_field() }}
+
+                    <div class="form-group">
+                        <label>Return</label>
+                        <textarea name='templates[1][return]' class="form-control"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dispatch</label>
+                        <textarea name='templates[2][dispatch]' class="form-control"></textarea>
+                    </div>
+
+                    <button channel-id="{{ $channel->id }}"  class="btn btn-primary saveTemplate">Save</button>
                 </form>
 
 
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-6 pull-right">
         <div class="box">
             <div class="box-body provider-div">
@@ -228,62 +230,64 @@ function buildcheckBox($value, $label) {
 
 $(document).ready(function () {
 
-$(document).on('click', '.AddChannel', function (e) {
-            e.preventDefault();
-            //var href = $(this).attr("href");
-            $.ajax({
-                type: "GET",
-                url: '/admin/vouchers/create',
-                success: function (response) {
-                    $('#myModal').find('.modal-body').html(response);
-                   $('#myModal').modal('show');
-                }
-            });
+    $(document).on('click', '.AddChannel', function (e) {
+        e.preventDefault();
+        //var href = $(this).attr("href");
+        $.ajax({
+            type: "GET",
+            url: '/admin/vouchers/create',
+            success: function (response) {
+                $('#myModal').find('.modal-body').html(response);
+                $('#myModal').modal('show');
+            }
         });
+    });
 
     $('.test').bootstrapSwitch();
-    
+
     $('.addProvider').on('click', function () {
-     
-     var channel = $(this).attr('channel-id');
-     var provider = $('#paymentProviderSelect').val();
-     
-       $.ajax({
+
+        var channel = $(this).attr('channel-id');
+        var provider = $('#paymentProviderSelect').val();
+
+        $.ajax({
             type: "POST",
             url: '/admin/channels/addChannelProvider',
             data: {
-            channel: channel,
+                channel: channel,
                 provider: provider,
                 _token: '{{ csrf_token() }}'
             },
             success: function (msg) {
                 $('.provider-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
-            });
+        });
     });
-    
-    $('.saveTemplate').on('click', function () {
-    
-    var channel = $(this).attr('channel-id');
-    var formdata = $('#templateForm').serialize();
-    
-      $.ajax({
+
+    $('.saveTemplate').on('click', function (e) {
+
+        e.preventDefault();
+
+        var channel = $(this).attr('channel-id');
+        var formdata = $('#templateForm').serialize();
+
+        $.ajax({
             type: "POST",
             url: '/admin/channels/saveChannelTemplate',
             data: formdata,
             success: function (msg) {
                 $('.template-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
-            });
+        });
     });
-    
+
     $('.addProduct').on('click', function () {
-    
-    var channel = $(this).attr('channel-id');
-    var product = $('#productSelect').val();
-    var price = $('#productPrice').val();
-    
-      $.ajax({
+
+        var channel = $(this).attr('channel-id');
+        var product = $('#productSelect').val();
+        var price = $('#productPrice').val();
+
+        $.ajax({
             type: "POST",
             url: '/admin/channels/addProductToChannel',
             data: {
@@ -295,24 +299,26 @@ $(document).on('click', '.AddChannel', function (e) {
             success: function (msg) {
                 $('.product-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
-            });
+        });
     });
-    
-    $('#channelForm').on('submit', function () {
-    
-    var channel = $(this).attr('channel-id');
-    var formdata = new FormData($(this)[0]);
-    
-      $.ajax({
+
+    $('#channelForm').on('submit', function (e) {
+        
+        e.preventDefault();
+        
+        var channel = $(this).attr('channel-id');
+        var formdata = $(this).serialize();
+        
+        $.ajax({
             type: "POST",
-            url: '/admin/channels/update',
+            url: '/admin/channels/updateNewChannel',
             data: formdata,
             cache: false,
             processData: false,
             success: function (msg) {
                 $('.channel-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
-            });
+        });
     });
 
     $('.test').on('switchChange.bootstrapSwitch', function () {

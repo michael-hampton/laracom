@@ -15,6 +15,7 @@ use App\Shop\Channels\Transformations\ChannelTransformable;
 use App\Shop\Tools\UploadableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Validator;
 
 class ChannelController extends Controller {
 
@@ -42,14 +43,16 @@ class ChannelController extends Controller {
         $this->employeeRepo = $employeeRepository;
         $this->channelRepo = $channelRepository;
     }
-    
+
     public function addProductToChannel(Request $request) {
-        echo $request->channel;
-        die('yes');
-        
-        $channelPriceRepo = new ChannelPriceRepository(new ChannelPrice);
-        $data = $request->except('_token', '_method');
-        $channelPriceRepo->createChannelPrice($data);
+
+        $channelPriceRepo = new \App\Shop\ChannelPrices\Repositories\ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
+
+        $channelPriceRepo->create([
+            'channel_id' => $request->channel,
+            'product_id' => $request->product,
+            'price' => $request->price
+        ]);
     }
 
     /**
@@ -57,18 +60,24 @@ class ChannelController extends Controller {
      * @param type $channelId
      */
     public function saveChannelTemplate(Request $request) {
-        
-        foreach($request->templates as $template) {
-            (new \App\Shop\Channels\Repositories\ChannelTemplateRepository(new \App\Shop\Channels\ChannelTemplate))->create([
-            'channel_id' => $request->channel,
-            'section_id' => 1,
-            'title' => 'test title',
-            'description' => 'test description'
-                ]
-        );
+
+        foreach ($request->templates as $templateId => $template) {
+
+            $value = array_values($template);
+            $key = array_keys($template);
+
+            (new \App\Shop\Channels\Repositories\ChannelTemplateRepository(new \App\Shop\Channels\ChannelTemplate))->updateOrCreate(
+                    [
+                'channel_id' => $request->channel,
+                'section_id' => $templateId,
+                'title' => $key[0],
+                'description' => $value[0]
+                    ], [
+                'channel_id' => $request->channel,
+                'section_id' => $templateId
+                    ]
+            );
         }
-        
-        
     }
 
     /**
@@ -76,15 +85,16 @@ class ChannelController extends Controller {
      * @param type $channelId
      */
     public function addChannelProvider(Request $request) {
+
         (new \App\Shop\Channels\Repositories\ChannelPaymentProviderRepository(new \App\Shop\Channels\ChannelPaymentProvider))->create([
             'channel_id' => $request->channel,
             'payment_provider_id' => $request->provider
                 ]
         );
     }
-    
+
     public function getAvailiableProducts($channelId) {
-         $channel = $this->channelRepo->findChannelById(4);
+        $channel = $this->channelRepo->findChannelById(4);
 
         $test = (new \App\Shop\ChannelPrices\Repositories\ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
 
@@ -156,15 +166,15 @@ class ChannelController extends Controller {
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
             $data['cover'] = $this->channelRepo->saveCoverImage($request->file('cover'));
         }
-        
-          $validator = Validator::make($data, (new CreateChannelRequest())->rules());
+
+        $validator = Validator::make($data, (new CreateChannelRequest())->rules());
         // Validate the input and return correct response
         if ($validator->fails()) {
-           echo json_encode(array(
-                        'http_code' => 400,
-                        'errors' => $validator->getMessageBag()->toArray()
+            echo json_encode(array(
+                'http_code' => 400,
+                'errors' => $validator->getMessageBag()->toArray()
             ));
-           die;
+            die;
         }
 
         $channel = $this->channelRepo->createChannel($data);
@@ -195,10 +205,48 @@ class ChannelController extends Controller {
      */
     public function edit(int $id) {
         $channel = $this->channelRepo->findChannelById($id);
+        $arrProducts = (new \App\Shop\ChannelPrices\Repositories\ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
 
         return view('admin.channels.edit', [
+            'products' => $arrProducts,
             'channel' => $channel,
         ]);
+    }
+
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function update(Request $request) {
+
+
+        $channel = $this->channelRepo->findChannelById($request->channel);
+        $channelRepo = new ChannelRepository($channel);
+
+        $data = $request->except('_token', '_method', 'channel');
+
+        if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
+            $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
+        }
+
+        $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+            echo json_encode(array(
+                'http_code' => 400,
+                'errors' => $validator->getMessageBag()->toArray()
+            ));
+            die;
+        }
+
+        $channelRepo->updateChannel($data);
+
+        echo json_encode(array(
+            'http_code' => 200,
+            'message' => 'Product updated successfully'
+        ));
+        die;
     }
 
     /**
@@ -208,30 +256,8 @@ class ChannelController extends Controller {
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, int $id) {
-        $channel = $this->channelRepo->findChannelById($id);
-        $channelRepo = new ChannelRepository($channel);
-
-        $data = $request->except('_token', '_method');
-
-        if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
-            $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
-        }
+    public function updateNewChannel(Request $request) {
         
-         $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
-        // Validate the input and return correct response
-        if ($validator->fails()) {
-           echo json_encode(array(
-                        'http_code' => 400,
-                        'errors' => $validator->getMessageBag()->toArray()
-            ));
-           die;
-        }
-
-        $channelRepo->updateChannel($data);
-
-        $request->session()->flash('message', 'Update successful');
-        return redirect()->route('admin.channels.edit', $id);
     }
 
     /**
