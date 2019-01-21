@@ -153,11 +153,21 @@ class VoucherController extends Controller {
      * @param CreateVoucherRequest $request
      * @return type
      */
-    public function store(CreateVoucherRequest $request) {
+    public function store(Request $request) {
 
         $request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
         $request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
 
+          $validator = Validator::make($reqest, (new CreateVoucherRequest())->rules());
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+           echo json_encode(array(
+                        'http_code' => 400,
+                        'errors' => $validator->getMessageBag()->toArray()
+            ));
+           die;
+        }
+        
         $voucher = $this->voucherRepo->createVoucher($request->except('_token', '_method'));
 
         (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
