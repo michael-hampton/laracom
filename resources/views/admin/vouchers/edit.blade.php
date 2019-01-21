@@ -132,7 +132,7 @@ $(document).ready(function () {
 
 $('.UpdateVoucher').on('click', function (e) {
         e.preventDefault();
-        $('.modal-body .alert-danger').remove();
+        $('.content .alert-danger').remove();
         var formdata = $('#channelPriceForm').serialize();
         var href = $('#channelPriceForm').attr('action');
         $.ajax({
@@ -142,12 +142,12 @@ $('.UpdateVoucher').on('click', function (e) {
             success: function (response) {
                 var obj = jQuery.parseJSON(response);
                 if (obj.http_code == 400) {
-                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $('.content').prepend("<div class='alert alert-danger'></div>");
                     $.each(obj.errors, function (key, value) {
-                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                        $('.content .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
-                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                    $('.content').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                 }
             }
         });
