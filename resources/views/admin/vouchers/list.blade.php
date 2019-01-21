@@ -71,7 +71,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary UpdateChannel">Save changes</button>
+                <button type="button" class="btn btn-primary saveNewVoucher">Save changes</button>
             </div>
         </div>
     </div>
@@ -94,6 +94,29 @@
                 }
             });
         });
+        
+        $('.saveNewVoucher').on('click', function (e) {
+        e.preventDefault();
+        $('.modal-body .alert-danger').remove();
+        var formdata = $('#channelPriceForm').serialize();
+        var href = $('#channelPriceForm').attr('action');
+        $.ajax({
+            type: "POST",
+            url: href,
+            data: formdata,
+            success: function (response) {
+                var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+            }
+        });
+    });
     
     $(".clickable-row").click(function() {
         window.location = $(this).data("href");
