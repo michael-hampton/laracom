@@ -86,7 +86,7 @@
                         </div>
 
                         <span class="input-group-btn">
-                            <button type="submit" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i> Search </button>
+                            <button type="button" id="search-btn" class="btn btn-flat Search"><i class="fa fa-search"></i> Search </button>
                         </span>
                     </form>
                 </div>
