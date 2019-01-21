@@ -149,12 +149,22 @@ class ChannelController extends Controller {
      * @param  CreateChannelRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateChannelRequest $request) {
+    public function store(Request $request) {
         $data = $request->except('_token', '_method');
         //$data['slug'] = str_slug($request->input('name'));
 
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
             $data['cover'] = $this->channelRepo->saveCoverImage($request->file('cover'));
+        }
+        
+          $validator = Validator::make($data, (new CreateChannelRequest())->rules());
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+           echo json_encode(array(
+                        'http_code' => 400,
+                        'errors' => $validator->getMessageBag()->toArray()
+            ));
+           die;
         }
 
         $channel = $this->channelRepo->createChannel($data);
@@ -198,7 +208,7 @@ class ChannelController extends Controller {
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateChannelRequest $request, int $id) {
+    public function update(Request $request, int $id) {
         $channel = $this->channelRepo->findChannelById($id);
         $channelRepo = new ChannelRepository($channel);
 
@@ -206,6 +216,16 @@ class ChannelController extends Controller {
 
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
             $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
+        }
+        
+         $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+           echo json_encode(array(
+                        'http_code' => 400,
+                        'errors' => $validator->getMessageBag()->toArray()
+            ));
+           die;
         }
 
         $channelRepo->updateChannel($data);
