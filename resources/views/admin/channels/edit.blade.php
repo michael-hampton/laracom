@@ -21,11 +21,14 @@ function buildcheckBox($value, $label) {
     <div class="col-lg-6 pull-left">
         <div class="box">
             <div class="box-body channel-div">
+
+                <button type="button" class="btn btn-primary AddChannel">+</button>
+
                 <form id="channelForm" channel-id="{{ $channel->id }}" class="form" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="put">
                     <h2>{{ ucfirst($channel->name) }}</h2>
-                    
+
                     <input type="hidden" name="channel" value="{{$channel->id}}">
 
                     <div class="form-group">
@@ -217,7 +220,7 @@ function buildcheckBox($value, $label) {
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary saveNewVoucher">Save changes</button>
+                <button type="button" class="btn btn-primary saveNewChannel">Save</button>
             </div>
         </div>
     </div>
@@ -230,12 +233,41 @@ function buildcheckBox($value, $label) {
 
 $(document).ready(function () {
 
+    $('.saveNewChannel').on('click', function (e) {
+        e.preventDefault();
+        $('.modal-body .alert-danger').remove();
+        var formdata = new FormData($('#NewChannelForm')[0]);
+        formdata.append('cover', $('#cover')[0].files[0]);
+
+        var href = $('#NewChannelForm').attr('action');
+
+
+        $.ajax({
+            type: "POST",
+            url: href,
+            data: formdata,
+            processData: false, // tell jQuery not to process the data
+            contentType: false, // tell jQuery not to set contentType
+            success: function (response) {
+                var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+            }
+        });
+    });
+
     $(document).on('click', '.AddChannel', function (e) {
         e.preventDefault();
         //var href = $(this).attr("href");
         $.ajax({
             type: "GET",
-            url: '/admin/vouchers/create',
+            url: '/admin/channels/create',
             success: function (response) {
                 $('#myModal').find('.modal-body').html(response);
                 $('#myModal').modal('show');
@@ -303,12 +335,12 @@ $(document).ready(function () {
     });
 
     $('#channelForm').on('submit', function (e) {
-        
+
         e.preventDefault();
-        
+
         var channel = $(this).attr('channel-id');
         var formdata = $(this).serialize();
-        
+
         $.ajax({
             type: "POST",
             url: '/admin/channels/updateNewChannel',

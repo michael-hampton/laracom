@@ -11,6 +11,8 @@ use App\Shop\Base\BaseRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use App\Shop\Orders\Order;
+use Illuminate\Support\Facades\DB;
 
 class VoucherRepository extends BaseRepository implements VoucherRepositoryInterface {
 
@@ -33,7 +35,7 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
      */
     public function createVoucher(array $params): Voucher {
         try {
-                        
+
             $voucher = new Voucher($params);
 
             $voucher->save();
@@ -96,6 +98,26 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
                     'amount' => 5,
                     'amount_type' => 10
                 ])->get();
+    }
+
+    /**
+     * 
+     * @param Channel $channel
+     * @return type
+     */
+    public function getUsedVoucherCodes(Voucher $voucher) {
+
+        $query = DB::table('voucher_codes');
+
+        $voucherCodes = Order::pluck('voucher_code')->all();
+
+        $result = $query->select('vouchers.*', 'voucher_codes.voucher_code')
+                ->join('vouchers', 'vouchers.id', '=', 'voucher_codes.voucher_id')
+                ->whereIn('voucher_codes.id', $voucherCodes)
+                ->where('vouchers.id', $voucher->id)
+                ->get();
+
+        return $result;
     }
 
 }

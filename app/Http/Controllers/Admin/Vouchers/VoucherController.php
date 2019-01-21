@@ -16,6 +16,8 @@ use App\Shop\Vouchers\Requests\CreateVoucherRequest;
 use App\Shop\Vouchers\Requests\UpdateVoucherRequest;
 use App\Shop\Vouchers\Transformations\VoucherTransformable;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class VoucherController extends Controller {
 
@@ -155,25 +157,29 @@ class VoucherController extends Controller {
      */
     public function store(Request $request) {
 
-        $request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
-        $request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
+        $data = $request->except('_token', '_method');
+        $data['expiry_date'] = date('Y-m-d', strtotime($request->expiry_date));
+        $data['start_date'] = date('Y-m-d', strtotime($request->start_date));
 
-          $validator = Validator::make($reqest, (new CreateVoucherRequest())->rules());
+        $validator = Validator::make($data, (new CreateVoucherRequest())->rules());
+
         // Validate the input and return correct response
         if ($validator->fails()) {
-           echo json_encode(array(
-                        'http_code' => 400,
-                        'errors' => $validator->getMessageBag()->toArray()
+            echo json_encode(array(
+                'http_code' => 400,
+                'errors' => $validator->getMessageBag()->toArray()
             ));
-           die;
+            die;
         }
-        
-        $voucher = $this->voucherRepo->createVoucher($request->except('_token', '_method'));
+
+        $voucher = $this->voucherRepo->createVoucher($data);
 
         (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
 
-        $request->session()->flash('message', 'Creation successful');
-        return redirect()->route('admin.vouchers.index');
+        echo json_encode(array(
+            'http_code' => 200,
+        ));
+        die;
     }
 
     /**
@@ -197,6 +203,9 @@ class VoucherController extends Controller {
         $voucher = $this->voucherRepo->findVoucherById($id);
         $channel = $voucher->channel;
 
+        $voucherCodes = (new \App\Shop\VoucherCodes\Repositories\VoucherCodeRepository(new \App\Shop\VoucherCodes\VoucherCode))->listVoucherCode()->where('voucher_id', $id);
+        $usedVoucherCodes = $this->voucherRepo->getUsedVoucherCodes($voucher);
+                
         if (!empty($channel)) {
             $objChannel = $this->channelRepo->findChannelById($channel);
             $repo = new ChannelRepository($objChannel);
@@ -210,6 +219,8 @@ class VoucherController extends Controller {
 
         return view('admin.vouchers.edit', [
             'voucher' => $voucher,
+            'codes' => $voucherCodes,
+            'used' => $usedVoucherCodes,
             'selectedChannel' => $channel,
             'scopes' => $scopes,
             'products' => $products,
@@ -232,28 +243,32 @@ class VoucherController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
+
+        $data = $request->except('_token', '_method');
+        $data['expiry_date'] = date('Y-m-d', strtotime($request->expiry_date));
+        $data['start_date'] = date('Y-m-d', strtotime($request->start_date));
+
         $voucher = $this->voucherRepo->findVoucherById($id);
 
         $channel = $this->channelRepo->findChannelById($voucher->channel);
 
-        $request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
-        $request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
-
-         $validator = Validator::make($reqest, (new UpdateVoucherRequest())->rules());
+        $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
         // Validate the input and return correct response
         if ($validator->fails()) {
-           echo json_encode(array(
-                        'http_code' => 400,
-                        'errors' => $validator->getMessageBag()->toArray()
+            echo json_encode(array(
+                'http_code' => 400,
+                'errors' => $validator->getMessageBag()->toArray()
             ));
-           die;
+            die;
         }
-        
-        $update = new VoucherRepository($voucher);
-        $update->updateVoucher($request->except('_method', '_token'));
 
-        $request->session()->flash('message', 'Update successful');
-        return redirect()->route('admin.vouchers.edit', array('id' => $id, 'channel' => $channel->name));
+        $update = new VoucherRepository($voucher);
+        $update->updateVoucher($data);
+
+        echo json_encode(array(
+            'http_code' => 200,
+        ));
+        die;
     }
 
     /**

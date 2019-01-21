@@ -97,10 +97,6 @@ class ChannelController extends Controller {
         $channel = $this->channelRepo->findChannelById(4);
 
         $test = (new \App\Shop\ChannelPrices\Repositories\ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
-
-        echo '<pre>';
-        print_r($test);
-        die;
     }
 
     /**
@@ -160,10 +156,12 @@ class ChannelController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
+        
         $data = $request->except('_token', '_method');
         //$data['slug'] = str_slug($request->input('name'));
 
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
+                        
             $data['cover'] = $this->channelRepo->saveCoverImage($request->file('cover'));
         }
 
@@ -179,8 +177,10 @@ class ChannelController extends Controller {
 
         $channel = $this->channelRepo->createChannel($data);
 
-        $request->session()->flash('message', 'Create successful');
-        return redirect()->route('admin.channels.index');
+        echo json_encode(array(
+                'http_code' => 200,
+            ));
+            die;
     }
 
     /**
@@ -212,7 +212,6 @@ class ChannelController extends Controller {
             'channel' => $channel,
         ]);
     }
-
     /**
      * 
      * @param Request $request
@@ -220,9 +219,12 @@ class ChannelController extends Controller {
      */
     public function update(Request $request) {
 
-
         $channel = $this->channelRepo->findChannelById($request->channel);
         $channelRepo = new ChannelRepository($channel);
+        
+        echo '<pre>';
+        print_r($_POST);
+        die;
 
         $data = $request->except('_token', '_method', 'channel');
 

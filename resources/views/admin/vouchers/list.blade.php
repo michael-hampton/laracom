@@ -8,7 +8,9 @@
     @if($vouchers)
     <div class="box">
         <div class="box-body">
-            <h2>Vouchers</h2>
+            <h2>Vouchers
+                <button type="button" class="btn btn-primary AddVoucher">+</button>
+            </h2>
             @include('layouts.search', ['route' => route('admin.vouchers.index')])
             <table class="table">
                 <thead>
@@ -32,7 +34,7 @@
                         <td>{{ $voucher->scope_type }}</td>
                         <td>@include('layouts.status', ['status' => $voucher->status])</td>
                         <td>{{ $voucher->channel_name }}</td>
-                        
+
                     </tr>
                     @endforeach
                 </tbody>
@@ -79,49 +81,52 @@
 
 
 @section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+
 <script type="text/javascript">
     $(document).ready(function () {
-        
-        $(document).on('click', '.AddVoucher', function (e) {
-            e.preventDefault();
-            //var href = $(this).attr("href");
+
+        $('.AddVoucher').on('click', function (e) {
+            
             $.ajax({
                 type: "GET",
                 url: '/admin/vouchers/create',
                 success: function (response) {
+                                        
                     $('#myModal').find('.modal-body').html(response);
-                   $('#myModal').modal('show');
+                    $('#myModal').modal('show');
                 }
             });
         });
-        
+
         $('.saveNewVoucher').on('click', function (e) {
-        e.preventDefault();
-        $('.modal-body .alert-danger').remove();
-        var formdata = $('#channelPriceForm').serialize();
-        var href = $('#channelPriceForm').attr('action');
-        $.ajax({
-            type: "POST",
-            url: href,
-            data: formdata,
-            success: function (response) {
-                var obj = jQuery.parseJSON(response);
-                if (obj.http_code == 400) {
-                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
-                    $.each(obj.errors, function (key, value) {
-                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
-                    });
-                } else {
-                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+            e.preventDefault();
+            $('.modal-body .alert-danger').remove();
+            var formdata = $('#NewVoucherForm').serialize();
+            var href = $('#NewVoucherForm').attr('action');
+
+            $.ajax({
+                type: "POST",
+                url: href,
+                data: formdata,
+                success: function (response) {
+                    var obj = jQuery.parseJSON(response);
+                    if (obj.http_code == 400) {
+                        $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                        $.each(obj.errors, function (key, value) {
+                            $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                        });
+                    } else {
+                        $('.modal-body').prepend("<div class='alert alert-success'>Voucher has been created successfully</div>");
+                    }
                 }
-            }
+            });
+        });
+
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
         });
     });
-    
-    $(".clickable-row").click(function() {
-        window.location = $(this).data("href");
-    });
-});
 </script>
 
 @endsection
