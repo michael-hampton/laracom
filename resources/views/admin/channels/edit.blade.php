@@ -146,6 +146,10 @@ function buildcheckBox($value, $label) {
 
                     <button channel-id="{{ $channel->id }}"  class="btn btn-primary addProduct">+</button>
                 </div>
+                
+                <ul class='productList'>
+                
+                </ul>
             </div>
         </div>
     </div>
@@ -196,6 +200,10 @@ function buildcheckBox($value, $label) {
 
                     <button channel-id="{{ $channel->id }}" class="btn btn-primary addProvider">+</button>
                 </div>
+                
+                <ul class='providerList'>
+                
+                </ul>
             </div>
         </div>
     </div>
@@ -291,6 +299,7 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (msg) {
+                $('.providerList').append('<li>'+provider+'</li>';
                 $('.provider-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
@@ -317,6 +326,7 @@ $(document).ready(function () {
 
         var channel = $(this).attr('channel-id');
         var product = $('#productSelect').val();
+        var productName = $('#productSelect option:selected').text();
         var price = $('#productPrice').val();
 
         $.ajax({
@@ -329,6 +339,7 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (msg) {
+                $('.productList').append('<li>'+productName + ' '+ price +'</li>';
                 $('.product-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
