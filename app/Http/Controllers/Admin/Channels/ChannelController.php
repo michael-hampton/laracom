@@ -46,6 +46,10 @@ class ChannelController extends Controller {
     public function addProductToChannel(Request $request) {
         echo $request->channel;
         die('yes');
+        
+        $channelPriceRepo = new ChannelPriceRepository(new ChannelPrice);
+        $data = $request->except('_token', '_method');
+        $channelPriceRepo->createChannelPrice($data);
     }
 
     /**
