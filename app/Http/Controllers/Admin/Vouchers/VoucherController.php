@@ -231,7 +231,7 @@ class VoucherController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateVoucherRequest $request, $id) {
+    public function update(Request $request, $id) {
         $voucher = $this->voucherRepo->findVoucherById($id);
 
         $channel = $this->channelRepo->findChannelById($voucher->channel);
@@ -239,6 +239,16 @@ class VoucherController extends Controller {
         $request->request->add(['expiry_date' => date('Y-m-d', strtotime($request->expiry_date))]); //add request
         $request->request->add(['start_date' => date('Y-m-d', strtotime($request->start_date))]);
 
+         $validator = Validator::make($reqest, (new UpdateVoucherRequest())->rules());
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+           echo json_encode(array(
+                        'http_code' => 400,
+                        'errors' => $validator->getMessageBag()->toArray()
+            ));
+           die;
+        }
+        
         $update = new VoucherRepository($voucher);
         $update->updateVoucher($request->except('_method', '_token'));
 
