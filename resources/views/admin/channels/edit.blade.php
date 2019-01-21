@@ -267,10 +267,10 @@ $(document).ready(function () {
             });
     });
     
-    $('.updateChannel').on('click', function () {
+    $('#channelForm').on('submit', function () {
     
     var channel = $(this).attr('channel-id');
-    var formdata = $('#channelForm').serialize();
+    var formdata = new FormData($(this)[0]);
     
       $.ajax({
             type: "POST",
