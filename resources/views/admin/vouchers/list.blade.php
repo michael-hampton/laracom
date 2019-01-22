@@ -124,6 +124,17 @@
         });
 
         $(".clickable-row").click(function () {
+            $.ajax({
+            type: "GET",
+            url: $(this).data("href"),
+            success: function (response) {
+                $('#content-div').html(response);
+                //$('#myModal').modal('show');
+            }
+        });
+        
+        return false;
+            
             window.location = $(this).data("href");
         });
     });
