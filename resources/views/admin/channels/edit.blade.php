@@ -317,7 +317,18 @@ $('#channelSelect').on('change', function () {
             },
             success: function (msg) {
                 $('.providerList').append('<li>'+provider+'</li>';
-                $('.provider-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
+               var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.provider-div').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.provider-div .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.provider-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+
+               
+               //$('.provider-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
     });
@@ -334,7 +345,18 @@ $('#channelSelect').on('change', function () {
             url: '/admin/channels/saveChannelTemplate',
             data: formdata,
             success: function (msg) {
-                $('.template-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
+               var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.template-div').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.template-div .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.template-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+
+               
+               //$('.template-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
     });
@@ -357,7 +379,19 @@ $('#channelSelect').on('change', function () {
             },
             success: function (msg) {
                 $('.productList').append('<li>'+productName + ' '+ price +'</li>';
-                $('.product-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
+                
+                var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.product-div').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.product-div .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.product-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+
+                
+                //$('.product-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
     });
@@ -376,7 +410,19 @@ $('#channelSelect').on('change', function () {
             cache: false,
             processData: false,
             success: function (msg) {
-                $('.channel-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
+              
+              var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.channel-div').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.channel-div .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.channel-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+
+              
+              // $('.channel-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
     });
