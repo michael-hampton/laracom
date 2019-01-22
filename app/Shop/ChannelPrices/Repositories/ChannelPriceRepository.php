@@ -55,22 +55,38 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
         return $this->all($columns, $order, $sort);
     }
 
-   /**
-    * 
-    * @param Channel $channel
-    * @return type
-    */
+    /**
+     * 
+     * @param Channel $channel
+     * @return type
+     */
     public function getAvailiableProducts(Channel $channel) {
 
         $query = DB::table('products');
 
-        $productIds = $this->model->where('channel_id', $channel->id)->pluck('product_id')->all();
+        $productIds = $this->getChannelProductIds($channel);
 
         $result = $query->select('products.*')
                 ->whereNotIn('id', $productIds)
                 ->get();
 
         return $result;
+    }
+
+    public function getAssignedProductsForChannel(Channel $channel) {
+        $query = DB::table('products');
+
+        $productIds = $this->getChannelProductIds($channel);
+
+        $result = $query->select('products.*')
+                ->whereIn('id', $productIds)
+                ->get();
+
+        return \App\Shop\Products\Product::hydrate($result->toArray());
+    }
+
+    private function getChannelProductIds(Channel $channel) {
+        return $this->model->where('channel_id', $channel->id)->pluck('product_id')->all();
     }
 
 }

@@ -10,6 +10,11 @@ function buildcheckBox($value, $label) {
 }
 ?>
 
+<style>
+    .list {
+        border-bottom: 1px dotted #CCC;
+    }
+</style>
 
 
 @section('content')
@@ -18,11 +23,12 @@ function buildcheckBox($value, $label) {
     @include('layouts.errors-and-messages')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap2/bootstrap-switch.min.css" rel="stylesheet" type="text/css">
 
-     <select name="channelSelect" id="channelSelect" class="form-control select2">
-                    @foreach($channels as $channel)
-                    <option value="{{ $channel->id }}">{{ $channel->name }}</option>
-                    @endforeach
-                </select>
+    <select name="channelSelect" id="channelSelect" class="form-control select2">
+        <option value="">Select Channel</option>
+        @foreach($channels as $objChannel)
+        <option value="{{ $objChannel->id }}">{{ $objChannel->name }}</option>
+        @endforeach
+    </select>
 
 
     <div class="col-lg-6 pull-left">
@@ -42,12 +48,12 @@ function buildcheckBox($value, $label) {
                         <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="name" placeholder="Name" class="form-control" value="{{ $channel->name ?: old('name') }}">
                     </div>
-                    
-                          <div class="form-group">
-                    <label for="email">Email <span class="text-danger">*</span></label>
-                    <input type="text" name="email" id="email" placeholder="Email" class="form-control" value="{{ old('name') }}">
-                </div>
-                    
+
+                    <div class="form-group">
+                        <label for="email">Email <span class="text-danger">*</span></label>
+                        <input type="text" name="email" id="email" placeholder="Email" class="form-control" value="{{ $channel->email }}">
+                    </div>
+
                     <div class="form-group">
                         <label for="description">Description </label>
                         <textarea class="form-control ckeditor" name="description" id="description" rows="5" placeholder="Description">{{ $channel->description ?: old('description') }}</textarea>
@@ -159,9 +165,11 @@ function buildcheckBox($value, $label) {
 
                     <button channel-id="{{ $channel->id }}"  class="btn btn-primary addProduct">+</button>
                 </div>
-                
-                <ul class='productList'>
-                
+
+                <ul class='productList list'>
+                    @foreach($assigned_products as $objProduct)
+                    <li>{{$objProduct->name}} {{$objProduct->price}}</li>
+                    @endforeach;
                 </ul>
             </div>
         </div>
@@ -180,12 +188,12 @@ function buildcheckBox($value, $label) {
 
                     <div class="form-group">
                         <label>Return</label>
-                        <textarea name='templates[1][return]' class="form-control"></textarea>
+                        <textarea name='templates[1][return]' class="form-control"><?= (isset($templates[1]) ? $templates[1]->description : '') ?></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>Dispatch</label>
-                        <textarea name='templates[2][dispatch]' class="form-control"></textarea>
+                        <textarea name='templates[2][dispatch]' class="form-control"><?= (isset($templates[2]) ? $templates[2]->description : '') ?></textarea>
                     </div>
 
                     <button channel-id="{{ $channel->id }}"  class="btn btn-primary saveTemplate">Save</button>
@@ -201,21 +209,29 @@ function buildcheckBox($value, $label) {
             <div class="box-body provider-div">
                 <h2>Channel Providers</h2>
 
+                <?php
+                $arrProviders = ['paypal', 'stripe', 'bank-transfer'];
+                $providerArr = $providers->toArray();
+                ?>
 
                 <div class="form-inline">
                     <div class="form-group">
                         <select id='paymentProviderSelect' class="form-control">
-                            <option value="paypal">Paypal</option>
-                            <option value="stripe">Stripe</option>
-                            <option value="bank-transfer">Bank Transfer</option>
+                            @foreach($arrProviders as $arrProvider)
+                            @if(!in_array($arrProvider, $providerArr))
+                            <option value="{{$arrProvider}}">{{$arrProvider}}</option>
+                            @endif;
+                            @endforeach;
                         </select>
                     </div>
 
                     <button channel-id="{{ $channel->id }}" class="btn btn-primary addProvider">+</button>
                 </div>
-                
-                <ul class='providerList'>
-                
+
+                <ul class='providerList list'>
+                    @foreach($providers as $provider)
+                    <li>{{$provider}}</li>
+                    @endforeach
                 </ul>
             </div>
         </div>
@@ -254,19 +270,16 @@ function buildcheckBox($value, $label) {
 
 $(document).ready(function () {
 
-$('#channelSelect').on('change', function () {
-    location.href = '/admin/channels'+$(this).val()+'/edit';
-});
+    $('#channelSelect').on('change', function () {
+        location.href = '/admin/channels/' + $(this).val() + '/edit';
+    });
 
     $('.saveNewChannel').on('click', function (e) {
         e.preventDefault();
         $('.modal-body .alert-danger').remove();
         var formdata = new FormData($('#NewChannelForm')[0]);
         formdata.append('cover', $('#cover')[0].files[0]);
-
         var href = $('#NewChannelForm').attr('action');
-
-
         $.ajax({
             type: "POST",
             url: href,
@@ -286,10 +299,9 @@ $('#channelSelect').on('change', function () {
             }
         });
     });
-
     $(document).on('click', '.AddChannel', function (e) {
         e.preventDefault();
-        //var href = $(this).attr("href");
+//var href = $(this).attr("href");
         $.ajax({
             type: "GET",
             url: '/admin/channels/create',
@@ -299,13 +311,14 @@ $('#channelSelect').on('change', function () {
             }
         });
     });
-
     $('.test').bootstrapSwitch();
-
     $('.addProvider').on('click', function () {
 
         var channel = $(this).attr('channel-id');
         var provider = $('#paymentProviderSelect').val();
+
+        $('.provider-div .alert-danger').remove();
+        $('.provider-div .alert-success').remove();
 
         $.ajax({
             type: "POST",
@@ -315,9 +328,9 @@ $('#channelSelect').on('change', function () {
                 provider: provider,
                 _token: '{{ csrf_token() }}'
             },
-            success: function (msg) {
-                $('.providerList').append('<li>'+provider+'</li>';
-               var obj = jQuery.parseJSON(response);
+            success: function (response) {
+                $('.providerList').append('<li>' + provider + '</li>');
+                var obj = jQuery.parseJSON(response);
                 if (obj.http_code == 400) {
                     $('.provider-div').prepend("<div class='alert alert-danger'></div>");
                     $.each(obj.errors, function (key, value) {
@@ -327,25 +340,26 @@ $('#channelSelect').on('change', function () {
                     $('.provider-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                 }
 
-               
-               //$('.provider-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
+
+                //$('.provider-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
     });
-
     $('.saveTemplate').on('click', function (e) {
 
         e.preventDefault();
-
         var channel = $(this).attr('channel-id');
         var formdata = $('#templateForm').serialize();
+
+        $('.template-div .alert-danger').remove();
+        $('.template-div .alert-success').remove();
 
         $.ajax({
             type: "POST",
             url: '/admin/channels/saveChannelTemplate',
             data: formdata,
-            success: function (msg) {
-               var obj = jQuery.parseJSON(response);
+            success: function (response) {
+                var obj = jQuery.parseJSON(response);
                 if (obj.http_code == 400) {
                     $('.template-div').prepend("<div class='alert alert-danger'></div>");
                     $.each(obj.errors, function (key, value) {
@@ -355,19 +369,21 @@ $('#channelSelect').on('change', function () {
                     $('.template-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                 }
 
-               
-               //$('.template-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
+
+                //$('.template-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
     });
-
     $('.addProduct').on('click', function () {
 
         var channel = $(this).attr('channel-id');
         var product = $('#productSelect').val();
         var productName = $('#productSelect option:selected').text();
-        var price = $('#productPrice').val();
 
+        $('.product-div .alert-danger').remove();
+        $('.product-div .alert-success').remove();
+
+        var price = $('#productPrice').val();
         $.ajax({
             type: "POST",
             url: '/admin/channels/addProductToChannel',
@@ -377,9 +393,8 @@ $('#channelSelect').on('change', function () {
                 channel: channel,
                 _token: '{{ csrf_token() }}'
             },
-            success: function (msg) {
-                $('.productList').append('<li>'+productName + ' '+ price +'</li>';
-                
+            success: function (response) {
+                $('.productList').append('<li>' + productName + ' ' + price + '</li>');
                 var obj = jQuery.parseJSON(response);
                 if (obj.http_code == 400) {
                     $('.product-div').prepend("<div class='alert alert-danger'></div>");
@@ -390,28 +405,25 @@ $('#channelSelect').on('change', function () {
                     $('.product-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                 }
 
-                
+
                 //$('.product-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
     });
-
     $('#channelForm').on('submit', function (e) {
 
         e.preventDefault();
-
         var channel = $(this).attr('channel-id');
         var formdata = $(this).serialize();
-
         $.ajax({
             type: "POST",
             url: '/admin/channels/updateNewChannel',
             data: formdata,
             cache: false,
             processData: false,
-            success: function (msg) {
-              
-              var obj = jQuery.parseJSON(response);
+            success: function (response) {
+
+                var obj = jQuery.parseJSON(response);
                 if (obj.http_code == 400) {
                     $('.channel-div').prepend("<div class='alert alert-danger'></div>");
                     $.each(obj.errors, function (key, value) {
@@ -421,12 +433,11 @@ $('#channelSelect').on('change', function () {
                     $('.channel-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                 }
 
-              
-              // $('.channel-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
+
+                // $('.channel-div').prepend("<div class='alert alert-success'>Shipping rate has been updated successfully</div>");
             }
         });
     });
-
     $('.test').on('switchChange.bootstrapSwitch', function () {
 
         if ($(this).bootstrapSwitch('state')) {
@@ -439,7 +450,6 @@ $('#channelSelect').on('change', function () {
 
         var id = $(this).attr('id');
         var channelId = $("#channelForm").attr("channel-id");
-
         $.ajax({
             type: "POST",
             url: '/admin/channels/saveChannelAttribute',

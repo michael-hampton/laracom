@@ -178,6 +178,7 @@ class VoucherController extends Controller {
 
         echo json_encode(array(
             'http_code' => 200,
+            
         ));
         die;
     }

@@ -1,6 +1,12 @@
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" type="text/css" rel="stylesheet">
 
+<style>
+    input[type=text] {
+        width:100% !important;
+    }
+</style>
+
 <!-- Main content -->
 <section class="content">
     @include('layouts.errors-and-messages')
@@ -27,7 +33,7 @@
 
 
 
-                <div class="form-inline" style='margin-bottom:12px;'>
+                <div class="form-inline pull-left" style='margin-bottom:12px;'>
                     <div class="form-group col-lg-3" style="margin-right: 4px;">
                         <label for="alias">Qty to create<span class="text-danger">*</span></label>
                         <input type="text" name="quantity" id="alias" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
@@ -43,7 +49,7 @@
                     </div>
                 </div>
 
-                <div class="form-inline" style='margin-bottom:12px;'>
+                <div class="form-inline pull-left" style='margin-bottom:12px;'>
 
                     <div class="form-group col-lg-3" style="margin-right: 10px;">
                         <label for="amount type">Amount Type </label>
@@ -64,7 +70,7 @@
                     </div>
                 </div>
 
-                <div class="form-inline" style='margin-bottom:12px;'>
+                <div class="form-inline pull-left" style='margin-bottom:12px;'>
 
                     @if(!empty($scopes))
                     <div class="form-group col-lg-6" style='margin-right:10px;'>
@@ -136,45 +142,45 @@
 </section>
 
 <script type="text/javascript">
-$('.scope-select').on('change', function () {
-    $('#scope_value').val($(this).val());
-});
+    $('.scope-select').on('change', function () {
+        $('#scope_value').val($(this).val());
+    });
 
-$('.scope').on('change', function () {
+    $('.scope').on('change', function () {
 
-    $('.scope-type').hide();
+        $('.scope-type').hide();
 
-    var type = $(this).val();
+        var type = $(this).val();
 
-    switch (type) {
-        case 'Product':
-            $('.products').show();
-            break;
+        switch (type) {
+            case 'Product':
+                $('.products').show();
+                break;
 
-        case 'Brand':
-            $('.brands').show();
-            break;
+            case 'Brand':
+                $('.brands').show();
+                break;
 
-        case 'Category':
-            $('.categories').show();
-            break;
-    }
-});
+            case 'Category':
+                $('.categories').show();
+                break;
+        }
+    });
 
-$('#start_date').datepicker({
-    todayBtn: "linked",
-    keyboardNavigation: false,
-    forceParse: false,
-    calendarWeeks: false,
-    autoclose: true,
-    startDate: new Date()
-});
+    $('#start_date').datepicker({
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: false,
+        autoclose: true,
+        startDate: new Date()
+    });
 
-$('#expiry_date').datepicker({
-    todayBtn: "linked",
-    keyboardNavigation: false,
-    forceParse: false,
-    calendarWeeks: false,
-    autoclose: true
-});
+    $('#expiry_date').datepicker({
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: false,
+        autoclose: true
+    });
 </script>

@@ -18,6 +18,8 @@ use App\Shop\Carts\Repositories\CartRepository;
 use App\Shop\Carts\ShoppingCart;
 use App\Shop\Channels\Channel;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class VoucherCodeController extends Controller {
 
@@ -82,20 +84,46 @@ class VoucherCodeController extends Controller {
         return view('admin.voucher-codes.create', ['voucher_id' => $id]);
     }
 
+    private function getRandomString($length = 12) {
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $string = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $string .= $characters[mt_rand(0, strlen($characters) - 1)];
+        }
+
+        return $string;
+    }
+
     /**
      *  Store a newly created resource in storage.
      * 
      * @param CreateVoucherRequest $request
      * @return type
      */
-    public function store(CreateVoucherCodeRequest $request) {
+    public function store(Request $request) {
 
-        $request->request->add(['voucher_code' => 'testcode']); //add request
+        $data = $request->except('_token', '_method');
+        $data['voucher_code'] = $this->getRandomString();
 
-        $this->voucherCodeRepo->createVoucherCode($request->except('_token', '_method'));
+        $validator = Validator::make($data, (new CreateVoucherCodeRequest())->rules());
 
-        $request->session()->flash('message', 'Creation successful');
-        return redirect()->route('admin.vouchers.index');
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+            echo json_encode(array(
+                'http_code' => 400,
+                'errors' => $validator->getMessageBag()->toArray()
+            ));
+            die;
+        }
+
+        $this->voucherCodeRepo->createVoucherCode($data);
+
+        echo json_encode(array(
+            'http_code' => 200,
+            'voucher_code' => $data['voucher_code']
+        ));
+        die;
     }
 
     /**
@@ -179,7 +207,7 @@ class VoucherCodeController extends Controller {
 
         $channelRepo = new ChannelRepository(new Channel);
         $channel = $channelRepo->findByName(env('CHANNEL'));
-        
+
         $result = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts);
 
         if (!$result) {
@@ -187,10 +215,10 @@ class VoucherCodeController extends Controller {
             $arrErrors = $this->voucherCodeRepo->getValidationFailures();
 
             if (!empty($arrErrors)) {
-                
+
                 return response()->json(['error' => implode('<br>', $arrErrors)], 404); // Status code here
             }
-            
+
             return response()->json(['error' => 'Voucher could not be found'], 404);
         }
     }

@@ -16,6 +16,11 @@ use App\Shop\Tools\UploadableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
+use App\Shop\Channels\Repositories\ChannelTemplateRepository;
+use App\Shop\ChannelPrices\Repositories\ChannelPriceRepository;
+use App\Shop\Channels\Repositories\ChannelPaymentProviderRepository;
+use App\Shop\Channels\ChannelPaymentProvider;
+use App\Shop\Channels\ChannelTemplate;
 
 class ChannelController extends Controller {
 
@@ -46,13 +51,17 @@ class ChannelController extends Controller {
 
     public function addProductToChannel(Request $request) {
 
-        $channelPriceRepo = new \App\Shop\ChannelPrices\Repositories\ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
+        $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
 
         $channelPriceRepo->create([
             'channel_id' => $request->channel,
             'product_id' => $request->product,
             'price' => $request->price
         ]);
+
+        echo json_encode(array(
+            'http_code' => 200,
+        ));
     }
 
     /**
@@ -66,7 +75,7 @@ class ChannelController extends Controller {
             $value = array_values($template);
             $key = array_keys($template);
 
-            (new \App\Shop\Channels\Repositories\ChannelTemplateRepository(new \App\Shop\Channels\ChannelTemplate))->updateOrCreate(
+            (new ChannelTemplateRepository(new ChannelTemplate))->updateOrCreate(
                     [
                 'channel_id' => $request->channel,
                 'section_id' => $templateId,
@@ -78,6 +87,10 @@ class ChannelController extends Controller {
                     ]
             );
         }
+
+        echo json_encode(array(
+            'http_code' => 200,
+        ));
     }
 
     /**
@@ -86,17 +99,21 @@ class ChannelController extends Controller {
      */
     public function addChannelProvider(Request $request) {
 
-        (new \App\Shop\Channels\Repositories\ChannelPaymentProviderRepository(new \App\Shop\Channels\ChannelPaymentProvider))->create([
+        (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->create([
             'channel_id' => $request->channel,
             'payment_provider_id' => $request->provider
                 ]
         );
+
+        echo json_encode(array(
+            'http_code' => 200,
+        ));
     }
 
     public function getAvailiableProducts($channelId) {
         $channel = $this->channelRepo->findChannelById(4);
 
-        $test = (new \App\Shop\ChannelPrices\Repositories\ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
+        $test = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
     }
 
     /**
@@ -156,12 +173,12 @@ class ChannelController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        
+
         $data = $request->except('_token', '_method');
         //$data['slug'] = str_slug($request->input('name'));
 
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
-                        
+
             $data['cover'] = $this->channelRepo->saveCoverImage($request->file('cover'));
         }
 
@@ -178,9 +195,9 @@ class ChannelController extends Controller {
         $channel = $this->channelRepo->createChannel($data);
 
         echo json_encode(array(
-                'http_code' => 200,
-            ));
-            die;
+            'http_code' => 200,
+        ));
+        die;
     }
 
     /**
@@ -204,14 +221,25 @@ class ChannelController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit(int $id) {
+
         $channel = $this->channelRepo->findChannelById($id);
-        $arrProducts = (new \App\Shop\ChannelPrices\Repositories\ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
+        $arrProducts = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
+
+        $arrTemplates = (new ChannelTemplateRepository(new ChannelTemplate))->getTemplatesForChannel($channel);
+        $arrChannels = $this->channelRepo->listChannels();
+        $arrProviders = (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->getProvidersForChannel($channel);
+        $arrAssignedProducts = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAssignedProductsForChannel($channel);
 
         return view('admin.channels.edit', [
+            'templates' => $arrTemplates,
             'products' => $arrProducts,
             'channel' => $channel,
+            'channels' => $arrChannels,
+            'providers' => $arrProviders,
+            'assigned_products' => $arrAssignedProducts
         ]);
     }
+
     /**
      * 
      * @param Request $request
@@ -221,10 +249,6 @@ class ChannelController extends Controller {
 
         $channel = $this->channelRepo->findChannelById($request->channel);
         $channelRepo = new ChannelRepository($channel);
-        
-        echo '<pre>';
-        print_r($_POST);
-        die;
 
         $data = $request->except('_token', '_method', 'channel');
 

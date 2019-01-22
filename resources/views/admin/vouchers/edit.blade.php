@@ -34,8 +34,8 @@ foreach ($codes as $unusedCode) {
         </div>
     </form>
 
-    <a href="{{ route('admin.voucher-codes.batch', $voucher->id) }}" class="btn btn-default btn-sm">Show Codes</a>
-    <a href="{{ route('admin.voucher-codes.add', $voucher->id) }}" class="btn btn-default btn-sm">Add Codes</a>
+    <!--    <a href="{{ route('admin.voucher-codes.batch', $voucher->id) }}" class="btn btn-default btn-sm">Show Codes</a>-->
+    <a href="{{ route('admin.voucher-codes.add', $voucher->id) }}" class="btn btn-default btn-sm AddVoucherCode">Add Codes</a>
 
     <div class="col-lg-6">
         <div class="box">
@@ -159,7 +159,7 @@ foreach ($codes as $unusedCode) {
             <div class="box-body">
                 <h2>Unused Codes</h2>
 
-                <ul>
+                <ul class="unused-ul">
                     {{$strUnusedCodes}}
                 </ul>
             </div>
@@ -172,6 +172,47 @@ foreach ($codes as $unusedCode) {
 </section>
 <!-- /.content -->
 @endsection
+
+
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Edit Product</h4>
+            </div>
+
+            <div class="modal-body">
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary UpdateChannel">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal" id="voucherCodeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Edit Product</h4>
+            </div>
+
+            <div class="modal-body">
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary saveCode">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
@@ -205,9 +246,13 @@ foreach ($codes as $unusedCode) {
 
                     $('.saveCode').on('click', function (e) {
                         e.preventDefault();
+
                         $('.modal-body .alert-danger').remove();
-                        var formdata = $('#channelPriceForm').serialize();
-                        var href = $('#channelPriceForm').attr('action');
+                        $('.modal-body .alert-success').remove();
+
+                        var formdata = $('#VoucherCodeForm').serialize();
+                        var href = $('#VoucherCodeForm').attr('action');
+
                         $.ajax({
                             type: "POST",
                             url: href,
@@ -220,6 +265,7 @@ foreach ($codes as $unusedCode) {
                                         $('.modal-body .alert-danger').append("<p>" + value + "</p>");
                                     });
                                 } else {
+                                    $('.unused-ul').append('<li>' + obj.voucher_code + '</li>');
                                     $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                                 }
                             }
@@ -273,51 +319,26 @@ foreach ($codes as $unusedCode) {
 
                 });
 
-</script>
-@endsection
+                $(document).on('click', '.AddVoucherCode', function (e) {
 
-<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content animated bounceInRight">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Edit Product</h4>
-            </div>
+                    var href = $(this).attr('href');
 
-            <div class="modal-body">
+                    $.ajax({
+                        type: "GET",
+                        url: href,
+                        success: function (response) {
+                            $('#voucherCodeModal').find('.modal-body').html(response);
+                            $('#voucherCodeModal').modal('show');
+                        }
+                    });
 
-            </div>
+                    return false;
+                });
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary UpdateChannel">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
+                $(".clickable-row").click(function () {
+                    window.location = $(this).data("href");
+                });
 
-
-@section('js')
-<script type="text/javascript">
-    $(document).ready(function () {
-
-        $(document).on('click', '.AddVoucherCode', function (e) {
-            e.preventDefault();
-            //var href = $(this).attr("href");
-            $.ajax({
-                type: "GET",
-                url: '/admin/vouchers/create',
-                success: function (response) {
-                    $('#myModal').find('.modal-body').html(response);
-                    $('#myModal').modal('show');
-                }
-            });
-        });
-
-        $(".clickable-row").click(function () {
-            window.location = $(this).data("href");
-        });
-    });
 </script>
 
 @endsection

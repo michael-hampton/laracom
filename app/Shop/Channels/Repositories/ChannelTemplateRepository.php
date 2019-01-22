@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use App\Shop\Channels\Channel;
 
 class ChannelTemplateRepository extends BaseRepository {
 
@@ -70,7 +71,7 @@ class ChannelTemplateRepository extends BaseRepository {
     }
     
     public function getTemplatesForChannel(Channel $channel) {
-        return $this->model->where('channel_id', $channel->id)->keyBy('section_id');
+        return $this->model->where('channel_id', $channel->id)->get()->keyBy('section_id');
     }
 
 }

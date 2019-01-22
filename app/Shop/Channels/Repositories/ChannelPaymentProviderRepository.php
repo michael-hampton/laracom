@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use App\Shop\Channels\Channel;
 
 class ChannelPaymentProviderRepository extends BaseRepository {
 
@@ -61,7 +62,7 @@ class ChannelPaymentProviderRepository extends BaseRepository {
     }
     
     public function getProvidersForChannel(Channel $channel) {
-        return $this->model->where('channel_id', $channel->id)->pluck('provider');
+        return $this->model->where('channel_id', $channel->id)->pluck('payment_provider_id');
     }
 
 }

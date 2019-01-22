@@ -17,6 +17,7 @@ trait ChannelTransformable {
         $channelObj = new Channel;
         $channelObj->id = (int) $channel->id;
         $channelObj->name = $channel->name;
+        $channelObj->email = $channel->email;
         $channelObj->description = $channel->description;
         $channelObj->allocate_on_order = $channel->allocate_on_order; #
         $channelObj->has_priority = $channel->has_priority;
