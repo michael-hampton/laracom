@@ -218,6 +218,24 @@ foreach ($codes as $unusedCode) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript">
                 $(document).ready(function () {
+                
+                $(".deletebtn").click(function(ev){
+    let pointid = $(this).attr("data-pointid");
+    $.ajax({
+               type: 'DELETE',
+               url: '/pointdelete',
+               dataType: 'json',
+               headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+               data: {id:pointid,"_token": "{{ csrf_token() }}"},
+
+               success: function (data) {
+                      alert('success');            
+               },
+               error: function (data) {
+                     alert(data);
+               }
+    });
+});
 
                     $('.UpdateVoucher').on('click', function (e) {
                         e.preventDefault();
