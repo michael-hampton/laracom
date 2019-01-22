@@ -59,5 +59,9 @@ class ChannelPaymentProviderRepository extends BaseRepository {
             throw new \Exception($e);
         }
     }
+    
+    public function getProvidersForChannel(Channel $channel) {
+        return $this->model->where('channel_id', $channel->id)->pluck('provider');
+    }
 
 }
