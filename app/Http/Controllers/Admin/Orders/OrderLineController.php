@@ -70,19 +70,39 @@ class OrderLineController extends Controller {
      */
     public function updateLineStatus(Request $request) {
 
+         $arrErrors = [];
 
         foreach ($request->form as $arrData) {
 
             $lineId = $arrData['line_id'];
             unset($arrData['line_id']);
+            
+            try {
 
             $orderProduct = $this->orderLineRepo->findOrderProductById($lineId);
 
             $orderProductRepo = new OrderProductRepository($orderProduct);
 
             $orderProductRepo->updateOrderProduct($arrData, $lineId);
+        
+            } catch(\Exception $e) {
+                $arrErrors[$lineId][] = $e->getMessage();
+            }
+            
+            }
+        
+        if(!empty($arrErrors)) {
+            echo json_encode(array(
+                    'http_code' => 400,
+                 ));
+                die;
         }
-        return redirect()->route('admin.orders.edit', $request->order_id);
+        
+        echo json_encode(array(
+                    'http_code' => 200,
+                 ));
+                die;
+        //return redirect()->route('admin.orders.edit', $request->order_id);
     }
 
     /**
