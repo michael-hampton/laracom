@@ -68,5 +68,9 @@ class ChannelTemplateRepository extends BaseRepository {
                 $params, $data
         );
     }
+    
+    public function getTemplatesForChannel(Channel $channel) {
+        return $this->model->where('channel_id', $channel->id)->keyBy('section_id');
+    }
 
 }
