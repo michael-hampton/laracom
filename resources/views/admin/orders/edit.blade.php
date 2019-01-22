@@ -714,11 +714,20 @@ crossorigin="anonymous"></script>
                                                     type: "POST",
                                                     url: '/admin/orderLine/updateLineStatus',
                                                     data: data,
-                                                    success: function (msg) {
-                                                        alert('success');
+                                                    success: function (response) {
+                                                        var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.content').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.content .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.content').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
                                                     },
                                                     error: function (data) {
-                                                        alert('unable to complete action');
+                                                        $('.content').prepend("<div class='alert alert-danger'>Unable to complete action</div>");
+                                                       //alert('unable to complete action');
                                                     }
                                                 });
                                                 //$('#line-status-form').submit();
