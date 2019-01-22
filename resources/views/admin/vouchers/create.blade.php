@@ -27,7 +27,7 @@
 
 
 
-                <div class="form-inline">
+                <div class="form-inline" style='margin-bottom:12px;'>
                     <div class="form-group col-lg-3" style="margin-right: 4px;">
                         <label for="alias">Qty to create<span class="text-danger">*</span></label>
                         <input type="text" name="quantity" id="alias" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
@@ -43,7 +43,7 @@
                     </div>
                 </div>
 
-                <div class="form-inline">
+                <div class="form-inline" style='margin-bottom:12px;'>
 
                     <div class="form-group col-lg-3" style="margin-right: 10px;">
                         <label for="amount type">Amount Type </label>
@@ -64,10 +64,10 @@
                     </div>
                 </div>
 
-                <div class="form-inline">
+                <div class="form-inline" style='margin-bottom:12px;'>
 
                     @if(!empty($scopes))
-                    <div class="form-group col-lg-6">
+                    <div class="form-group col-lg-6" style='margin-right:10px;'>
                         <label for="channel">Scope</label>
                         <select name="scope_type" id="scope_type" class="form-control select2 scope">
                             <option value="order">Order</option>
