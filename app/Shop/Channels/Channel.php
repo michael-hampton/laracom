@@ -32,6 +32,7 @@ class Channel extends Model {
     protected $fillable = [
         'name',
         'description',
+        'email',
         'cover',
         'allocate_on_order',
         'backorders_enabled',
