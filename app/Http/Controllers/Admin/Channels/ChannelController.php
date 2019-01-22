@@ -240,12 +240,14 @@ class ChannelController extends Controller {
         ]);
     }
 
+
     /**
      * 
      * @param Request $request
      * @return type
      */
     public function update(Request $request) {
+
 
         $channel = $this->channelRepo->findChannelById($request->channel);
         $channelRepo = new ChannelRepository($channel);

@@ -24,6 +24,8 @@ use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use App\Shop\Orders\Requests\UpdateLineRequest;
+use Illuminate\Support\Facades\Validator;
 
 class OrderLineController extends Controller {
 
@@ -70,38 +72,47 @@ class OrderLineController extends Controller {
      */
     public function updateLineStatus(Request $request) {
 
-         $arrErrors = [];
+        $arrErrors = [];
 
         foreach ($request->form as $arrData) {
 
+            $validator = Validator::make($arrData, (new UpdateLineRequest())->rules());
+
+            // Validate the input and return correct response
+            if ($validator->fails()) {
+                echo json_encode(array(
+                    'http_code' => 400,
+                    'errors' => $validator->getMessageBag()->toArray()
+                ));
+                die;
+            }
+
             $lineId = $arrData['line_id'];
             unset($arrData['line_id']);
-            
+
             try {
 
-            $orderProduct = $this->orderLineRepo->findOrderProductById($lineId);
+                $orderProduct = $this->orderLineRepo->findOrderProductById($lineId);
 
-            $orderProductRepo = new OrderProductRepository($orderProduct);
+                $orderProductRepo = new OrderProductRepository($orderProduct);
 
-            $orderProductRepo->updateOrderProduct($arrData, $lineId);
-        
-            } catch(\Exception $e) {
+                $orderProductRepo->updateOrderProduct($arrData, $lineId);
+            } catch (\Exception $e) {
                 $arrErrors[$lineId][] = $e->getMessage();
             }
-            
-            }
-        
-        if(!empty($arrErrors)) {
-            echo json_encode(array(
-                    'http_code' => 400,
-                 ));
-                die;
         }
-        
+
+        if (!empty($arrErrors)) {
+            echo json_encode(array(
+                'http_code' => 400,
+            ));
+            die;
+        }
+
         echo json_encode(array(
-                    'http_code' => 200,
-                 ));
-                die;
+            'http_code' => 200,
+        ));
+        die;
         //return redirect()->route('admin.orders.edit', $request->order_id);
     }
 

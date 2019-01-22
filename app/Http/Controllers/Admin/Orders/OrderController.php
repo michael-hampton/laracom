@@ -217,7 +217,7 @@ class OrderController extends Controller {
             $voucher = $this->voucherCodeRepo->findVoucherCodeById($order->voucher_code);
         }
 
-        $arrProducts = $this->productRepo->listProducts();
+        $arrProducts = $this->productRepo->listProducts()->keyBy('id');
 
         $arrAudits = $order->audits;
 

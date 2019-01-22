@@ -5,72 +5,90 @@
 <section class="content">
     @include('layouts.errors-and-messages')
     <!-- Default box -->
-    @if($channels)
     <div class="box">
+
+        @include('admin.shared.box-header-box-tools', ['boxTitle' => "My Stores"])
+
+        <button type="button" class="btn btn-primary AddChannel">+</button>
+
         <div class="box-body">
-            <h2>Channels</h2>
-            @include('layouts.search', ['route' => route('admin.channels.index')])
-            <table class="table">
-                <thead>
-                    <tr>
-                        <td class="col-md-2">Name</td>
-                        <td class="col-md-1">Has Priority</td>
-                        <td class="col-md-1">Allocate on Order</td>
-                        <td class="col-md-1">Backorders Enabled</td>
-                        <td class="col-md-1">Send Received Email</td>
-                        <td class="col-md-1">Send Dispatched Email</td>
-                        <td class="col-md-1">Logo</td>
-                        <td class="col-md-1">Status</td>
-                        <td class="col-md-3">Actions</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($channels as $channel)
-                    <tr>
-                        <td>
-                            {{ $channel->name }} <br>
-                            <a href="{{ route('admin.channel-prices.index', $channel->name) }}">Products</a> | 
-                            <a href="{{ route('admin.vouchers.getByChannel', $channel->name) }}">Vouchers</a>
-                        
-                        </td>
-                        <td>{{ $channel->has_priority == 1 ? 'yes' : 'no' }}</td>
-                        <td>{{ $channel->allocate_on_order === 1 ? 'yes' : 'no' }}</td>
-                        <td>{{ $channel->backorders_enabled === 1 ? 'yes' : 'no' }}</td>
-                        <td>{{ $channel->send_received_email === 1 ? 'yes' : 'no' }}</td>
-                        <td>{{ $channel->send_dispatched_email === 1 ? 'yes' : 'no' }}</td>
-                        <td><img style="width:50px;" src="/storage/{{ $channel->cover }}"></td>
-                        <td>@include('layouts.status', ['status' => $channel->status])</td>
-                        <td>
-                            <form action="{{ route('admin.channels.destroy', $channel->id) }}" method="post" class="form-horizontal">
-                                {{ csrf_field() }}
-                                <input type="hidden" name="_method" value="delete">
-                                <div class="btn-group">
-                                    <a href="{{ route('admin.channels.edit', $channel->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i> Edit</a>
-                                    <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
-<!--                                    <a href="{{ route('admin.channel-prices.index', $channel->name) }}" class="btn btn-primary btn-sm">View Products</a>-->
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @if($channels instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="pull-left">{{ $channels->links() }}</div>
-                </div>
-            </div>
+
+            @if (isset($channels) && count($channels) > 0)
+            @foreach ( $channels as $channel )
+            @include('admin.shared.channels-cards', ['channel' => $channel])
+            @endforeach
+            @else
+            <h4>No Assigned Channel Yet</h4>
             @endif
+
         </div>
-        <!-- /.box-body -->
+
+        <!-- /.box-footer-->
     </div>
-    <!-- /.box -->
-    @else
-    <div class="box">
-        <div class="box-body"><p class="alert alert-warning">No channels found.</p></div>
-    </div>
-    @endif
 </section>
 <!-- /.content -->
+@endsection
+
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Edit Product</h4>
+            </div>
+
+            <div class="modal-body">
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary saveNewChannel">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.js" data-turbolinks-track="true"></script>
+
+<script type="text/javascript">
+    $('.saveNewChannel').on('click', function (e) {
+        e.preventDefault();
+        $('.modal-body .alert-danger').remove();
+        var formdata = new FormData($('#NewChannelForm')[0]);
+        formdata.append('cover', $('#cover')[0].files[0]);
+        var href = $('#NewChannelForm').attr('action');
+        $.ajax({
+            type: "POST",
+            url: href,
+            data: formdata,
+            processData: false, // tell jQuery not to process the data
+            contentType: false, // tell jQuery not to set contentType
+            success: function (response) {
+                var obj = jQuery.parseJSON(response);
+                if (obj.http_code == 400) {
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $.each(obj.errors, function (key, value) {
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                }
+            }
+        });
+    });
+    $(document).on('click', '.AddChannel', function (e) {
+        e.preventDefault();
+//var href = $(this).attr("href");
+        $.ajax({
+            type: "GET",
+            url: '/admin/channels/create',
+            success: function (response) {
+                $('#myModal').find('.modal-body').html(response);
+                $('#myModal').modal('show');
+            }
+        });
+    });
+</script>
 @endsection

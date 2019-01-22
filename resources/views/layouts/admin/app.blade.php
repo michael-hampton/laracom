@@ -53,10 +53,32 @@
         </div>
         <!-- ./wrapper -->
 
-        
+
         <script src="{{ asset('js/admin.min.js') }}"></script>
         <script src="{{ asset('//cdn.ckeditor.com/4.8.0/standard/ckeditor.js') }}"></script>
         <script src="{{ asset('js/scripts.js?v=0.2') }}"></script>
+
+        <script>
+
+var page = 1;
+
+function param(key, name) {
+    return (name.split(key + '=')[1] || '').split('&')[0];
+}
+
+$('.pagination li').on('click', function (e) {
+    
+    $('.pagination > li').removeClass('active');
+    $(this).addClass('active');
+
+    page = $(this).find('a').length > 0 ? param('page', $(this).find('a').attr('href')) : $(this).find('span').text();
+
+    e.preventDefault();
+
+    $('#page').val(page);
+    $('.Search').click();
+});
+        </script>
         @yield('js')
     </body>
 </html>

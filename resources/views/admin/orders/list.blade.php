@@ -14,6 +14,8 @@
                 <div class="col-lg-12">
                     <form action="{{ route('admin.orders.search') }}" method="post" id="admin-search">
 
+                        <input type="hidden" name="page" id="page" value="1">
+
                         {{ csrf_field() }}
 
 
@@ -94,10 +96,10 @@
         </div>
     </div>
     <div class="col-lg-9 search-results">
-        
-        </div>
 
-    
+    </div>
+
+
 
     <div class="box-footer col-lg-12">
         {{ $orders->links() }}
@@ -109,9 +111,10 @@
 
 @section('js')
 <script type="text/javascript">
+
     $(document).ready(function () {
-    
-      $('.Search').on('click', function (e) {
+
+        $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
             var formdata = $('#admin-search').serialize();
             $.ajax({
@@ -123,9 +126,9 @@
                 }
             });
         });
-        
+
         $('.Search').click();
-});
+    });
 </script>
 
 @endsection

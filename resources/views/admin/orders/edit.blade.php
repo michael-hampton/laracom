@@ -1,6 +1,7 @@
 @extends('layouts.admin.app')
 
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
 <style>
     .glyphicon {
@@ -20,23 +21,6 @@
     }
 
 </style>
-
-<?php
-
-/**
- * 
- * @param type $productId
- * @param type $arrProducts
- * @return type
- */
-function getInventoryForProduct($productId, $arrProducts) {
-    $test = $arrProducts->filter(function ($item) use($productId) {
-                return $item->id == $productId;
-            })->first();
-
-    return array('quantity' => $test->quantity, 'reserved_stock' => $test->reserved_stock);
-}
-?>
 
 @section('content')
 <!-- Main content -->
@@ -168,12 +152,11 @@ function getInventoryForProduct($productId, $arrProducts) {
                     foreach ($items as $item) {
 
                         $activeState = $count === 0 ? 'active' : '';
-                        $arrInventory = getInventoryForProduct($item->id, $products);
                         ?>
 
 
                         <div class="current-line-ref btn btn-primary btn-outline {{ $activeState  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
-                            @if ($arrInventory['quantity'] > 0 || $arrInventory['reserved_stock'] > 0)
+                            @if ($products[$item->product_id]['quantity'] > 0 || $products[$item->product_id]['reserved_stock'] > 0)
                             <img src="/images/accept.png" />
                             @else
                             <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
@@ -259,14 +242,13 @@ function getInventoryForProduct($productId, $arrProducts) {
                     foreach ($items as $item) {
 
                         $activeState = $count === 0 ? 'active' : '';
-                        $arrInventory = getInventoryForProduct($item->id, $products);
                         ?>
 
                         <div class="current-line-ref btn btn-primary btn-outline {{ $activeState }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku
                              }}"  data-warehouse-ref ="KW"
                              data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
                              data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
-                            @if ($arrInventory['quantity'] > 0 || $arrInventory['reserved_stock'] > 0)
+                            @if ($products[$item->product_id]['quantity'] > 0 || $products[$item->product_id]['reserved_stock'] > 0)
                             <img src="/images/accept.png" />
                             @else;
                             <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
@@ -424,9 +406,6 @@ function getInventoryForProduct($productId, $arrProducts) {
 
                     @foreach($items as $count => $item)
 
-                    <?php
-                    $arrInventory = getInventoryForProduct($item->id, $products);
-                    ?>
                     <div class="pull-left col-lg-12" data-line-ref="{{$item->id}}" style="margin:10px; border-bottom: 1px dashed #000;">
                         <input type="hidden" name='form[{{$count}}][line_id]' value='{{$item->id}}'>
 
@@ -506,12 +485,12 @@ function getInventoryForProduct($productId, $arrProducts) {
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label for="inputCity">Reserved Stock</label>
-                                <input type="text" class="form-control" disabled='disabled' id="reserved_stock" name='reserved_stock' value='{{$arrInventory['reserved_stock']}}'>
+                                <input type="text" class="form-control" disabled='disabled' id="reserved_stock" name='reserved_stock' value='{{$products[$item->product_id]['reserved_stock']}}'>
                             </div>
 
                             <div class="form-group col-md-3">
                                 <label for="inputState">Stock Available</label>
-                                <input type="text" class="form-control" disabled='disabled' id="stock_availiable" name='stock_availiable' value="{{$arrInventory['quantity']}}">
+                                <input type="text" class="form-control" disabled='disabled' id="stock_availiable" name='stock_availiable' value="{{$products[$item->product_id]['quantity']}}">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="inputZip">Quantity</label>
@@ -716,18 +695,20 @@ crossorigin="anonymous"></script>
                                                     data: data,
                                                     success: function (response) {
                                                         var obj = jQuery.parseJSON(response);
-                if (obj.http_code == 400) {
-                    $('.content').prepend("<div class='alert alert-danger'></div>");
-                    $.each(obj.errors, function (key, value) {
-                        $('.content .alert-danger').append("<p>" + value + "</p>");
-                    });
-                } else {
-                    $('.content').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
-                }
+                                                        if (obj.http_code == 400) {
+                                                            $('#order-details-line-container').prepend("<div class='alert alert-danger'></div>");
+                                                            $.each(obj.errors, function (key, value) {
+                                                                $('#order-details-line-container .alert-danger').append("<p>" + value + "</p>");
+                                                            });
+                                                        } else {
+                                                            alert('Yes');
+                                                        
+                                                            $('#order-details-line-container').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                                                        }
                                                     },
                                                     error: function (data) {
-                                                        $('.content').prepend("<div class='alert alert-danger'>Unable to complete action</div>");
-                                                       //alert('unable to complete action');
+                                                        $('#order-details-line-container').prepend("<div class='alert alert-danger'>Unable to complete action</div>");
+                                                        //alert('unable to complete action');
                                                     }
                                                 });
                                                 //$('#line-status-form').submit();
@@ -892,7 +873,7 @@ crossorigin="anonymous"></script>
                                                         var response = JSON.parse(response);
 
                                                         if (response.http_code === 400) {
-                                                            
+
                                                             $('.content').prepend("<div class='alert alert-danger'></div>");
 
                                                             $.each(response.FAILURES, function (lineId, val) {

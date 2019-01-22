@@ -65,6 +65,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::put('returns/update/{id}', 'Returns\ReturnController@update')->name('returns.update');
         Route::delete('returns/destroy/{id}', 'Returns\ReturnController@destroy')->name('returns.destroy');
         Route::get('returns/edit/{id}', 'Returns\ReturnController@edit')->name('returns.edit');
+        
+       
 
         /* invoice */
         Route::post('invoice/invoiceOrder/', 'Invoices\InvoiceController@invoiceOrder')->name('invoice.invoiceOrder');
@@ -100,7 +102,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         /* channels */
         Route::post('channels/saveChannelAttribute/', 'Channels\ChannelController@saveChannelAttribute')->name('channels.saveChannelAttribute');
       
-         Route::post('channels/updateNewChannel/', 'Channels\ChannelController@updateNewChannel')->name('channels.updateNewChannel');
+         Route::post('channels/saveChannel/{channel}', 'Channels\ChannelController@saveChannel')->name('channels.saveChannel');
       Route::post('channels/addProductToChannel/', 'Channels\ChannelController@addProductToChannel')->name('channels.addProductToChannel');
       Route::post('channels/saveChannelTemplate/', 'Channels\ChannelController@saveChannelTemplate')->name('channels.saveChannelTemplate');
       Route::post('channels/addChannelProvider/', 'Channels\ChannelController@addChannelProvider')->name('channels.addChannelProvider');
@@ -121,6 +123,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('addresses', 'Addresses\AddressController');
 
         /* vouchers */
+         Route::delete('voucher-codes/destroy/{id}', 'VoucherCodes\VoucherCodeController@destroy')->name('voucher-codes.destroy');
         Route::resource('voucher-codes', 'VoucherCodes\VoucherCodeController');
         Route::resource('vouchers', 'Vouchers\VoucherController');
         Route::get('voucher-codes/batch/{id?}', 'VoucherCodes\VoucherCodeController@getCodesByBatch')->name('voucher-codes.batch');

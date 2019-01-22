@@ -35,8 +35,6 @@ function buildcheckBox($value, $label) {
         <div class="box">
             <div class="box-body channel-div">
 
-                <button type="button" class="btn btn-primary AddChannel">+</button>
-
                 <form id="channelForm" channel-id="{{ $channel->id }}" class="form" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="put">
@@ -243,26 +241,6 @@ function buildcheckBox($value, $label) {
 <!-- /.content -->
 @endsection
 
-<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content animated bounceInRight">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Edit Product</h4>
-            </div>
-
-            <div class="modal-body">
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary saveNewChannel">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.js" data-turbolinks-track="true"></script>
 
@@ -274,44 +252,9 @@ $(document).ready(function () {
         location.href = '/admin/channels/' + $(this).val() + '/edit';
     });
 
-    $('.saveNewChannel').on('click', function (e) {
-        e.preventDefault();
-        $('.modal-body .alert-danger').remove();
-        var formdata = new FormData($('#NewChannelForm')[0]);
-        formdata.append('cover', $('#cover')[0].files[0]);
-        var href = $('#NewChannelForm').attr('action');
-        $.ajax({
-            type: "POST",
-            url: href,
-            data: formdata,
-            processData: false, // tell jQuery not to process the data
-            contentType: false, // tell jQuery not to set contentType
-            success: function (response) {
-                var obj = jQuery.parseJSON(response);
-                if (obj.http_code == 400) {
-                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
-                    $.each(obj.errors, function (key, value) {
-                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
-                    });
-                } else {
-                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
-                }
-            }
-        });
-    });
-    $(document).on('click', '.AddChannel', function (e) {
-        e.preventDefault();
-//var href = $(this).attr("href");
-        $.ajax({
-            type: "GET",
-            url: '/admin/channels/create',
-            success: function (response) {
-                $('#myModal').find('.modal-body').html(response);
-                $('#myModal').modal('show');
-            }
-        });
-    });
+    
     $('.test').bootstrapSwitch();
+    
     $('.addProvider').on('click', function () {
 
         var channel = $(this).attr('channel-id');
@@ -415,6 +358,7 @@ $(document).ready(function () {
         e.preventDefault();
         var channel = $(this).attr('channel-id');
         var formdata = $(this).serialize();
+        
         $.ajax({
             type: "POST",
             url: '/admin/channels/updateNewChannel',

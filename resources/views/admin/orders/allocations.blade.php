@@ -22,6 +22,8 @@
                     <form action="{{ route('admin.orderLine.search') }}" method="post" id="admin-search">
 
                         {{ csrf_field() }}
+                        
+                         <input type="hidden" name="page" id="page" value="1">
 
 
                         <div style="margin-bottom: 10px;">

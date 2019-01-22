@@ -61,8 +61,8 @@
                             <?php
                             $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
                             $reservedStock = $products[$item->product_id]['reserved_stock'];
-                            $checked = $quantityAvailiable > 0 ? 'checked="checked"' : '';
-                            $disabled = $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+                            $checked = $item->status === 14 || $quantityAvailiable > 0 ? 'checked="checked"' : '';
+                            $disabled = $item->status !== 14 && $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
                             ?>
 
                             <td>{{ $item->quantity }}

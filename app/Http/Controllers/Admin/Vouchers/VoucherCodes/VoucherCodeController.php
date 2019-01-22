@@ -181,6 +181,7 @@ class VoucherCodeController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
+                
         $voucherCode = $this->voucherCodeRepo->findVoucherCodeById($id);
         $delete = new VoucherCodeRepository($voucherCode);
         $delete->deleteVoucherCode();

@@ -10,16 +10,15 @@ use Illuminate\Pagination\LengthAwarePaginator;
 /**
  * @codeCoverageIgnore
  */
-abstract class BaseRepository implements BaseRepositoryInterface
-{
+abstract class BaseRepository implements BaseRepositoryInterface {
+
     protected $model;
 
     /**
      * BaseRepository constructor.
      * @param Model $model
      */
-    public function __construct(Model $model)
-    {
+    public function __construct(Model $model) {
         $this->model = $model;
     }
 
@@ -27,8 +26,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param array $attributes
      * @return mixed
      */
-    public function create(array $attributes)
-    {
+    public function create(array $attributes) {
         return $this->model->create($attributes);
     }
 
@@ -37,8 +35,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param int $id
      * @return bool
      */
-    public function update(array $attributes, int $id) : bool
-    {
+    public function update(array $attributes, int $id): bool {
         return $this->find($id)->update($attributes);
     }
 
@@ -48,8 +45,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param string $sortBy
      * @return mixed
      */
-    public function all($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc')
-    {
+    public function all($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc') {
         return $this->model->orderBy($orderBy, $sortBy)->get($columns);
     }
 
@@ -57,8 +53,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param int $id
      * @return mixed
      */
-    public function find(int $id)
-    {
+    public function find(int $id) {
         return $this->model->find($id);
     }
 
@@ -67,8 +62,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @return mixed
      * @throws ModelNotFoundException
      */
-    public function findOneOrFail(int $id)
-    {
+    public function findOneOrFail(int $id) {
         return $this->model->findOrFail($id);
     }
 
@@ -76,8 +70,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param array $data
      * @return mixed
      */
-    public function findBy(array $data)
-    {
+    public function findBy(array $data) {
         return $this->model->where($data)->all();
     }
 
@@ -85,8 +78,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param array $data
      * @return mixed
      */
-    public function findOneBy(array $data)
-    {
+    public function findOneBy(array $data) {
         return $this->model->where($data)->first();
     }
 
@@ -95,8 +87,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @return mixed
      * @throws ModelNotFoundException
      */
-    public function findOneByOrFail(array $data)
-    {
+    public function findOneByOrFail(array $data) {
         return $this->model->where($data)->firstOrFail();
     }
 
@@ -105,20 +96,21 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param int $perPage
      * @return LengthAwarePaginator
      */
-    public function paginateArrayResults(array $data, int $perPage = 50)
-    {
-        $page = request()->get('page', 1);
+    public function paginateArrayResults(array $data, int $perPage = 50) {
+
+        $page = request()->post('page', 1);
+
+
+        $page = !empty($page) ? $page : request()->get('page', 1);
+
+
         $offset = ($page * $perPage) - $perPage;
 
         return new LengthAwarePaginator(
-            array_slice($data, $offset, $perPage, false),
-            count($data),
-            $perPage,
-            $page,
-            [
-                'path' => request()->url(),
-                'query' => request()->query()
-            ]
+                array_slice($data, $offset, $perPage, false), count($data), $perPage, $page, [
+            'path' => request()->url(),
+            'query' => request()->query()
+                ]
         );
     }
 
@@ -126,8 +118,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param int $id
      * @return bool
      */
-    public function delete(int $id) : bool
-    {
+    public function delete(int $id): bool {
         return $this->model->find($id)->delete();
     }
+
 }
