@@ -10,6 +10,12 @@
                     <label for="name">Name <span class="text-danger">*</span></label>
                     <input type="text" name="name" id="name" placeholder="Name" class="form-control" value="{{ old('name') }}">
                 </div>
+                
+                <div class="form-group">
+                    <label for="email">Email <span class="text-danger">*</span></label>
+                    <input type="text" name="email" id="email" placeholder="Email" class="form-control" value="{{ old('name') }}">
+                </div>
+                
                 <div class="form-group">
                     <label for="description">Description </label>
                     <textarea class="form-control ckeditor" name="description" id="description" rows="5" placeholder="Description">{{ old('description') }}</textarea>
