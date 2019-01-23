@@ -66,6 +66,7 @@ function param(key, name) {
     return (name.split(key + '=')[1] || '').split('&')[0];
 }
 
+function loadPagination() {
 $('.pagination li').on('click', function (e) {
     
     $('.pagination > li').removeClass('active');
@@ -78,6 +79,7 @@ $('.pagination li').on('click', function (e) {
     $('#page').val(page);
     $('.Search').click();
 });
+}
         </script>
         @yield('js')
     </body>
