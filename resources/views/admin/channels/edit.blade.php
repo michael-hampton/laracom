@@ -290,7 +290,7 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (response) {
-                $('.providerList').append('<li>' + name + '</li>');
+                $('.providerList').append('<li>' + name + '<a href="#" class="deleteProvider" provider-id="'+$provider+'">x</a></li>');
                 var obj = jQuery.parseJSON(response);
                 if (obj.http_code == 400) {
                     $('.provider-div').prepend("<div class='alert alert-danger'></div>");
