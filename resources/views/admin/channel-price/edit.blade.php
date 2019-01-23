@@ -102,6 +102,12 @@ $('.variationList > li').on('click', function() {
                     });
                 } else {
                     $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                
+                if($('.variationList > li').length > 0) {
+                    $('#channelPriceForm').slideUp();
+                    $('#variationWrapper').slideDown();
+                }
+                
                 }
 
             }
