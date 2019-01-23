@@ -24,7 +24,11 @@
 
     <li class="list-group-item fist-item">
         <span class="float-right">{{$attribute->price}} </span>
-        Please contact me
+        
+                     @foreach($attribute->attributesValues as $value)
+                                    {{ $value->attribute->name }} : {{ ucwords($value->value) }}
+                                    @endforeach
+        
     </li>
     
     @endforeach;
