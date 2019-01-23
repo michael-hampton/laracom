@@ -252,7 +252,22 @@ $(document).ready(function () {
         location.href = '/admin/channels/' + $(this).val() + '/edit';
     });
 
-    
+             $(".deleteProvider").click(function (ev) {
+                    let id = $(this).attr("provider-id");
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '/admin/channels/deleteProvider/'+id,
+                        dataType: 'json',
+                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        data: {id: id, "_token": "{{ csrf_token() }}"},
+                        success: function (data) {
+                            $(this).parent().remove();
+                        },
+                        error: function (data) {
+                            alert(data);
+                        }
+                    });
+                });
     $('.test').bootstrapSwitch();
     
     $('.addProvider').on('click', function () {
