@@ -3,7 +3,10 @@
 <div class="box">
     <form action="{{ route('admin.channel-prices.update', $channelPrice->id) }}" method="post" id="channelPriceForm" class="form" enctype="multipart/form-data">
         <div class="box-body">
-            {{ csrf_field() }}
+        
+        <div class='productCode'></div>
+           
+           {{ csrf_field() }}
             <input type="hidden" name="_method" value="put">
             <input type="hidden" name="added" id="added" value='0'>
             <input type="hidden" name="attribute_id" id="attribute_id">
@@ -27,7 +30,7 @@
 <ul class="list-group clear-list variationList">
     @foreach($attributes as $attribute)
 
-    <li class="list-group-item fist-item">
+    <li price='{{$attribute->price}}' class="list-group-item fist-item">
         <span class="float-right">{{$attribute->price}} </span>
         
                      @foreach($attribute->attributesValues as $value)
@@ -59,17 +62,12 @@ $('.removeVariation').on('click', function() {
   var attributeId = $(this).parent().attr('attributeid');
 });
 
-$('.saveChanges').on('click', function() {
-  $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').addClass('added');
-  $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').append('a href="#" class="removeVariation">');
-});
-
 $('.variationList > li').on('click', function() {
 
   $('#variationWrapper').slideUp();
   $('#channelPriceForm').slideDown();
   $('#added').val(($(this).hasClass('added') ? 1 : 0));
-  $('#price').val($(this), attr('price'));
+  $('#price').val($(this).attr('price'));
   $('.productCode').html($(this).attr('name'));
 
 
@@ -80,6 +78,9 @@ $('.variationList > li').on('click', function() {
         e.preventDefault();
 
         $('.modal-body .alert-danger').remove();
+
+        $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').addClass('added');
+        $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').append('a href="#" class="removeVariation">');
 
         var formdata = $('#channelPriceForm').serialize();
         var href = $('#channelPriceForm').attr('action');
