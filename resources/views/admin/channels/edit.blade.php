@@ -164,9 +164,9 @@ function buildcheckBox($value, $label) {
                     <button channel-id="{{ $channel->id }}"  class="btn btn-primary addProduct">+</button>
                 </div>
 
-                <ul class='productList list'>
+                <ul class='productList list list-group clear-list'>
                     @foreach($assigned_products as $objProduct)
-                    <li>{{$objProduct->name}} {{$objProduct->price}}</li>
+                    <li class='list-group-item'>{{$objProduct->name}} {{$objProduct->price}}</li>
                     @endforeach;
                 </ul>
             </div>
@@ -226,9 +226,9 @@ function buildcheckBox($value, $label) {
                     <button channel-id="{{ $channel->id }}" class="btn btn-primary addProvider">+</button>
                 </div>
 
-                <ul class='providerList list'>
+                <ul class='providerList list list-group clear-list'>
                     @foreach($providers as $provider)
-                    <li>{{$provider}}</li>
+                    <li class='list-group-item'>{{$provider}}</li>
                     @endforeach
                 </ul>
             </div>
