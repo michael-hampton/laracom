@@ -10,7 +10,7 @@
 
             <div class="form-group">
                 <label for="alias">Price <span class="text-danger">*</span></label>
-                <input type="text" name="price" id="alias" placeholder="Price" class="form-control" value="{{ empty($channelPrice->price) || $channelPrice->price <= 0 ? $product->price : $channelPrice->price }}">
+                <input type="text" name="price" id="price" placeholder="Price" class="form-control" value="{{ empty($channelPrice->price) || $channelPrice->price <= 0 ? $product->price : $channelPrice->price }}">
             </div>
 
             <div class="form-group">
