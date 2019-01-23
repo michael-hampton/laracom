@@ -80,11 +80,7 @@ class OrderLineController extends Controller {
 
             // Validate the input and return correct response
             if ($validator->fails()) {
-                echo json_encode(array(
-                    'http_code' => 400,
-                    'errors' => $validator->getMessageBag()->toArray()
-                ));
-                die;
+                return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
             }
 
             $lineId = $arrData['line_id'];
@@ -103,17 +99,10 @@ class OrderLineController extends Controller {
         }
 
         if (!empty($arrErrors)) {
-            echo json_encode(array(
-                'http_code' => 400,
-            ));
-            die;
+            return response()->json(['http_code' => 400, 'errors' => $arrErrors]);
         }
 
-        echo json_encode(array(
-            'http_code' => 200,
-        ));
-        die;
-        //return redirect()->route('admin.orders.edit', $request->order_id);
+        return response()->json(['http_code' => 200]);
     }
 
     /**
@@ -167,7 +156,7 @@ class OrderLineController extends Controller {
             $arrResponse['details']['SUCCESS'] = $arrSuccess;
         }
 
-        echo json_encode($arrResponse);
+        return response()->json($arrResponse);
     }
 
     public function search(Request $request) {
@@ -329,8 +318,7 @@ class OrderLineController extends Controller {
         }
 
         $http_code = $blError === true ? 400 : 200;
-        echo json_encode(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
-        die;
+        return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
     }
 
     /**
@@ -476,8 +464,7 @@ class OrderLineController extends Controller {
         }
 
         $http_code = $blError === true ? 400 : 200;
-        echo json_encode(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
-        die;
+        return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
     }
 
 }

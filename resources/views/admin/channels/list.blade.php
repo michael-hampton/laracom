@@ -66,10 +66,9 @@
             processData: false, // tell jQuery not to process the data
             contentType: false, // tell jQuery not to set contentType
             success: function (response) {
-                var obj = jQuery.parseJSON(response);
-                if (obj.http_code == 400) {
+                if (response.http_code == 400) {
                     $('.modal-body').prepend("<div class='alert alert-danger'></div>");
-                    $.each(obj.errors, function (key, value) {
+                    $.each(response.errors, function (key, value) {
                         $('.modal-body .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {

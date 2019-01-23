@@ -208,10 +208,9 @@ foreach ($codes as $unusedCode) {
                                 url: href,
                                 data: formdata,
                                 success: function (response) {
-                                    var obj = jQuery.parseJSON(response);
-                                    if (obj.http_code == 400) {
+                                    if (response.http_code == 400) {
                                         $('.content').prepend("<div class='alert alert-danger'></div>");
-                                        $.each(obj.errors, function (key, value) {
+                                        $.each(response.errors, function (key, value) {
                                             $('.content .alert-danger').append("<p>" + value + "</p>");
                                         });
                                     } else {
@@ -235,14 +234,13 @@ foreach ($codes as $unusedCode) {
                                 url: href,
                                 data: formdata,
                                 success: function (response) {
-                                    var obj = jQuery.parseJSON(response);
-                                    if (obj.http_code == 400) {
+                                    if (response.http_code == 400) {
                                         $('.modal-body').prepend("<div class='alert alert-danger'></div>");
-                                        $.each(obj.errors, function (key, value) {
+                                        $.each(response.errors, function (key, value) {
                                             $('.modal-body .alert-danger').append("<p>" + value + "</p>");
                                         });
                                     } else {
-                                        $('.unused-ul').append('<li>' + obj.voucher_code + '</li>');
+                                        $('.unused-ul').append('<li>' + response.voucher_code + '</li>');
                                         $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                                     }
                                 }

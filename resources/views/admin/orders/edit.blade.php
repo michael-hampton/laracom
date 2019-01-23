@@ -694,15 +694,12 @@ crossorigin="anonymous"></script>
                                                     url: '/admin/orderLine/updateLineStatus',
                                                     data: data,
                                                     success: function (response) {
-                                                        var obj = jQuery.parseJSON(response);
-                                                        if (obj.http_code == 400) {
+                                                        if (response.http_code == 400) {
                                                             $('#order-details-line-container').prepend("<div class='alert alert-danger'></div>");
-                                                            $.each(obj.errors, function (key, value) {
+                                                            $.each(response.errors, function (key, value) {
                                                                 $('#order-details-line-container .alert-danger').append("<p>" + value + "</p>");
                                                             });
                                                         } else {
-                                                            alert('Yes');
-                                                        
                                                             $('#order-details-line-container').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                                                         }
                                                     },

@@ -165,22 +165,18 @@ class VoucherController extends Controller {
 
         // Validate the input and return correct response
         if ($validator->fails()) {
-            echo json_encode(array(
-                'http_code' => 400,
-                'errors' => $validator->getMessageBag()->toArray()
-            ));
-            die;
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
-        $voucher = $this->voucherRepo->createVoucher($data);
+        try {
+            $voucher = $this->voucherRepo->createVoucher($data);
 
-        (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
+            (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
+        } catch (Exception $ex) {
+            return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+        }
 
-        echo json_encode(array(
-            'http_code' => 200,
-            
-        ));
-        die;
+        return response()->json(['http_code' => 200]);
     }
 
     /**
@@ -206,7 +202,7 @@ class VoucherController extends Controller {
 
         $voucherCodes = (new \App\Shop\VoucherCodes\Repositories\VoucherCodeRepository(new \App\Shop\VoucherCodes\VoucherCode))->listVoucherCode()->where('voucher_id', $id);
         $usedVoucherCodes = $this->voucherRepo->getUsedVoucherCodes($voucher);
-                
+
         if (!empty($channel)) {
             $objChannel = $this->channelRepo->findChannelById($channel);
             $repo = new ChannelRepository($objChannel);
@@ -256,20 +252,13 @@ class VoucherController extends Controller {
         $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
         // Validate the input and return correct response
         if ($validator->fails()) {
-            echo json_encode(array(
-                'http_code' => 400,
-                'errors' => $validator->getMessageBag()->toArray()
-            ));
-            die;
+            return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
         }
 
         $update = new VoucherRepository($voucher);
         $update->updateVoucher($data);
 
-        echo json_encode(array(
-            'http_code' => 200,
-        ));
-        die;
+        return response()->json(['http_code' => 200]);
     }
 
     /**

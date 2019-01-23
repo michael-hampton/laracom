@@ -49,19 +49,27 @@ class ChannelController extends Controller {
         $this->channelRepo = $channelRepository;
     }
 
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
     public function addProductToChannel(Request $request) {
 
-        $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
+        try {
+            $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
 
-        $channelPriceRepo->create([
-            'channel_id' => $request->channel,
-            'product_id' => $request->product,
-            'price' => $request->price
-        ]);
+            $channelPriceRepo->create([
+                'channel_id' => $request->channel,
+                'product_id' => $request->product,
+                'price' => $request->price
+            ]);
+        } catch (Exception $ex) {
+            return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+        }
 
-        echo json_encode(array(
-            'http_code' => 200,
-        ));
+
+        return response()->json(['http_code' => 200]);
     }
 
     /**
@@ -75,22 +83,24 @@ class ChannelController extends Controller {
             $value = array_values($template);
             $key = array_keys($template);
 
-            (new ChannelTemplateRepository(new ChannelTemplate))->updateOrCreate(
-                    [
-                'channel_id' => $request->channel,
-                'section_id' => $templateId,
-                'title' => $key[0],
-                'description' => $value[0]
-                    ], [
-                'channel_id' => $request->channel,
-                'section_id' => $templateId
-                    ]
-            );
+            try {
+                (new ChannelTemplateRepository(new ChannelTemplate))->updateOrCreate(
+                        [
+                    'channel_id' => $request->channel,
+                    'section_id' => $templateId,
+                    'title' => $key[0],
+                    'description' => $value[0]
+                        ], [
+                    'channel_id' => $request->channel,
+                    'section_id' => $templateId
+                        ]
+                );
+            } catch (Exception $ex) {
+                return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+            }
         }
 
-        echo json_encode(array(
-            'http_code' => 200,
-        ));
+        return response()->json(['http_code' => 200]);
     }
 
     /**
@@ -99,15 +109,17 @@ class ChannelController extends Controller {
      */
     public function addChannelProvider(Request $request) {
 
-        (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->create([
-            'channel_id' => $request->channel,
-            'payment_provider_id' => $request->provider
-                ]
-        );
+        try {
+            (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->create([
+                'channel_id' => $request->channel,
+                'payment_provider_id' => $request->provider
+                    ]
+            );
+        } catch (Exception $ex) {
+            return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+        }
 
-        echo json_encode(array(
-            'http_code' => 200,
-        ));
+        return response()->json(['http_code' => 200]);
     }
 
     public function getAvailiableProducts($channelId) {
@@ -185,19 +197,12 @@ class ChannelController extends Controller {
         $validator = Validator::make($data, (new CreateChannelRequest())->rules());
         // Validate the input and return correct response
         if ($validator->fails()) {
-            echo json_encode(array(
-                'http_code' => 400,
-                'errors' => $validator->getMessageBag()->toArray()
-            ));
-            die;
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
         $channel = $this->channelRepo->createChannel($data);
 
-        echo json_encode(array(
-            'http_code' => 200,
-        ));
-        die;
+        return response()->json(['http_code' => 200]);
     }
 
     /**
@@ -213,12 +218,11 @@ class ChannelController extends Controller {
             'channel' => $channel
         ]);
     }
-    
-    public function deleteProvider($id)
-    {
-        
+
+    public function deleteProvider($id) {
+
         $paymentProvider = (new \App\Shop\Channels\PaymentProvider())->where('id', $id)->first();
-  
+
         (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->deleteChannelFromProvider($paymentProvider);
     }
 
@@ -238,7 +242,7 @@ class ChannelController extends Controller {
         $arrProviders = (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->getProvidersForChannel($channel);
         $arrAssignedProducts = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAssignedProductsForChannel($channel);
         $arrPaymentProviders = (new \App\Shop\Channels\PaymentProvider)->get();
-        
+
         return view('admin.channels.edit', [
             'templates' => $arrTemplates,
             'products' => $arrProducts,
@@ -249,7 +253,6 @@ class ChannelController extends Controller {
             'assigned_products' => $arrAssignedProducts
         ]);
     }
-
 
     /**
      * 
@@ -271,20 +274,13 @@ class ChannelController extends Controller {
         $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
         // Validate the input and return correct response
         if ($validator->fails()) {
-            echo json_encode(array(
-                'http_code' => 400,
-                'errors' => $validator->getMessageBag()->toArray()
-            ));
-            die;
+
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
         $channelRepo->updateChannel($data);
 
-        echo json_encode(array(
-            'http_code' => 200,
-            'message' => 'Product updated successfully'
-        ));
-        die;
+        return response()->json(['http_code' => 200, 'message' => 'Channel has been updated successfully']);
     }
 
     /**

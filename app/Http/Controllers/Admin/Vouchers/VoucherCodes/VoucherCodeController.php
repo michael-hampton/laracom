@@ -110,20 +110,12 @@ class VoucherCodeController extends Controller {
 
         // Validate the input and return correct response
         if ($validator->fails()) {
-            echo json_encode(array(
-                'http_code' => 400,
-                'errors' => $validator->getMessageBag()->toArray()
-            ));
-            die;
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
         $this->voucherCodeRepo->createVoucherCode($data);
 
-        echo json_encode(array(
-            'http_code' => 200,
-            'voucher_code' => $data['voucher_code']
-        ));
-        die;
+        return response()->json(['http_code' => 200, 'voucher_code' => $data['voucher_code']]);
     }
 
     /**
@@ -181,7 +173,7 @@ class VoucherCodeController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-                
+
         $voucherCode = $this->voucherCodeRepo->findVoucherCodeById($id);
         $delete = new VoucherCodeRepository($voucherCode);
         $delete->deleteVoucherCode();
@@ -219,12 +211,12 @@ class VoucherCodeController extends Controller {
 
                 return response()->json(['error' => implode('<br>', $arrErrors)], 404); // Status code here
             }
-            
-            $voucherCode->use_count = $voucherCode->use_count - 1;
-            $voucherCode->save();
 
             return response()->json(['error' => 'Voucher could not be found'], 404);
         }
+
+        $voucherCode->use_count = $voucherCode->use_count - 1;
+        $voucherCode->save();
     }
 
 }

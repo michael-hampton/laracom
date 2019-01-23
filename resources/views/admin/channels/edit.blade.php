@@ -253,25 +253,25 @@ $(document).ready(function () {
         location.href = '/admin/channels/' + $(this).val() + '/edit';
     });
 
-               $(document).on('click', '.deleteProvider', function (ev) {
-                   
-                   $this = $(this);
-                   
-                    let id = $(this).attr("provider-id");
-                    $.ajax({
-                        type: 'DELETE',
-                        url: '/admin/channels/deleteProvider/'+id,
-                        data: {id: id, "_token": "{{ csrf_token() }}"},
-                        success: function (data) {
-                            $this.parent().remove();
-                        },
-                        error: function (data) {
-                            alert(data);
-                        }
-                    });
-                });
+    $(document).on('click', '.deleteProvider', function (ev) {
+
+        $this = $(this);
+
+        let id = $(this).attr("provider-id");
+        $.ajax({
+            type: 'DELETE',
+            url: '/admin/channels/deleteProvider/' + id,
+            data: {id: id, "_token": "{{ csrf_token() }}"},
+            success: function (data) {
+                $this.parent().remove();
+            },
+            error: function (data) {
+                alert(data);
+            }
+        });
+    });
     $('.test').bootstrapSwitch();
-    
+
     $('.addProvider').on('click', function () {
 
         var channel = $(this).attr('channel-id');
@@ -290,11 +290,10 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (response) {
-                $('.providerList').append('<li>' + name + '<a href="#" class="deleteProvider" provider-id="'+$provider+'">x</a></li>');
-                var obj = jQuery.parseJSON(response);
-                if (obj.http_code == 400) {
+                $('.providerList').append('<li>' + name + '<a href="#" class="deleteProvider" provider-id="' + provider + '">x</a></li>');
+                if (response.http_code == 400) {
                     $('.provider-div').prepend("<div class='alert alert-danger'></div>");
-                    $.each(obj.errors, function (key, value) {
+                    $.each(response.errors, function (key, value) {
                         $('.provider-div .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
@@ -320,10 +319,9 @@ $(document).ready(function () {
             url: '/admin/channels/saveChannelTemplate',
             data: formdata,
             success: function (response) {
-                var obj = jQuery.parseJSON(response);
-                if (obj.http_code == 400) {
+                if (response.http_code == 400) {
                     $('.template-div').prepend("<div class='alert alert-danger'></div>");
-                    $.each(obj.errors, function (key, value) {
+                    $.each(response.errors, function (key, value) {
                         $('.template-div .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
@@ -355,11 +353,10 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (response) {
-                $('.productList').append('<li>' + productName + ' ' + price + '</li>');
-                var obj = jQuery.parseJSON(response);
-                if (obj.http_code == 400) {
+                $('.productList').append('<li class="list-group-item">' + productName + ' ' + price + '</li>');
+                if (response.http_code == 400) {
                     $('.product-div').prepend("<div class='alert alert-danger'></div>");
-                    $.each(obj.errors, function (key, value) {
+                    $.each(response.errors, function (key, value) {
                         $('.product-div .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
@@ -376,7 +373,7 @@ $(document).ready(function () {
         e.preventDefault();
         var channel = $(this).attr('channel-id');
         var formdata = $(this).serialize();
-        
+
         $.ajax({
             type: "POST",
             url: '/admin/channels/updateNewChannel',
@@ -385,10 +382,9 @@ $(document).ready(function () {
             processData: false,
             success: function (response) {
 
-                var obj = jQuery.parseJSON(response);
-                if (obj.http_code == 400) {
+                if (response.http_code == 400) {
                     $('.channel-div').prepend("<div class='alert alert-danger'></div>");
-                    $.each(obj.errors, function (key, value) {
+                    $.each(response.errors, function (key, value) {
                         $('.channel-div .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {

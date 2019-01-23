@@ -132,7 +132,7 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
      */
     public function validateVoucherCode(Channel $channel, string $voucherCode, $cartProducts) {
 
-        $results = DB::select(DB::raw("SELECT * 
+        $results = DB::select(DB::raw("SELECT *, vc.id AS code_id 
                                         FROM voucher_codes vc
                                         INNER JOIN vouchers v ON v.id = vc.voucher_id
 
@@ -156,10 +156,10 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
             $this->validationFailures[] = 'unable to validate voucher code';
             return false;
         }
-
+        
         request()->session()->put('voucherCode', $results[0]->voucher_code);
 
-        return $this->findVoucherCodeById($results[0]->id);
+        return $this->findVoucherCodeById($results[0]->code_id);
     }
 
     /**
