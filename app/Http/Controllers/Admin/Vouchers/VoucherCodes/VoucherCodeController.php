@@ -209,9 +209,9 @@ class VoucherCodeController extends Controller {
         $channelRepo = new ChannelRepository(new Channel);
         $channel = $channelRepo->findByName(env('CHANNEL'));
 
-        $result = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts);
+        $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts);
 
-        if (!$result) {
+        if (!$voucherCode) {
 
             $arrErrors = $this->voucherCodeRepo->getValidationFailures();
 
@@ -219,6 +219,9 @@ class VoucherCodeController extends Controller {
 
                 return response()->json(['error' => implode('<br>', $arrErrors)], 404); // Status code here
             }
+            
+            $voucherCode->use_count = $voucherCode->use_count - 1;
+            $voucherCode->save();
 
             return response()->json(['error' => 'Voucher could not be found'], 404);
         }
