@@ -114,6 +114,8 @@
 <script type="text/javascript">
     $(document).ready(function () {
     
+    loadPagination();
+    
       $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
             var formdata = $('#admin-search').serialize();
