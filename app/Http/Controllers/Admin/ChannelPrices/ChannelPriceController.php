@@ -143,10 +143,14 @@ class ChannelPriceController extends Controller {
 
 
         $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
+        $channel = $this->channelRepo->findChannelById($channelPrice->channel_id);
+
         $product = $this->productRepo->findProductById($channelPrice->product_id);
         $attributes = (new \App\Shop\ProductAttributes\Repositories\ProductAttributeRepository(new \App\Shop\ProductAttributes\ProductAttribute))->getAttributesForProduct($product);
+        $assignedAttributes = $this->channelPriceRepo->getChannelProductIds($channel);
         
         return view('admin.channel-price.edit', [
+            'assignedAttributes' => $assignedAttributes,
             'attributes' => $attributes,
             'channelPrice' => $channelPrice,
             'product' => $product

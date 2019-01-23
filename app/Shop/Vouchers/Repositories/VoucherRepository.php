@@ -109,11 +109,9 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
 
         $query = DB::table('voucher_codes');
 
-        $voucherCodes = Order::pluck('voucher_code')->all();
-
         $result = $query->select('vouchers.*', 'voucher_codes.voucher_code')
                 ->join('vouchers', 'vouchers.id', '=', 'voucher_codes.voucher_id')
-                ->whereIn('voucher_codes.id', $voucherCodes)
+                ->where('voucher_codes.use_count', 0)
                 ->where('vouchers.id', $voucher->id)
                 ->get();
 

@@ -3,10 +3,10 @@
 <div class="box">
     <form action="{{ route('admin.channel-prices.update', $channelPrice->id) }}" method="post" id="channelPriceForm" class="form" enctype="multipart/form-data">
         <div class="box-body">
-        
-        <div class='productCode'></div>
-           
-           {{ csrf_field() }}
+
+            <div class='productCode'></div>
+
+            {{ csrf_field() }}
             <input type="hidden" name="_method" value="put">
             <input type="hidden" name="added" id="added" value='0'>
             <input type="hidden" name="attribute_id" id="attribute_id">
@@ -21,27 +21,31 @@
                 <textarea name="description" id="alias" placeholder="Description" class="form-control"><?= (!empty($channelPrice->description) ? strip_tags($channelPrice->description) : strip_tags($product->description)) ?></textarea>
             </div>
         </div>
-        
+
         <button class='cancelChanges' type='button'>cancel</button>
     </form>
 </div>
 
 <div id='variationWrapper'>
-<ul class="list-group clear-list variationList">
-    @foreach($attributes as $attribute)
+    <ul class="list-group clear-list variationList">
+        @foreach($attributes as $attribute)
 
-    <li price='{{$attribute->price}}' class="list-group-item fist-item">
-        <span class="float-right">{{$attribute->price}} </span>
-        
-                     @foreach($attribute->attributesValues as $value)
-                                    {{ $value->attribute->name }} : {{ ucwords($value->value) }}
-                                    @endforeach
-        
-    </li>
-    
-    @endforeach;
+        <?php
+        $class = in_array($attribute->id, $assignedAttributes) ? 'added' : '';
+        ?>
 
-</ul>
+        <li {{$class}} price='{{$attribute->price}}' class="list-group-item fist-item">
+            <span class="float-right">{{$attribute->price}} </span>
+
+            @foreach($attribute->attributesValues as $value)
+            {{ $value->attribute->name }} : {{ ucwords($value->value) }}
+            @endforeach
+
+        </li>
+
+        @endforeach;
+
+    </ul>
 </div>
 
 <!-- /.box -->
@@ -50,28 +54,28 @@
 
 <script>
 
-  $('.cancelChanges').on('click', function() {
+    $('.cancelChanges').on('click', function () {
 
-  $('#channelPriceForm').slideUp();
-  $('#variationWrapper').slideDown();
-
-
-});
-
-$('.removeVariation').on('click', function() {
-  var attributeId = $(this).parent().attr('attributeid');
-});
-
-$('.variationList > li').on('click', function() {
-
-  $('#variationWrapper').slideUp();
-  $('#channelPriceForm').slideDown();
-  $('#added').val(($(this).hasClass('added') ? 1 : 0));
-  $('#price').val($(this).attr('price'));
-  $('.productCode').html($(this).attr('name'));
+        $('#channelPriceForm').slideUp();
+        $('#variationWrapper').slideDown();
 
 
-});
+    });
+
+    $('.removeVariation').on('click', function () {
+        var attributeId = $(this).parent().attr('attributeid');
+    });
+
+    $('.variationList > li').on('click', function () {
+
+        $('#variationWrapper').slideUp();
+        $('#channelPriceForm').slideDown();
+        $('#added').val(($(this).hasClass('added') ? 1 : 0));
+        $('#price').val($(this).attr('price'));
+        $('.productCode').html($(this).attr('name'));
+
+
+    });
 
     $('.UpdateChannel').on('click', function (e) {
 
@@ -102,12 +106,12 @@ $('.variationList > li').on('click', function() {
                     });
                 } else {
                     $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
-                
-                if($('.variationList > li').length > 0) {
-                    $('#channelPriceForm').slideUp();
-                    $('#variationWrapper').slideDown();
-                }
-                
+
+                    if ($('.variationList > li').length > 0) {
+                        $('#channelPriceForm').slideUp();
+                        $('#variationWrapper').slideDown();
+                    }
+
                 }
 
             }
