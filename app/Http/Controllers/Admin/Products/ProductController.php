@@ -360,43 +360,40 @@ class ProductController extends Controller {
      * @param Product $product
      * @return boolean
      */
-    private function saveProductCombinations(Request $request, Product $product): bool {
+    private function saveProductCombinations(Request $request, Product $product) {
+
         $fields = $request->only(
                 'productAttributeQuantity', 'productAttributePrice', 'sale_price', 'default'
         );
-
+        
         if ($errors = $this->validateFields($fields)) {
             return redirect()->route('admin.products.edit', [$product->id, 'combination' => 1])
                             ->withErrors($errors);
         }
-
+        
         $quantity = $fields['productAttributeQuantity'];
         $price = $fields['productAttributePrice'];
         $sale_price = null;
-
+        
         if (isset($fields['sale_price'])) {
             $sale_price = $fields['sale_price'];
         }
-
         $attributeValues = $request->input('attributeValue');
         $productRepo = new ProductRepository($product);
-
         $hasDefault = $productRepo->listProductAttributes()->where('default', 1)->count();
-
         $default = 0;
-
         if ($request->has('default')) {
             $default = $fields['default'];
         }
-
+        
         if ($default == 1 && $hasDefault > 0) {
             $default = 0;
         }
-
+        
         $productAttribute = $productRepo->saveProductAttributes(
                 new ProductAttribute(compact('quantity', 'price', 'sale_price', 'default'))
         );
-
+        
         // save the combinations
         return collect($attributeValues)->each(function ($attributeValueId) use ($productRepo, $productAttribute) {
                     $attribute = $this->attributeValueRepository->find($attributeValueId);
@@ -414,21 +411,21 @@ class ProductController extends Controller {
 
         echo json_encode(['results' => $list->toArray()]);
     }
-    
+
     public function saveImport(Request $request) {
         $file_path = $request->csv_file->path();
         $line = 0;
         $arrProducts = [];
-        
+
         if (($handle = fopen($file_path, "r")) !== FALSE) {
             $flag = true;
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                
+
                 if ($flag) {
                     $flag = false;
                     continue;
                 }
-                
+
                 list(
                         $order['name'],
                         $order['channels'],
@@ -447,51 +444,51 @@ class ProductController extends Controller {
                         $order['distance_unit'],
                         ) = $data;
                 $line++;
-               
+
                 $csv_errors = Validator::make(
                                 $order, (new ProductImportRequest())->rules()
                         )->errors();
-               
+
                 $categories = explode(',', $order['categories']);
-                
+
                 $arrCategories = [];
-                
-                foreach($categories as $category) {
+
+                foreach ($categories as $category) {
                     $categoryId = $this->categoryRepo->findByName($category);
-                    
+
                     if (empty($categoryId)) {
                         $csv_errors->add('category', "Category is invalid.");
                     } else {
                         $arrCategories[] = $categoryId;
                     }
                 }
-                
+
                 $brand = $this->brandRepo->findByName($order['brand']);
-                
+
                 if (empty($brand)) {
                     $csv_errors->add('brand', "Brand is invalid.");
                 }
-               
+
                 $channels = explode(',', $order['channels']);
-                
+
                 $arrChannels = [];
-                
-                foreach($channels as $channel) {
+
+                foreach ($channels as $channel) {
                     $channelId = $this->channelRepo->findByName($channel);
-                    
+
                     if (empty($channelId)) {
                         $csv_errors->add('channel', "Channel is invalid.");
                     } else {
                         $arrChannels[] = $channelId;
                     }
                 }
-                
+
                 if ($csv_errors->any()) {
                     return redirect()->back()
                                     ->withErrors($csv_errors, 'import')
                                     ->with('error_line', $line);
                 }
-                
+
                 $arrProducts[] = [
                     'name' => $order['name'],
                     'sku' => $order['sku'],
@@ -510,20 +507,18 @@ class ProductController extends Controller {
                     'channels' => $arrChannels,
                     'brand' => $brand->id
                 ];
-               
-                
             }
             fclose($handle);
         }
-        
+
         foreach ($arrProducts as $arrProduct) {
-            
+
             $arrCategories = $arrProduct['categories'];
             $arrChannels = $arrProduct['channels'];
-            
+
             unset($arrProduct['categories']);
             unset($arrProduct['channels']);
-            
+
             $data['slug'] = str_slug($arrProduct['name']);
 
             $product = $this->productRepo->createProduct($arrProduct);
@@ -538,13 +533,13 @@ class ProductController extends Controller {
             if (!empty($arrChannels)) {
 
                 $productRepo->syncChannels($arrChannels);
-            } 
+            }
         }
-        
+
         request()->session()->flash('message', 'Import successful');
         return redirect()->route('admin.products.importCsv');
     }
-    
+
     public function importCsv() {
         return view('admin.orders.importCsv');
     }
@@ -563,32 +558,30 @@ class ProductController extends Controller {
             return $validator;
         }
     }
-    
-    public function download()
-{
-    $headers = [
-            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0'
-        ,   'Content-type'        => 'text/csv'
-        ,   'Content-Disposition' => 'attachment; filename=galleries.csv'
-        ,   'Expires'             => '0'
-        ,   'Pragma'              => 'public'
-    ];
 
-    $list = Product::all()->toArray();
+    public function download() {
+        $headers = [
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0'
+            , 'Content-type' => 'text/csv'
+            , 'Content-Disposition' => 'attachment; filename=galleries.csv'
+            , 'Expires' => '0'
+            , 'Pragma' => 'public'
+        ];
 
-    # add headers for each column in the CSV download
-    array_unshift($list, array_keys($list[0]));
+        $list = Product::all()->toArray();
 
-   $callback = function() use ($list) 
-    {
-        $FH = fopen('php://output', 'w');
-        foreach ($list as $row) { 
-            fputcsv($FH, $row);
-        }
-        fclose($FH);
-    };
+        # add headers for each column in the CSV download
+        array_unshift($list, array_keys($list[0]));
 
-    return Response::stream($callback, 200, $headers);
-}
+        $callback = function() use ($list) {
+            $FH = fopen('php://output', 'w');
+            foreach ($list as $row) {
+                fputcsv($FH, $row);
+            }
+            fclose($FH);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
 
 }

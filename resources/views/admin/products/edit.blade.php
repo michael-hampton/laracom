@@ -210,6 +210,7 @@
                 $('#attributeValue' + attributeId).attr('disabled', true);
             }
             const count = checkbox.filter(':checked').length;
+            
             if (count > 0) {
                 $('#productAttributeQuantity').attr('disabled', false);
                 $('#productAttributePrice').attr('disabled', false);
