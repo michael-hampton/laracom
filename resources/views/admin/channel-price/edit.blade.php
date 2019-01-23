@@ -24,7 +24,7 @@
 </div>
 
 <div id='variationWrapper'>
-<ul class="list-group clear-list">
+<ul class="list-group clear-list variationList">
     @foreach($attributes as $attribute)
 
     <li class="list-group-item fist-item">
