@@ -98,6 +98,11 @@
             </div>
         </form>
     </div>
+
+    <div class="col-lg-12">
+        <h2>Terms and Conditions</h2>
+        {{$terms}}
+    </div>
     <!-- /.box -->
 
 </section>

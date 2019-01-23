@@ -213,6 +213,14 @@ class ChannelController extends Controller {
             'channel' => $channel
         ]);
     }
+    
+    public function deleteProvider($id)
+    {
+        
+        $paymentProvider = (new \App\Shop\Channels\PaymentProvider())->where('id', $id)->first();
+  
+        (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->deleteChannelFromProvider($paymentProvider);
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -229,12 +237,14 @@ class ChannelController extends Controller {
         $arrChannels = $this->channelRepo->listChannels();
         $arrProviders = (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->getProvidersForChannel($channel);
         $arrAssignedProducts = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAssignedProductsForChannel($channel);
-
+        $arrPaymentProviders = (new \App\Shop\Channels\PaymentProvider)->get();
+        
         return view('admin.channels.edit', [
             'templates' => $arrTemplates,
             'products' => $arrProducts,
             'channel' => $channel,
             'channels' => $arrChannels,
+            'arrProviders' => $arrPaymentProviders,
             'providers' => $arrProviders,
             'assigned_products' => $arrAssignedProducts
         ]);

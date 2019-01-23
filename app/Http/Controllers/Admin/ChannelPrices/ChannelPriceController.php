@@ -144,8 +144,10 @@ class ChannelPriceController extends Controller {
 
         $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
         $product = $this->productRepo->findProductById($channelPrice->product_id);
-
+        $attributes = (new \App\Shop\ProductAttributes\Repositories\ProductAttributeRepository(new \App\Shop\ProductAttributes\ProductAttribute))->getAttributesForProduct($product);
+        
         return view('admin.channel-price.edit', [
+            'attributes' => $attributes,
             'channelPrice' => $channelPrice,
             'product' => $product
         ]);
@@ -171,21 +173,21 @@ class ChannelPriceController extends Controller {
 
         // Validate the input and return correct response
         if ($validator->fails()) {
-           echo json_encode(array(
-                        'http_code' => 400,
-                        'errors' => $validator->getMessageBag()->toArray()
+            echo json_encode(array(
+                'http_code' => 400,
+                'errors' => $validator->getMessageBag()->toArray()
             ));
-           die;
+            die;
         }
 
 
         $channelPriceRepo->updateChannelPrice($data);
 
         echo json_encode(array(
-                        'http_code' => 200,
-                        'message' => 'Product updated successfully'
-            ));
-           die;
+            'http_code' => 200,
+            'message' => 'Product updated successfully'
+        ));
+        die;
     }
 
     /**

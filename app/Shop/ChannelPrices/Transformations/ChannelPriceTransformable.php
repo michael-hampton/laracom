@@ -29,6 +29,8 @@ trait ChannelPriceTransformable {
         $productRepo = new ProductRepository(new Product);
         $product = $productRepo->findProductById($chann->product_id);
 
+        $productAttributes = $product->attributes;
+
         $brandRepo = new BrandRepository(new Brand);
         $brand = $brandRepo->findBrandById($product->brand_id);
 
@@ -40,6 +42,7 @@ trait ChannelPriceTransformable {
         $chann->cover = $product->cover;
         $chann->status = $product->status;
         $chann->description = $product->description;
+        $chann->product->attributes = $productAttributes;
 
 
         return $chann;

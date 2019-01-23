@@ -208,7 +208,6 @@ function buildcheckBox($value, $label) {
                 <h2>Channel Providers</h2>
 
                 <?php
-                $arrProviders = ['paypal', 'stripe', 'bank-transfer'];
                 $providerArr = $providers->toArray();
                 ?>
 
@@ -217,7 +216,7 @@ function buildcheckBox($value, $label) {
                         <select id='paymentProviderSelect' class="form-control">
                             @foreach($arrProviders as $arrProvider)
                             @if(!in_array($arrProvider, $providerArr))
-                            <option value="{{$arrProvider}}">{{$arrProvider}}</option>
+                            <option value="{{$arrProvider->id}}">{{$arrProvider->name}}</option>
                             @endif;
                             @endforeach;
                         </select>
@@ -228,7 +227,9 @@ function buildcheckBox($value, $label) {
 
                 <ul class='providerList list list-group clear-list'>
                     @foreach($providers as $provider)
-                    <li class='list-group-item'>{{$provider}}</li>
+                    <li class='list-group-item'>{{$provider->name}}
+                        <a href="#" class="deleteProvider" provider-id="{{$provider->id}}">x</a>
+                    </li>
                     @endforeach
                 </ul>
             </div>
@@ -252,16 +253,17 @@ $(document).ready(function () {
         location.href = '/admin/channels/' + $(this).val() + '/edit';
     });
 
-             $(".deleteProvider").click(function (ev) {
+               $(document).on('click', '.deleteProvider', function (ev) {
+                   
+                   $this = $(this);
+                   
                     let id = $(this).attr("provider-id");
                     $.ajax({
                         type: 'DELETE',
                         url: '/admin/channels/deleteProvider/'+id,
-                        dataType: 'json',
-                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         data: {id: id, "_token": "{{ csrf_token() }}"},
                         success: function (data) {
-                            $(this).parent().remove();
+                            $this.parent().remove();
                         },
                         error: function (data) {
                             alert(data);
@@ -274,6 +276,7 @@ $(document).ready(function () {
 
         var channel = $(this).attr('channel-id');
         var provider = $('#paymentProviderSelect').val();
+        var name = $('#paymentProviderSelect option:selected').text();
 
         $('.provider-div .alert-danger').remove();
         $('.provider-div .alert-success').remove();
@@ -287,7 +290,7 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (response) {
-                $('.providerList').append('<li>' + provider + '</li>');
+                $('.providerList').append('<li>' + name + '</li>');
                 var obj = jQuery.parseJSON(response);
                 if (obj.http_code == 400) {
                     $('.provider-div').prepend("<div class='alert alert-danger'></div>");

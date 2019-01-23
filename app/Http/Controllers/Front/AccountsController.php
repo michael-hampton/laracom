@@ -52,6 +52,7 @@ class AccountsController extends Controller {
             return $this->transformOrder($order);
         });
 
+       
         $addresses = $customerRepo->findAddresses();
 
         $returns = $this->returnRepo->listReturn('created_at', 'desc')->where('customer', auth()->user()->id);

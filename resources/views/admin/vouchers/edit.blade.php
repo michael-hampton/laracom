@@ -15,7 +15,7 @@ foreach ($codes as $unusedCode) {
 
     if (!in_array($unusedCode->voucher_code, $arrAllUsedCodes)) {
         $strUnusedCodes .= '<li>' . $unusedCode->voucher_code . ''
-                . '<a href="#" class="deletebtn" code-id="'.$unusedCode->id.'">x</a>'
+                . '<a href="#" class="deletebtn" code-id="' . $unusedCode->id . '">x</a>'
                 . '</li>';
     }
 }
@@ -176,144 +176,140 @@ foreach ($codes as $unusedCode) {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript">
-            $(document).ready(function () {
+                    $(document).ready(function () {
 
-                $(".deletebtn").click(function (ev) {
-                    let id = $(this).attr("code-id");
-                    $.ajax({
-                        type: 'DELETE',
-                        url: '/admin/voucher-codes/destroy/'+id,
-                        dataType: 'json',
-                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                        data: {id: id, "_token": "{{ csrf_token() }}"},
+                        $(".deletebtn").click(function (ev) {
+                            let id = $(this).attr("code-id");
+                            $.ajax({
+                                type: 'DELETE',
+                                url: '/admin/voucher-codes/destroy/' + id,
+                                dataType: 'json',
+                                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                                data: {id: id, "_token": "{{ csrf_token() }}"},
 
-                        success: function (data) {
-                            $(this).parent().remove();
-                        },
-                        error: function (data) {
-                            alert(data);
-                        }
-                    });
-                });
+                                success: function (data) {
+                                    $(this).parent().remove();
+                                },
+                                error: function (data) {
+                                    alert(data);
+                                }
+                            });
+                        });
 
-                $('.UpdateVoucher').on('click', function (e) {
-                    e.preventDefault();
+                        $('.UpdateVoucher').on('click', function (e) {
+                            e.preventDefault();
 
-                    $('.content .alert-danger').remove();
-                    var formdata = $('#UpdateVoucherForm').serialize();
-                    var href = $('#UpdateVoucherForm').attr('action');
+                            $('.content .alert-danger').remove();
+                            var formdata = $('#UpdateVoucherForm').serialize();
+                            var href = $('#UpdateVoucherForm').attr('action');
 
-                    $.ajax({
-                        type: "POST",
-                        url: href,
-                        data: formdata,
-                        success: function (response) {
-                            var obj = jQuery.parseJSON(response);
-                            if (obj.http_code == 400) {
-                                $('.content').prepend("<div class='alert alert-danger'></div>");
-                                $.each(obj.errors, function (key, value) {
-                                    $('.content .alert-danger').append("<p>" + value + "</p>");
-                                });
-                            } else {
-                                $('.content').prepend("<div class='alert alert-success'>Voucher has been updated successfully</div>");
+                            $.ajax({
+                                type: "POST",
+                                url: href,
+                                data: formdata,
+                                success: function (response) {
+                                    var obj = jQuery.parseJSON(response);
+                                    if (obj.http_code == 400) {
+                                        $('.content').prepend("<div class='alert alert-danger'></div>");
+                                        $.each(obj.errors, function (key, value) {
+                                            $('.content .alert-danger').append("<p>" + value + "</p>");
+                                        });
+                                    } else {
+                                        $('.content').prepend("<div class='alert alert-success'>Voucher has been updated successfully</div>");
+                                    }
+                                }
+                            });
+                        });
+
+                        $('.saveCode').on('click', function (e) {
+                            e.preventDefault();
+
+                            $('.modal-body .alert-danger').remove();
+                            $('.modal-body .alert-success').remove();
+
+                            var formdata = $('#VoucherCodeForm').serialize();
+                            var href = $('#VoucherCodeForm').attr('action');
+
+                            $.ajax({
+                                type: "POST",
+                                url: href,
+                                data: formdata,
+                                success: function (response) {
+                                    var obj = jQuery.parseJSON(response);
+                                    if (obj.http_code == 400) {
+                                        $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                                        $.each(obj.errors, function (key, value) {
+                                            $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                                        });
+                                    } else {
+                                        $('.unused-ul').append('<li>' + obj.voucher_code + '</li>');
+                                        $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                                    }
+                                }
+                            });
+                        });
+
+                        $('.scope-select').on('change', function () {
+                            $('#scope_value').val($(this).val());
+                        });
+
+                        $('.scope').on('change', function () {
+
+                            $('.scope-type').hide();
+
+                            var type = $(this).val();
+
+                            switch (type) {
+                                case 'Product':
+
+                                    $('.products').show();
+                                    break;
+
+                                case 'Brand':
+                                    $('.brands').show();
+                                    break;
+
+                                case 'Category':
+                                    $('.categories').show();
+                                    break;
                             }
-                        }
+                        });
+
+                        $('#start_date').datepicker({
+                            todayBtn: "linked",
+                            keyboardNavigation: false,
+                            format: 'mm/dd/yyyy',
+                            forceParse: false,
+                            calendarWeeks: false,
+                            autoclose: true,
+                            startDate: new Date()
+                        });
+
+                        $('#expiry_date').datepicker({
+                            todayBtn: "linked",
+                            format: 'mm/dd/yyyy',
+                            keyboardNavigation: false,
+                            forceParse: false,
+                            calendarWeeks: false,
+                            autoclose: true
+                        });
+
                     });
-                });
 
-                $('.saveCode').on('click', function (e) {
-                    e.preventDefault();
+                    $(document).on('click', '.AddVoucherCode', function (e) {
 
-                    $('.modal-body .alert-danger').remove();
-                    $('.modal-body .alert-success').remove();
+                        var href = $(this).attr('href');
 
-                    var formdata = $('#VoucherCodeForm').serialize();
-                    var href = $('#VoucherCodeForm').attr('action');
-
-                    $.ajax({
-                        type: "POST",
-                        url: href,
-                        data: formdata,
-                        success: function (response) {
-                            var obj = jQuery.parseJSON(response);
-                            if (obj.http_code == 400) {
-                                $('.modal-body').prepend("<div class='alert alert-danger'></div>");
-                                $.each(obj.errors, function (key, value) {
-                                    $('.modal-body .alert-danger').append("<p>" + value + "</p>");
-                                });
-                            } else {
-                                $('.unused-ul').append('<li>' + obj.voucher_code + '</li>');
-                                $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                        $.ajax({
+                            type: "GET",
+                            url: href,
+                            success: function (response) {
+                                $('#voucherCodeModal').find('.modal-body').html(response);
+                                $('#voucherCodeModal').modal('show');
                             }
-                        }
+                        });
+
+                        return false;
                     });
-                });
-
-                $('.scope-select').on('change', function () {
-                    $('#scope_value').val($(this).val());
-                });
-
-                $('.scope').on('change', function () {
-
-                    $('.scope-type').hide();
-
-                    var type = $(this).val();
-
-                    switch (type) {
-                        case 'Product':
-
-                            $('.products').show();
-                            break;
-
-                        case 'Brand':
-                            $('.brands').show();
-                            break;
-
-                        case 'Category':
-                            $('.categories').show();
-                            break;
-                    }
-                });
-
-                $('#start_date').datepicker({
-                    todayBtn: "linked",
-                    keyboardNavigation: false,
-                    format: 'mm/dd/yyyy',
-                    forceParse: false,
-                    calendarWeeks: false,
-                    autoclose: true,
-                    startDate: new Date()
-                });
-
-                $('#expiry_date').datepicker({
-                    todayBtn: "linked",
-                    format: 'mm/dd/yyyy',
-                    keyboardNavigation: false,
-                    forceParse: false,
-                    calendarWeeks: false,
-                    autoclose: true
-                });
-
-            });
-
-            $(document).on('click', '.AddVoucherCode', function (e) {
-
-                var href = $(this).attr('href');
-
-                $.ajax({
-                    type: "GET",
-                    url: href,
-                    success: function (response) {
-                        $('#voucherCodeModal').find('.modal-body').html(response);
-                        $('#voucherCodeModal').modal('show');
-                    }
-                });
-
-                return false;
-            });
-
-            $(".clickable-row").click(function () {
-                window.location = $(this).data("href");
-            });
 
 </script>

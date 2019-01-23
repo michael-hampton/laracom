@@ -4,11 +4,17 @@
 <!-- Main content -->
 <section class="content">
     @include('layouts.errors-and-messages')
+
+    <style>
+        .selectedItem {
+            background-color: #FFFF66;
+        }
+    </style>
     <!-- Default box -->
 
 
     <div class="col-lg-6">
-        
+
         @if($vouchers)
         <div class="box">
             <div class="box-body">
@@ -61,9 +67,9 @@
         </div>
         @endif
     </div>
-    
-    <div class="col-lg-6" id="content-div">
-        
+
+    <div id="content-div">
+
     </div>
 
 
@@ -176,15 +182,16 @@ $(document).ready(function () {
     });
 
     $(".clickable-row").click(function () {
+    
+    var $this = $(this);
         $.ajax({
             type: "GET",
             url: $(this).data("href"),
             success: function (response) {
 
-                alert(response);
-
                 $('#content-div').html(response);
-                //$('#myModal').modal('show');
+                $('.clickable-row').removeClass('selectedItem');
+                $this.addClass('selectedItem');
             }
         });
 

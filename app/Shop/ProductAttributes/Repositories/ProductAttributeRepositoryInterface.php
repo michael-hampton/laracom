@@ -2,7 +2,7 @@
 
 namespace App\Shop\ProductAttributes\Repositories;
 
-use Jsdecena\Baserepo\BaseRepositoryInterface;
+use App\Shop\Base\Interfaces\BaseRepositoryInterface;
 
 interface ProductAttributeRepositoryInterface extends BaseRepositoryInterface
 {

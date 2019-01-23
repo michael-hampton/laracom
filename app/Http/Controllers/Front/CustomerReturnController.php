@@ -121,7 +121,16 @@ class CustomerReturnController extends Controller {
         $orderRepo = new OrderRepository($order);
         $items = $orderRepo->listOrderedProducts();
         $status = (new \App\Shop\Returns\ReturnStatus())->get();
+
+        $objChannel = (new \App\Shop\Channels\Repositories\ChannelRepository(new \App\Shop\Channels\Channel))->findByName(env('CHANNEL'));
+
+        $arrTerms = (new \App\Shop\Channels\Repositories\ChannelTemplateRepository(new \App\Shop\Channels\ChannelTemplate))->getTemplatesForChannel($objChannel);
+
+        $terms = isset($arrTerms[1]) ? $arrTerms[1]->description : '';
+
+
         return view('front.customer-return.create', [
+            'terms' => $terms,
             'order' => $order,
             'items' => $items,
             'reasons' => explode(',', env('RETURN_REASON')),

@@ -65,8 +65,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::put('returns/update/{id}', 'Returns\ReturnController@update')->name('returns.update');
         Route::delete('returns/destroy/{id}', 'Returns\ReturnController@destroy')->name('returns.destroy');
         Route::get('returns/edit/{id}', 'Returns\ReturnController@edit')->name('returns.edit');
-        
-       
+
+
 
         /* invoice */
         Route::post('invoice/invoiceOrder/', 'Invoices\InvoiceController@invoiceOrder')->name('invoice.invoiceOrder');
@@ -101,16 +101,16 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
 
         /* channels */
         Route::post('channels/saveChannelAttribute/', 'Channels\ChannelController@saveChannelAttribute')->name('channels.saveChannelAttribute');
-      
-         Route::post('channels/saveChannel/{channel}', 'Channels\ChannelController@saveChannel')->name('channels.saveChannel');
-      Route::post('channels/addProductToChannel/', 'Channels\ChannelController@addProductToChannel')->name('channels.addProductToChannel');
-      Route::post('channels/saveChannelTemplate/', 'Channels\ChannelController@saveChannelTemplate')->name('channels.saveChannelTemplate');
-      Route::post('channels/addChannelProvider/', 'Channels\ChannelController@addChannelProvider')->name('channels.addChannelProvider');
-      
+
+        Route::post('channels/saveChannel/{channel}', 'Channels\ChannelController@saveChannel')->name('channels.saveChannel');
+        Route::post('channels/addProductToChannel/', 'Channels\ChannelController@addProductToChannel')->name('channels.addProductToChannel');
+        Route::post('channels/saveChannelTemplate/', 'Channels\ChannelController@saveChannelTemplate')->name('channels.saveChannelTemplate');
+        Route::post('channels/addChannelProvider/', 'Channels\ChannelController@addChannelProvider')->name('channels.addChannelProvider');
+
         Route::resource('channels', 'Channels\ChannelController');
         Route::resource('channels', 'Channels\ChannelController');
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');
-         Route::get('channels/getAvailiableProducts/{channelId}', 'Channels\ChannelController@getAvailiableProducts')->name('channels.getAvailiableProducts');
+        Route::get('channels/getAvailiableProducts/{channelId}', 'Channels\ChannelController@getAvailiableProducts')->name('channels.getAvailiableProducts');
 
         Route::post('products/getProductAutoComplete/get/', 'Products\ProductController@getProductAutoComplete')->name('products.getProductAutoComplete');
 
@@ -123,7 +123,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('addresses', 'Addresses\AddressController');
 
         /* vouchers */
-         Route::delete('voucher-codes/destroy/{id}', 'VoucherCodes\VoucherCodeController@destroy')->name('voucher-codes.destroy');
+        Route::delete('channels/deleteProvider/{id}', 'Channels\ChannelController@deleteProvider')->name('channels.deleteProvider');
+        Route::delete('voucher-codes/destroy/{id}', 'VoucherCodes\VoucherCodeController@destroy')->name('voucher-codes.destroy');
         Route::resource('voucher-codes', 'VoucherCodes\VoucherCodeController');
         Route::resource('vouchers', 'Vouchers\VoucherController');
         Route::get('voucher-codes/batch/{id?}', 'VoucherCodes\VoucherCodeController@getCodesByBatch')->name('voucher-codes.batch');
@@ -185,7 +186,7 @@ Route::namespace('Front')->group(function () {
     Route::get('customer-returns/show/', 'CustomerReturnController@show')->name('customer-returns.show');
     Route::post('customer-returns/store/', 'CustomerReturnController@store')->name('customer-returns.store');
     Route::get('customer-returns/edit/{id}', 'CustomerReturnController@edit')->name('customer-returns.edit');
-     Route::get('accounts', 'AccountsController@index')->name('accounts');
+    Route::get('accounts', 'AccountsController@index')->name('accounts');
 
 
     Route::namespace('Payments')->group(function () {

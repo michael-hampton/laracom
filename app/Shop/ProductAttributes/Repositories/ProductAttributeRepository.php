@@ -2,9 +2,10 @@
 
 namespace App\Shop\ProductAttributes\Repositories;
 
-use Jsdecena\Baserepo\BaseRepository;
+use App\Shop\Base\BaseRepository;
 use App\Shop\ProductAttributes\Exceptions\ProductAttributeNotFoundException;
 use App\Shop\ProductAttributes\ProductAttribute;
+use App\Shop\Products\Product;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProductAttributeRepository extends BaseRepository implements ProductAttributeRepositoryInterface
@@ -31,5 +32,9 @@ class ProductAttributeRepository extends BaseRepository implements ProductAttrib
         } catch (ModelNotFoundException $e) {
             throw new ProductAttributeNotFoundException($e);
         }
+    }
+    
+    public function getAttributesForProduct(Product $objProduct) {
+        return $this->model->where('product_id', $objProduct->id)->get();
     }
 }

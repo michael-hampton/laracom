@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Shop\Products\Product;
 use App\Shop\Employees\Employee;
 use Illuminate\Support\Collection;
-use App\Shop\Channels\PaymentProvider;
 
 /**
  * 
  */
-class ChannelPaymentProvider extends Model {
+class PaymentProvider extends Model {
 
     /**
      * The attributes that are mass assignable.
@@ -19,10 +18,10 @@ class ChannelPaymentProvider extends Model {
      * @var array
      */
     protected $fillable = [
-        'channel_id',
-        'payment_provider_id'
+        'id',
+        'name'
     ];
-    protected $table = 'channel_payment_providers';
+    protected $table = 'payment_provider';
 
     /**
      * The attributes that should be hidden for arrays.
@@ -30,12 +29,5 @@ class ChannelPaymentProvider extends Model {
      * @var array
      */
     protected $hidden = [];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function payment_provider_id() {
-        return $this->belongsTo(PaymentProvider::class);
-    }
 
 }

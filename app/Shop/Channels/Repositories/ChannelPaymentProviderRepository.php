@@ -14,6 +14,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use App\Shop\Channels\Channel;
+use Illuminate\Support\Facades\DB;
 
 class ChannelPaymentProviderRepository extends BaseRepository {
 
@@ -60,9 +61,28 @@ class ChannelPaymentProviderRepository extends BaseRepository {
             throw new \Exception($e);
         }
     }
-    
+
     public function getProvidersForChannel(Channel $channel) {
-        return $this->model->where('channel_id', $channel->id)->pluck('payment_provider_id');
+
+        $query = DB::table('channel_payment_providers');
+
+        $query->join('payment_provider', 'payment_provider.id', '=', 'channel_payment_providers.payment_provider_id')
+                ->where('channel_payment_providers.channel_id', $channel->id)
+                ->select('payment_provider.*');
+
+        $result = $query->get();
+
+        return \App\Shop\Channels\PaymentProvider::hydrate($result->toArray());
+
+        // return $this->model->where('channel_id', $channel->id)->pluck('payment_provider_id');
+    }
+
+    /**
+     * 
+     * @param \App\Shop\Channels\PaymentProvider $objPaymentProvider
+     */
+    public function deleteChannelFromProvider(\App\Shop\Channels\PaymentProvider $objPaymentProvider) {
+        $this->model->where('payment_provider_id', $objPaymentProvider->id)->delete();
     }
 
 }

@@ -18,6 +18,19 @@
         </div>
     </form>
 </div>
+
+<ul class="list-group clear-list">
+    @foreach($attributes as $attribute)
+
+    <li class="list-group-item fist-item">
+        <span class="float-right">{{$attribute->price}} </span>
+        Please contact me
+    </li>
+    
+    @endforeach;
+
+</ul>
+
 <!-- /.box -->
 
 <!-- /.content -->
