@@ -5,6 +5,8 @@
         <div class="box-body">
             {{ csrf_field() }}
             <input type="hidden" name="_method" value="put">
+            <input type="hidden" name="added" id="added" value='0'>
+            <input type="hidden" name="attribute_id" id="attribute_id">
 
             <div class="form-group">
                 <label for="alias">Price <span class="text-danger">*</span></label>
@@ -16,9 +18,12 @@
                 <textarea name="description" id="alias" placeholder="Description" class="form-control"><?= (!empty($channelPrice->description) ? strip_tags($channelPrice->description) : strip_tags($product->description)) ?></textarea>
             </div>
         </div>
+        
+        <button class='cancelChanges' type='button'>cancel</button>
     </form>
 </div>
 
+<div id='variationWrapper'>
 <ul class="list-group clear-list">
     @foreach($attributes as $attribute)
 
@@ -34,12 +39,41 @@
     @endforeach;
 
 </ul>
+</div>
 
 <!-- /.box -->
 
 <!-- /.content -->
 
 <script>
+
+  $('.cancelChanges').on('click', function() {
+
+  $('#channelPriceForm').slideUp();
+  $('#variationWrapper').slideDown();
+
+
+});
+
+$('.removeVariation').on('click', function() {
+  var attributeId = $(this).parent().attr('attributeid');
+});
+
+$('.saveChanges').on('click', function() {
+  $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').addClass('added');
+  $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').append('a href="#" class="removeVariation">');
+});
+
+$('.variationList > li').on('click', function() {
+
+  $('#variationWrapper').slideUp();
+  $('#channelPriceForm').slideDown();
+  $('#added').val(($(this).hasClass('added') ? 1 : 0));
+  $('#price').val($(this), attr('price'));
+  $('.productCode').html($(this).attr('name'));
+
+
+});
 
     $('.UpdateChannel').on('click', function (e) {
 
