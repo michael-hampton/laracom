@@ -7,6 +7,7 @@ use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\ProductAttributes\Repositories\ProductAttributeRepositoryInterface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
+use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Shop\Products\Transformations\ProductTransformable;
 use App\Shop\ChannelPrices\ChannelPrice;
 use App\Shop\ChannelPrices\Repositories\ChannelPriceRepository;
@@ -52,13 +53,17 @@ class CartController extends Controller {
      * @param ProductAttributeRepositoryInterface $productAttributeRepository
      */
     public function __construct(
-    CartRepositoryInterface $cartRepository, ProductRepositoryInterface $productRepository, CourierRepositoryInterface $courierRepository, ProductAttributeRepositoryInterface $productAttributeRepository
+	    CartRepositoryInterface $cartRepository, 
+	    ProductRepositoryInterface $productRepository,
+	    CourierRepositoryInterface $courierRepository, 
+	    ProductAttributeRepositoryInterface $productAttributeRepository,
+	    VoucherCodeRepositoryInterface $voucherCodeRepository
     ) {
         $this->cartRepo = $cartRepository;
         $this->productRepo = $productRepository;
         $this->courierRepo = $courierRepository;
         $this->productAttributeRepo = $productAttributeRepository;
-        
+        $this->voucherCodeRepo = $voucherCodeRepository;
     }
 
     /**
