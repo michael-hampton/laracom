@@ -95,7 +95,7 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
         $query->where('country', '=', $country_id);
         $result = $query->get();
 
-        $rates = CourierRate::hydrate($result->toArray());
+        $rates = $this->model->hydrate($result->toArray());
 
         if (isset($rates[0])) {
             return $rates[0];
