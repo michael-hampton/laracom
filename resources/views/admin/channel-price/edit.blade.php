@@ -40,6 +40,11 @@
             @foreach($attribute->attributesValues as $value)
             {{ $value->attribute->name }} : {{ ucwords($value->value) }}
             @endforeach
+            
+            @if(in_array($attribute->id, $assignedAttributes))
+            <a href='#' class='removeVariation'>x</a>
+            <img src=''>
+            @endif
 
         </li>
 
