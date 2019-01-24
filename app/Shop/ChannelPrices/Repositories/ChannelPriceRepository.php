@@ -9,6 +9,7 @@ use App\Shop\ChannelPrices\ChannelPrice;
 use App\Shop\Channels\Channel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use App\Shop\Products\Product;
 
 class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepositoryInterface {
 
@@ -45,18 +46,38 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
 
         return $this->model->where('channel_id', $channel->id)->whereNotNull('attribute_id')->get();
     }
-    
+
     /**
      * 
      * @param Channel $channel
      * @return type
      */
     public function getChannelProducts(Channel $channel) {
+
         return $this->model->where('channel_id', $channel->id)->whereNull('attribute_id')->get();
     }
+
+    public function getChannelProduct(Product $objProduct, Channel $channel) {
+        return $this->model
+                        ->where('product_id', $objProduct->id)
+                        ->where('channel_id', $channel->id)
+                        ->whereNull('attribute_id')->first();
+    }
     
-    public function getChannelProduct(Product $objProduct) {
-        return $this->model->where('product_id', $objProduct->id)->whereNull('attribute_id')->first();
+    /**
+     * 
+     * @param Product $product
+     * @param Channel $channel
+     * @return type
+     */
+    public function getAttributesByParentProduct(Product $product, Channel $channel) {
+        
+        return $this->model
+                ->where('channel_id', $channel->id)
+                ->where('product_id', $product->id)
+                ->whereNotNull('attribute_id')->get()
+                ->keyBy('attribute_id');
+        
     }
 
     /**
@@ -94,6 +115,15 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
      * @param Channel $channel
      * @return type
      */
+    public function getChannelProductIds(Channel $channel) {
+        return $this->model->where('channel_id', $channel->id)->whereNull('attribute_id')->pluck('product_id');
+    }
+
+    /**
+     * 
+     * @param Channel $channel
+     * @return type
+     */
     public function getAvailiableProducts(Channel $channel) {
 
         $query = DB::table('products');
@@ -117,6 +147,11 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
         return $this->model->where(['attribute_id' => $id, 'channel_id' => $channel->id])->delete();
     }
 
+    /**
+     * 
+     * @param Channel $channel
+     * @return type
+     */
     public function getAssignedProductsForChannel(Channel $channel) {
         $query = DB::table('products');
 

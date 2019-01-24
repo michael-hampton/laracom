@@ -84,9 +84,8 @@ class ChannelPriceController extends Controller {
         $brands = $this->brandRepo->listBrands();
         //$list = $this->channelPriceRepo->listChannelPrices()->where('channel_id', $channel->id);
         $list = $this->channelPriceRepo->getChannelProducts($channel);
-        
-        $products = $list->map(function (ChannelPrice $item) {
 
+        $products = $list->map(function (ChannelPrice $item) {
                     return $this->transformProduct($item);
                 })->all();
 
@@ -189,7 +188,7 @@ class ChannelPriceController extends Controller {
             try {
                 $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
                 $channelPriceRepo->create([
-                    'attribute_id' => $request->attribute_id,
+                    'attribute_id' => !empty($request->attribute_id) ? $request->attribute_id : null,
                     'channel_id' => $request->channel_id,
                     'product_id' => $request->product_id,
                     'price' => $request->price

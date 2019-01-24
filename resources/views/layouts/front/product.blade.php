@@ -53,16 +53,24 @@
                     <form action="{{ route('cart.store') }}" class="form-inline" method="post">
                         {{ csrf_field() }}
                         @if(isset($productAttributes) && !$productAttributes->isEmpty())
+
                         <div class="form-group">
                             <label for="productAttribute">Choose Combination</label> <br />
                             <select name="productAttribute" id="productAttribute" class="form-control select2">
                                 @foreach($productAttributes as $productAttribute)
-                                <option value="{{ $productAttribute->id }}">
+
+                                <?php
+                                $price = isset($channelAttributes[$productAttribute->id]) ?
+                                        $channelAttributes[$productAttribute->id]->price :
+                                        $productAttribute->price;
+                                ?>
+
+                                <option value = "{{ $productAttribute->id }}">
                                     @foreach($productAttribute->attributesValues as $value)
                                     {{ $value->attribute->name }} : {{ ucwords($value->value) }}
                                     @endforeach
-                                    @if(!is_null($productAttribute->price))
-                                    ( {{ config('cart.currency_symbol') }} {{ $productAttribute->price }})
+                                    @if(!is_null($price))
+                                    ( {{ config('cart.currency_symbol') }} {{ $price }})
                                     @endif
                                 </option>
                                 @endforeach
@@ -71,20 +79,20 @@
                         @endif
 
                         @if($product->quantity > 0)
-                        <div class="form-group">
-                            <input type="text"
-                                   class="form-control"
-                                   name="quantity"
-                                   id="quantity"
-                                   placeholder="Quantity"
-                                   value="{{ old('quantity') }}" />
-                            <input type="hidden" name="product" value="{{ $product->id }}" />
+                        <div class = "form-group">
+                            <input type = "text"
+                                   class = "form-control"
+                                   name = "quantity"
+                                   id = "quantity"
+                                   placeholder = "Quantity"
+                                   value = "{{ old('quantity') }}" />
+                            <input type = "hidden" name = "product" value = "{{ $product->id }}" />
                         </div>
-                        <button type="submit" class="btn btn-warning"><i class="fa fa-cart-plus"></i> Add to cart
+                        <button type = "submit" class = "btn btn-warning"><i class = "fa fa-cart-plus"></i> Add to cart
                         </button>
                         @else
 
-                        <div class="alert alert-danger">
+                        <div class = "alert alert-danger">
                             The product is currently out of stock
                         </div>
                         @endif
@@ -95,7 +103,7 @@
     </div>
 </div>
 @section('js')
-<script type="text/javascript">
+<script type = "text/javascript">
     $(document).ready(function () {
         var productPane = document.querySelector('.product-cover');
         var paneContainer = document.querySelector('.product-cover-wrap');

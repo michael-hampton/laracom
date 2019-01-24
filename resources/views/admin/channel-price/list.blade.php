@@ -19,8 +19,8 @@
                             <label for="channel">Channel</label>
                             <select name="channel_id" id="channel" class="form-control select2">
                                 <option value="">--Select--</option>
-                                @foreach($channels as $channel)
-                                <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
+                                @foreach($channels as $objChannel)
+                                <option @if($channel->id == $objChannel->id) selected="selected" @endif value="{{ $objChannel->id }}">{{ $objChannel->name }}</option>
                                 @endforeach
                             </select>
                         </div>

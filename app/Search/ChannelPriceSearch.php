@@ -21,8 +21,8 @@ class ChannelPriceSearch implements FilterInterface {
         $newQuery = (new \App\Shop\ChannelPrices\ChannelPrice)->query()
                 ->select('channel_product.*')
                 ->join('products', 'products.id', '=', 'channel_product.product_id')
-                 ->join('category_product', 'category_product.product_id', '=', 'channel_product.product_id');;
-
+                ->join('category_product', 'category_product.product_id', '=', 'channel_product.product_id')
+                ->whereNull('attribute_id');
 
         $query = static::applyDecoratorsFromRequest(
                         $filters, $newQuery

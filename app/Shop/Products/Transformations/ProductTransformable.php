@@ -19,15 +19,21 @@ trait ProductTransformable {
      */
     protected function transformProduct(Product $product) {
 
-        $channelRepo = new ChannelRepository(new \App\Shop\Channels\Channel);
-        $channel = $channelRepo->listChannels()->where('name', env('CHANNEL'))->first();
-
-        if (!empty($channel) && !empty($channel->id)) {
-            $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
-            $channelPrice = $channelPriceRepo->listChannelPrices()->where('product_id', $product->id)->where('channel_id', $channel->id);
-            $price = !empty($channelPrice[0]) ? $channelPrice[0]->price : $product->price;
+        if(!empty(env('CHANNEL'))) {
+            $channelRepo = new ChannelRepository(new \App\Shop\Channels\Channel);
+            $channel = $channelRepo->findByName(env('CHANNEL'));
         }
         
+        $price = $product->price;
+        
+
+        if (isset($channel) && !empty($channel) && !empty($channel->id)) {
+            $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
+            $channelPrice = $channelPriceRepo->getChannelProduct($product, $channel);
+
+            $price = !empty($channelPrice) ? $channelPrice->price : $product->price;
+        }
+
         $brandId = $product->brand_id;
 
         $brandRepo = new BrandRepository(new Brand);

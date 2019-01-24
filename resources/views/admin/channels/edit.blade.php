@@ -14,6 +14,10 @@ function buildcheckBox($value, $label) {
     .list {
         border-bottom: 1px dotted #CCC;
     }
+    
+    .main-footer {
+        display: none;
+    }
 </style>
 
 
@@ -141,6 +145,40 @@ function buildcheckBox($value, $label) {
             </div>
         </div>
     </div>
+    
+    <div class="col-lg-6 pull-right">
+        <div class="box">
+            <div class="box-body provider-div">
+                <h2>Channel Providers</h2>
+
+                <?php
+                $providerArr = $providers->toArray();
+                ?>
+
+                <div class="form-inline">
+                    <div class="form-group">
+                        <select id='paymentProviderSelect' class="form-control">
+                            @foreach($arrProviders as $arrProvider)
+                            @if(!in_array($arrProvider, $providerArr))
+                            <option value="{{$arrProvider->id}}">{{$arrProvider->name}}</option>
+                            @endif;
+                            @endforeach;
+                        </select>
+                    </div>
+
+                    <button channel-id="{{ $channel->id }}" class="btn btn-primary addProvider">+</button>
+                </div>
+
+                <ul class='providerList list list-group clear-list'>
+                    @foreach($providers as $provider)
+                    <li class='list-group-item'>{{$provider->name}}
+                        <a href="#" class="deleteProvider" provider-id="{{$provider->id}}">x</a>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
 
     <div class="col-lg-6 pull-right">
         <div class="box">
@@ -166,7 +204,7 @@ function buildcheckBox($value, $label) {
 
                 <ul class='productList list list-group clear-list'>
                     @foreach($assigned_products as $objProduct)
-                    <li class='list-group-item'>{{$objProduct->name}} {{$objProduct->price}}</li>
+                    <li style="margin-top:12px;" class='list-group-item'>{{$objProduct->name}} {{$objProduct->price}}</li>
                     @endforeach;
                 </ul>
             </div>
@@ -202,39 +240,7 @@ function buildcheckBox($value, $label) {
         </div>
     </div>
 
-    <div class="col-lg-6 pull-right">
-        <div class="box">
-            <div class="box-body provider-div">
-                <h2>Channel Providers</h2>
-
-                <?php
-                $providerArr = $providers->toArray();
-                ?>
-
-                <div class="form-inline">
-                    <div class="form-group">
-                        <select id='paymentProviderSelect' class="form-control">
-                            @foreach($arrProviders as $arrProvider)
-                            @if(!in_array($arrProvider, $providerArr))
-                            <option value="{{$arrProvider->id}}">{{$arrProvider->name}}</option>
-                            @endif;
-                            @endforeach;
-                        </select>
-                    </div>
-
-                    <button channel-id="{{ $channel->id }}" class="btn btn-primary addProvider">+</button>
-                </div>
-
-                <ul class='providerList list list-group clear-list'>
-                    @foreach($providers as $provider)
-                    <li class='list-group-item'>{{$provider->name}}
-                        <a href="#" class="deleteProvider" provider-id="{{$provider->id}}">x</a>
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-    </div>
+    
 </section>
 
 

@@ -1,5 +1,13 @@
 
 @include('layouts.errors-and-messages')
+
+<style>
+      .selectedItem {
+            background-color: #FFFF66;
+        }
+</style>
+
+
 <div class="box">
     <form action="{{ route('admin.channel-prices.update', $channelPrice->id) }}" method="post" id="channelPriceForm" class="form" enctype="multipart/form-data">
         <div class="box-body">
@@ -92,6 +100,9 @@
     });
 
     $('.variationList > li').on('click', function () {
+        
+        $('.variationList > li').removeClass('selectedItem');
+        $(this).addClass('selectedItem');
 
         if ($(this).hasClass('added')) {
             added = 0;
