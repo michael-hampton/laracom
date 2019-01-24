@@ -177,11 +177,7 @@ class ChannelPriceController extends Controller {
 
         // Validate the input and return correct response
         if ($validator->fails()) {
-            echo json_encode(array(
-                'http_code' => 400,
-                'errors' => $validator->getMessageBag()->toArray()
-            ));
-            die;
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
         
         
@@ -189,16 +185,10 @@ class ChannelPriceController extends Controller {
             
             return response()->json(['http_code' => 200]);
         }
-        
-
 
         $channelPriceRepo->updateChannelPrice($data);
 
-        echo json_encode(array(
-            'http_code' => 200,
-            'message' => 'Product updated successfully'
-        ));
-        die;
+        return response()->json(['http_code' => 200]);
     }
 
     /**
