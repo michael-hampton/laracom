@@ -256,12 +256,20 @@ class OrderLineController extends Controller {
 
                         $objProduct = $productRepo->findProductById($objLine->product_id);
 
-                        if ($channel->allocate_on_order === 1 || $order->payment === 'import') {
+                        if ($channel->allocate_on_order === 0 || $order->payment === 'import') {
                             // check enough quantity to fulfil line if not reject
                             // update stock
-                            $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
 
-                            //$quantity = $objProduct->quantity - $objLine2->quantity;
+                            $quantity = $objProduct->quantity - $objProduct->reserved_stock;
+                            
+                            if($objLine->quantity < $quantity) {
+                                $arrFailed[$lineId][] = $e->getMessage();
+                                $blError = true;
+                                continue;
+                            }
+                            
+                            $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
+                            
                             try {
                                 $objProductRepo = new ProductRepository($objProduct);
                                 $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
