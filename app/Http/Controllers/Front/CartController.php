@@ -38,6 +38,11 @@ class CartController extends Controller {
      * @var ProductAttributeRepositoryInterface
      */
     private $productAttributeRepo;
+    
+    /**
+     * @var VoucherCodeRepositoryInterface
+     */
+    private $voucherCodeRepo;
 
     /**
      * CartController constructor.
@@ -62,9 +67,12 @@ class CartController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        
-                //request()->session()->flush();
 
+         $voucher = null;
+	
+	     if (request()->session()->has('voucherCode')) {
+	         $voucher = $this->voucherCodeRepo->getByVoucherCode(request()->session()->get('voucherCode', 1));
+	     }
                 
         $courier = $this->courierRepo->findCourierById(request()->session()->get('courierId', 1));
         $shippingFee = $this->cartRepo->getShippingFee($courier);
@@ -73,7 +81,7 @@ class CartController extends Controller {
             'subtotal' => $this->cartRepo->getSubTotal(),
             'tax' => $this->cartRepo->getTax(),
             'shippingFee' => $shippingFee,
-            'total' => $this->cartRepo->getTotal(2, $shippingFee)
+            'total' => $this->cartRepo->getTotal(2, $shippingFee, $voucher)
         ]);
     }
 
