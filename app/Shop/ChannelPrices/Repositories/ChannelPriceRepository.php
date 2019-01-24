@@ -41,9 +41,22 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
      * @param Channel $channel
      * @return type
      */
-    public function getChannelPriceVariations(Channel $channel) {
+    public function getChannelVariations(Channel $channel) {
 
         return $this->model->where('channel_id', $channel->id)->whereNotNull('attribute_id')->get();
+    }
+    
+    /**
+     * 
+     * @param Channel $channel
+     * @return type
+     */
+    public function getChannelProducts(Channel $channel) {
+        return $this->model->where('channel_id', $channel->id)->whereNull('attribute_id')->get();
+    }
+    
+    public function getChannelProduct(Product $objProduct) {
+        return $this->model->where('product_id', $objProduct->id)->whereNull('attribute_id')->first();
     }
 
     /**
