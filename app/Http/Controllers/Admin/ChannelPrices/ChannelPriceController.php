@@ -82,8 +82,9 @@ class ChannelPriceController extends Controller {
         $channels = $this->channelRepo->listChannels('name', 'asc');
         $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
         $brands = $this->brandRepo->listBrands();
-        $list = $this->channelPriceRepo->listChannelPrices()->where('channel_id', $channel->id);
-
+        //$list = $this->channelPriceRepo->listChannelPrices()->where('channel_id', $channel->id);
+        $list = $this->channelPriceRepo->getChannelProducts($channel);
+        
         $products = $list->map(function (ChannelPrice $item) {
 
                     return $this->transformProduct($item);
@@ -148,7 +149,7 @@ class ChannelPriceController extends Controller {
         $product = $this->productRepo->findProductById($channelPrice->product_id);
         $attributes = (new \App\Shop\ProductAttributes\Repositories\ProductAttributeRepository(new \App\Shop\ProductAttributes\ProductAttribute))->getAttributesForProduct($product);
 
-        $channelVaraitions = $this->channelPriceRepo->getChannelPriceVariations($channel)->keyBy('attribute_id');
+        $channelVaraitions = $this->channelPriceRepo->getChannelVariations($channel)->keyBy('attribute_id');
         $assignedAttributes = $channelVaraitions->pluck('attribute_id')->toArray();
 
         return view('admin.channel-price.edit', [
