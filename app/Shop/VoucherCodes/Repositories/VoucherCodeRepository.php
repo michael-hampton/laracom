@@ -220,7 +220,7 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
     public function getByVoucherCode($voucherCode) {
         
         try {
-            return VoucherCode::where('voucher_code', $voucherCode)->firstOrFail();
+            return $this->model->where('voucher_code', $voucherCode)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new VoucherCodeNotFoundException($e->getMessage());
         }
