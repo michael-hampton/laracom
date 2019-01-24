@@ -103,7 +103,7 @@ class OrderStatusRepository extends BaseRepository implements OrderStatusReposit
      * @return type
      */
     public function buildStatusMapping() {
-        $results = OrderStatus::query()
+        $results = $this->model->query()
                 ->select(array('order_statuses.*', 'order_status_mapping.status_from'))
                 ->join('order_status_mapping', 'order_status_mapping.status_to', '=', 'order_statuses.id')
                  ->get();
