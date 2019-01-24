@@ -183,6 +183,13 @@ class ChannelPriceController extends Controller {
             ));
             die;
         }
+        
+        
+        if($request->added === 1) {
+            
+            return response()->json(['http_code' => 200]);
+        }
+        
 
 
         $channelPriceRepo->updateChannelPrice($data);
