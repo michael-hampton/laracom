@@ -199,11 +199,10 @@ class ChannelPriceController extends Controller {
         }
 
         try {
-            
-        }catch (Exception $ex) {
+               $channelPriceRepo->updateChannelPrice($data);
+        } catch (Exception $ex) {
                 return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
-            }
-        $channelPriceRepo->updateChannelPrice($data);
+        }
 
         return response()->json(['http_code' => 200]);
     }
