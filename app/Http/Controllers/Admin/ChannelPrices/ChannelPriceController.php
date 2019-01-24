@@ -181,11 +181,28 @@ class ChannelPriceController extends Controller {
         }
         
         
-        if($request->added === 1) {
+        if($request->added == 1) {
+            
+            try {
+                $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
+                $channelPriceRepo->create([
+                    'attribute_id' => $request->attributeId,
+                    'channel_id' => $request->channel,
+                    'product_id' => $request->product,
+                    'price' => $request->price
+                ]);
+            } catch (Exception $ex) {
+                return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+            }
             
             return response()->json(['http_code' => 200]);
         }
 
+        try {
+            
+        }catch (Exception $ex) {
+                return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+            }
         $channelPriceRepo->updateChannelPrice($data);
 
         return response()->json(['http_code' => 200]);
