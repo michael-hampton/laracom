@@ -67,7 +67,6 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('returns/edit/{id}', 'Returns\ReturnController@edit')->name('returns.edit');
 
 
-
         /* invoice */
         Route::post('invoice/invoiceOrder/', 'Invoices\InvoiceController@invoiceOrder')->name('invoice.invoiceOrder');
         Route::get('invoice/index/{channel?}', 'Invoices\InvoiceController@index')->name('invoice.index');
@@ -155,6 +154,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('remove-image-brand', 'Brands\BrandController@removeImage')->name('brand.remove.image');
 
         /* channel prices */
+        Route::delete('channel-prices/deleteAttribute/{id}', 'ChannelPrices\ChannelPriceController@deleteAttribute')->name('channel-prices.deleteAttribute');
         Route::resource('channel-prices', 'ChannelPrices\ChannelPriceController');
         Route::get('channel-prices/get/{channel}', 'ChannelPrices\ChannelPriceController@index')->name('channel-prices.index');
         Route::get('channel-prices/editForm/{product}/{channel}', 'ChannelPrices\ChannelPriceController@editForm')->name('channel-prices.editForm');

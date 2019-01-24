@@ -147,10 +147,13 @@ class ChannelPriceController extends Controller {
 
         $product = $this->productRepo->findProductById($channelPrice->product_id);
         $attributes = (new \App\Shop\ProductAttributes\Repositories\ProductAttributeRepository(new \App\Shop\ProductAttributes\ProductAttribute))->getAttributesForProduct($product);
-        $assignedAttributes = $this->channelPriceRepo->getChannelProductIds($channel);
-        
+
+        $channelVaraitions = $this->channelPriceRepo->getChannelPriceVariations($channel)->keyBy('attribute_id');
+        $assignedAttributes = $channelVaraitions->pluck('attribute_id')->toArray();
+
         return view('admin.channel-price.edit', [
             'assignedAttributes' => $assignedAttributes,
+            'channel_varaitions' => $channelVaraitions,
             'attributes' => $attributes,
             'channelPrice' => $channelPrice,
             'product' => $product
@@ -168,8 +171,6 @@ class ChannelPriceController extends Controller {
      */
     public function update(Request $request, int $id) {
 
-        $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
-        $channelPriceRepo = new ChannelPriceRepository($channelPrice);
 
         $data = $request->except('_token', '_method');
 
@@ -179,29 +180,56 @@ class ChannelPriceController extends Controller {
         if ($validator->fails()) {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
-        
-        
-        if($request->added == 1) {
-            
+
+        $channel = $this->channelRepo->findChannelById($request->channel_id);
+
+        if ($request->added == 1) {
+
             try {
                 $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
                 $channelPriceRepo->create([
-                    'attribute_id' => $request->attributeId,
-                    'channel_id' => $request->channel,
-                    'product_id' => $request->product,
+                    'attribute_id' => $request->attribute_id,
+                    'channel_id' => $request->channel_id,
+                    'product_id' => $request->product_id,
                     'price' => $request->price
                 ]);
             } catch (Exception $ex) {
                 return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
             }
-            
+
             return response()->json(['http_code' => 200]);
         }
 
         try {
-               $channelPriceRepo->updateChannelPrice($data);
+
+            if (isset($data['attribute_id']) && !empty($data['attribute_id'])) {
+                $channelPrice = $this->channelPriceRepo->findChannelPriceByAttributeId($request->attribute_id, $channel);
+            } else {
+                $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
+            }
+
+            $channelPriceRepo = new ChannelPriceRepository($channelPrice);
+            $channelPriceRepo->updateChannelPrice($data);
         } catch (Exception $ex) {
-                return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+            return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+        }
+
+        return response()->json(['http_code' => 200]);
+    }
+
+    /**
+     * 
+     * @param type $id
+     * @param Request $request
+     * @return type
+     */
+    public function deleteAttribute($id, Request $request) {
+
+        try {
+            $channel = $this->channelRepo->findChannelById($request->channel_id);
+            $this->channelPriceRepo->deleteAttribute($id, $channel);
+        } catch (Exception $ex) {
+            
         }
 
         return response()->json(['http_code' => 200]);

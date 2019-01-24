@@ -10,6 +10,8 @@
             <input type="hidden" name="_method" value="put">
             <input type="hidden" name="added" id="added" value='0'>
             <input type="hidden" name="attribute_id" id="attribute_id">
+            <input type="hidden" name="product_id" id="product_id" value="{{ $channelPrice->product_id }}">
+            <input type="hidden" name="channel_id" id="channel_id" value="{{ $channelPrice->channel_id }}">
 
             <div class="form-group">
                 <label for="alias">Price <span class="text-danger">*</span></label>
@@ -31,16 +33,16 @@
         @foreach($attributes as $attribute)
 
         <?php
-        $class = in_array($attribute->id, $assignedAttributes) ? 'added' : '';
+        $price = isset($channel_varaitions[$attribute->id]) ? $channel_varaitions[$attribute->id]->price : $attribute->price;
         ?>
 
-        <li {{$class}} price='{{$attribute->price}}' class="list-group-item fist-item">
-            <span class="float-right">{{$attribute->price}} </span>
+        <li attribute-id="{{$attribute->id}}" price='{{$price}}' class="list-group-item fist-item @if(in_array($attribute->id, $assignedAttributes)) added @endif">
+            <span class="float-right">{{$price}} </span>
 
             @foreach($attribute->attributesValues as $value)
             {{ $value->attribute->name }} : {{ ucwords($value->value) }}
             @endforeach
-            
+
             @if(in_array($attribute->id, $assignedAttributes))
             <a href='#' class='removeVariation'>x</a>
             <img src=''>
@@ -68,16 +70,41 @@
     });
 
     $('.removeVariation').on('click', function () {
-        var attributeId = $(this).parent().attr('attributeid');
+        var attributeId = $(this).parent().attr('attribute-id');
+
+        var $this = $(this);
+
+        $.ajax({
+            type: 'DELETE',
+            url: '/admin/channel-prices/deleteAttribute/' + attributeId,
+            dataType: 'json',
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            data: {channel_id: $('#channel_id').val(), "_token": "{{ csrf_token() }}"},
+
+            success: function (data) {
+                $this.parent().remove();
+            },
+            error: function (data) {
+                alert(data);
+            }
+        });
+        return false;
     });
 
     $('.variationList > li').on('click', function () {
 
+        if ($(this).hasClass('added')) {
+            added = 0;
+        } else {
+            added = 1;
+        }
+
         $('#variationWrapper').slideUp();
         $('#channelPriceForm').slideDown();
-        $('#added').val(($(this).hasClass('added') ? 1 : 0));
+        $('#added').val(added);
         $('#price').val($(this).attr('price'));
         $('.productCode').html($(this).attr('name'));
+        $('#attribute_id').val($(this).attr('attribute-id'));
 
 
     });
@@ -99,13 +126,12 @@
             url: href,
             data: formdata,
             success: function (response) {
-                var obj = jQuery.parseJSON(response);
 
-                if (obj.http_code == 400) {
+                if (response.http_code == 400) {
 
                     $('.modal-body').prepend("<div class='alert alert-danger'></div>");
 
-                    $.each(obj.errors, function (key, value) {
+                    $.each(response.errors, function (key, value) {
 
                         $('.modal-body .alert-danger').append("<p>" + value + "</p>");
                     });

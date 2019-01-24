@@ -180,6 +180,7 @@ foreach ($codes as $unusedCode) {
 
                         $(".deletebtn").click(function (ev) {
                             let id = $(this).attr("code-id");
+                            var $this = $(this);
                             $.ajax({
                                 type: 'DELETE',
                                 url: '/admin/voucher-codes/destroy/' + id,
@@ -188,7 +189,7 @@ foreach ($codes as $unusedCode) {
                                 data: {id: id, "_token": "{{ csrf_token() }}"},
 
                                 success: function (data) {
-                                    $(this).parent().remove();
+                                    $this.parent().remove();
                                 },
                                 error: function (data) {
                                     alert(data);

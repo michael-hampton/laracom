@@ -37,6 +37,27 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
     }
 
     /**
+     * 
+     * @param Channel $channel
+     * @return type
+     */
+    public function getChannelPriceVariations(Channel $channel) {
+
+        return $this->model->where('channel_id', $channel->id)->whereNotNull('attribute_id')->get();
+    }
+
+    /**
+     * 
+     * @param int $id
+     * @param Channel $channel
+     * @return type
+     */
+    public function findChannelPriceByAttributeId(int $id, Channel $channel) {
+
+        return $this->model->where(['attribute_id' => $id, 'channel_id' => $channel->id])->first();
+    }
+
+    /**
      * @param array $update
      * @return bool
      */
@@ -73,6 +94,16 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
         return $result;
     }
 
+    /**
+     * 
+     * @param int $id
+     * @param Channel $channel
+     * @return type
+     */
+    public function deleteAttribute(int $id, Channel $channel) {
+        return $this->model->where(['attribute_id' => $id, 'channel_id' => $channel->id])->delete();
+    }
+
     public function getAssignedProductsForChannel(Channel $channel) {
         $query = DB::table('products');
 
@@ -92,20 +123,6 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
      */
     public function getAssignedVariationsForChannel(Channel $channel) {
         return $this->model->where('channel_id', $channel->id)->pluck('attribute_id');
-    }
-
-    /**
-     * 
-     * @param Channel $channel
-     * @param type $blReturnIds
-     * @return type
-     */
-    public function getChannelProductIds(Channel $channel, $blReturnIds = true) {
-        
-        if($blReturnIds === true) {
-            return array_filter($this->model->where('channel_id', $channel->id)->pluck('attribute_id')->all());
-        }
-        
     }
 
 }

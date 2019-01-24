@@ -19,6 +19,7 @@ class ChannelPrice extends Model
      */
     protected $fillable = [
         'channel_id',
+        'attribute_id',
         'product_id',
         'description',
         'price'
