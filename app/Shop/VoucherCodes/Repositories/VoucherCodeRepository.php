@@ -12,11 +12,16 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use App\Shop\Channels\Channel;
+use App\Traits\VoucherValidationScope;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * 
+ */
 class VoucherCodeRepository extends BaseRepository implements VoucherCodeRepositoryInterface {
 
     use VoucherCodeTransformable;
+    use VoucherValidationScope;
 
     /**
      *
@@ -33,6 +38,10 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
         $this->model = $voucherCode;
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function getValidationFailures() {
         return $this->validationFailures;
     }
@@ -151,72 +160,25 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
             $this->validationFailures[] = 'unable to find voucher code';
             return false;
         }
+        
+        $objVoucherCode = $this->findVoucherCodeById($results[0]->code_id);
 
-        if (!$this->validateVoucherScopes($results, $cartProducts)) {
+        if (!$this->validateVoucherScopes($objVoucherCode, $cartProducts)) {
             $this->validationFailures[] = 'unable to validate voucher code';
             return false;
         }
         
         request()->session()->put('voucherCode', $results[0]->voucher_code);
 
-        return $this->findVoucherCodeById($results[0]->code_id);
-    }
-
-    /**
-     * 
-     * @param type $results
-     * @param type $cartProducts
-     * @return boolean
-     */
-    private function validateVoucherScopes($results, $cartProducts) {
-        $scopeType = $results[0]->scope_type;
-        $scopeValue = (int) $results[0]->scope_value;
-
-        foreach ($cartProducts as $cartProduct) {
-
-            switch ($scopeType) {
-
-                case 'Brand':
-                    if (empty($cartProduct->product->brand_id)) {
-
-                        return false;
-                    }
-
-                    if ((int) $cartProduct->product->brand_id !== $scopeValue) {
-
-                        return false;
-                    }
-
-                    break;
-
-                case 'Product':
-
-                    if (empty($cartProduct->product->id)) {
-
-                        return false;
-                    }
-
-                    if ((int) $cartProduct->product->id !== $scopeValue) {
-
-                        return false;
-                    }
-
-                    break;
-
-                case 'Category':
-
-                    $categoryIds = $cartProduct->product->categories()->pluck('category_id')->all();
-
-                    if (!in_array($scopeValue, $categoryIds)) {
-
-                        return false;
-                    }
-            }
-        }
-
-        return true;
+        return $objVoucherCode;
     }
     
+    /**
+     * 
+     * @param type $voucherCode
+     * @return type
+     * @throws VoucherCodeNotFoundException
+     */
     public function getByVoucherCode($voucherCode) {
         
         try {

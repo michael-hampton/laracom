@@ -10,16 +10,6 @@ function buildcheckBox($value, $label) {
 }
 ?>
 
-<style>
-    .list {
-        border-bottom: 1px dotted #CCC;
-    }
-    
-    .main-footer {
-        display: none;
-    }
-</style>
-
 
 @section('content')
 <!-- Main content -->
@@ -145,7 +135,7 @@ function buildcheckBox($value, $label) {
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-6 pull-right">
         <div class="box">
             <div class="box-body provider-div">
@@ -240,12 +230,21 @@ function buildcheckBox($value, $label) {
         </div>
     </div>
 
-    
+
 </section>
 
 
 
 <!-- /.content -->
+@endsection
+
+@section('css')
+<style type="text/css">
+
+    .main-footer {
+        display: none;
+    }
+</style>
 @endsection
 
 @section('js')

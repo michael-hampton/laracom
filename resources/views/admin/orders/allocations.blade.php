@@ -4,12 +4,6 @@
 
 @include('layouts.errors-and-messages')
 
-<style>
-    .table-warning, .table-warning>td, .table-warning>th {
-        background-color: #ffeeba;
-    }
-</style>
-
 <!-- Main content -->
 <section class="content">
     <div class="col-lg-3">
@@ -22,8 +16,8 @@
                     <form action="{{ route('admin.orderLine.search') }}" method="post" id="admin-search">
 
                         {{ csrf_field() }}
-                        
-                         <input type="hidden" name="page" id="page" value="1">
+
+                        <input type="hidden" name="page" id="page" value="1">
 
 
                         <div style="margin-bottom: 10px;">
@@ -90,7 +84,9 @@
         </div>
     </div>
     <div class="col-lg-9 search-results">
-        
+
+        <img class="loader" src="{{url('/images/loading.gif')}}" alt="Image"/>
+
     </div>
 
 
@@ -110,13 +106,21 @@
 <!-- /.content -->
 @endsection
 
+@section('css')
+<style type="text/css">
+    .table-warning, .table-warning>td, .table-warning>th {
+        background-color: #ffeeba;
+    }
+</style>
+@endsection
+
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
-    
-    loadPagination();
-    
-      $('.Search').on('click', function (e) {
+
+        loadPagination();
+
+        $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
             var formdata = $('#admin-search').serialize();
             $.ajax({
@@ -128,7 +132,7 @@
                 }
             });
         });
-        
+
         $('.Search').click();
 
         $('.uncheck').click(function () {

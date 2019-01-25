@@ -141,7 +141,7 @@ class OrderController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-
+        
         $list = $this->orderRepo->listOrders('is_priority', 'desc');
         $channels = $this->channelRepo->listChannels();
         $statuses = $this->orderStatusRepo->listOrderStatuses();

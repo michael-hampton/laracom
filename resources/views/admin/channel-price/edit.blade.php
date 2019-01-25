@@ -1,12 +1,6 @@
 
 @include('layouts.errors-and-messages')
 
-<style>
-      .selectedItem {
-            background-color: #FFFF66;
-        }
-</style>
-
 
 <div class="box">
     <form action="{{ route('admin.channel-prices.update', $channelPrice->id) }}" method="post" id="channelPriceForm" class="form" enctype="multipart/form-data">
@@ -52,8 +46,8 @@
             @endforeach
 
             @if(in_array($attribute->id, $assignedAttributes))
-            <a href='#' class='removeVariation'>x</a>
-            <img src=''>
+            <a href='#' class='removeVariation'><i style="width:25px;" class="fa fa-times-circle"></i></a>
+            <img style="width:30px;" class="loader" src="{{url('/images/tick.png')}}" alt="Image"/>
             @endif
 
         </li>
@@ -66,6 +60,14 @@
 <!-- /.box -->
 
 <!-- /.content -->
+
+@section('css')
+<style type="text/css">
+    .selectedItem {
+        background-color: #FFFF66;
+    }
+</style>
+@endsection
 
 <script>
 
@@ -100,7 +102,7 @@
     });
 
     $('.variationList > li').on('click', function () {
-        
+
         $('.variationList > li').removeClass('selectedItem');
         $(this).addClass('selectedItem');
 

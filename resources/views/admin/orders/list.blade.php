@@ -96,6 +96,7 @@
         </div>
     </div>
     <div class="col-lg-9 search-results">
+        <img class="loader" src="{{url('/images/loading.gif')}}" alt="Image"/>
 
     </div>
 
@@ -113,8 +114,8 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-   
-   loadPagination();
+
+        loadPagination();
 
         $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');

@@ -5,11 +5,6 @@
 <section class="content">
     @include('layouts.errors-and-messages')
 
-    <style>
-        .selectedItem {
-            background-color: #FFFF66;
-        }
-    </style>
     <!-- Default box -->
 
 
@@ -137,6 +132,14 @@
     </div>
 </div>
 
+@section('css')
+<style type="text/css">
+    .selectedItem {
+        background-color: #FFFF66;
+    }
+</style>
+@endsection
+
 
 @section('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
@@ -181,8 +184,8 @@ $(document).ready(function () {
     });
 
     $(".clickable-row").click(function () {
-    
-    var $this = $(this);
+
+        var $this = $(this);
         $.ajax({
             type: "GET",
             url: $(this).data("href"),
