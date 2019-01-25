@@ -111,13 +111,15 @@
             </div>
         </div>
     </div>
-    @else
-    <div class="row">
 
-        <div class="col-lg-3">
-            <input type="text" placeholder="Enter Voucher Code" class="form-control" id="voucher_code">
-            <button class="btn btn-default btn-block use_voucher pull-right">Use</button>
-        </div>
+    <div class="col-lg-3">
+        <input type="text" placeholder="Enter Voucher Code" class="form-control" id="voucher_code">
+        <button class="btn btn-default btn-block use_voucher pull-right">Use</button>
+    </div>
+
+    @else
+
+    <div class="row">
 
         <div class="col-md-12">
             <p class="alert alert-warning">No products in cart yet. <a href="{{ route('home') }}">Shop now!</a></p>

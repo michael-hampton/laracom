@@ -24,7 +24,7 @@ trait VoucherValidationScope {
      * @return boolean
      */
     protected function validateVoucherScopes(VoucherCode $objVoucherCode, $cartProducts) {
-        
+                
         $scopeType = $objVoucherCode->scope_type;
         $scopeValue = (int) $objVoucherCode->scope_value;
 
