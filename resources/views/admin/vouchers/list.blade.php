@@ -20,11 +20,8 @@
                 <table class="table">
                     <thead>
                         <tr>
-<!--                            <td class="col-md-2">Amount</td>
-                            <td class="col-md-1">Amount Type</td>-->
                             <td class="col-md-2">Start Date</td>
                             <td class="col-md-2">Expiry Date</td>
-<!--                            <td class="col-md-2">Scope Type</td>-->
                             <td class="col-md-1">Status</td>
                             <td class="col-md-1">Channel</td>
                         </tr>
@@ -32,11 +29,8 @@
                     <tbody>
                         @foreach ($vouchers as $voucher)
                         <tr class='clickable-row' data-href="{{ route('admin.vouchers.edit', $voucher->id) }}">
-<!--                            <td>{{ $voucher->amount }}</td>
-                            <td>{{ $voucher->amount_type }}</td>-->
                             <td>{{ date('d-m-Y', strtotime($voucher->start_date)) }}</td>
                             <td>{{ date('d-m-Y', strtotime($voucher->expiry_date)) }}</td>
-<!--                            <td>{{ $voucher->scope_type }}</td>-->
                             <td>@include('layouts.status', ['status' => $voucher->status])</td>
                             <td>{{ $voucher->channel_name }}</td>
 

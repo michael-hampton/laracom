@@ -85,7 +85,7 @@
     </div>
     <div class="col-lg-9 search-results">
 
-        <img class="loader" src="{{url('/images/loading.gif')}}" alt="Image"/>
+        <img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>
 
     </div>
 

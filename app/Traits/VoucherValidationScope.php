@@ -15,7 +15,7 @@ use App\Shop\VoucherCodes\VoucherCode;
  *
  * @author michael.hampton
  */
-class VoucherValidationScope {
+trait VoucherValidationScope {
 
     /**
      * 

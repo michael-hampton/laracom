@@ -10,7 +10,6 @@ function buildcheckBox($value, $label) {
 }
 ?>
 
-
 @section('content')
 <!-- Main content -->
 <section class="content">
