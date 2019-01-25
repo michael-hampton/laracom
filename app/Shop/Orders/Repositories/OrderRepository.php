@@ -90,6 +90,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $params['is_priority'] = $blPriority;
                 $params['channel'] = $params['channel']->id;
             }
+            
             if ($blManualOrder === false) {
                 $items = Cart::content();
 
@@ -373,13 +374,13 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             $order->order_status_id = 13;
             $order->save();
         } elseif ($items->count() == $countBackorderedItems || (
-                $items->count() > 1 && $countBackorderedItems > 0 && !is_null($channel) && $channel->partial_shipment === 0)) {
+                
+            $items->count() > 1 && $countBackorderedItems > 0 && !is_null($channel) && $channel->partial_shipment === 0)) {
 
             $order->order_status_id = 11;
             $order->save();
+            event(new BackorderEvent($order));
         }
-
-
 
         return true;
     }
