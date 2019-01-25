@@ -22,6 +22,9 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\DispatchCreateEvent' => [
             'App\Listeners\DispatchCreateEventListener',
         ],
+        'App\Events\BackorderEvent' => [
+            'App\Listeners\BackorderEventListener',
+        ],
     ];
 
     /**
