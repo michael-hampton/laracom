@@ -1,64 +1,47 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+        <!-- CSRF Token -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name') }}</title>
-    <link rel="stylesheet" href="{{ asset('css/admin.min.css') }}">
-</head>
-<body class="hold-transition skin-purple login-page">
-    <div class="login-box">
-        <div class="login-logo">
-            <a href="{{ url('admin') }}">{{ config('app.name') }}</a>
-        </div>
-        <!-- /.login-logo -->
-        @include('layouts.errors-and-messages')
-        <div class="login-box-body">
-            <p class="login-box-msg">Sign in to start your session</p>
+        <title>{{ config('app.name') }}</title>
+        <link rel="stylesheet" href="{{ asset('css/admin.min.css?v1') }}">
+    </head>
 
-            <form action="{{ route('admin.login') }}" method="post">
+    @include('layouts.errors-and-messages')
+
+    <div class="middle-box text-center loginscreen animated fadeInDown">
+        <div>
+            <div>
+
+                <h1 class="logo-name">{{ config('app.name') }}</h1>
+
+            </div>
+            <h3>Welcome to IN+</h3>
+            <p>Perfectly designed and precisely prepared admin theme with over 50 pages with extra new web app views.
+                <!--Continually expanded and constantly improved Inspinia Admin Them (IN+)-->
+            </p>
+            <p>Login in. To see it in action.</p>
+            <form class="m-t" action="{{ route('admin.login') }}" method="post">
                 {{ csrf_field() }}
                 <div class="form-group has-feedback">
-                    <input name="email" type="email" class="form-control" placeholder="Email" value="{{ old('email') }}">
-                    <span class="fa fa-envelope form-control-feedback"></span>
+                    <input name="email" id="email" type="email" class="form-control" placeholder="Username" required="">
                 </div>
                 <div class="form-group has-feedback">
-                    <input name="password" type="password" class="form-control" placeholder="Password">
-                    <span class="fa fa-lock form-control-feedback"></span>
+                    <input name="password" id="password" type="password" class="form-control" placeholder="Password" required="">
                 </div>
-                <div class="row">
-                    <div class="col-xs-8">
+                <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
 
-                    </div>
-                    <!-- /.col -->
-                    <div class="col-xs-4">
-                        <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
-                    </div>
-                    <!-- /.col -->
-                </div>
+                <a href="#"><small>Forgot password?</small></a>
+                <a href="{{ url('/') }}" class="text-muted text-center"><small>Do not have an account?</small></a>
+                <a class="btn btn-sm btn-white btn-block" href="register.html">Create an account</a>
             </form>
-
-            <div class="social-auth-links text-center">
-                <p>- OR -</p>
-                <a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Sign in using
-                    Facebook</a>
-                <a href="#" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using
-                    Google+</a>
-            </div>
-            <!-- /.social-auth-links -->
-
-            <a href="#">I forgot my password</a><br>
-            <a href="{{ url('/') }}" class="text-center">Register a new membership</a>
-
+            <p class="m-t"> <small>Inspinia we app framework base on Bootstrap 3 © 2014</small> </p>
         </div>
-        <!-- /.login-box-body -->
     </div>
-    <!-- /.login-box -->
+    
     <script src="{{ asset('js/admin.min.js') }}"></script>
-</body>
-</html>
