@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use App\Shop\Tools\UploadableTrait;
+use Illuminate\Support\Facades\DB;
 
 class BrandRepository extends BaseRepository implements BrandRepositoryInterface {
 

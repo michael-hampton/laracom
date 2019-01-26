@@ -365,16 +365,16 @@ class ProductController extends Controller {
         $fields = $request->only(
                 'productAttributeQuantity', 'productAttributePrice', 'sale_price', 'default'
         );
-        
+
         if ($errors = $this->validateFields($fields)) {
             return redirect()->route('admin.products.edit', [$product->id, 'combination' => 1])
                             ->withErrors($errors);
         }
-        
+
         $quantity = $fields['productAttributeQuantity'];
         $price = $fields['productAttributePrice'];
         $sale_price = null;
-        
+
         if (isset($fields['sale_price'])) {
             $sale_price = $fields['sale_price'];
         }
@@ -385,15 +385,15 @@ class ProductController extends Controller {
         if ($request->has('default')) {
             $default = $fields['default'];
         }
-        
+
         if ($default == 1 && $hasDefault > 0) {
             $default = 0;
         }
-        
+
         $productAttribute = $productRepo->saveProductAttributes(
                 new ProductAttribute(compact('quantity', 'price', 'sale_price', 'default'))
         );
-        
+
         // save the combinations
         return collect($attributeValues)->each(function ($attributeValueId) use ($productRepo, $productAttribute) {
                     $attribute = $this->attributeValueRepository->find($attributeValueId);
@@ -416,14 +416,25 @@ class ProductController extends Controller {
         $file_path = $request->csv_file->path();
         $line = 0;
         $arrProducts = [];
+        $countheader = null;
+
+        $arrCategories = array_change_key_case($this->categoryRepo->listCategories()->keyBy('name')->toArray(), CASE_LOWER);
+        $arrBrands = array_change_key_case($this->brandRepo->listBrands()->keyBy('name')->toArray(), CASE_LOWER);
+        $arrChannels = array_change_key_case($this->channelRepo->listChannels()->keyBy('name')->toArray(), CASE_LOWER);
 
         if (($handle = fopen($file_path, "r")) !== FALSE) {
             $flag = true;
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 
                 if ($flag) {
+                    $countheader = count(array_keys($data));
                     $flag = false;
                     continue;
+                }
+
+                if ($countheader < 15) {
+
+                    return redirect()->back()->with('flash_message_error', 'Your CSV files having unmatched Columns to our database...Your columns must be in this sequence <strong> user_id,customer_name,date </strong> only');
                 }
 
                 list(
@@ -449,37 +460,42 @@ class ProductController extends Controller {
                                 $order, (new ProductImportRequest())->rules()
                         )->errors();
 
-                $categories = explode(',', $order['categories']);
+                $order = array_map('trim', $order);
 
-                $arrCategories = [];
+                $categories = array_map('strtolower', explode(',', $order['categories']));
+
+                $arrSelectedCategories = [];
 
                 foreach ($categories as $category) {
-                    $categoryId = $this->categoryRepo->findByName($category);
 
-                    if (empty($categoryId)) {
+                    if (!isset($arrCategories[$category])) {
                         $csv_errors->add('category', "Category is invalid.");
                     } else {
-                        $arrCategories[] = $categoryId;
+
+                        $arrSelectedCategories[] = $arrCategories[$category]['id'];
                     }
                 }
 
-                $brand = $this->brandRepo->findByName($order['brand']);
 
-                if (empty($brand)) {
+                $brandName = strtolower($order['brand']);
+
+                if (!isset($arrBrands[$brandName])) {
                     $csv_errors->add('brand', "Brand is invalid.");
+                } else {
+                    $brand = $arrBrands[$brandName]['id'];
                 }
 
-                $channels = explode(',', $order['channels']);
+                $channels = array_map('strtolower', explode(',', $order['channels']));
 
-                $arrChannels = [];
+                $arrSelectedChannels = [];
 
                 foreach ($channels as $channel) {
-                    $channelId = $this->channelRepo->findByName($channel);
 
-                    if (empty($channelId)) {
+                    if (!isset($arrChannels[$channel])) {
                         $csv_errors->add('channel', "Channel is invalid.");
                     } else {
-                        $arrChannels[] = $channelId;
+
+                        $arrSelectedChannels[] = $arrChannels[$channel]['id'];
                     }
                 }
 
@@ -488,6 +504,7 @@ class ProductController extends Controller {
                                     ->withErrors($csv_errors, 'import')
                                     ->with('error_line', $line);
                 }
+
 
                 $arrProducts[] = [
                     'name' => $order['name'],
@@ -503,9 +520,9 @@ class ProductController extends Controller {
                     'width' => $order['width'],
                     'height' => $order['height'],
                     'distance_unit' => $order['distance_unit'],
-                    'categories' => $arrCategories,
-                    'channels' => $arrChannels,
-                    'brand' => $brand->id
+                    'categories' => $arrSelectedCategories,
+                    'channels' => $arrSelectedChannels,
+                    'brand_id' => $brand
                 ];
             }
             fclose($handle);
@@ -519,7 +536,7 @@ class ProductController extends Controller {
             unset($arrProduct['categories']);
             unset($arrProduct['channels']);
 
-            $data['slug'] = str_slug($arrProduct['name']);
+            $arrProduct['slug'] = str_slug($arrProduct['name']);
 
             $product = $this->productRepo->createProduct($arrProduct);
             $productRepo = new ProductRepository($product);
@@ -541,7 +558,7 @@ class ProductController extends Controller {
     }
 
     public function importCsv() {
-        return view('admin.orders.importCsv');
+        return view('admin.products.importCsv');
     }
 
     /**

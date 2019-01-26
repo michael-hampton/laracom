@@ -14,7 +14,7 @@
 </div>
 @endif
 
-<form action="/admin/orders/saveImport" method="post"enctype="multipart/form-data">
+<form action="/admin/products/saveImport" method="post"enctype="multipart/form-data">
        {{ csrf_field() }}
     <input type="file" id="csv_file" name="csv_file">
     <input type="submit" value="Submit">
