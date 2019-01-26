@@ -6,17 +6,18 @@ use App\Shop\Base\BaseRepository;
 use App\Shop\Channels\Exceptions\ChannelInvalidArgumentException;
 use App\Shop\Channels\Exceptions\ChannelNotFoundException;
 use App\Shop\Channels\ChannelPaymentProvider;
-use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\Products\Product;
 use App\Shop\Channels\Transformations\ChannelTransformable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
+use App\Shop\Channels\PaymentProvider;
 use Illuminate\Support\Collection;
 use App\Shop\Channels\Channel;
 use Illuminate\Support\Facades\DB;
+use App\Shop\Channels\Repositories\Interfaces\ChannelPaymentProviderRepositoryInterface;
 
-class ChannelPaymentProviderRepository extends BaseRepository {
+class ChannelPaymentProviderRepository extends BaseRepository implements ChannelPaymentProviderRepositoryInterface {
 
     use ChannelTransformable;
 
@@ -72,16 +73,16 @@ class ChannelPaymentProviderRepository extends BaseRepository {
 
         $result = $query->get();
 
-        return \App\Shop\Channels\PaymentProvider::hydrate($result->toArray());
+        return PaymentProvider::hydrate($result->toArray());
 
         // return $this->model->where('channel_id', $channel->id)->pluck('payment_provider_id');
     }
 
     /**
      * 
-     * @param \App\Shop\Channels\PaymentProvider $objPaymentProvider
+     * @param PaymentProvider $objPaymentProvider
      */
-    public function deleteChannelFromProvider(\App\Shop\Channels\PaymentProvider $objPaymentProvider) {
+    public function deleteChannelFromProvider(PaymentProvider $objPaymentProvider) {
         $this->model->where('payment_provider_id', $objPaymentProvider->id)->delete();
     }
 

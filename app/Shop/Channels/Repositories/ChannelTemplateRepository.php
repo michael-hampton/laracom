@@ -14,8 +14,10 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use App\Shop\Channels\Channel;
+use App\Shop\Channels\Repositories\Interfaces\ChannelTemplateRepositoryInterface;
 
-class ChannelTemplateRepository extends BaseRepository {
+
+class ChannelTemplateRepository extends BaseRepository implements ChannelTemplateRepositoryInterface {
 
     use ChannelTransformable;
 
@@ -69,7 +71,7 @@ class ChannelTemplateRepository extends BaseRepository {
                 $params, $data
         );
     }
-    
+
     public function getTemplatesForChannel(Channel $channel) {
         return $this->model->where('channel_id', $channel->id)->get()->keyBy('section_id');
     }
