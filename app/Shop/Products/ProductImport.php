@@ -36,8 +36,14 @@ class ProductImport {
     
     private $arrChannels = [];
 
-    public function __construct() {
-       
+    public function __construct(
+        CategoryRepositoryInterface $categoryRepo, 
+        BrandRepositoryInterface $brandRepo, 
+        ChannelRepositoryInterface $channelRepo
+    ) {
+        $this->arrCategories = array_change_key_case($categoryRepo->listCategories()->keyBy('name')->toArray(), CASE_LOWER);
+        $this->arrBrands = array_change_key_case($brandRepo->listBrands()->keyBy('name')->toArray(), CASE_LOWER);
+        $this->arrChannels = array_change_key_case($channelRepo->listChannels()->keyBy('name')->toArray(), CASE_LOWER);
     }
     
     public function importCsv() {
