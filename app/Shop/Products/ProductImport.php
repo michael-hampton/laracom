@@ -2,417 +2,299 @@
 
 namespace App\Shop\Products;
 
-use App\Shop\Brands\Brand;
-use App\Shop\Categories\Category;
-use App\Shop\Channels\Channel;
-use App\Shop\ProductAttributes\ProductAttribute;
-use App\Shop\ProductImages\ProductImage;
-use Gloudemans\Shoppingcart\Contracts\Buyable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use App\Shop\Categories\Repositories\CategoryRepository;
+use App\Shop\Brands\Repositories\BrandRepository;
+use App\Shop\Products\Repositories\ProductRepository;
+use App\Shop\Channels\Repositories\ChannelRepository;
+use App\Shop\Import\BaseImport;
 
-class ProductImport {
-	
-	/**
-	 * Delimiter character
-	 *
-	 * @access protected
-	 * @var string
-	 */
-	protected $delimiter = ',';
-	
-	/**
-	 * Enclosure character
-	 *
-	 * @access protected
-	 * @var string
-	 */
-	protected $enclosure = '"';
-    
-    private $expectedHeaders = array(
-    'sku',
-    'name',
-    'price',
-    'qty'
-);
-    
-    private $requiredFields = array(
-    'sku',
-    'name',
-    'price'
-);
-    
-    private $arrErrors = [];
-    
+class ProductImport extends BaseImport {
+
+    protected $requiredFields = array(
+        'name',
+        'channels',
+        'categories',
+        'brand',
+        'sku',
+        'description',
+        'quantity',
+        'price',
+        'sale_price',
+        'weight',
+        'mass_unit',
+        'length',
+        'width',
+        'height',
+        'distance_unit'
+    );
+
+    /**
+     *
+     * @var type 
+     */
     private $arrProducts = [];
-    
-    private $arrBrands = [];
-    
-    private $arrCategories = [];
-    
-    private $arrChannels = [];
 
+    /**
+     *
+     * @var type 
+     */
+    private $arrBrands = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $arrCategories = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $arrChannels = [];
+    
+    /**
+     *
+     * @var type 
+     */
+    private $productRepo;
+
+    /**
+     * 
+     * @param CategoryRepository $categoryRepo
+     * @param BrandRepository $brandRepo
+     * @param ChannelRepository $channelRepo
+     * @param ProductRepository $productRepo
+     */
     public function __construct(
-        CategoryRepositoryInterface $categoryRepo, 
-        BrandRepositoryInterface $brandRepo, 
-        ChannelRepositoryInterface $channelRepo
+    CategoryRepository $categoryRepo, BrandRepository $brandRepo, ChannelRepository $channelRepo, ProductRepository $productRepo
     ) {
+        parent::__construct();
+        $this->productRepo = $productRepo;
         $this->arrCategories = array_change_key_case($categoryRepo->listCategories()->keyBy('name')->toArray(), CASE_LOWER);
         $this->arrBrands = array_change_key_case($brandRepo->listBrands()->keyBy('name')->toArray(), CASE_LOWER);
         $this->arrChannels = array_change_key_case($channelRepo->listChannels()->keyBy('name')->toArray(), CASE_LOWER);
     }
-    
-    public function importCsv() {
-	    
-	    		
-	    $handle = fopen($file, 'r');
-		
-	    if(!$handle) {
-		    return false;
-	    }
-	    
-	    //Parse the first row, instantiate all the validators
-            $row = $this->parseFirstRow($this->fgetcsv($handle));
-		
-	    if(!empty($this->arrErrors)) {
-		    return false;
-	    }
-        
-       
-            $firstLine = true;
-            while(($data = $this->fgetcsv($handle)) !== false) {
-                
-                /*if($firstLine)
-                {
-                    // Set the headers:
-                    $firstLine = false;
-                    
-                    $this->parseFirstRow($data);
-        
-                    // Validate the headers:
-                    //$this->validateHeader($data);
- 
-                    // Go to the next row:
-                    continue;
-                }*/
-                
-                list(
-                        $order['name'],
-                        $order['channels'],
-                        $order['categories'],
-                        $order['brand'],
-                        $order['sku'],
-                        $order['description'],
-                        $order['quantity'],
-                        $order['price'],
-                        $order['sale_price'],
-                        $order['weight'],
-                        $order['mass_unit'],
-                        $order['length'],
-                        $order['width'],
-                        $order['height'],
-                        $order['distance_unit'],
-                        ) = $data;
-                
-                $line++;
-                
-                
-                $order = array_map('trim', $order);
-                $arrSelectedCategories = $this->validateCategories($order['categories']);
-                $arrSelectedChannels = $this->validateChannels($order['channels');                                                
-                $brand = $this->validateBrand($order['brand']);
-                
-                if(!empty($arrErrors)) {
-                    return false;
-                }
-                
-                $this->buildProduct($order);
-                                                                      
+
+    /**
+     * 
+     * @param type $file
+     * @return boolean
+     */
+    private function importCsv($file) {
+
+
+        $handle = fopen($file, 'r');
+
+        if (!$handle) {
+            return false;
+        }
+
+        //Parse the first row, instantiate all the validators
+        $row = $this->parseFirstRow($this->fgetcsv($handle));
+
+        if (!empty($this->arrErrors)) {
+
+            return false;
+        }
+
+
+        $firstLine = true;
+        while (($data = $this->fgetcsv($handle)) !== false) {
+
+            list(
+                    $order['name'],
+                    $order['channels'],
+                    $order['categories'],
+                    $order['brand'],
+                    $order['sku'],
+                    $order['description'],
+                    $order['quantity'],
+                    $order['price'],
+                    $order['sale_price'],
+                    $order['weight'],
+                    $order['mass_unit'],
+                    $order['length'],
+                    $order['width'],
+                    $order['height'],
+                    $order['distance_unit'],
+                    ) = $data;
+
+
+            $order = array_map('trim', $order);
+
+            foreach ($order as $key => $params) {
+
+                $this->checkRule(['key' => $key, 'value' => $params]);
             }
-            fclose($handle);
+
+            /* if($firstLine)
+              {
+              // Set the headers:
+              $firstLine = false;
+
+              $this->parseFirstRow($data);
+
+              // Validate the headers:
+              //$this->validateHeader($data);
+
+              // Go to the next row:
+              continue;
+              } */
+
+            $arrSelectedCategories = $this->validateCategories($order['categories']);
+            $arrSelectedChannels = $this->validateChannels($order['channels']);
+            $brand = $this->validateBrand($order['brand']);
+
+            if (!empty($this->arrErrors)) {
+                return false;
+            }
+
+            $this->buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
+        }
         
+        if(!$this->saveImport()) {
+            $this->arrErrors[] = 'Failed to save import';
+            return false;
+        }
+        
+        fclose($handle);
     }
-                                                                      
-        	/**
-	 * Logs missing required fields
-	 *
-	 * @access protected
-	 * @param array $row
-	 * @param array $and
-	 * @param array $or
-	 * @return void
-	 */
-	private function logMissingRequiredFields(array $row, array $and = [], array $or = []) {
-		
-        if (!empty($and)){
-			$required = implode('", "', array_diff($and, $row));
-			
-            if (!empty($required)){
-				$this->arrErrors[] = sprintf(
-					'The following missing columns are required: "%s".',
-					$required
-				);
-			}
-		}
+
+    /**
+     * 
+     * @return boolean
+     */
+    private function saveImport() {
+        foreach ($this->arrProducts as $arrProduct) {
+
+            $arrCategories = $arrProduct['categories'];
+            $arrChannels = $arrProduct['channels'];
+
+            unset($arrProduct['categories']);
+            unset($arrProduct['channels']);
+
+            $arrProduct['slug'] = str_slug($arrProduct['name']);
+
+            $product = $this->productRepo->createProduct($arrProduct);
+            $productRepo = new ProductRepository($product);
+
+            // categories
+            if (!empty($arrCategories)) {
+                $productRepo->syncCategories($arrCategories);
+            }
+
+            // channels
+            if (!empty($arrChannels)) {
+
+                $productRepo->syncChannels($arrChannels);
+            }
+        }
         
-		if(!empty($or)){
-			$logOrError = function($fields) use ($row){
-				$diff = array_diff($fields, $row);
-				if (!count($diff)){
-					$this->arrErrors[] = sprintf(
-						'At least one of the following columns is required: "%s".',
-						implode($diff, '", "')
-					);
-				}
-			};
-			
-            array_walk($or, $logOrError->bindTo($this));
-		}
-	}                                                     
-                                                                      
-    
-                                                                      
-     /**
-	 * Normalizes the data in a row.
-	 *
-	 * @access protected
-	 * @param array $row
-	 * @return array
-	 */
-	private function normalizeRow(array $row) {
-		return array_filter(array_map('trim', array_map('strtolower', $row)));
-	}
-                                                                      
-     /**
-	 * Parses the first row
-	 *
-	 * Checks for duplicate column names and ensures all required fields are present
-	 *
-	 * @param array $data
-	 * @access protected
-	 * @return array $row normalized
-	 */
-	protected function parseFirstRow(array $row) {
-		$row = $this->normalizeRow($row);
-		$duplicateKeys = array_diff_key($row, array_unique($row));
-		
-        if(!empty($duplicateKeys)) {
-			$duplicateKeys = implode($duplicateKeys, '", "');
-			$this->arrErrors[] = sprintf('The following columns are duplicated: "%s".', $duplicateKeys);
-		}
-        
-		if(empty($this->arrErrors)) {
-			$this->checkRequiredFields($row);
-		}
-		return $row;
-	}
-                                                                      
-    	/**
-	 * Verifies that required fields are all present and logs errors if missing.
-	 *
-	 * @access protected
-	 * @param array $row
-	 * @return void
-	 */
-	private function checkRequiredFields(array $row){
-		$required = $this->requiredFields;
-		
-        // Fields that must all be present
-		$and = array_filter($required, 'is_string');
-		
-        // Fields where at least one must be present
-		$or = array_filter($required, 'is_array');
-		
-        /**
-		 * The following block checks if required fields are all present
-		 * and logs any errors errors
-		 */
-		if (
-			// number of fields is less than the required count
-			count($row) < count($required) ||
-			// $or fields are required, but not present
-			(!empty($or) && !$this->orFieldsValid($or, $row)) ||
-			// remaining fields are not present
-			count(array_intersect($and, $row)) !== count($and)
-		){
-			$this->logMissingRequiredFields($row, $and, $or);
-		}
-	}
-                                                                      
-    private function buildProduct($order) {
+        return true;
+    }
+
+    /**
+     * Checks a CSV file for validity based on defined policies.
+     *
+     * Stops on the first violation
+     *
+     * @access public
+     * @param string $file Full path
+     * @return boolean
+     */
+    public function isValid($file) {
+
+        if (!file_exists($file)) {
+            $this->arrErrors[] = 'File ' . $file . ' does not exist.';
+            return false;
+        }
+
+        $this->importCsv($file);
+
+        return empty($this->arrErrors);
+    }
+
+    private function buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand) {
         $this->arrProducts[] = [
-                    'name' => $order['name'],
-                    'sku' => $order['sku'],
-                    'description' => $order['description'],
-                    'quantity' => $order['quantity'],
-                    'price' => $order['price'],
-                    'status' => 1,
-                    'weight' => $order['weight'],
-                    'mass_unit' => $order['mass_unit'],
-                    'sale_price' => $order['sale_price'],
-                    'length' => $order['length'],
-                    'width' => $order['width'],
-                    'height' => $order['height'],
-                    'distance_unit' => $order['distance_unit'],
-                    'categories' => $arrSelectedCategories,
-                    'channels' => $arrSelectedChannels,
-                    'brand_id' => $brand
-                ];
+            'name' => $order['name'],
+            'sku' => $order['sku'],
+            'description' => $order['description'],
+            'quantity' => $order['quantity'],
+            'price' => $order['price'],
+            'status' => 1,
+            'weight' => $order['weight'],
+            'mass_unit' => $order['mass_unit'],
+            'sale_price' => $order['sale_price'],
+            'length' => $order['length'],
+            'width' => $order['width'],
+            'height' => $order['height'],
+            'distance_unit' => $order['distance_unit'],
+            'categories' => $arrSelectedCategories,
+            'channels' => $arrSelectedChannels,
+            'brand_id' => $brand
+        ];
     }
-                                                                      
+
     /**
-	 * Verifies that required fields are all present and logs errors if missing.
-	 *
-	 * @access protected
-	 * @param array $row
-	 * @return void
-	 */
-	protected function checkRequiredFields(array $row){
-		$required = $this->requiredFields;
-        
-		// Fields that must all be present
-		$and = array_filter($required, 'is_string');
-        
-		// Fields where at least one must be present
-		$or = array_filter($required, 'is_array');
-        
-		/**
-		 * The following block checks if required fields are all present
-		 * and logs any errors errors
-		 */
-		if (
-			// number of fields is less than the required count
-			count($row) < count($required) ||
-            // $or fields are required, but not present
-			(!empty($or) && !$this->orFieldsValid($or, $row)) ||
-			// remaining fields are not present
-			count(array_intersect($and, $row)) !== count($and)
-		){
-			$this->logMissingRequiredFields($row, $and, $or);
-		}
-	}
-                                                                      
-    /**
-	 * Given a file pointer resource, return the next row from the file
-	 *
-	 * @access public
-	 * @param Resource $handle
-	 * @return array|null|false
-	 * @throws \InvalidArgumentException If $handle is not a valid resource
-	 */
-	public function fgetcsv($handle){
-		$result = fgetcsv($handle, 0, $this->delimiter, $this->enclosure, $this->escape);
-		if ($result === null){
-			throw new \Exception('File pointer resource used in fgetcsv is invalid');
-		}
-		return $result;
-	}
-                                                                      
-    /**
-	 * Logs missing required fields
-	 *
-	 * @access protected
-	 * @param array $row
-	 * @param array $and
-	 * @param array $or
-	 * @return void
-	 */
-	protected function logMissingRequiredFields(array $row, array $and = [], array $or = []) {
-		if (!empty($and)){
-			$required = implode('", "', array_diff($and, $row));
-			if (!empty($required)){
-				$this->errors[] = sprintf(
-					'The following missing columns are required: "%s".',
-					$required
-				);
-			}
-		}
-		if(!empty($or)){
-			$logOrError = function($fields) use ($row){
-				$diff = array_diff($fields, $row);
-				if (!count($diff)){
-					$this->errors[] = sprintf(
-						'At least one of the following columns is required: "%s".',
-						implode($diff, '", "')
-					);
-				}
-			};
-			array_walk($or, $logOrError->bindTo($this));
-		}
-	}
-                                                             
+     * 
+     * @param type $categories
+     * @return type
+     */
     private function validateCategories($categories) {
-        
+
         $categories = $this->normalizeRow(explode(',', $categories));
-                
+
         $arrSelectedCategories = [];
-                
+
         foreach ($categories as $category) {
-                    
-            if (!isset($arrCategories[$category])) {
+
+            if (!isset($this->arrCategories[$category])) {
                 $this->arrErrors['category'] = "Category is invalid.";
                 continue;
             }
-                
-            $arrSelectedCategories[] = $arrCategories[$category]['id'];
-            
+
+            $arrSelectedCategories[] = $this->arrCategories[$category]['id'];
         }
-        
+
         return $arrSelectedCategories;
     }
-            
+
+    /**
+     * 
+     * @param type $brand
+     * @return boolean
+     */
     private function validateBrand($brand) {
-        
+
         $brandName = strtolower($brand);
-                
-        if (!isset($arrBrands[$brandName])) {
+
+        if (!isset($this->arrBrands[$brandName])) {
             $this->arrErrors['brand'] = "Brand is invalid.";
-            continue;
+            return false;
         }
-            
-        $brand = $arrBrands[$brandName]['id'];
-        
-        
+
+        $brand = $this->arrBrands[$brandName]['id'];
+
+
         return $brand;
     }
-                                                                      
-    /**
-	 * Checks if arrays of fields in `$or` have at least one value present in `$fields`.
-	 *
-	 * @access protected
-	 * @param array $or
-	 * @param array $fields
-	 * @return boolean
-	 */
-	protected function orFieldsValid(array $or, array $fields) {
-		$valid = true;
-		foreach($or as $requiredFields){
-			$valid = count(array_intersect($requiredFields, $fields)) > 0;
-			if (!$valid){
-				break;
-			}
-		}
-		return $valid;
-	}
-                                                              
-    
+
     private function validateChannels($channels) {
-        $channels = $this->normalizeRow(explode(',', $channels]));
-                
+        $channels = $this->normalizeRow(explode(',', $channels));
+
         $arrSelectedChannels = [];
-                
+
         foreach ($channels as $channel) {
-                    
-            if (!isset($arrChannels[$channel])) {
+
+            if (!isset($this->arrChannels[$channel])) {
                 $this->arrErrors['channel'] = "Channel is invalid.";
                 continue;
             }
-                
-            $arrSelectedChannels[] = $arrChannels[$channel]['id'];
-            
+
+            $arrSelectedChannels[] = $this->arrChannels[$channel]['id'];
         }
-        
-        return $arrSelectedChannels
+
+        return $arrSelectedChannels;
     }
 
 }
