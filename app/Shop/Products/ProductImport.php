@@ -25,6 +25,16 @@ class ProductImport {
     'name',
     'price'
 );
+    
+    private $arrErrors = [];
+    
+    private $arrProducts = [];
+    
+    private $arrBrands = [];
+    
+    private $arrCategories = [];
+    
+    private $arrChannels = [];
 
     public function __construct() {
        
@@ -40,13 +50,10 @@ class ProductImport {
                 {
                     // Set the headers:
                     $firstLine = false;
-                    $headers = array_flip($row);
+                    
         
                     // Validate the headers:
-                    if($headers !== $this->expectedHeaders)
-                    {
-                        throw new Exception('Invalid headers. Aborting import.');
-                    }
+                    $this->validateHeader($data);
  
                     // Go to the next row:
                     continue;
@@ -70,35 +77,40 @@ class ProductImport {
                         $order['distance_unit'],
                         ) = $data;
                 $line++;
-                $csv_errors = Validator::make(
+                $this->arrErrors = Validator::make(
                                 $order, (new ProductImportRequest())->rules()
                         )->errors();
                 
                 $order = array_map('trim', $order);
-                $categories = array_map('strtolower', explode(',', $order['categories']));
-                $arrSelectedCategories = [];
-                foreach ($categories as $category) {
-                    if (!isset($arrCategories[$category])) {
-                        $csv_errors->add('category', "Category is invalid.");
-                    } else {
-                        $arrSelectedCategories[] = $arrCategories[$category]['id'];
-                    }
-                }
-                
+                $arrSelectedCategories = $this->validateCategories($order['categories']);
                 $arrSelectedChannels = $this->validateChannels($order['channels');                                                
-                                                                      $brandName = strtolower($order['brand']);
-                if (!isset($arrBrands[$brandName])) {
-                    $csv_errors->add('brand', "Brand is invalid.");
-                } else {
-                    $brand = $arrBrands[$brandName]['id'];
-                }
+                $brand = $this->validateBrand($order['brand']);
                 
-                if ($csv_errors->any()) {
+                if ($this->arrErrors->any()) {
                     return redirect()->back()
-                                    ->withErrors($csv_errors, 'import')
+                                    ->withErrors($this->arrErrors, 'import')
                                     ->with('error_line', $line);
                 }
-                $arrProducts[] = [
+                
+                $this->buildProduct($order);
+                                                                      
+            }
+            fclose($handle);
+        }
+    }
+                                                                      
+    private function validateHeader($row) {
+        
+        $headers = array_flip($row);
+        
+        if($headers !== $this->expectedHeaders)
+                    {
+                        throw new Exception('Invalid headers. Aborting import.');
+                    }
+    }
+                                                                      
+    private function buildProduct($order) {
+        $this->arrProducts[] = [
                     'name' => $order['name'],
                     'sku' => $order['sku'],
                     'description' => $order['description'],
@@ -116,19 +128,41 @@ class ProductImport {
                     'channels' => $arrSelectedChannels,
                     'brand_id' => $brand
                 ];
-            }
-            fclose($handle);
-        }
-        
-        
     }
                                                              
     private function validateCategories($categories) {
         
+        $categories = array_map('strtolower', explode(',', $categories));
+                
+        $arrSelectedCategories = [];
+                
+        foreach ($categories as $category) {
+                    
+            if (!isset($arrCategories[$category])) {
+                $this->arrErrors->add('category', "Category is invalid.");
+                continue;
+            }
+                
+            $arrSelectedCategories[] = $arrCategories[$category]['id'];
+            
+        }
+        
+        return $arrSelectedCategories;
     }
             
     private function validateBrand($brand) {
         
+        $brandName = strtolower($brand);
+                
+        if (!isset($arrBrands[$brandName])) {
+            $this->arrErrors->add('brand', "Brand is invalid.");
+            continue;
+        }
+            
+        $brand = $arrBrands[$brandName]['id'];
+        
+        
+        return $brand;
     }
                                                               
     
@@ -141,9 +175,11 @@ class ProductImport {
                     
             if (!isset($arrChannels[$channel])) {
                 $csv_errors->add('channel', "Channel is invalid.");
-            } else {
-                $arrSelectedChannels[] = $arrChannels[$channel]['id'];
+                continue;
             }
+                
+            $arrSelectedChannels[] = $arrChannels[$channel]['id'];
+            
         }
         
         return $arrSelectedChannels
