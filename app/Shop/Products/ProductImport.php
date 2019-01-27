@@ -12,6 +12,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class ProductImport {
+	
+	/**
+	 * Delimiter character
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $delimiter = ',';
+	
+	/**
+	 * Enclosure character
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $enclosure = '"';
     
     private $expectedHeaders = array(
     'sku',
@@ -47,12 +63,26 @@ class ProductImport {
     }
     
     public function importCsv() {
+	    
+	    		
+	    $handle = fopen($file, 'r');
+		
+	    if(!$handle) {
+		    return false;
+	    }
+	    
+	    //Parse the first row, instantiate all the validators
+            $row = $this->parseFirstRow($this->fgetcsv($handle));
+		
+	    if(!empty($this->arrErrors)) {
+		    return false;
+	    }
         
-        if (($handle = fopen($file_path, "r")) !== FALSE) {
+       
             $firstLine = true;
-            while (($data = $this->fgetcsv($handle))) {
+            while(($data = $this->fgetcsv($handle)) !== false) {
                 
-                if($firstLine)
+                /*if($firstLine)
                 {
                     // Set the headers:
                     $firstLine = false;
@@ -64,7 +94,7 @@ class ProductImport {
  
                     // Go to the next row:
                     continue;
-                }
+                }*/
                 
                 list(
                         $order['name'],
@@ -100,7 +130,7 @@ class ProductImport {
                                                                       
             }
             fclose($handle);
-        }
+        
     }
                                                                       
         	/**
