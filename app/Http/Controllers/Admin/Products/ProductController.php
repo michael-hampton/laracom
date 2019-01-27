@@ -412,149 +412,27 @@ class ProductController extends Controller {
         echo json_encode(['results' => $list->toArray()]);
     }
 
+    /**
+     * 
+     * @param Request $request
+     */
     public function saveImport(Request $request) {
         $file_path = $request->csv_file->path();
-        $line = 0;
-        $arrProducts = [];
-        $countheader = null;
 
-        $arrCategories = array_change_key_case($this->categoryRepo->listCategories()->keyBy('name')->toArray(), CASE_LOWER);
-        $arrBrands = array_change_key_case($this->brandRepo->listBrands()->keyBy('name')->toArray(), CASE_LOWER);
-        $arrChannels = array_change_key_case($this->channelRepo->listChannels()->keyBy('name')->toArray(), CASE_LOWER);
+        $objProductImport = new \App\Shop\Products\ProductImport(
+                $this->categoryRepo, $this->brandRepo, $this->channelRepo, $this->productRepo
+        );
 
-        if (($handle = fopen($file_path, "r")) !== FALSE) {
-            $flag = true;
-            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        if (!$objProductImport->isValid($file_path)) {
 
-                if ($flag) {
-                    $countheader = count(array_keys($data));
-                    $flag = false;
-                    continue;
-                }
+            $arrErrors = $objProductImport->getErrors();
 
-                if ($countheader < 15) {
-
-                    return redirect()->back()->with('flash_message_error', 'Your CSV files having unmatched Columns to our database...Your columns must be in this sequence <strong> user_id,customer_name,date </strong> only');
-                }
-
-                list(
-                        $order['name'],
-                        $order['channels'],
-                        $order['categories'],
-                        $order['brand'],
-                        $order['sku'],
-                        $order['description'],
-                        $order['quantity'],
-                        $order['price'],
-                        $order['sale_price'],
-                        $order['weight'],
-                        $order['mass_unit'],
-                        $order['length'],
-                        $order['width'],
-                        $order['height'],
-                        $order['distance_unit'],
-                        ) = $data;
-                $line++;
-
-                $csv_errors = Validator::make(
-                                $order, (new ProductImportRequest())->rules()
-                        )->errors();
-
-                $order = array_map('trim', $order);
-
-                $categories = array_map('strtolower', explode(',', $order['categories']));
-
-                $arrSelectedCategories = [];
-
-                foreach ($categories as $category) {
-
-                    if (!isset($arrCategories[$category])) {
-                        $csv_errors->add('category', "Category is invalid.");
-                    } else {
-
-                        $arrSelectedCategories[] = $arrCategories[$category]['id'];
-                    }
-                }
-
-
-                $brandName = strtolower($order['brand']);
-
-                if (!isset($arrBrands[$brandName])) {
-                    $csv_errors->add('brand', "Brand is invalid.");
-                } else {
-                    $brand = $arrBrands[$brandName]['id'];
-                }
-
-                $channels = array_map('strtolower', explode(',', $order['channels']));
-
-                $arrSelectedChannels = [];
-
-                foreach ($channels as $channel) {
-
-                    if (!isset($arrChannels[$channel])) {
-                        $csv_errors->add('channel', "Channel is invalid.");
-                    } else {
-
-                        $arrSelectedChannels[] = $arrChannels[$channel]['id'];
-                    }
-                }
-
-                if ($csv_errors->any()) {
-                    return redirect()->back()
-                                    ->withErrors($csv_errors, 'import')
-                                    ->with('error_line', $line);
-                }
-
-
-                $arrProducts[] = [
-                    'name' => $order['name'],
-                    'sku' => $order['sku'],
-                    'description' => $order['description'],
-                    'quantity' => $order['quantity'],
-                    'price' => $order['price'],
-                    'status' => 1,
-                    'weight' => $order['weight'],
-                    'mass_unit' => $order['mass_unit'],
-                    'sale_price' => $order['sale_price'],
-                    'length' => $order['length'],
-                    'width' => $order['width'],
-                    'height' => $order['height'],
-                    'distance_unit' => $order['distance_unit'],
-                    'categories' => $arrSelectedCategories,
-                    'channels' => $arrSelectedChannels,
-                    'brand_id' => $brand
-                ];
-            }
-            fclose($handle);
+            echo '<pre>';
+            print_r($arrErrors);
+            die('here');
         }
 
-        foreach ($arrProducts as $arrProduct) {
-
-            $arrCategories = $arrProduct['categories'];
-            $arrChannels = $arrProduct['channels'];
-
-            unset($arrProduct['categories']);
-            unset($arrProduct['channels']);
-
-            $arrProduct['slug'] = str_slug($arrProduct['name']);
-
-            $product = $this->productRepo->createProduct($arrProduct);
-            $productRepo = new ProductRepository($product);
-
-            // categories
-            if (!empty($arrCategories)) {
-                $productRepo->syncCategories($arrCategories);
-            }
-
-            // channels
-            if (!empty($arrChannels)) {
-
-                $productRepo->syncChannels($arrChannels);
-            }
-        }
-
-        request()->session()->flash('message', 'Import successful');
-        return redirect()->route('admin.products.importCsv');
+        die('good');
     }
 
     public function importCsv() {
@@ -571,7 +449,8 @@ class ProductController extends Controller {
                     'productAttributeQuantity' => 'required'
         ]);
 
-        if ($validator->fails()) {
+        if ($validator->fails(
+                )) {
             return $validator;
         }
     }
@@ -597,6 +476,7 @@ class ProductController extends Controller {
             }
             fclose($FH);
         };
+
 
         return Response::stream($callback, 200, $headers);
     }
