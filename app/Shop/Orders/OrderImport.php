@@ -65,12 +65,20 @@ class OrderImport extends BaseImport {
     /**
      * 
      * @param CourierRepository $courierRepo
-     * @param BrandRepository $brandRepo
+     * @param OrderStatusRepository $orderStatusRepo
      * @param ChannelRepository $channelRepo
      * @param ProductRepository $productRepo
+     * @param CustomerRepository $customerRepo,
+     * @param VoucherCodeRepository $voucherCodeRepo
      */
     public function __construct(
-    CourierRepository $courierRepo, BrandRepository $brandRepo, ChannelRepository $channelRepo, ProductRepository $productRepo
+        CourierRepository $courierRepo, 
+        OrderStatusRepository $orderStatusRepo, 
+        ChannelRepository $channelRepo, 
+        ProductRepository $productRepo,
+        CustomerRepository $customerRepo,
+        VoucherCodeRepository $voucherCodeRepo,
+        CourierRateRepository $courierRateRepo
     ) {
         parent::__construct();
         $this->productRepo = $productRepo;
