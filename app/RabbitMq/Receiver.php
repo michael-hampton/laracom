@@ -3,17 +3,7 @@
 namespace App\RabbitMq;
 
 use PhpAmqpLib\Message\AMQPMessage;
-use App\Shop\Customers\Repositories\CustomerRepository;
-use App\Shop\Customers\Customer;
-use App\Shop\Addresses\Address;
-use App\Shop\Addresses\Repositories\AddressRepository;
-use App\Shop\Couriers\Courier;
-use App\Shop\Couriers\Repositories\CourierRepository;
-use App\Shop\VoucherCodes\VoucherCode;
-use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
-use App\Shop\Orders\Repositories\OrderRepository;
-use App\Shop\Channels\Channel;
-use App\Shop\Channels\Repositories\ChannelRepository;
+use App\Shop\Orders\OrderImport;
 
 /**
  * Description of Receiver
@@ -144,22 +134,12 @@ class Receiver extends Queue {
 
         $arrOrders = json_decode($msg->body, true);
 
-        $objChannelRepo = (new ChannelRepository(new Channel));
-
         $arrDone = [];
         
         foreach ($arrOrders as $orderId => $arrOrder) {
 
-            if (isset($arrOrder['channel']['id'])) {
-                $arrOrder['channel'] = $objChannelRepo->findChannelById($arrOrder['channel']['id']);
-            }
-
-            $arrProducts = $arrOrder['products'];
-            unset($arrOrder['products']);
-
-            $order = (new OrderRepository(new \App\Shop\Orders\Order))->createOrder($arrOrder, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new Addressrepository(new Address));
-            $orderRepo = new OrderRepository($order);
-            $orderRepo->buildOrderLinesForManualOrder($arrProducts);
+            $objOrderImport = new OrderImport();
+            $objOrderImport->saveImport($arrOrder);
             
             $arrDone[] = $orderId;
         }
