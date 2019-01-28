@@ -130,6 +130,17 @@ class OrderImport extends BaseImport {
         fclose($handle);
     }
      
+    private function validateCustomer($customer) {
+        $customer = trim(strtolower($customer));
+                
+        if (!isset($this->arrCustomers[$customer])) {
+            $this->arrErrors['customer'] = "Customer is invalid.";
+            return false;
+        }
+
+        $this->customer = $this->arrCustomers[$customer];
+    }
+
     private function setOrderTotal($order) {
         $this->orderTotal += $order['price'];
 
@@ -145,6 +156,11 @@ class OrderImport extends BaseImport {
                     'id' => $product->id,
                     'quantity' => $order['quantity']
                 );
+    }
+
+    private function validateCustomerAddress() {
+        $this->deliveryAddress = $this->customerRepo->findAddresses()->first();
+ 
     }
     /**
      * 
@@ -236,7 +252,7 @@ return true;
     }
 
     private function calculateShippingCost($courier) {
-                $shipping = $objCourierRate->findShippingMethod($this->orderTotal, $courier, $channel, $country_id);
+                $shipping = $objCourierRate->findShippingMethod($this->orderTotal, $courier, $channel, $this->deliveryAddress->country_id);
                
         $shippingCost = 0;
                 
