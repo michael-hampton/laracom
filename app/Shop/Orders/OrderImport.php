@@ -29,6 +29,15 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $arrOrders = [];
+
+    private $arrStatuses;
+
+    /**
+     *
+     * @var type 
+     */
+    private $arrProducts = [];
+    
     /**
      *
      * @var type 
@@ -50,6 +59,9 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $productRepo;
+
+    private $orderTotal = 0;
+
     /**
      * 
      * @param CategoryRepository $categoryRepo
@@ -122,6 +134,14 @@ class OrderImport extends BaseImport {
         
         fclose($handle);
     }
+     
+    private function setOrderTotal($order) {
+        $this->orderTotal += $order['price'];
+
+        if (isset($this->arrOrders[$order['order_id']]['total']) && !empty($this->arrOrders[$order['order_id']]['total'])) {
+                    $this->orderTotal += $this->arrOrders[$order['order_id']]['total'];
+                }
+    }
 
     private function buildOrderProduct($order)
     {
@@ -136,23 +156,7 @@ class OrderImport extends BaseImport {
      * @return boolean
      */
     private function saveImport() {
-        foreach ($this->arrProducts as $arrProduct) {
-            $arrCategories = $arrProduct['categories'];
-            $arrChannels = $arrProduct['channels'];
-            unset($arrProduct['categories']);
-            unset($arrProduct['channels']);
-            $arrProduct['slug'] = str_slug($arrProduct['name']);
-            $product = $this->productRepo->createProduct($arrProduct);
-            $productRepo = new ProductRepository($product);
-            // categories
-            if (!empty($arrCategories)) {
-                $productRepo->syncCategories($arrCategories);
-            }
-            // channels
-            if (!empty($arrChannels)) {
-                $productRepo->syncChannels($arrChannels);
-            }
-        }
+        
         
         return true;
     }
@@ -174,7 +178,10 @@ class OrderImport extends BaseImport {
         return empty($this->arrErrors);
     }
     private function buildOrder($order, $arrSelectedCategories, $arrSelectedChannels, $brand) {
-            $this->arrOrders[$order['order_id']] = [
+            
+        $os = $this->arrStatuses['waiting allocation'];
+
+        $this->arrOrders[$order['order_id']] = [
                     'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
                     'courier_id' => $courier->id,
                     'customer_id' => $customer[0]->id,
@@ -183,32 +190,36 @@ class OrderImport extends BaseImport {
                     'address_id' => $deliveryAddress->id,
                     'order_status_id' => $os->id,
                     'payment' => 'import',
-                    'discounts' => $voucherAmount,
+                    'discounts' => $this->voucherAmount,
                     'total_shipping' => $shippingCost,
                     'total_products' => 0,
-                    'total' => $orderTotal,
+                    'total' => $this->orderTotal,
                     'total_paid' => 0,
                     'delivery_method' => $shipping,
                     'channel' => $channel,
                     'tax' => 0,
                 ];
+
+               $this->arrOrders[$order['order_id']]['products'] = $arrProducts[$order['order_id']];
     }
     /**
      * 
      * @param type $categories
      * @return type
      */
-    private function validateCategories($categories) {
-        $categories = $this->normalizeRow(explode(',', $categories));
-        $arrSelectedCategories = [];
-        foreach ($categories as $category) {
-            if (!isset($this->arrCategories[$category])) {
-                $this->arrErrors['category'] = "Category is invalid.";
-                continue;
-            }
-            $arrSelectedCategories[] = $this->arrCategories[$category]['id'];
-        }
-        return $arrSelectedCategories;
+    private function validateVoucher($voucherCode) {
+        $voucherCode = $this->voucherCodeRepo->getByVoucherCode($order['voucher_code']);
+                    
+        if (empty($voucherCode)) {
+              $this->arrErrors['voucher_code'] = "Voucher Code is invalid.";
+return false;
+                    }
+                    $voucher_id = $voucherCode->voucher_id;
+                    $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
+                    $this->voucherAmount = $objVoucher->amount;
+
+return true;
+}
     }
     /**
      * 
