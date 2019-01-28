@@ -22,6 +22,7 @@ use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Orders\Order;
+use App\Shop\Orders\OrderImport;
 use App\Shop\CourierRates\Repositories\CourierRateRepository;
 use App\Shop\CourierRates\CourierRate;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
