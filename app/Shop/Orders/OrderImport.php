@@ -109,11 +109,7 @@ class OrderImport extends BaseImport {
                 $this->checkRule(['key' => $key, 'value' => $params]);
             }
             
-
-            //$arrSelectedCategories = $this->validateCategories($order['categories']);
-            $channel = $this->validateChannels($order['channel']);
-            
-            //$brand = $this->validateBrand($order['brand']);
+            $this->validateChannel($order['channel']);
             
             if (!empty($this->arrErrors)) {
                 return false;
@@ -194,20 +190,20 @@ class OrderImport extends BaseImport {
 
         $this->arrOrders[$order['order_id']] = [
                     'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-                    'courier_id' => $courier->id,
-                    'customer_id' => $customer[0]->id,
-                    'voucher_code' => $voucherCodeId,
+                    'courier_id' => $this->courier->id,
+                    'customer_id' => $this->customer,
+                    'voucher_code' => $this->voucherCodeId,
                     'voucher_id' => !empty($order['voucher_code']) ? $order['voucher_code'] : null,
-                    'address_id' => $deliveryAddress->id,
+                    'address_id' => $this->deliveryAddress->id,
                     'order_status_id' => $os->id,
                     'payment' => 'import',
                     'discounts' => $this->voucherAmount,
-                    'total_shipping' => $shippingCost,
+                    'total_shipping' => $this->shippingCost,
                     'total_products' => 0,
                     'total' => $this->orderTotal,
                     'total_paid' => 0,
-                    'delivery_method' => $shipping,
-                    'channel' => $channel,
+                    'delivery_method' => $this->shipping,
+                    'channel' => $this->channel,
                     'tax' => 0,
                 ];
 
@@ -228,7 +224,7 @@ class OrderImport extends BaseImport {
         }
                     
         $voucher_id = $voucherCode->voucher_id;
-        $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
+        $this->objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
         $this->voucherAmount = $objVoucher->amount;
 
 return true;
@@ -257,7 +253,7 @@ return true;
         $shippingCost = 0;
                 
         if (!empty($shipping)) {
-            $shippingCost = $shipping->cost;
+            $this->shippingCost = $shipping->cost;
 
         }
                 
@@ -273,6 +269,7 @@ return true;
                 return false;
             }
             
-        return $this->arrChannels[$channel];
+        $this->channel = $this->arrChannels[$channel];
+        return true;
     }
 }
