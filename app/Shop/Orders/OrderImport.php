@@ -90,20 +90,8 @@ class OrderImport extends BaseImport {
         }
         $firstLine = true;
         while (($data = $this->fgetcsv($handle)) !== false) {
-            
-            list(
-                        $order['order_id'],
-                        $order['channel'],
-                        $order['customer'],
-                        $order['courier'],
-                        $order['voucher_code'],
-                        $order['product'],
-                        $order['quantity'],
-                        $order['price']
-                        ) = $data;
 
-
-            $order = array_map('trim', $order);
+            $order = array_map('trim', $this->mapData($data));
             
             foreach ($order as $key => $params) {
                 $this->checkRule(['key' => $key, 'value' => $params]);
@@ -124,6 +112,31 @@ class OrderImport extends BaseImport {
         }
         
         fclose($handle);
+    }
+
+private function mapData($data) {
+list(
+                        $order['order_id'],
+                        $order['channel'],
+                        $order['customer'],
+                        $order['courier'],
+                        $order['voucher_code'],
+                        $order['product'],
+                        $order['quantity'],
+                        $order['price']
+                        ) = $data;
+
+return $order;
+}
+
+    private function validateCourier($courier) {
+           $courier = trim(strtolower($courier));
+                if (!isset($arrCouriers[$courier])) {
+                    $this->arrErrors['courier'] = "Courier is invalid.";
+                    return false;
+                }
+
+        $this->courier = $arrCouriers[$courier]
     }
      
     private function validateCustomer($customer) {
