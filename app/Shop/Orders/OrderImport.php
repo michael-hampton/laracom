@@ -111,7 +111,16 @@ class OrderImport extends BaseImport {
             }
             
             $this->validateChannel($order['channel']);
-            
+            $this->validateCourier($order['courier']);
+            $this->validateCustomer($order['customer']);
+            $this->validateCustomerAddress();
+            $this->validateVoucher($order['voucher']);
+
+            $this->validateProduct($order['product'];
+            $this->buildOrderProduct($order);
+            $this->calculateShippingCost();
+            $this->setOrderTotal($order);
+             
             if (!empty($this->arrErrors)) {
                 return false;
             }
@@ -169,12 +178,14 @@ return $order;
         if (isset($this->arrOrders[$order['order_id']]['total']) && !empty($this->arrOrders[$order['order_id']]['total'])) {
                     $this->orderTotal += $this->arrOrders[$order['order_id']]['total'];
                 }
+
+return true;
     }
 
     private function buildOrderProduct($order)
     {
             $this->arrProducts[$order['order_id']][] = array(
-                    'product' => $product->name,
+                    'product' => $this->product->name,
                     'id' => $product->id,
                     'quantity' => $order['quantity']
                 );
@@ -210,6 +221,7 @@ return $order;
         $this->importCsv($file);
         return empty($this->arrErrors);
     }
+
     private function buildOrder($order, $arrSelectedCategories, $arrSelectedChannels, $brand) {
             
         $os = $this->arrStatuses['waiting allocation'];
@@ -269,12 +281,13 @@ return true;
             $this->arrErrors['product'] = "Product is invalid.";
             return false;
         }
-        $product = $this->arrExistingProducts[$product]['id'];
-        return $product;
+        
+        $this->product = $this->arrExistingProducts[$product]['id'];
+        
     }
 
-    private function calculateShippingCost($courier) {
-                $shipping = $objCourierRate->findShippingMethod($this->orderTotal, $courier, $channel, $this->deliveryAddress->country_id);
+    private function calculateShippingCost() {
+                $shipping = $objCourierRate->findShippingMethod($this->orderTotal, $this->courier, $this->channel, $this->deliveryAddress->country_id);
                
         $shippingCost = 0;
                 
