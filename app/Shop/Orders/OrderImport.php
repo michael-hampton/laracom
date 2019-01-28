@@ -32,22 +32,17 @@ class OrderImport extends BaseImport {
 
     private $arrStatuses;
 
+    private $voucherAmount = 0;
+
     /**
      *
      * @var type 
      */
     private $arrProducts = [];
+
+    private $arrExistingProducts = [];
     
-    /**
-     *
-     * @var type 
-     */
-    private $arrBrands = [];
-    /**
-     *
-     * @var type 
-     */
-    private $arrCategories = [];
+   
     /**
      *
      * @var type 
@@ -208,15 +203,17 @@ class OrderImport extends BaseImport {
      * @return type
      */
     private function validateVoucher($voucherCode) {
-        $voucherCode = $this->voucherCodeRepo->getByVoucherCode($order['voucher_code']);
-                    
-        if (empty($voucherCode)) {
+        
+        $voucherCode = trim(strtolower($voucherCode));
+
+        if (!isset($arrVouchers[$voucherCode])) {
               $this->arrErrors['voucher_code'] = "Voucher Code is invalid.";
-return false;
-                    }
-                    $voucher_id = $voucherCode->voucher_id;
-                    $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
-                    $this->voucherAmount = $objVoucher->amount;
+              return false;
+        }
+                    
+        $voucher_id = $voucherCode->voucher_id;
+        $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
+        $this->voucherAmount = $objVoucher->amount;
 
 return true;
 }
@@ -226,15 +223,31 @@ return true;
      * @param type $brand
      * @return boolean
      */
-    private function validateBrand($brand) {
-        $brandName = strtolower($brand);
-        if (!isset($this->arrBrands[$brandName])) {
-            $this->arrErrors['brand'] = "Brand is invalid.";
+    private function validateProduct($product) {
+        $product = trim(strtolower($product));
+        
+        if (!isset($this->arrExistingProducts[$product])) {
+           
+            $this->arrErrors['product'] = "Product is invalid.";
             return false;
         }
-        $brand = $this->arrBrands[$brandName]['id'];
-        return $brand;
+        $product = $this->arrExistingProducts[$product]['id'];
+        return $product;
     }
+
+    private function calculateShippingCost($courier) {
+                $shipping = $objCourierRate->findShippingMethod($this->orderTotal, $courier, $channel, $country_id);
+               
+        $shippingCost = 0;
+                
+        if (!empty($shipping)) {
+            $shippingCost = $shipping->cost;
+
+        }
+                
+        $this->orderTotal += $shippingCost;
+    }
+
     private function validateChannels($channel) {
         $channel = trim($channel);
         
