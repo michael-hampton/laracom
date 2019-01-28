@@ -122,6 +122,15 @@ class OrderImport extends BaseImport {
         
         fclose($handle);
     }
+
+    private function buildOrderProduct($order)
+    {
+            $this->arrProducts[$order['order_id']][] = array(
+                    'product' => $product->name,
+                    'id' => $product->id,
+                    'quantity' => $order['quantity']
+                );
+    }
     /**
      * 
      * @return boolean
@@ -165,7 +174,24 @@ class OrderImport extends BaseImport {
         return empty($this->arrErrors);
     }
     private function buildOrder($order, $arrSelectedCategories, $arrSelectedChannels, $brand) {
-        
+            $this->arrOrders[$order['order_id']] = [
+                    'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
+                    'courier_id' => $courier->id,
+                    'customer_id' => $customer[0]->id,
+                    'voucher_code' => $voucherCodeId,
+                    'voucher_id' => !empty($order['voucher_code']) ? $order['voucher_code'] : null,
+                    'address_id' => $deliveryAddress->id,
+                    'order_status_id' => $os->id,
+                    'payment' => 'import',
+                    'discounts' => $voucherAmount,
+                    'total_shipping' => $shippingCost,
+                    'total_products' => 0,
+                    'total' => $orderTotal,
+                    'total_paid' => 0,
+                    'delivery_method' => $shipping,
+                    'channel' => $channel,
+                    'tax' => 0,
+                ];
     }
     /**
      * 
