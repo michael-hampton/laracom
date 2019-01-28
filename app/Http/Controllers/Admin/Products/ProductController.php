@@ -423,16 +423,14 @@ class ProductController extends Controller {
                 $this->categoryRepo, $this->brandRepo, $this->channelRepo, $this->productRepo
         );
 
+
         if (!$objProductImport->isValid($file_path)) {
 
             $arrErrors = $objProductImport->getErrors();
-
-            echo '<pre>';
-            print_r($arrErrors);
-            die('here');
+            return view('admin.products.importCsv', ['arrErrors' => $arrErrors, 'valid' => false]);
         }
 
-        die('good');
+        return view('admin.products.importCsv');
     }
 
     public function importCsv() {

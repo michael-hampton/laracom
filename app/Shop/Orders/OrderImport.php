@@ -1,13 +1,24 @@
+<?php
 
-php
 namespace App\Shop\Orders;
-use App\Shop\Categories\Repositories\CategoryRepository;
-use App\Shop\Brands\Repositories\BrandRepository;
+
 use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Import\BaseImport;
+use App\Shop\Couriers\Repositories\CourierRepository;
+use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
+use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
+use App\Shop\CourierRates\Repositories\CourierRateRepository;
+use App\RabbitMq\Worker;
+
 class OrderImport extends BaseImport {
-    
+
+    /**
+     *
+     * @var type 
+     */
     protected $requiredFields = array(
         'order_id',
         'channel',
@@ -25,19 +36,53 @@ class OrderImport extends BaseImport {
      */
     private $arrOrders = [];
 
+    /**
+     *
+     * @var type 
+     */
     private $arrStatuses;
 
+    /**
+     *
+     * @var type 
+     */
     private $courier;
 
+    /**
+     *
+     * @var type 
+     */
     private $channel;
 
+    /**
+     *
+     * @var type 
+     */
     private $deliveryAddress;
 
+    /**
+     *
+     * @var type 
+     */
     private $voucherAmount = 0;
 
+    /**
+     *
+     * @var type 
+     */
     private $arrCouriers = [];
 
+    /**
+     *
+     * @var type 
+     */
     private $arrCustomers = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $arrVouchers = [];
 
     /**
      *
@@ -45,24 +90,53 @@ class OrderImport extends BaseImport {
      */
     private $arrProducts = [];
 
+    /**
+     *
+     * @var type 
+     */
     private $arrExistingProducts = [];
-    
-   
+
     /**
      *
      * @var type 
      */
     private $arrChannels = [];
-    
+
     /**
      *
      * @var type 
      */
     private $productRepo;
 
+    /**
+     *
+     * @var type 
+     */
     private $orderTotal = 0;
 
+    /**
+     *
+     * @var type 
+     */
     private $objWorker;
+
+    /**
+     *
+     * @var type 
+     */
+    private $objCustomer;
+
+    /**
+     *
+     * @var type 
+     */
+    private $objCourierRate;
+
+    /**
+     *
+     * @var type 
+     */
+    private $shipping;
 
     /**
      * 
@@ -73,24 +147,26 @@ class OrderImport extends BaseImport {
      * @param CustomerRepository $customerRepo,
      * @param VoucherCodeRepository $voucherCodeRepo
      * @param CourierRateRepository $courierRateRepo
+     * * @param VoucherRepository $voucherRepo
      * @param Worker $worker
      */
     public function __construct(
-        CourierRepository $courierRepo, 
-        OrderStatusRepository $orderStatusRepo, 
-        ChannelRepository $channelRepo, 
-        ProductRepository $productRepo,
-        CustomerRepository $customerRepo,
-        VoucherCodeRepository $voucherCodeRepo,
-        CourierRateRepository $courierRateRepo,
-        Worker $worker
+    CourierRepository $courierRepo, OrderStatusRepository $orderStatusRepo, ChannelRepository $channelRepo, ProductRepository $productRepo, CustomerRepository $customerRepo, VoucherCodeRepository $voucherCodeRepo, CourierRateRepository $courierRateRepo, VoucherRepository $voucherRepo, Worker $worker
     ) {
         parent::__construct();
         $this->productRepo = $productRepo;
-        $this->arrCategories = array_change_key_case($categoryRepo->listCategories()->keyBy('name')->toArray(), CASE_LOWER);
-        $this->arrBrands = array_change_key_case($brandRepo->listBrands()->keyBy('name')->toArray(), CASE_LOWER);
-        $this->arrChannels = array_change_key_case($channelRepo->listChannels()->keyBy('name')->toArray(), CASE_LOWER);
+        $this->arrCouriers = $courierRepo->listCouriers()->keyBy('id');
+        $this->arrChannels = $channelRepo->listChannels()->keyBy('id');
+        $this->objCustomer = $customerRepo->listCustomers()->keyBy('id');
+        $this->arrCustomers = array_change_key_case($this->objCustomer->keyBy('name')->toArray(), CASE_LOWER);
+        $this->arrVoucherCodes = $voucherCodeRepo->listVoucherCode()->keyBy('id');
+        $this->arrExistingProducts = array_change_key_case($productRepo->listProducts()->keyBy('name')->toArray(), CASE_LOWER);
+        $this->objCourierRate = $courierRateRepo;
+        $this->arrStatuses = $orderStatusRepo->listOrderStatuses()->keyBy('name');
+        $this->arrVouchers = $voucherRepo->listVoucher()->keyBy('id');
+        $this->objWorker = $worker;
     }
+
     /**
      * 
      * @param type $file
@@ -101,74 +177,94 @@ class OrderImport extends BaseImport {
         if (!$handle) {
             return false;
         }
-        //Parse the first row, instantiate all the validators
+//Parse the first row, instantiate all the validators
         $row = $this->parseFirstRow($this->fgetcsv($handle));
         if (!empty($this->arrErrors)) {
             return false;
         }
-        $firstLine = true;
+
         while (($data = $this->fgetcsv($handle)) !== false) {
 
             $order = array_map('trim', $this->mapData($data));
-            
+
             foreach ($order as $key => $params) {
                 $this->checkRule(['key' => $key, 'value' => $params]);
             }
-            
+
             $this->validateChannel($order['channel']);
             $this->validateCourier($order['courier']);
             $this->validateCustomer($order['customer']);
             $this->validateCustomerAddress();
-            $this->validateVoucher($order['voucher']);
-
-            $this->validateProduct($order['product'];
+            $this->validateVoucher($order['voucher_code']);
+            $this->validateProduct($order['product']);
             $this->buildOrderProduct($order);
-            $this->calculateShippingCost();
             $this->setOrderTotal($order);
-             
+            $this->calculateShippingCost();
+
+
             if (!empty($this->arrErrors)) {
                 return false;
             }
-            
-           $this->buildOrder($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
+
+            $this->buildOrder($order);
         }
-        
-        if(!$this->saveImport()) {
-            $this->arrErrors[] = 'Failed to save import';
+
+        if (!$this->sendToQueue()) {
+            $this->arrErrors[] = 'Failed to add to queue';
             return false;
         }
-        
+
         fclose($handle);
     }
 
-private function mapData($data) {
-list(
-                        $order['order_id'],
-                        $order['channel'],
-                        $order['customer'],
-                        $order['courier'],
-                        $order['voucher_code'],
-                        $order['product'],
-                        $order['quantity'],
-                        $order['price']
-                        ) = $data;
+    /**
+     * 
+     * @param type $data
+     * @return type
+     */
+    private function mapData($data) {
+        list(
+                $order['order_id'],
+                $order['channel'],
+                $order['customer'],
+                $order['courier'],
+                $order['voucher_code'],
+                $order['product'],
+                $order['quantity'],
+                $order['price']
+                ) = $data;
 
-return $order;
-}
-
-    private function validateCourier($courier) {
-           $courier = trim(strtolower($courier));
-                if (!isset($arrCouriers[$courier])) {
-                    $this->arrErrors['courier'] = "Courier is invalid.";
-                    return false;
-                }
-
-        $this->courier = $arrCouriers[$courier]
+        return $order;
     }
-     
+
+    /**
+     * 
+     * @param type $courier
+     * @return boolean
+     */
+    private function validateCourier($courier) {
+        $courier = trim(strtolower($courier));
+
+        $arrCouriers = array_change_key_case($this->arrCouriers->keyBy('name')->toArray(), CASE_LOWER);
+
+        if (!isset($arrCouriers[$courier])) {
+            $this->arrErrors['courier'] = "Courier is invalid.";
+            return false;
+        }
+
+        $courierId = $arrCouriers[$courier]['id'];
+
+        $this->courier = $this->arrCouriers[$courierId];
+    }
+
+    /**
+     * 
+     * @param type $customer
+     * @return boolean
+     */
     private function validateCustomer($customer) {
         $customer = trim(strtolower($customer));
-                
+
         if (!isset($this->arrCustomers[$customer])) {
             $this->arrErrors['customer'] = "Customer is invalid.";
             return false;
@@ -177,47 +273,65 @@ return $order;
         $this->customer = $this->arrCustomers[$customer];
     }
 
+    /**
+     * 
+     * @param type $order
+     * @return boolean
+     */
     private function setOrderTotal($order) {
+
         $this->orderTotal += $order['price'];
 
         if (isset($this->arrOrders[$order['order_id']]['total']) && !empty($this->arrOrders[$order['order_id']]['total'])) {
-                    $this->orderTotal += $this->arrOrders[$order['order_id']]['total'];
-                }
+            $this->orderTotal += $this->arrOrders[$order['order_id']]['total'];
+        }
 
-return true;
+        return true;
     }
 
-    private function buildOrderProduct($order)
-    {
-            $this->arrProducts[$order['order_id']][] = array(
-                    'product' => $this->product->name,
-                    'id' => $product->id,
-                    'quantity' => $order['quantity']
-                );
+    /**
+     * 
+     * @param type $order
+     * @return boolean
+     */
+    private function buildOrderProduct($order) {
+
+        if (empty($this->product)) {
+
+            $this->arrErrors['product'] = 'Invalid product';
+            return false;
+        }
+
+        $this->arrProducts[$order['order_id']][] = array(
+            'product' => $this->product['name'],
+            'id' => $this->product['id'],
+            'quantity' => $order['quantity']
+        );
+
+        return true;
     }
 
-    private function validateCustomerAddress() {
-        $this->deliveryAddress = $this->customerRepo->findAddresses()->first();
- 
-    }
     /**
      * 
      * @return boolean
      */
-    private function saveImport($arrOrder) {
-        
-        if (isset($arrOrder['channel']['id'])) {
-                $arrOrder['channel'] = $objChannelRepo->findChannelById($arrOrder['channel']['id']);
-            }
+    private function validateCustomerAddress() {
 
-            $arrProducts = $arrOrder['products'];
-            unset($arrOrder['products']);
+        $customerId = $this->customer['id'];
 
-            $order = (new OrderRepository(new \App\Shop\Orders\Order))->createOrder($arrOrder, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new Addressrepository(new Address));
-            $orderRepo = new OrderRepository($order);
-            $orderRepo->buildOrderLinesForManualOrder($arrProducts);
-            return true;
+        if (empty($customerId)) {
+
+            $this->arrErrors['customer'] = 'Invalid customer';
+            return false;
+        }
+
+        $objCustomer = $this->objCustomer[$customerId];
+
+        $this->deliveryAddress = $objCustomer->addresses->first();
+
+        return !empty($this->deliveryAddress);
     }
+
     /**
      * Checks a CSV file for validity based on defined policies.
      *
@@ -236,52 +350,70 @@ return true;
         return empty($this->arrErrors);
     }
 
-    private function buildOrder($order, $arrSelectedCategories, $arrSelectedChannels, $brand) {
-            
-        $os = $this->arrStatuses['waiting allocation'];
+    /**
+     * 
+     * @param type $order
+     * @return boolean
+     */
+    private function buildOrder($order) {
+
+        $os = $this->arrStatuses['Waiting Allocation'];
 
         $this->arrOrders[$order['order_id']] = [
-                    'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-                    'courier_id' => $this->courier->id,
-                    'customer_id' => $this->customer,
-                    'voucher_code' => $this->voucherCodeId,
-                    'voucher_id' => !empty($order['voucher_code']) ? $order['voucher_code'] : null,
-                    'address_id' => $this->deliveryAddress->id,
-                    'order_status_id' => $os->id,
-                    'payment' => 'import',
-                    'discounts' => $this->voucherAmount,
-                    'total_shipping' => $this->shippingCost,
-                    'total_products' => 0,
-                    'total' => $this->orderTotal,
-                    'total_paid' => 0,
-                    'delivery_method' => $this->shipping,
-                    'channel' => $this->channel,
-                    'tax' => 0,
-                ];
+            'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
+            'courier_id' => $this->courier->id,
+            'customer_id' => $this->customer['id'],
+            'voucher_code' => !empty($this->objVoucher) ? $this->objVoucher->id : null,
+            'voucher_id' => !empty($this->objVoucher) ? $this->objVoucher : null,
+            'address_id' => $this->deliveryAddress->id,
+            'order_status_id' => $os->id,
+            'payment' => 'import',
+            'discounts' => $this->voucherAmount,
+            'total_shipping' => $this->shippingCost,
+            'total_products' => 0,
+            'total' => $this->orderTotal,
+            'total_paid' => 0,
+            'delivery_method' => $this->shipping,
+            'channel' => $this->channel,
+            'tax' => 0,
+        ];
 
-               $this->arrOrders[$order['order_id']]['products'] = $arrProducts[$order['order_id']];
+        $this->arrOrders[$order['order_id']]['products'] = $this->arrProducts[$order['order_id']];
+
+        return true;
     }
+
     /**
      * 
      * @param type $categories
      * @return type
      */
     private function validateVoucher($voucherCode) {
-        
+
         $voucherCode = trim(strtolower($voucherCode));
 
-        if (!isset($arrVouchers[$voucherCode])) {
-              $this->arrErrors['voucher_code'] = "Voucher Code is invalid.";
-              return false;
-        }
-                    
-        $voucher_id = $voucherCode->voucher_id;
-        $this->objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
-        $this->voucherAmount = $objVoucher->amount;
+        $arrVoucherCodes = array_change_key_case($this->arrVoucherCodes->keyBy('voucher_code')->toArray(), CASE_LOWER);
 
-return true;
-}
+        if (!isset($arrVoucherCodes[$voucherCode])) {
+            $this->arrErrors['voucher_code'] = "Voucher Code is invalid.";
+            return false;
+        }
+
+        $voucherId = $arrVoucherCodes[$voucherCode]['voucher_id'];
+        $voucherCodeId = $arrVoucherCodes[$voucherCode]['id'];
+
+        if (!isset($this->arrVouchers[$voucherId])) {
+
+            $this->arrErrors['voucher_code'] = "Voucher Code is invalid.";
+            return false;
+        }
+
+        $this->voucherAmount = $this->arrVouchers[$voucherId]->amount;
+        $this->objVoucher = $this->arrVoucherCodes[$voucherCodeId];
+
+        return true;
     }
+
     /**
      * 
      * @param type $brand
@@ -289,44 +421,65 @@ return true;
      */
     private function validateProduct($product) {
         $product = trim(strtolower($product));
-        
+
         if (!isset($this->arrExistingProducts[$product])) {
-           
+
             $this->arrErrors['product'] = "Product is invalid.";
             return false;
         }
-        
-        $this->product = $this->arrExistingProducts[$product]['id'];
-        
+
+        $this->product = $this->arrExistingProducts[$product];
     }
 
+    /**
+     * 
+     * @return boolean
+     */
     private function calculateShippingCost() {
-                $shipping = $objCourierRate->findShippingMethod($this->orderTotal, $this->courier, $this->channel, $this->deliveryAddress->country_id);
-               
-        $shippingCost = 0;
-                
-        if (!empty($shipping)) {
-            $this->shippingCost = $shipping->cost;
 
+        $this->shipping = $this->objCourierRate->findShippingMethod($this->orderTotal, $this->courier, $this->channel, $this->deliveryAddress->country_id);
+
+        $this->shippingCost = 0;
+
+        if (!empty($this->shipping)) {
+            $this->shippingCost = $this->shipping->cost;
         }
-                
-        $this->orderTotal += $shippingCost;
-    }
 
-    private function validateChannels($channel) {
-        $channel = trim($channel);
-        
-        
-            if (!isset($this->arrChannels[$channel])) {
-                $this->arrErrors['channel'] = "Channel is invalid.";
-                return false;
-            }
-            
-        $this->channel = $this->arrChannels[$channel];
+        $this->orderTotal += $this->shippingCost;
+
         return true;
     }
 
-    private function sendToQueue() {
-        $this->objWorker->execute(json_encode($this->arrOrders));
+    /**
+     * 
+     * @param type $channel
+     * @return boolean
+     */
+    private function validateChannel($channel) {
+        $channel = trim($channel);
+
+        $arrChannels = array_change_key_case($this->arrChannels->keyBy('name')->toArray(), CASE_LOWER);
+
+        if (!isset($arrChannels[$channel])) {
+            $this->arrErrors['channel'] = "Channel is invalid.";
+            return false;
+        }
+
+        $channelId = $arrChannels[$channel]['id'];
+
+        $this->channel = $this->arrChannels[$channelId];
+        return true;
     }
+
+    /**
+     * 
+     * @return boolean
+     */
+    private function sendToQueue() {
+        
+        $this->objWorker->execute(json_encode($this->arrOrders));
+
+        return true;
+    }
+
 }

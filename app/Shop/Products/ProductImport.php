@@ -51,7 +51,13 @@ class ProductImport extends BaseImport {
      * @var type 
      */
     private $arrChannels = [];
-    
+
+    /**
+     *
+     * @var type 
+     */
+    private $arrExistingProducts = [];
+
     /**
      *
      * @var type 
@@ -73,6 +79,7 @@ class ProductImport extends BaseImport {
         $this->arrCategories = array_change_key_case($categoryRepo->listCategories()->keyBy('name')->toArray(), CASE_LOWER);
         $this->arrBrands = array_change_key_case($brandRepo->listBrands()->keyBy('name')->toArray(), CASE_LOWER);
         $this->arrChannels = array_change_key_case($channelRepo->listChannels()->keyBy('name')->toArray(), CASE_LOWER);
+        $this->arrExistingProducts = array_change_key_case($productRepo->listProducts()->keyBy('name')->toArray(), CASE_LOWER);
     }
 
     /**
@@ -108,6 +115,7 @@ class ProductImport extends BaseImport {
             $arrSelectedCategories = $this->validateCategories($order['categories']);
             $arrSelectedChannels = $this->validateChannels($order['channels']);
             $brand = $this->validateBrand($order['brand']);
+            $this->checkIfProductExists($order['name']);
 
             if (!empty($this->arrErrors)) {
                 return false;
@@ -115,34 +123,51 @@ class ProductImport extends BaseImport {
 
             $this->buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
         }
-        
-        if(!$this->saveImport()) {
+
+        if (!$this->saveImport()) {
             $this->arrErrors[] = 'Failed to save import';
             return false;
         }
-        
+
         fclose($handle);
     }
-    
+
+    /**
+     * 
+     * @param type $productName
+     * @return boolean
+     */
+    private function checkIfProductExists($productName) {
+
+        $productName = trim(strtolower($productName));
+
+        if (isset($this->arrExistingProducts[$productName])) {
+            $this->arrErrors['product'] = 'The product you are trying to create already exists';
+            return true;
+        }
+
+        return false;
+    }
+
     private function mapData($data) {
         list(
-                    $order['name'],
-                    $order['channels'],
-                    $order['categories'],
-                    $order['brand'],
-                    $order['sku'],
-                    $order['description'],
-                    $order['quantity'],
-                    $order['price'],
-                    $order['sale_price'],
-                    $order['weight'],
-                    $order['mass_unit'],
-                    $order['length'],
-                    $order['width'],
-                    $order['height'],
-                    $order['distance_unit'],
-                    ) = $data;
-        
+                $order['name'],
+                $order['channels'],
+                $order['categories'],
+                $order['brand'],
+                $order['sku'],
+                $order['description'],
+                $order['quantity'],
+                $order['price'],
+                $order['sale_price'],
+                $order['weight'],
+                $order['mass_unit'],
+                $order['length'],
+                $order['width'],
+                $order['height'],
+                $order['distance_unit'],
+                ) = $data;
+
         return $order;
     }
 
@@ -175,7 +200,7 @@ class ProductImport extends BaseImport {
                 $productRepo->syncChannels($arrChannels);
             }
         }
-        
+
         return true;
     }
 

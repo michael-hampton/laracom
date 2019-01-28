@@ -3,7 +3,19 @@
 namespace App\RabbitMq;
 
 use PhpAmqpLib\Message\AMQPMessage;
-use App\Shop\Orders\OrderImport;
+use App\Shop\Orders\SaveImport;
+use App\Shop\Orders\Repositories\OrderRepository;
+use App\Shop\Channels\Repositories\ChannelRepository;
+use App\Shop\Channels\Channel;
+use App\Shop\Couriers\Repositories\CourierRepository;
+use App\Shop\Couriers\Courier;
+use App\Shop\Addresses\Repositories\AddressRepository;
+use App\Shop\Addresses\Address;
+use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\Customers\Customer;
+use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
+use App\Shop\VoucherCodes\VoucherCode;
+use App\Shop\Orders\Order;
 
 /**
  * Description of Receiver
@@ -113,14 +125,15 @@ class Receiver extends Queue {
      * @return WorkerReceiver
      */
     private function importOrder(AMQPMessage $msg) {
-        $data = json_decode($msg->body, true);
 
-        $arrProducts = $data['products'];
-        unset($data['products']);
+        $arrOrder = json_decode($msg->body, true);
 
-        $order = (new OrderRepository(new \App\Shop\Orders\Order))->create($data);
-        $orderRepo = new OrderRepository($order);
-        $orderRepo->buildOrderLinesForManualOrder($arrProducts);
+        $objSaveImport = new SaveImport();
+        $objSaveImport->saveBulkImport(
+                new ChannelRepository(new Channel), new OrderRepository(new Order), new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address), $arrOrder
+        );
+
+        $arrDone[] = $orderId;
 
         return $this;
     }
@@ -135,14 +148,18 @@ class Receiver extends Queue {
         $arrOrders = json_decode($msg->body, true);
 
         $arrDone = [];
-        
+
         foreach ($arrOrders as $orderId => $arrOrder) {
 
-            $objOrderImport = new OrderImport();
-            $objOrderImport->saveImport($arrOrder);
-            
+            $objSaveImport = new SaveImport();
+            $objSaveImport->saveBulkImport(
+                    new ChannelRepository(new Channel), new OrderRepository(new Order), new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address), $arrOrder
+            );
+
             $arrDone[] = $orderId;
         }
+        
+        return $this;
     }
 
 }

@@ -142,7 +142,7 @@ class OrderController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        
+
         $list = $this->orderRepo->listOrders('is_priority', 'desc');
         $channels = $this->channelRepo->listChannels();
         $statuses = $this->orderStatusRepo->listOrderStatuses();
@@ -626,186 +626,27 @@ class OrderController extends Controller {
         );
     }
 
+    /**
+     * 
+     * @param Request $request
+     */
     public function saveImport(Request $request) {
-        /*$file_path = $request->csv_file->path();
-        $line = 0;
-        $arrDone = [];
-        $arrOrders = [];
-        $intCount = 0;
 
-        if (($handle = fopen($file_path, "r")) !== FALSE) {
-
-            $flag = true;
-            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-
-                $orderTotal = 0;
-
-                if ($flag) {
-                    $flag = false;
-                    continue;
-                }
-
-                $voucherCode = null;
-
-                list(
-                        $order['order_id'],
-                        $order['channel'],
-                        $order['customer'],
-                        $order['courier'],
-                        $order['voucher_code'],
-                        $order['product'],
-                        $order['quantity'],
-                        $order['price']
-                        ) = $data;
-
-                $line++;
-                $newOrder = [];
-
-                $csv_errors = Validator::make(
-                                $order, (new ImportRequest())->rules()
-                        )->errors();
-
-
-                $channel = $this->channelRepo->findByName($order['channel']);
-
-                if (empty($channel)) {
-
-                    $csv_errors->add('channel', "Channel is invalid.");
-                }
-
-                $customer = $order['customer'];
-
-                $customer = $this->customerRepo->searchCustomer($customer);
-
-                if ($customer->isEmpty()) {
-
-                    $csv_errors->add('customer', "Customer is invalid.");
-                }
-
-                $customerRepo = new CustomerRepository($customer[0]);
-                $deliveryAddress = $customerRepo->findAddresses()->first();
-
-                $country_id = $deliveryAddress->country_id;
-
-                $courier = $this->courierRepo->findByName($order['courier']);
-
-                if (empty($courier)) {
-
-                    $csv_errors->add('courier', "Courier is invalid.");
-                }
-
-                $objCourierRate = new CourierRateRepository(new CourierRate);
-                $shipping = $objCourierRate->findShippingMethod($orderTotal, $courier, $channel, $country_id);
-
-                $shippingCost = 0;
-
-                if (!empty($shipping)) {
-
-                    $shippingCost = $shipping->cost;
-                }
-
-                $orderTotal += $shippingCost;
-
-                $voucherAmount = 0;
-
-                if (!empty($order['voucher_code'])) {
-                    $voucherCode = $this->voucherCodeRepo->getByVoucherCode($order['voucher_code']);
-
-                    if (empty($voucherCode)) {
-
-                        $csv_errors->add('voucher_code', "Voucher Code is invalid.");
-                    }
-
-                    $voucher_id = $voucherCode->voucher_id;
-                    $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
-
-                    $voucherAmount = $objVoucher->amount;
-                }
-
-                $orderTotal -= $voucherAmount;
-
-                $product = $this->productRepo->searchProduct($order['product'])->first();
-
-                $orderTotal += $order['price'];
-
-                if ($csv_errors->any()) {
-                    return redirect()->back()
-                                    ->withErrors($csv_errors, 'import')
-                                    ->with('error_line', $line);
-                }
-
-
-
-                //$orderRepo = new OrderRepository(new Order);
-
-                $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
-                $os = $orderStatusRepo->findByName('Waiting Allocation');
-
-
-                $voucherCodeId = !empty($voucherCode) ? $voucherCode->id : null;
-
-                if (isset($arrOrders[$order['order_id']]['total']) && !empty($arrOrders[$order['order_id']]['total'])) {
-                    $orderTotal += $arrOrders[$order['order_id']]['total'];
-                }
-
-                $arrOrders[$order['order_id']] = [
-                    'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-                    'courier_id' => $courier->id,
-                    'customer_id' => $customer[0]->id,
-                    'voucher_code' => $voucherCodeId,
-                    'voucher_id' => !empty($order['voucher_code']) ? $order['voucher_code'] : null,
-                    'address_id' => $deliveryAddress->id,
-                    'order_status_id' => $os->id,
-                    'payment' => 'import',
-                    'discounts' => $voucherAmount,
-                    'total_shipping' => $shippingCost,
-                    'total_products' => 0,
-                    'total' => $orderTotal,
-                    'total_paid' => 0,
-                    'delivery_method' => $shipping,
-                    'channel' => $channel,
-                    'tax' => 0,
-                ];
-
-                $arrProducts[$order['order_id']][] = array(
-                    'product' => $product->name,
-                    'id' => $product->id,
-                    'quantity' => $order['quantity']
-                );
-
-                $arrOrders[$order['order_id']]['products'] = $arrProducts[$order['order_id']];
-
-                $arrDone[] = $order['order_id'];
-                $intCount++;
-            }
-
-            fclose($handle);
-        }
-
-
-        (new \App\RabbitMq\Worker('bulk_import'))->execute(json_encode($arrOrders));
-        (new \App\RabbitMq\Receiver('bulk_import', 'bulkOrderImport'))->listen();
-        die;
-
-
-
-
-
-
-        request()->session()->flash('message', 'Import successful');
-        return redirect()->route('admin.orders.importCsv');*/
-        
         $file_path = $request->csv_file->path();
         $objOrderImport = new OrderImport(
-                $this->categoryRepo, $this->brandRepo, $this->channelRepo, $this->productRepo
+                $this->courierRepo, $this->orderStatusRepo, $this->channelRepo, $this->productRepo, $this->customerRepo, $this->voucherCodeRepo, new CourierRateRepository(new CourierRate), $this->voucherRepo, new \App\RabbitMq\Worker('bulk_import')
         );
+
+        $blValid = true;
+
         if (!$objOrderImport->isValid($file_path)) {
+
             $arrErrors = $objOrderImport->getErrors();
-            echo '<pre>';
-            print_r($arrErrors);
-            die('here');
+            return view('admin.orders.importCsv', ['arrErrors' => $arrErrors, 'valid' => false]);
         }
-        die('good');
+
+        return view('admin.orders.importCsv');
+        
     }
 
     public function importCsv() {

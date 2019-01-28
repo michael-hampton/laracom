@@ -3,19 +3,20 @@
 
 @section('content')
 
-@if ($errors->import->any())
+@if(isset($arrErrors) && $valid === false)
+
 <div class="alert alert-danger">
-    The import has following errors in <strong>line {{ session('error_line') }}</strong>:
+    The import has the following errors:
     <ul>
-        @foreach ($errors->import->all() as $message)
+        @foreach ($arrErrors as $message)
         <li>{{ $message }}</li>
         @endforeach
     </ul>
 </div>
-@endif
+@endif;
 
 <form action="/admin/products/saveImport" method="post"enctype="multipart/form-data">
-       {{ csrf_field() }}
+    {{ csrf_field() }}
     <input type="file" id="csv_file" name="csv_file">
     <input type="submit" value="Submit">
 </form>
