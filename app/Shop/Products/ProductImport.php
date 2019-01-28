@@ -82,7 +82,6 @@ class ProductImport extends BaseImport {
      */
     private function importCsv($file) {
 
-
         $handle = fopen($file, 'r');
 
         if (!$handle) {
@@ -97,49 +96,14 @@ class ProductImport extends BaseImport {
             return false;
         }
 
-
-        $firstLine = true;
         while (($data = $this->fgetcsv($handle)) !== false) {
 
-            list(
-                    $order['name'],
-                    $order['channels'],
-                    $order['categories'],
-                    $order['brand'],
-                    $order['sku'],
-                    $order['description'],
-                    $order['quantity'],
-                    $order['price'],
-                    $order['sale_price'],
-                    $order['weight'],
-                    $order['mass_unit'],
-                    $order['length'],
-                    $order['width'],
-                    $order['height'],
-                    $order['distance_unit'],
-                    ) = $data;
-
-
-            $order = array_map('trim', $order);
+            $order = array_map('trim', $this->mapData($data));
 
             foreach ($order as $key => $params) {
 
                 $this->checkRule(['key' => $key, 'value' => $params]);
             }
-
-            /* if($firstLine)
-              {
-              // Set the headers:
-              $firstLine = false;
-
-              $this->parseFirstRow($data);
-
-              // Validate the headers:
-              //$this->validateHeader($data);
-
-              // Go to the next row:
-              continue;
-              } */
 
             $arrSelectedCategories = $this->validateCategories($order['categories']);
             $arrSelectedChannels = $this->validateChannels($order['channels']);
@@ -158,6 +122,28 @@ class ProductImport extends BaseImport {
         }
         
         fclose($handle);
+    }
+    
+    private function mapData($data) {
+        list(
+                    $order['name'],
+                    $order['channels'],
+                    $order['categories'],
+                    $order['brand'],
+                    $order['sku'],
+                    $order['description'],
+                    $order['quantity'],
+                    $order['price'],
+                    $order['sale_price'],
+                    $order['weight'],
+                    $order['mass_unit'],
+                    $order['length'],
+                    $order['width'],
+                    $order['height'],
+                    $order['distance_unit'],
+                    ) = $data;
+        
+        return $order;
     }
 
     /**
