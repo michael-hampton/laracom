@@ -7,23 +7,18 @@ use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Import\BaseImport;
 class OrderImport extends BaseImport {
+    
     protected $requiredFields = array(
-        'name',
-        'channels',
-        'categories',
-        'brand',
-        'sku',
-        'description',
+        'order_id',
+        'channel',
+        'customer',
+        'courier',
+        'voucher_code',
+        'product',
         'quantity',
-        'price',
-        'sale_price',
-        'weight',
-        'mass_unit',
-        'length',
-        'width',
-        'height',
-        'distance_unit'
+        'price'
     );
+
     /**
      *
      * @var type 
@@ -32,7 +27,17 @@ class OrderImport extends BaseImport {
 
     private $arrStatuses;
 
+    private $courier;
+
+    private $channel;
+
+    private $deliveryAddress;
+
     private $voucherAmount = 0;
+
+    private $arrCouriers = [];
+
+    private $arrCustomers = [];
 
     /**
      *
@@ -59,13 +64,13 @@ class OrderImport extends BaseImport {
 
     /**
      * 
-     * @param CategoryRepository $categoryRepo
+     * @param CourierRepository $courierRepo
      * @param BrandRepository $brandRepo
      * @param ChannelRepository $channelRepo
      * @param ProductRepository $productRepo
      */
     public function __construct(
-    CategoryRepository $categoryRepo, BrandRepository $brandRepo, ChannelRepository $channelRepo, ProductRepository $productRepo
+    CourierRepository $courierRepo, BrandRepository $brandRepo, ChannelRepository $channelRepo, ProductRepository $productRepo
     ) {
         parent::__construct();
         $this->productRepo = $productRepo;
