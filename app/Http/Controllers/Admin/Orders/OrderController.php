@@ -627,7 +627,7 @@ class OrderController extends Controller {
     }
 
     public function saveImport(Request $request) {
-        $file_path = $request->csv_file->path();
+        /*$file_path = $request->csv_file->path();
         $line = 0;
         $arrDone = [];
         $arrOrders = [];
@@ -793,7 +793,19 @@ class OrderController extends Controller {
 
 
         request()->session()->flash('message', 'Import successful');
-        return redirect()->route('admin.orders.importCsv');
+        return redirect()->route('admin.orders.importCsv');*/
+        
+        $file_path = $request->csv_file->path();
+        $objOrderImport = new OrderImport(
+                $this->categoryRepo, $this->brandRepo, $this->channelRepo, $this->productRepo
+        );
+        if (!$objOrderImport->isValid($file_path)) {
+            $arrErrors = $objOrderImport->getErrors();
+            echo '<pre>';
+            print_r($arrErrors);
+            die('here');
+        }
+        die('good');
     }
 
     public function importCsv() {
