@@ -62,6 +62,8 @@ class OrderImport extends BaseImport {
 
     private $orderTotal = 0;
 
+    private $objWorker;
+
     /**
      * 
      * @param CourierRepository $courierRepo
@@ -70,6 +72,8 @@ class OrderImport extends BaseImport {
      * @param ProductRepository $productRepo
      * @param CustomerRepository $customerRepo,
      * @param VoucherCodeRepository $voucherCodeRepo
+     * @param CourierRateRepository $courierRateRepo
+     * @param Worker $worker
      */
     public function __construct(
         CourierRepository $courierRepo, 
@@ -78,7 +82,8 @@ class OrderImport extends BaseImport {
         ProductRepository $productRepo,
         CustomerRepository $customerRepo,
         VoucherCodeRepository $voucherCodeRepo,
-        CourierRateRepository $courierRateRepo
+        CourierRateRepository $courierRateRepo,
+        Worker $worker
     ) {
         parent::__construct();
         $this->productRepo = $productRepo;
@@ -199,10 +204,19 @@ return true;
      * 
      * @return boolean
      */
-    private function saveImport() {
+    private function saveImport($arrOrder) {
         
-        
-        return true;
+        if (isset($arrOrder['channel']['id'])) {
+                $arrOrder['channel'] = $objChannelRepo->findChannelById($arrOrder['channel']['id']);
+            }
+
+            $arrProducts = $arrOrder['products'];
+            unset($arrOrder['products']);
+
+            $order = (new OrderRepository(new \App\Shop\Orders\Order))->createOrder($arrOrder, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new Addressrepository(new Address));
+            $orderRepo = new OrderRepository($order);
+            $orderRepo->buildOrderLinesForManualOrder($arrProducts);
+            return true;
     }
     /**
      * Checks a CSV file for validity based on defined policies.
@@ -310,5 +324,9 @@ return true;
             
         $this->channel = $this->arrChannels[$channel];
         return true;
+    }
+
+    private function sendToQueue() {
+        $this->objWorker->execute(json_encode($this->arrOrders));
     }
 }
