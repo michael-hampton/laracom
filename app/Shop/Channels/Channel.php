@@ -37,6 +37,8 @@ class Channel extends Model {
         'allocate_on_order',
         'backorders_enabled',
         'send_received_email',
+        'send_hung_email',
+        'send_backorder_email',
         'send_dispatched_email',
         'status',
         'has_priority',
