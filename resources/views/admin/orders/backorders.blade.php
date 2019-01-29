@@ -132,6 +132,7 @@
         
             href = $('#admin-search').attr('action');
             var formdata = $('#admin-search').serialize();
+            $('.search-results').html('<img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>');
             $.ajax({
                 type: "POST",
                 url: href,
