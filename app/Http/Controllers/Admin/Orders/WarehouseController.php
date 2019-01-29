@@ -154,8 +154,7 @@ class WarehouseController extends Controller {
             $postRepo = new OrderCommentRepository($order);
             $postRepo->createComment($data);
             $arrErrors[$request->orderId][] = $message;
-            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
-            die;
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
 
         try {
@@ -163,8 +162,7 @@ class WarehouseController extends Controller {
             $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
         } catch (Exception $ex) {
             $arrErrors[$request->orderId][] = $ex->getMessage();
-            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
-            die;
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
 
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
@@ -175,8 +173,7 @@ class WarehouseController extends Controller {
             $orderRepo->updateOrder(['order_status_id' => $newStatus->id]);
         }
 
-        echo json_encode(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
-        die;
+        return response()->json(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
     }
 
     /**
@@ -196,8 +193,7 @@ class WarehouseController extends Controller {
             $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
         } catch (Exception $ex) {
             $arrErrors[$request->orderId][] = $ex->getMessage();
-            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
-            die;
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
 
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
@@ -206,8 +202,8 @@ class WarehouseController extends Controller {
         }
 
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
-        echo json_encode(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
-        die;
+        return response()->json(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
+        
     }
 
     /**
@@ -238,8 +234,7 @@ class WarehouseController extends Controller {
             );
         } catch (Exception $ex) {
             $arrErrors[$request->orderId][] = $ex->getMessage();
-            echo json_encode(['http_code' => 400, 'FAILURES' => $arrErrors]);
-            die;
+           return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
 
 
@@ -252,6 +247,7 @@ class WarehouseController extends Controller {
         }
 
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
+        return response()->json(['http_code' => 200, 'FAILURES' => $arrErrors]);
         echo json_encode(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
         die;
     }
