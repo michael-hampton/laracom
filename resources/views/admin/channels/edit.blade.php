@@ -127,9 +127,20 @@ function buildcheckBox($value, $label) {
                     <label for="status">Send Order Received Email </label>
                     {{buildCheckbox($channel->send_received_email, 'send_received_email')}}
                 </div>
+                
                 <div class="form-group">
                     <label for="status">Send Dispatched Email </label>
                     {{buildCheckbox($channel->send_dispatched_email, 'send_dispatched_email')}}
+                </div>
+                
+                <div class="form-group">
+                    <label for="status">Send Order Hung Email </label>
+                    {{buildCheckbox($channel->send_hung_email, 'send_hung_email')}}
+                </div>
+                
+               <div class="form-group">
+                    <label for="status">Send Backorder Email </label>
+                    {{buildCheckbox($channel->send_backorder_email, 'send_backorder_email')}}
                 </div>
             </div>
         </div>
