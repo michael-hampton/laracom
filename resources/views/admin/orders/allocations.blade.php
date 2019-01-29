@@ -130,6 +130,8 @@
                 url: href,
                 data: formdata,
                 success: function (response) {
+                $('.Search').text('Search');
+            $('.Search').prop('disabled', false);
                     $('.search-results').html(response);
                 }
             });
