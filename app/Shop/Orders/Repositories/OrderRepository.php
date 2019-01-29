@@ -249,6 +249,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         Mail::to($this->model->customer)
                 ->send(new SendBackorderToCustomerMailable($this->findOrderById($this->model->id)));
     }
+    
+    public function sendHungEmail() {
+        Mail::to($this->model->customer)
+                ->send(new SendHungMailable($this->findOrderById($this->model->id)));
+    }
 
     /**
      * Send email notification to the admin
