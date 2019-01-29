@@ -151,7 +151,6 @@
                 url: '/admin/message/store',
                 data: formdata,
                 success: function (response) {
-                    var response = JSON.parse(response);
 
                     if (response.http_code === 400) {
 
