@@ -126,6 +126,10 @@
         loadPagination();
 
         $('.Search').on('click', function (e) {
+        
+            $('.Search').text('Loading');
+            $('.Search').prop('disabled', true);
+        
             href = $('#admin-search').attr('action');
             var formdata = $('#admin-search').serialize();
             $.ajax({
