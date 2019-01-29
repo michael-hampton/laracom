@@ -152,8 +152,7 @@
             $('.cb').prop('checked', !checkboxes.prop('checked'));
         });
 
-
-        $('.cb').change(function () {
+        $(document).on('change', '.cb', function() {
             var numberOfChecked = $('.cb:checked').length;
             var totalCheckboxes = $('.cb').length;
             $('.checkbox-count').html(numberOfChecked + ' / ' + totalCheckboxes);
