@@ -127,7 +127,7 @@
 
         $('.Search').on('click', function (e) {
         
-            $('.Search').text('Loading');
+            $('.Search').text('Loading...');
             $('.Search').prop('disabled', true);
         
             href = $('#admin-search').attr('action');
@@ -137,6 +137,8 @@
                 url: href,
                 data: formdata,
                 success: function (response) {
+                    $('.Search').text('Search');
+            $('.Search').prop('disabled', false);
                     $('.search-results').html(response);
                 }
             });
