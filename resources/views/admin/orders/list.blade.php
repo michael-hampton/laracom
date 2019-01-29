@@ -119,6 +119,8 @@
 
         $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
+            $('.Search').text('Loading...');
+            $('.Search').prop('disabled', true);
             var formdata = $('#admin-search').serialize();
             $.ajax({
                 type: "POST",
