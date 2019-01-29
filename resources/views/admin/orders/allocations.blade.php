@@ -124,6 +124,7 @@
             href = $('#admin-search').attr('action');
             $('.Search').text('Loading...');
             $('.Search').prop('disabled', true);
+            $('.search-results').html('<img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>');
             var formdata = $('#admin-search').serialize();
             $.ajax({
                 type: "POST",
