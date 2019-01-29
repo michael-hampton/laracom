@@ -139,8 +139,8 @@
         });
 
         $('.Search').click();
-
-        $('.open-message').on('click', function () {
+        
+        $(document).on('click', '.open-message', function() {
             var orderId = $(this).attr('order-id');
             openMessage(orderId);
             $('#myModal').modal('show');
