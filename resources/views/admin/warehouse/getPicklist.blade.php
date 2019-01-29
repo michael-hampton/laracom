@@ -88,8 +88,6 @@
                 },
                 success: function (response) {
 
-                    var response = JSON.parse(response);
-
                     if (response.http_code === 400) {
 
                         $('.content').prepend("<div class='alert alert-danger'></div>");
@@ -132,8 +130,6 @@
                 },
                 success: function (response) {
 
-                    var response = JSON.parse(response);
-
                     if (response.http_code === 400) {
 
                         $('.content').prepend("<div class='alert alert-danger'></div>");
@@ -175,7 +171,26 @@
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (response) {
-                    $this.remove();
+                    if (response.http_code === 400) {
+
+                        $('.content').prepend("<div class='alert alert-danger'></div>");
+
+                        $.each(response.FAILURES, function (lineId, val) {
+
+                            $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
+
+                        });
+                    } else {
+                        $('.modal-body').prepend("<div class='alert alert-success'></div>");
+
+                        $.each(response.SUCCESS, function (lineId, val) {
+
+                            $('.modal-body .alert-success').append("<p>" + val + "</p>");
+
+                        });
+                       
+                        $this.remove();
+                    }
                 }
             });
             return false;
