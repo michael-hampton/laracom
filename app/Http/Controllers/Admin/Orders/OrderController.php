@@ -555,7 +555,7 @@ class OrderController extends Controller {
             $arrResponse['data']['details']['SUCCESS'][$orderId] = ['order updated successfully'];
         }
 
-        echo json_encode($arrResponse);
+        return response()->json($arrResponse);
     }
 
     /**
@@ -646,7 +646,6 @@ class OrderController extends Controller {
         }
 
         return view('admin.orders.importCsv', ['valid' => true]);
-        
     }
 
     public function importCsv() {

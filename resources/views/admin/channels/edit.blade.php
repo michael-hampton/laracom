@@ -67,8 +67,8 @@ function buildcheckBox($value, $label) {
                     <div class="form-group">
                         <label for="status">Status </label>
                         <select name="status" id="status" class="form-control">
-                            <option value="0" @if($channel->status == 0) selected="selected" @endif>Disable</option>
                             <option value="1" @if($channel->status == 1) selected="selected" @endif>Enable</option>
+                            <option value="0" @if($channel->status == 0) selected="selected" @endif>Disable</option>
                         </select>
                     </div>
 

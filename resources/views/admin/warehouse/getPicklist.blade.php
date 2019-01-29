@@ -3,7 +3,7 @@
 <section class="content">
 
     @include('layouts.errors-and-messages')
-        
+
     <a class='btn btn-primary' href="{{route('admin.warehouse.generatePicklist', $picklist_ref)}}">Download Picking List</a>
     <a class='btn btn-primary' href="{{route('admin.warehouse.generateDispatchNote', 51)}}">Download Dispatch Note</a>
 
@@ -77,6 +77,8 @@
 
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
+            $('.content .alert-danger').remove();
+            $('.content .alert-success').remove();
 
             $.ajax({
                 type: "POST",
@@ -93,7 +95,7 @@
                         $('.content').prepend("<div class='alert alert-danger'></div>");
 
                         $.each(response.FAILURES, function (lineId, val) {
-
+                            
                             $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
 
                         });
@@ -119,6 +121,8 @@
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
             var $this = $(this);
+            $('.content .alert-danger').remove();
+            $('.content .alert-success').remove();
 
             $.ajax({
                 type: "POST",
@@ -161,6 +165,8 @@
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
             var $this = $(this);
+            $('.content .alert-danger').remove();
+            $('.content .alert-success').remove();
 
             $.ajax({
                 type: "POST",
@@ -188,7 +194,7 @@
                             $('.modal-body .alert-success').append("<p>" + val + "</p>");
 
                         });
-                       
+
                         $this.remove();
                     }
                 }

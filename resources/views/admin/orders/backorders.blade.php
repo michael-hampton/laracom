@@ -70,8 +70,8 @@
                             @endif
                         </div>
 
-                        <span class="input-group-btn">
-                            <button type="button" id="search-btn" class="btn btn-flat Search"><i class="fa fa-search"></i> Search </button>
+                        <span class="">
+                            <button type="button" id="search-btn" class="btn btn-flat Search btn-success"><i class="fa fa-search"></i> Search </button>
                         </span>
 
                         <input type="hidden" id="status" name="line_status" value="11">
@@ -126,46 +126,51 @@
         loadPagination();
 
         $('.Search').on('click', function (e) {
-        
+
             $('.Search').text('Loading...');
             $('.Search').prop('disabled', true);
-        
+
             href = $('#admin-search').attr('action');
             var formdata = $('#admin-search').serialize();
-            $('.search-results').html('<img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>');
+            $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
             $.ajax({
                 type: "POST",
                 url: href,
                 data: formdata,
-                success: function (response) {
-                    $('.Search').text('Search');
-            $('.Search').prop('disabled', false);
+                beforeSend: function () {
+
+                }, success: function (response) {
+                    $('.Search').html('<i class="fa fa-search"></i> Search');
+                    $('.Search').prop('disabled', false);
                     $('.search-results').html(response);
                 }
             });
         });
 
         $('.Search').click();
-        
-        $(document).on('click', '.open-message', function() {
+
+        $(document).on('click', '.open-message', function () {
             var orderId = $(this).attr('order-id');
             openMessage(orderId);
             $('#myModal').modal('show');
 
         });
 
-        $('.uncheck').click(function () {
+        $(document).on('click', '.uncheck', function () {
             var checkboxes = $('.cb');
             $('.cb').prop('checked', !checkboxes.prop('checked'));
         });
 
-        $(document).on('change', '.cb', function() {
+        $(document).on('change', '.cb', function () {
             var numberOfChecked = $('.cb:checked').length;
             var totalCheckboxes = $('.cb').length;
             $('.checkbox-count').html(numberOfChecked + ' / ' + totalCheckboxes);
         });
 
         $('.do-allocation').on('click', function () {
+
+            $(this).prop('disabled', true);
+            $(this).text('Processing');
 
             if ($('.cb:checked').length == 0)
             {
@@ -215,6 +220,9 @@
                         $('.toBeRemoved').remove();
 
                     }
+
+                    $(this).prop('disabled', false);
+                    $(this).text('Allocate');
                 }
             });
             return false;

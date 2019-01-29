@@ -25,6 +25,8 @@ trait ChannelTransformable {
         $channelObj->strict_validation = $channel->strict_validation;
         $channelObj->partial_shipment = $channel->partial_shipment;
         $channelObj->send_received_email = $channel->send_received_email;
+        $channelObj->send_hung_email = $channel->send_hung_email;
+        $channelObj->send_backorder_email = $channel->send_backorder_email;
         $channelObj->send_dispatched_email = $channel->send_dispatched_email;
         $channelObj->cover = $channel->cover;
         return $channelObj;

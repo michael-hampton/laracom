@@ -19,13 +19,13 @@ trait ProductTransformable {
      */
     protected function transformProduct(Product $product) {
 
-        if(!empty(env('CHANNEL'))) {
+        if (!empty(env('CHANNEL'))) {
             $channelRepo = new ChannelRepository(new \App\Shop\Channels\Channel);
             $channel = $channelRepo->findByName(env('CHANNEL'));
         }
-        
+
         $price = $product->price;
-        
+
 
         if (isset($channel) && !empty($channel) && !empty($channel->id)) {
             $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
@@ -53,6 +53,7 @@ trait ProductTransformable {
         $prod->weight = (float) $product->weight;
         $prod->mass_unit = $product->mass_unit;
         $prod->sale_price = $product->sale_price;
+        $prod->cost_price = $product->cost_price;
         $prod->brand_id = (int) $product->brand_id;
         $prod->brand_name = $brand->name;
         return $prod;

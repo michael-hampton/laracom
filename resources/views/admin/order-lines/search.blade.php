@@ -73,7 +73,9 @@
                             <td>
 
                                 <input type="checkbox" {{ $checked }} {{ $disabled }} class="cb" name="services[]" order-id="{{ $item->order_id }}" value="{{ $item->id }}">
+                                @if($item->status === 11)
                                 <i email='{{$arrOrder->customer->email}}'order-id="{{$item->order_id}}" class="fa fa-envelope-open-o open-message" aria-hidden="true"></i>
+                                @endif
                             </td>
                         </tr>
                         <?php

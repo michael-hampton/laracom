@@ -2,7 +2,7 @@
        
        <div class="box-body">
             @if($orders)
-            <table class="table">
+            <table class="table table-hover table-bordered">
                 <thead>
                     <tr>
                         <td class="col-md-1">#</td>

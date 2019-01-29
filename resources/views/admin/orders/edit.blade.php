@@ -8,9 +8,9 @@
         font-size: 26px;
     }
 
-    .current-line-ref:not(.active) {
+/*    .current-line-ref:not(.active) {
         background-color: #999 !important;
-    }
+    }*/
 
     .current-line-ref .active {
         color: #FFF;
@@ -338,7 +338,7 @@
                                         <option @if($currentStatus->id == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
                                         @endforeach
                                     </select>
-                                    <span class="input-group-btn"><button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-primary">Update</button></span>
+                                    <span class=""><button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-primary">Update</button></span>
                                 </div>
                             </form>
                         </td>
@@ -626,7 +626,7 @@
                 {{ csrf_field() }}
                 <input type="hidden" name="order_id" value="{{ $order->id }}">
                 <textarea id="comment" name="comment" class="form-control"></textarea>
-                <span class="input-group-btn"><button type="submit" class="btn btn-primary">Save</button></span>
+                <span class=""><button type="submit" class="btn btn-primary">Save</button></span>
 
             </form>
 
@@ -1094,7 +1094,6 @@ crossorigin="anonymous"></script>
                                                 success: function (response) {
 
                                                     $('#createOrderSpinner').fadeOut(600);
-                                                    var response = JSON.parse(response);
                                                     var strOut = "<div class='alert alert-success'>";
 
                                                     $.each(response.body[0], function (ind, val) {

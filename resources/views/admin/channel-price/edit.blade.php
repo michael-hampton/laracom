@@ -52,7 +52,7 @@
 
             @if(in_array($attribute->id, $assignedAttributes))
             <a href='#' class='removeVariation'><i style="width:25px;" class="fa fa-times-circle"></i></a>
-            <img style="width:30px;" class="loader" src="{{url('/images/tick.png')}}" alt="Loader"/>
+            <img style="width:30px;" class="" src="{{url('/images/tick.png')}}" alt="Loader"/>
             @endif
 
         </li>

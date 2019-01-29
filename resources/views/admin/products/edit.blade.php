@@ -59,7 +59,7 @@
                                             <div class="col-md-3">
                                                 <div class="row">
                                                     <img src="{{ asset("storage/$image->src") }}" alt="" class="img-responsive img-thumbnail"> <br /> <br>
-                                                    <a onclick="return confirm('Are you sure?')" href="{{ route('admin.product.remove.thumb', ['src' => $image->src]) }}" class="btn btn-danger btn-sm btn-block">Remove?</a><br />
+                                                    <a onclick="return confirm('Are you sure?')" href="{{ route('admin.product.remove.thumb', ['src' => $image->src]) }}" class="btn btn-danger btn-block">Remove?</a><br />
                                                 </div>
                                             </div>
                                             @endforeach
@@ -163,8 +163,8 @@
                                 <div class="row">
                                     <div class="box-footer">
                                         <div class="btn-group">
-                                            <a href="{{ route('admin.products.index') }}" class="btn btn-default btn-sm">Back</a>
-                                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                            <a href="{{ route('admin.products.index') }}" class="btn btn-default">Back</a>
+                                            <button type="submit" class="btn btn-primary">Update</button>
                                         </div>
                                     </div>
                                 </div>

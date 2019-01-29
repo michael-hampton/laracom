@@ -171,18 +171,19 @@ class ChannelPriceController extends Controller {
      */
     public function update(Request $request, int $id) {
 
+        $data = $request->except('_token', '_method', 'cost_price');
+
         $validator = Validator::make($data, (new UpdateChannelPriceRequest())->rules());
 
-        if($request->cost_price < $request->price) {
-            $validator->errors()->add('cost_price', 'The price cannot be less than the cost price.');
+        if ($request->price < $request->cost_price) {
+            $arrErrors['cost_price'] = ['The price cannot be less than the cost price.'];
+            return response()->json(['http_code' => 400, 'errors' => $arrErrors]);
         }
-        
+
         // Validate the input and return correct response
         if ($validator->fails()) {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
-        
-        $data = $request->except('_token', '_method', 'cost_price');
 
         $channel = $this->channelRepo->findChannelById($request->channel_id);
 

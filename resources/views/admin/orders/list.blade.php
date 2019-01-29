@@ -87,8 +87,8 @@
                             @endif
                         </div>
 
-                        <span class="input-group-btn">
-                            <button type="button" id="search-btn" class="btn btn-flat Search"><i class="fa fa-search"></i> Search </button>
+                        <span class="">
+                            <button type="button" id="search-btn" class="btn btn-flat Search btn-success"><i class="fa fa-search"></i> Search </button>
                         </span>
                     </form>
                 </div>
@@ -119,8 +119,8 @@
 
         $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
-            $('.search-results').html('<img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>');
-            
+            $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
+
             $('.Search').text('Loading...');
             $('.Search').prop('disabled', true);
             var formdata = $('#admin-search').serialize();
@@ -129,7 +129,7 @@
                 url: href,
                 data: formdata,
                 success: function (response) {
-                    $('.Search').text('Search');
+                    $('.Search').html('<i class="fa fa-search"></i> Search');
                     $('.Search').prop('disabled', false);
                     $('.search-results').html(response);
                 }
