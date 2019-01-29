@@ -110,7 +110,7 @@ class MessageController extends Controller {
 
         //mail($input['email_address'], $input['subject'], $input['message']);
 
-        echo json_encode(['http_code' => 200, 'Message sent successfully']);
+        return response()->json(['http_code' => 200, 'message' => 'message sent successfully']);
     }
 
     /**
