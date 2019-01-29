@@ -16,6 +16,11 @@
             <input type="hidden" name="channel_id" id="channel_id" value="{{ $channelPrice->channel_id }}">
 
             <div class="form-group">
+                <label for="alias">Cost Price <span class="text-danger">*</span></label>
+                <input readonly='readonly' type="text" name="cost_price" id="cost_price" placeholder="Cost Price" class="form-control" value="{{ $product->cost_price }}">
+            </div>
+
+            <div class="form-group">
                 <label for="alias">Price <span class="text-danger">*</span></label>
                 <input type="text" name="price" id="price" placeholder="Price" class="form-control" value="{{ empty($channelPrice->price) || $channelPrice->price <= 0 ? $product->price : $channelPrice->price }}">
             </div>
