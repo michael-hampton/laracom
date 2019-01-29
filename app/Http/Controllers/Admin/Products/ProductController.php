@@ -430,7 +430,7 @@ class ProductController extends Controller {
             return view('admin.products.importCsv', ['arrErrors' => $arrErrors, 'valid' => false]);
         }
 
-        return view('admin.products.importCsv');
+        return view('admin.products.importCsv', ['valid' => true]);
     }
 
     public function importCsv() {
