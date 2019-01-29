@@ -60,6 +60,7 @@ class Product extends Model implements Buyable {
         'mass_unit',
         'status',
         'sale_price',
+        'cost_price',
         'length',
         'width',
         'height',
