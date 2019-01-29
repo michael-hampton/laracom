@@ -247,9 +247,7 @@ class WarehouseController extends Controller {
         }
 
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
-        return response()->json(['http_code' => 200, 'FAILURES' => $arrErrors]);
-        echo json_encode(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
-        die;
+        return response()->json(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
     }
 
     /**
