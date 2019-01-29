@@ -119,6 +119,8 @@
 
         $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
+            $('.search-results').html('<img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>');
+            
             $('.Search').text('Loading...');
             $('.Search').prop('disabled', true);
             var formdata = $('#admin-search').serialize();
