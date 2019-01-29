@@ -25,6 +25,9 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\BackorderEvent' => [
             'App\Listeners\BackorderEventListener',
         ],
+        'App\Events\HungEvent' => [
+            'App\Listeners\HungEventListener',
+        ],
     ];
 
     /**
