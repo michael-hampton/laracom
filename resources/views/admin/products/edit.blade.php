@@ -20,20 +20,25 @@
                         <div class="tab-content" id="tabcontent">
                             <div role="tabpanel" class="tab-pane @if(!request()->has('combination')) active @endif" id="info">
                                 <div class="row">
+                                
                                     <div class="col-md-8">
                                         <h2>{{ ucfirst($product->name) }}</h2>
-                                        <div class="form-group">
+                                       
+                                       <div class="form-group">
                                             <label for="sku">SKU <span class="text-danger">*</span></label>
                                             <input type="text" name="sku" id="sku" placeholder="xxxxx" class="form-control" value="{!! $product->sku !!}">
                                         </div>
+                                        
                                         <div class="form-group">
                                             <label for="name">Name <span class="text-danger">*</span></label>
                                             <input type="text" name="name" id="name" placeholder="Name" class="form-control" value="{!! $product->name !!}">
                                         </div>
+                                        
                                         <div class="form-group">
                                             <label for="description">Description </label>
                                             <textarea class="form-control ckeditor" name="description" id="description" rows="5" placeholder="Description">{!! $product->description  !!}</textarea>
                                         </div>
+                                        
                                         <div class="form-group">
                                             <div class="col-md-3">
                                                 <div class="row">
@@ -41,11 +46,14 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
                                         <div class="row"></div>
-                                        <div class="form-group">
+                                       
+                                       <div class="form-group">
                                             <label for="cover">Cover </label>
                                             <input type="file" name="cover" id="cover" class="form-control">
                                         </div>
+                                        
                                         <div class="form-group">
                                             @foreach($images as $image)
                                             <div class="col-md-3">
@@ -56,12 +64,15 @@
                                             </div>
                                             @endforeach
                                         </div>
+                                        
                                         <div class="row"></div>
+                                        
                                         <div class="form-group">
                                             <label for="image">Images </label>
                                             <input type="file" name="image[]" id="image" class="form-control" multiple>
                                             <span class="text-warning">You can use ctr (cmd) to select multiple images</span>
                                         </div>
+                                        
                                         <div class="form-group">
                                             <label for="quantity">Quantity <span class="text-danger">*</span></label>
                                             @if($productAttributes->isEmpty())
@@ -79,6 +90,7 @@
                                             @endif
                                             @if(!$productAttributes->isEmpty())<span class="text-danger">Note: Quantity is disabled. Total quantity is calculated by the sum of all the combinations.</span> @endif
                                         </div>
+                                        
                                         <div class="form-group">
                                             <label for="price">Price</label>
                                             @if($productAttributes->isEmpty())
@@ -95,6 +107,15 @@
                                             @endif
                                             @if(!$productAttributes->isEmpty())<span class="text-danger">Note: Price is disabled. Price is derived based on the combination.</span> @endif
                                         </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="cost_price">Cost Price</label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">{{ config('cart.currency') }}</span>
+                                                <input type="text" name="cost_price" id="cost_price" placeholder="Cost Price" class="form-control" value="{{ $product->cost_price }}">
+                                            </div>
+                                        </div>
+                                        
                                         <div class="form-group">
                                             <label for="sale_price">Sale Price</label>
                                             <div class="input-group">
@@ -102,6 +123,7 @@
                                                 <input type="text" name="sale_price" id="sale_price" placeholder="Sale Price" class="form-control" value="{{ $product->sale_price }}">
                                             </div>
                                         </div>
+                                        
                                         @if(!$brands->isEmpty())
                                         <div class="form-group">
                                             <label for="brand_id">Brand </label>
@@ -132,6 +154,7 @@
                                         @include('admin.shared.attribute-select', [compact('default_weight')])
                                         <!-- /.box-body -->
                                     </div>
+                                    
                                     <div class="col-md-4">
                                         <h2>Categories</h2>
                                         @include('admin.shared.categories', ['categories' => $categories, 'ids' => $product])
