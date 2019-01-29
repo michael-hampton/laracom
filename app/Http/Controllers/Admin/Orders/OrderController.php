@@ -645,7 +645,7 @@ class OrderController extends Controller {
             return view('admin.orders.importCsv', ['arrErrors' => $arrErrors, 'valid' => false]);
         }
 
-        return view('admin.orders.importCsv');
+        return view('admin.orders.importCsv', ['valid' => true]);
         
     }
 
