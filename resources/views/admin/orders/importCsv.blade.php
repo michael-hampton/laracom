@@ -15,6 +15,13 @@
 </div>
 @endif;
 
+@if(isset($valid) && $valid === true)
+
+<div class="alert alert-success">
+    The import was successful:
+</div>
+@endif;
+
 <form action="/admin/orders/saveImport" method="post"enctype="multipart/form-data">
     {{ csrf_field() }}
     <input type="file" id="csv_file" name="csv_file">
