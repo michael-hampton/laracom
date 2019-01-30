@@ -1,9 +1,5 @@
-@extends('layouts.admin.app')
 
-@section('content')
-<!-- Main content -->
-<section class="content">
-    @include('layouts.errors-and-messages')
+ @include('layouts.errors-and-messages')
     <div class="box">
         <form action="{{ route('admin.products.update', $product->id) }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
@@ -186,10 +182,6 @@
         </form>
     </div>
     <!-- /.box -->
-</section>
-<!-- /.content -->
-@endsection
-@section('css')
 <style type="text/css">
     label.checkbox-inline {
         padding: 10px 5px;
@@ -214,8 +206,7 @@
         padding: 15px;
     }
 </style>
-@endsection
-@section('js')
+
 <script type="text/javascript">
     function backToInfoTab() {
         $('#tablist > li:first-child').addClass('active');
@@ -224,6 +215,35 @@
         $('#tabcontent > div:last-child').removeClass('active');
     }
     $(document).ready(function () {
+    
+        
+    $('.UpdateProduct').on('click', function (e) {
+        e.preventDefault();
+        $('.modal-body .alert-danger').remove();
+        
+        var formdata = $('#productForm').serialize();
+        var href = $('#productForm').attr('action');
+        
+        $.ajax({
+            type: "POST",
+            url: href,
+            data: formdata,
+            success: function (response) {
+                if (response.http_code == 400) {
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $.each(response.errors, function (key, value) {
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                    if ($('.variationList > li').length > 0) {
+                        $('#channelPriceForm').slideUp();
+                        $('#variationWrapper').slideDown();
+                    }
+                }
+            }
+        });
+    });
         const checkbox = $('input.attribute');
         $(checkbox).on('change', function () {
             const attributeId = $(this).val();
