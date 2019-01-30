@@ -49,27 +49,15 @@
                             <input name="product_name" id="product_name" class="form-control">
                         </div>
 
-                        <button style="margin-top:26px;" type="submit" class="btn btn-primary">Search</button>
+                        <button style="margin-top:26px;" type="button" class="btn btn-primary Search">Search</button>
 
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-9">
-        <div class="box">
-            <div class="box-body">
-                <h2>Products</h2>
-                @if($products)
-                @include('admin.shared.products')
-                {{ $products->links() }}
-                @endif
-
-            </div>
-
-
-
-        </div>
+    <div class="col-lg-9 search-results">
+        
     </div>
 
 
@@ -84,6 +72,27 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
+    
+        loadPagination();
+         
+         $('.Search').on('click', function (e) {
+            href = $('#admin-search').attr('action');
+            $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
+            $('.Search').text('Loading...');
+            $('.Search').prop('disabled', true);
+            var formdata = $('#admin-search').serialize();
+            $.ajax({
+                type: "POST",
+                url: href,
+                data: formdata,
+                success: function (response) {
+                    $('.Search').html('<i class="fa fa-search"></i> Search');
+                    $('.Search').prop('disabled', false);
+                    $('.search-results').html(response);
+                }
+            });
+        });
+        $('.Search').click();
 
         $(document).on('mouseenter', '.product-div', function () {
 
