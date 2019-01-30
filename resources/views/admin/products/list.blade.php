@@ -83,7 +83,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary UpdateChannel">Save changes</button>
+                <button type="button" class="btn btn-primary UpdateProduct">Save changes</button>
             </div>
         </div>
     </div>
@@ -100,7 +100,7 @@
                 type: "GET",
                 url: href,
                 success: function (response) {
-                    $('#myModal').find('.modal-body').html(response);
+                   $('#myModal').find('.modal-body').html(response);
                    $('#myModal').modal('show');
                 }
             });
