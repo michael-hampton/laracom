@@ -131,7 +131,7 @@ class ProductController extends Controller {
                     return $this->transformProduct($item);
                 })->all();
 
-        return view('admin.products.list', [
+        return view('admin.products.search', [
             'categories' => $categories,
             'brands' => $this->brandRepo->listBrands(),
             'products' => $this->productRepo->paginateArrayResults($products, 10),
