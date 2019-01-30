@@ -155,8 +155,10 @@ $(document).ready(function () {
     });
 
     $('.saveNewVoucher').on('click', function (e) {
+    
         e.preventDefault();
         $('.modal-body .alert-danger').remove();
+        $('.saveNewVoucher').prop('disabled' true);
         var formdata = $('#NewVoucherForm').serialize();
         var href = $('#NewVoucherForm').attr('action');
 
@@ -173,6 +175,8 @@ $(document).ready(function () {
                 } else {
                     $('.modal-body').prepend("<div class='alert alert-success'>Voucher has been created successfully</div>");
                 }
+                
+                $('.saveNewVoucher').prop('disabled' false);
             }
         });
     });
