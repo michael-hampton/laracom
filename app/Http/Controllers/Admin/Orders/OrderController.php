@@ -577,24 +577,24 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Backorder');
 
-        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->sortBy('order_id', false);
+        //$items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->sortBy('order_id', false);
 
-        $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
+        //$items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
         $channels = $this->channelRepo->listChannels();
         $couriers = $this->courierRepo->listCouriers();
 
-        $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
-        $orders = $this->transFormOrder($orders);
+        //$orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
+        //$orders = $this->transFormOrder($orders);
 
-        $products = $this->productRepo->listProducts()->keyBy('id');
+        //$products = $this->productRepo->listProducts()->keyBy('id');
 
         return view('admin.orders.backorders', [
-            'items' => $items,
-            'products' => $products,
+           // 'items' => $items,
+            //'products' => $products,
             'channels' => $channels,
             'couriers' => $couriers,
-            'orders' => $orders
+            //'orders' => $orders
                 ]
         );
     }
@@ -604,24 +604,24 @@ class OrderController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
 
-        $items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->sortBy('order_id', false);
+        //$items = $this->orderProductRepo->listOrderProducts()->where('status', $os->id)->sortBy('order_id', false);
 
-        $items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
+        //$items = $this->orderProductRepo->paginateArrayResults($this->transFormOrderLines($items), 10);
 
         $channels = $this->channelRepo->listChannels();
         $couriers = $this->courierRepo->listCouriers();
 
-        $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
-        $orders = $this->transFormOrder($orders);
+        //$orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
+        //$orders = $this->transFormOrder($orders);
 
-        $products = $this->productRepo->listProducts()->keyBy('id');
+        //$products = $this->productRepo->listProducts()->keyBy('id');
 
         return view('admin.orders.allocations', [
-            'items' => $items,
-            'products' => $products,
+            //'items' => $items,
+            //'products' => $products,
             'channels' => $channels,
             'couriers' => $couriers,
-            'orders' => $orders
+           // 'orders' => $orders
                 ]
         );
     }
