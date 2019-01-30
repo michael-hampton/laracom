@@ -98,24 +98,26 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-
-
-        $('.Search').on('click', function (e) {
-
+        loadPagination();
+         
+         $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
+            $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
+            $('.Search').text('Loading...');
+            $('.Search').prop('disabled', true);
             var formdata = $('#admin-search').serialize();
-
             $.ajax({
                 type: "POST",
                 url: href,
                 data: formdata,
                 success: function (response) {
-
+                    $('.Search').html('<i class="fa fa-search"></i> Search');
+                    $('.Search').prop('disabled', false);
                     $('.search-results').html(response);
                 }
             });
         });
-
+        
         $('.Search').click();
 
         $(document).on('click', '.Edit', function (e) {
