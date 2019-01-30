@@ -156,14 +156,6 @@
                                         @include('admin.shared.categories', ['categories' => $categories, 'ids' => $product])
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="box-footer">
-                                        <div class="btn-group">
-                                            <a href="{{ route('admin.products.index') }}" class="btn btn-default">Back</a>
-                                            <button type="submit" class="btn btn-primary">Update</button>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                             <div role="tabpanel" class="tab-pane @if(request()->has('combination')) active @endif" id="combinations">
                                 <div class="row">
