@@ -67,18 +67,19 @@ function param(key, name) {
 }
 
 function loadPagination() {
-$('.pagination li').on('click', function (e) {
-    
-    $('.pagination > li').removeClass('active');
-    $(this).addClass('active');
+    $(document).on('click', '.pagination li', function (e) {
 
-    page = $(this).find('a').length > 0 ? param('page', $(this).find('a').attr('href')) : $(this).find('span').text();
+        $('.pagination > li').removeClass('active');
+        $(this).addClass('active');
 
-    e.preventDefault();
+        page = $(this).find('a').length > 0 ? param('page', $(this).find('a').attr('href')) : $(this).find('span').text();
 
-    $('#page').val(page);
-    $('.Search').click();
-});
+
+        e.preventDefault();
+
+        $('#page').val(page);
+        $('.Search').click();
+    });
 }
         </script>
         @yield('js')

@@ -127,7 +127,7 @@
                 url: href,
                 data: formdata,
                 success: function (response) {
-                  exportCSVFile(response 'products');
+                  exportCSVFile(response, 'products');
                 }
             });
         });

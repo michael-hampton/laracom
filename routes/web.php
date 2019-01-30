@@ -111,6 +111,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');
         Route::get('channels/getAvailiableProducts/{channelId}', 'Channels\ChannelController@getAvailiableProducts')->name('channels.getAvailiableProducts');
 
+         Route::post('products/updateProduct', 'Products\ProductController@updateProduct')->name('products.updateProduct');
         Route::post('products/saveImport', 'Products\ProductController@saveImport')->name('products.saveImport');
         Route::get('products/importCsv/get', 'Products\ProductController@importCsv')->name('products.importCsv');
         Route::post('products/getProductAutoComplete/get/', 'Products\ProductController@getProductAutoComplete')->name('products.getProductAutoComplete');

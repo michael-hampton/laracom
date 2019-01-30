@@ -99,13 +99,6 @@
         <img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>
 
     </div>
-
-
-
-    <div class="box-footer col-lg-12">
-        {{ $orders->links() }}
-    </div>
-
 </section>
 <!-- /.content -->
 @endsection

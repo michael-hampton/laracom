@@ -60,17 +60,12 @@
         
     </div>
 
-
-    <div class="box-footer col-lg-12">
-        {{ $products->links() }}
-    </div>
-
 </section>
 <!-- /.content -->
 @endsection
 
 <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content animated bounceInRight">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
@@ -96,6 +91,7 @@
         $(document).on('click', '.Edit', function (e) {
             e.preventDefault();
             var href = $(this).attr("href");
+                        
             $.ajax({
                 type: "GET",
                 url: href,

@@ -104,18 +104,7 @@ class ProductController extends Controller {
         $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
         $brands = $this->brandRepo->listBrands();
 
-        $list = $this->productRepo->listProducts('id');
-
-        if (request()->has('q') && request()->input('q') != '') {
-            $list = $this->productRepo->searchProduct(request()->input('q'));
-        }
-
-        $products = $list->map(function (Product $item) {
-                    return $this->transformProduct($item);
-                })->all();
-
         return view('admin.products.list', [
-            'products' => $this->productRepo->paginateArrayResults($products, 10),
             'categories' => $categories,
             'brands' => $brands
         ]);
@@ -264,53 +253,7 @@ class ProductController extends Controller {
      * @throws \App\Shop\Products\Exceptions\ProductUpdateErrorException
      */
     public function update(Request $request, int $id) {
-        $product = $this->productRepo->findProductById($id);
-        $productRepo = new ProductRepository($product);
-
-        if ($request->has('attributeValue')) {
-            $this->saveProductCombinations($request, $product);
-            return response()->json(['http_code' => 200, 'message' => 'Attribute combination created successfully']);
-        }
-
-        $data = $request->except(
-                'categories', 'channels', '_token', '_method', 'default', 'image', 'productAttributeQuantity', 'productAttributePrice', 'attributeValue', 'combination'
-        );
         
-        $validator = Validator::make($data, (new UpdateProductRequest())->rules());
-       
-        // Validate the input and return correct response
-        if ($validator->fails()) {
-            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
-        }
-
-        $data['slug'] = str_slug($request->input('name'));
-
-        // cover image
-        if ($request->hasFile('cover')) {
-            $data['cover'] = $productRepo->saveCoverImage($request->file('cover'));
-        }
-
-        // images
-        if ($request->hasFile('image')) {
-            $productRepo->saveProductImages(collect($request->file('image')));
-        }
-
-        // categories
-        if ($request->has('categories')) {
-            $productRepo->syncCategories($request->input('categories'));
-        } else {
-            $productRepo->detachCategories();
-        }
-
-        // channels
-        if ($request->has('channels')) {
-            $productRepo->syncChannels($request->input('channels'));
-        } else {
-            $productRepo->detachChannels();
-        }
-
-        $productRepo->updateProduct($data);
-        return response()->json(['http_code' => 200]);
     }
 
     /**
@@ -377,6 +320,7 @@ class ProductController extends Controller {
 
         $quantity = $fields['productAttributeQuantity'];
         $price = $fields['productAttributePrice'];
+        $cost_price = $request->cost_price;
         $sale_price = null;
 
         if (isset($fields['sale_price'])) {
@@ -395,7 +339,7 @@ class ProductController extends Controller {
         }
 
         $productAttribute = $productRepo->saveProductAttributes(
-                new ProductAttribute(compact('quantity', 'price', 'sale_price', 'default'))
+                new ProductAttribute(compact('quantity', 'price', 'sale_price', 'cost_price', 'default'))
         );
 
         // save the combinations
@@ -435,6 +379,59 @@ class ProductController extends Controller {
         }
 
         return view('admin.products.importCsv', ['valid' => true]);
+    }
+
+    public function updateProduct(Request $request) {
+        
+        $id = $request->id;
+
+        $product = $this->productRepo->findProductById($id);
+        $productRepo = new ProductRepository($product);
+
+        if ($request->has('attributeValue')) {
+            $this->saveProductCombinations($request, $product);
+            return response()->json(['http_code' => 200, 'message' => 'Attribute combination created successfully']);
+        }
+
+        $data = $request->except(
+                'id', 'categories', 'channels', '_token', '_method', 'default', 'image', 'productAttributeQuantity', 'productAttributePrice', 'attributeValue', 'combination'
+        );
+
+        $validator = Validator::make($data, (new UpdateProductRequest())->rules());
+
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
+        }
+
+        $data['slug'] = str_slug($request->input('name'));
+
+        // cover image
+        if ($request->hasFile('cover')) {
+            $data['cover'] = $productRepo->saveCoverImage($request->file('cover'));
+        }
+
+        // images
+        if ($request->hasFile('image')) {
+            $productRepo->saveProductImages(collect($request->file('image')));
+        }
+
+        // categories
+        if ($request->has('categories')) {
+            $productRepo->syncCategories($request->input('categories'));
+        } else {
+            $productRepo->detachCategories();
+        }
+
+        // channels
+        if ($request->has('channels')) {
+            $productRepo->syncChannels($request->input('channels'));
+        } else {
+            $productRepo->detachChannels();
+        }
+
+        $productRepo->updateProduct($data);
+        return response()->json(['http_code' => 200]);
     }
 
     public function importCsv() {

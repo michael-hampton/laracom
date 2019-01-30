@@ -88,6 +88,6 @@
         @endif
     </div>
 
-
+    {{ $items->links() }}
 
 </div>

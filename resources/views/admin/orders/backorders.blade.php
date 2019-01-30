@@ -102,7 +102,7 @@
 
         <div class='checkbox-count'></div>
 
-        {{ $items->links() }}
+      
     </div>
 
 </section>

@@ -5,15 +5,14 @@ namespace App\Shop\Products\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateProductRequest extends FormRequest
-{
+class UpdateProductRequest extends FormRequest {
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize() {
         return true;
     }
 
@@ -22,13 +21,15 @@ class UpdateProductRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules() {
+        $id = request()->post('id', 1);
+
         return [
             'sku' => ['required'],
-            'name' => ['required', Rule::unique('products')->ignore($this->segment(3))],
+            'name' => 'unique:products,name,' . $id,
             'quantity' => ['required', 'numeric'],
             'price' => ['required']
         ];
     }
+
 }

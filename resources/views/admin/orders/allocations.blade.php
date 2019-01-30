@@ -68,8 +68,8 @@
                                 </select>
                             </div>
                             @endif
-                            </div>
-                            
+                        </div>
+
                         <div style="margin-bottom: 10px;">
                             <div class="input-group" style="width:100%">
                                 <input type="checkbox" name="is_priority" class="form-control" value="1">
@@ -77,19 +77,19 @@
                         </div>
 
 
-                            <span class="">
-                                <button type="button" id="search-btn" class="btn btn-flat Search btn-success"><i class="fa fa-search"></i> Search </button>
-                            </span>
+                        <span class="">
+                            <button type="button" id="search-btn" class="btn btn-flat Search btn-success"><i class="fa fa-search"></i> Search </button>
+                        </span>
 
-                            <input type="hidden" id="status" name="line_status" value="14">
-                            <input type="hidden" id="module" name="module" value="allocations">
+                        <input type="hidden" id="status" name="line_status" value="14">
+                        <input type="hidden" id="module" name="module" value="allocations">
                         </div>
 
                     </form>
                 </div>
             </div>
         </div>
-    </div>
+    
     <div class="col-lg-9 search-results">
 
         <img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>
@@ -104,8 +104,6 @@
         </div>
 
         <div class='checkbox-count'></div>
-
-        {{ $items->links() }}
 
     </div>
 

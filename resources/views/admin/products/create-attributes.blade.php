@@ -57,8 +57,7 @@
 </div>
 
 <div class="box-footer">
-    <div class="btn-group">
-        <button type="button" class="btn btn-sm btn-default" onclick="backToInfoTab()">Back</button>
-        <button id="createCombinationBtn" type="submit" class="btn btn-sm btn-primary" disabled="disabled">Create combination</button>
+    <div class="">
+        <button id="createCombinationBtn" type="submit" class="btn btn-primary" disabled="disabled">Create combination</button>
     </div>
 </div>
