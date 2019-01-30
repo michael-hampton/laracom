@@ -13,7 +13,7 @@
                 <!-- search form -->
                 <div class="col-lg-12">
                     <form action="{{ route('admin.products.search') }}" method="post" id="admin-search">
-
+                        <input type="hidden" name="page" id="page" value="1">
                         {{ csrf_field() }}
 
                         <div style="margin-bottom: 10px;">
