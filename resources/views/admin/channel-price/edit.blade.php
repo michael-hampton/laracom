@@ -41,6 +41,7 @@
 
         <?php
         $price = isset($channel_varaitions[$attribute->id]) ? $channel_varaitions[$attribute->id]->price : $attribute->price;
+        $cost_price = isset($channel_varaitions[$attribute->id]) ? $channel_varaitions[$attribute->id]->cost_price : $attribute->cost_price;
         ?>
 
         <li attribute-id="{{$attribute->id}}" cost-price='{{$cost_price}}' price='{{$price}}' class="list-group-item fist-item @if(in_array($attribute->id, $assignedAttributes)) added @endif">
