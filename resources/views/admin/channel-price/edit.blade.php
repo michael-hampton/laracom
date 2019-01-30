@@ -43,7 +43,7 @@
         $price = isset($channel_varaitions[$attribute->id]) ? $channel_varaitions[$attribute->id]->price : $attribute->price;
         ?>
 
-        <li attribute-id="{{$attribute->id}}" price='{{$price}}' class="list-group-item fist-item @if(in_array($attribute->id, $assignedAttributes)) added @endif">
+        <li attribute-id="{{$attribute->id}}" cost-price='{{$cost_price}}' price='{{$price}}' class="list-group-item fist-item @if(in_array($attribute->id, $assignedAttributes)) added @endif">
             <span class="float-right">{{$price}} </span>
 
             @foreach($attribute->attributesValues as $value)
