@@ -122,6 +122,7 @@
         $('#channelPriceForm').slideDown();
         $('#added').val(added);
         $('#price').val($(this).attr('price'));
+        $('#cost_price').val($(this).attr('cost-price'));
         $('.productCode').html($(this).attr('name'));
         $('#attribute_id').val($(this).attr('attribute-id'));
 
