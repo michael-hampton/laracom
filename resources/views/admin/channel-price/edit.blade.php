@@ -133,6 +133,7 @@
 
         e.preventDefault();
 
+        $('.UpdateChannel').prop('disabled', true);
         $('.modal-body .alert-danger').remove();
 
         $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').addClass('added');
@@ -164,6 +165,8 @@
                     }
 
                 }
+                
+                $('.UpdateChannel').prop('disabled', false);
 
             }
         });
