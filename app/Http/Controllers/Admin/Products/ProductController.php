@@ -263,19 +263,25 @@ class ProductController extends Controller {
      * @return \Illuminate\Http\Response
      * @throws \App\Shop\Products\Exceptions\ProductUpdateErrorException
      */
-    public function update(UpdateProductRequest $request, int $id) {
+    public function update(Request $request, int $id) {
         $product = $this->productRepo->findProductById($id);
         $productRepo = new ProductRepository($product);
 
         if ($request->has('attributeValue')) {
             $this->saveProductCombinations($request, $product);
-            return redirect()->route('admin.products.edit', [$id, 'combination' => 1])
-                            ->with('message', 'Attribute combination created successful');
+            return response()->json(['http_code' => 200, 'message' => 'Attribute combination created successfully']);
         }
 
         $data = $request->except(
                 'categories', 'channels', '_token', '_method', 'default', 'image', 'productAttributeQuantity', 'productAttributePrice', 'attributeValue', 'combination'
         );
+        
+        $validator = Validator::make($data, (new UpdateProductRequest())->rules());
+       
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
+        }
 
         $data['slug'] = str_slug($request->input('name'));
 
@@ -304,9 +310,7 @@ class ProductController extends Controller {
         }
 
         $productRepo->updateProduct($data);
-
-        return redirect()->route('admin.products.edit', $id)
-                        ->with('message', 'Update successful');
+        return response()->json(['http_code' => 200]);
     }
 
     /**
