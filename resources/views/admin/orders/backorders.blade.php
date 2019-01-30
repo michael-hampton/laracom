@@ -69,6 +69,12 @@
                             </div>
                             @endif
                         </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <div class="input-group" style="width:100%">
+                                <input type="checkbox" name="is_priority" class="form-control" value="1">
+                            </div>
+                        </div>
 
                         <span class="">
                             <button type="button" id="search-btn" class="btn btn-flat Search btn-success"><i class="fa fa-search"></i> Search </button>
