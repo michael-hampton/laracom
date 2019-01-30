@@ -236,6 +236,35 @@
             }
         });
     });
+    
+    $('#createCombinationBtn').on('click', function (e) {
+        e.preventDefault();
+        $('.modal-body .alert-danger').remove();
+        
+        var formdata = $('#productForm').serialize();
+        var href = $('#productForm').attr('action');
+        
+        $.ajax({
+            type: "POST",
+            url: href,
+            data: formdata,
+            success: function (response) {
+                if (response.http_code == 400) {
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $.each(response.errors, function (key, value) {
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                    if ($('.variationList > li').length > 0) {
+                        $('#channelPriceForm').slideUp();
+                        $('#variationWrapper').slideDown();
+                    }
+                }
+            }
+        });
+    });
+    
         const checkbox = $('input.attribute');
         $(checkbox).on('change', function () {
             const attributeId = $(this).val();
