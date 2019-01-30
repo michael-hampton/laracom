@@ -93,6 +93,19 @@
 <script type="text/javascript">
     $(document).ready(function () {
     
+        $(document).on('click', '.Edit', function (e) {
+            e.preventDefault();
+            var href = $(this).attr("href");
+            $.ajax({
+                type: "GET",
+                url: href,
+                success: function (response) {
+                    $('#myModal').find('.modal-body').html(response);
+                   $('#myModal').modal('show');
+                }
+            });
+        });
+    
         loadPagination();
          
          $('.Search').on('click', function (e) {
