@@ -12,6 +12,7 @@ class ProductAttribute extends Model
         'quantity',
         'price',
         'sale_price',
+        'cost_price',
         'default'
     ];
 
