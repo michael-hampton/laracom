@@ -36,7 +36,7 @@
     <label for="costPrice">Cost Price</label>
     <div class="input-group">
         <span class="input-group-addon">{{ config('cart.currency') }}</span>
-        <input type="text" name="costPrice" id="costPrice" class="form-control" placeholder="Cost Price">
+        <input type="text" name="cost_price" id="costPrice" class="form-control" placeholder="Cost Price">
     </div>
 </div>
 
