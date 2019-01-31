@@ -28,7 +28,7 @@ function buildcheckBox($value, $label) {
         <div class="box">
             <div class="box-body channel-div">
 
-                <form id="channelForm" channel-id="{{ $channel->id }}" class="form" enctype="multipart/form-data">
+                <form action="{{ route('admin.channels.updateChannel') }}" id="channelForm" channel-id="{{ $channel->id }}" class="form" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="put">
                     <h2>{{ ucfirst($channel->name) }}</h2>
@@ -387,14 +387,17 @@ $(document).ready(function () {
 
         e.preventDefault();
         var channel = $(this).attr('channel-id');
-        var formdata = $(this).serialize();
-
+        //var formdata = $(this).serialize();
+        var formdata = new FormData($(this)[0]);
+        var href = $(this).attr('action');
+        
         $.ajax({
             type: "POST",
-            url: '/admin/channels/updateNewChannel',
+            url: href,
             data: formdata,
             cache: false,
             processData: false,
+            contentType: false,
             success: function (response) {
 
                 if (response.http_code == 400) {
