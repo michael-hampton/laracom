@@ -39,11 +39,11 @@ foreach ($codes as $unusedCode) {
         </form>
 
 
-        <form id="UpdateVoucherForm" action="{{ route('admin.vouchers.update', $voucher->id) }}" method="post" class="form" enctype="multipart/form-data">
+        <form id="UpdateVoucherForm" action="{{ route('admin.vouchers.updateVoucher', $voucher->id) }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
 
-                <input type="hidden" name="_method" value="put">
+                <!-- <input type="hidden" name="_method" value="put">-->
                 <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
                 <input type="hidden" name="scope_value" id="scope_value" value="{{ $voucher->scope_value ?: old('scope_value') }}">
 
@@ -206,7 +206,8 @@ foreach ($codes as $unusedCode) {
                             e.preventDefault();
 
                             $('.content .alert-danger').remove();
-                            var formdata = $('#UpdateVoucherForm').serialize();
+                            //var formdata = $('#UpdateVoucherForm').serialize();
+                            var formdata = new FormData($('#UpdateVoucherForm')[0]);
                             var href = $('#UpdateVoucherForm').attr('action');
 
                             $.ajax({
