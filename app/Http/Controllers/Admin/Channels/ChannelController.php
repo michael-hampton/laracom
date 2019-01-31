@@ -282,6 +282,35 @@ class ChannelController extends Controller {
 
         return response()->json(['http_code' => 200, 'message' => 'Channel has been updated successfully']);
     }
+    
+        /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function updateChannel(Request $request) {
+
+
+        $channel = $this->channelRepo->findChannelById($request->channel);
+        $channelRepo = new ChannelRepository($channel);
+
+        $data = $request->except('_token', '_method', 'channel');
+
+        if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
+            $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
+        }
+
+        $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
+        }
+
+        $channelRepo->updateChannel($data);
+
+        return response()->json(['http_code' => 200, 'message' => 'Channel has been updated successfully']);
+    }
 
     /**
      * Update the specified resource in storage.
