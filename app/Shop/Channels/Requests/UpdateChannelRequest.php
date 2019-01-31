@@ -22,8 +22,11 @@ class UpdateChannelRequest extends FormRequest {
      * @return array
      */
     public function rules() {
+        
+        $id = request()->post('id', 1);
+        
         return [
-            'name' => ['required', 'unique:products'],
+            'name' => 'unique:channels,name,' . $id,
             //'allocate_on_order' => ['required'],
             //'backorders_enabled' => ['required'],
             //'has_priority' => ['required'],
