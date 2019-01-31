@@ -218,5 +218,18 @@ class VoucherCodeController extends Controller {
         $voucherCode->use_count = $voucherCode->use_count - 1;
         $voucherCode->save();
     }
+    
+    public function importVoucherCodes(Request $request) {
+        
+        $file_path = $request->csv_file->path();
+        $file = fopen($file_path, 'r');
+        while (($line = fgetcsv($file)) !== FALSE) {
+            //$line is an array of the csv elements
+            //print_r($line);
+            $this->voucherCodeRepo->createVoucherCode(['voucher_code' => $line['voucher_code']);
+       }
+        
+        fclose($file);
+    }
 
 }
