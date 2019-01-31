@@ -30,7 +30,6 @@ class UpdateChannelRequest extends FormRequest {
             //'allocate_on_order' => ['required'],
             //'backorders_enabled' => ['required'],
             //'has_priority' => ['required'],
-            'cover' => ['file', 'image:png,jpeg,jpg,gif']
         ];
     }
 

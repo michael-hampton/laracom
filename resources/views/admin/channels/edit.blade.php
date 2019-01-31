@@ -31,9 +31,9 @@ function buildcheckBox($value, $label) {
                 <form action="{{ route('admin.channels.updateChannel') }}" id="channelForm" channel-id="{{ $channel->id }}" class="form" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <!-- <input type="hidden" name="_method" value="put"> -->
-                    <h2>{{ ucfirst($channel->name) }}</h2>
+                    <h2 class="channel-name">{{ ucfirst($channel->name) }}</h2>
 
-                    <input type="hidden" name="channel" value="{{$channel->id}}">
+                    <input type="hidden" name="id" value="{{$channel->id}}">
 
                     <div class="form-group">
                         <label for="name">Name <span class="text-danger">*</span></label>
@@ -74,7 +74,7 @@ function buildcheckBox($value, $label) {
 
                     <div class="btn-group">
                         <a href="{{ route('admin.channels.index') }}" class="btn btn-default">Back</a>
-                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="button" class="btn btn-primary UpdateChannel">Update</button>
                     </div>
                 </form>
             </div>
@@ -127,18 +127,18 @@ function buildcheckBox($value, $label) {
                     <label for="status">Send Order Received Email </label>
                     {{buildCheckbox($channel->send_received_email, 'send_received_email')}}
                 </div>
-                
+
                 <div class="form-group">
                     <label for="status">Send Dispatched Email </label>
                     {{buildCheckbox($channel->send_dispatched_email, 'send_dispatched_email')}}
                 </div>
-                
+
                 <div class="form-group">
                     <label for="status">Send Order Hung Email </label>
                     {{buildCheckbox($channel->send_hung_email, 'send_hung_email')}}
                 </div>
-                
-               <div class="form-group">
+
+                <div class="form-group">
                     <label for="status">Send Backorder Email </label>
                     {{buildCheckbox($channel->send_backorder_email, 'send_backorder_email')}}
                 </div>
@@ -383,14 +383,13 @@ $(document).ready(function () {
             }
         });
     });
-    $('#channelForm').on('submit', function (e) {
+    $('.UpdateChannel').on('click', function (e) {
 
-        e.preventDefault();
-        var channel = $(this).attr('channel-id');
+        var channel = $('#channelForm').attr('channel-id');
         //var formdata = $(this).serialize();
-        var formdata = new FormData($(this)[0]);
-        var href = $(this).attr('action');
-        
+        var formdata = new FormData($('#channelForm')[0]);
+        var href = $('#channelForm').attr('action');
+
         $.ajax({
             type: "POST",
             url: href,
@@ -406,6 +405,7 @@ $(document).ready(function () {
                         $('.channel-div .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
+                $('.channel-name').html($('#name').val());
                     $('.channel-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                 }
 

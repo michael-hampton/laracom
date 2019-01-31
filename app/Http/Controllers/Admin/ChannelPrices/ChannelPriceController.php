@@ -105,6 +105,9 @@ class ChannelPriceController extends Controller {
      */
     public function search(Request $request) {
 
+        $export = $request->export;
+        $request->request->remove('export');
+
         $list = ChannelPriceSearch::apply($request);
 
         $products = $list->map(function (ChannelPrice $item) {
@@ -112,10 +115,35 @@ class ChannelPriceController extends Controller {
                     return $this->transformProduct($item);
                 })->all();
 
+        if ((int) $export === 1) {
+
+            $arrProducts = $this->formatExportData($products);
+
+            return response()->json($arrProducts);
+        }
+
         return view('admin.channel-price.search', [
             'products' => $this->channelPriceRepo->paginateArrayResults($products, 10)
                 ]
         );
+    }
+
+    private function formatExportData($products) {
+        $arrProducts = [];
+
+        foreach ($products as $product) {
+
+            $arrProducts[] = array(
+                'name' => $product->name,
+                'description' => strip_tags($product->description),
+                'brand_name' => $product->brand_name,
+                'sku' => $product->sku,
+                'quantity' => $product->quantity,
+                'status' => $product->status
+            );
+        }
+
+        return $arrProducts;
     }
 
     /**

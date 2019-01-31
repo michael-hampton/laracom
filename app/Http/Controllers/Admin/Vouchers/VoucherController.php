@@ -10,6 +10,9 @@ use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Shop\Brands\Repositories\Interfaces\BrandRepositoryInteface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
+use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
+use App\Shop\VoucherCodes\VoucherCode;
+use Illuminate\Http\UploadedFile;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Vouchers\Requests\CreateVoucherRequest;
@@ -168,40 +171,97 @@ class VoucherController extends Controller {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
+        $blImport = $request->hasFile('csv_file') && $request->file('csv_file') instanceof UploadedFile ? true : false;
+
         try {
             $voucher = $this->voucherRepo->createVoucher($data);
 
-            (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
+            if ($blImport === false) {
+                (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
+            }
+
+            if ($request->hasFile('csv_file') && $request->file('csv_file') instanceof UploadedFile) {
+
+                $this->importVoucherCodes($request, $voucher);
+                $blImport = true;
+            }
         } catch (Exception $ex) {
             return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
         }
-        
-        $filename = 'codes_'.md5(date('Y-m-d H:i:s:u')).'.csv';
+
+        $filename = 'codes_' . md5(date('Y-m-d H:i:s:u')) . '.csv';
         $downloadPath = storage_path($filename);
         $this->generateCsvFile($downloadPath, $voucher);
 
         return response()->json(['http_code' => 200, 'filename' => $filename]);
     }
-    
-    private function generateCsvFile($pathToGenerate, Voucher $voucher) {
-    
-        $header = false;
-        $file = fopen('../storage/app/'.$pathToGenerate,'w+');
-     
-        $arrCodes = $this->voucherCodeRepo->listVoucherCode()->where('voucher_id', $voucher->id)->toArray();
+
+    /**
+     * 
+     * @param Request $request
+     * @param Voucher $voucher
+     */
+    public function importVoucherCodes(Request $request, Voucher $voucher) {
+
+        $file_path = $request->csv_file->path();
+        $data = $request->except('_token', '_method');
+
+        $file = fopen($file_path, 'r');
+        while (($line = fgetcsv($file)) !== FALSE) {
+
+            $data = array(
+                'voucher_code' => $line[0],
+                'use_count' => $request->use_count,
+                'status' => 1,
+                'voucher_id' => $voucher->id
+            );
+
+            (new VoucherCodeRepository(new VoucherCode))->createVoucherCode($data);
+        }
+
+        fclose($file);
+    }
+
+    public function updateVoucher(Request $request) {
+        $data = $request->except('_token', '_method');
+        $data['expiry_date'] = date('Y-m-d', strtotime($request->expiry_date));
+        $data['start_date'] = date('Y-m-d', strtotime($request->start_date));
         
-        foreach ($arrCodes as $row)
-        {   
-            
-            if (!$header)
-            {   
-                fputcsv($createFile,array_keys($row));
+        $id = $request->id;
+
+        $voucher = $this->voucherRepo->findVoucherById($id);
+
+        $channel = $this->channelRepo->findChannelById($voucher->channel);
+
+        $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
+        // Validate the input and return correct response
+        if ($validator->fails()) {
+            return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+        }
+
+        $update = new VoucherRepository($voucher);
+        $update->updateVoucher($data);
+
+        return response()->json(['http_code' => 200]);
+    }
+
+    private function generateCsvFile($pathToGenerate, Voucher $voucher) {
+
+        $header = false;
+        $createFile = fopen('../storage/app/' . $pathToGenerate, 'w+');
+
+        $arrCodes = $this->voucherCodeRepo->listVoucherCode()->where('voucher_id', $voucher->id)->toArray();
+
+        foreach ($arrCodes as $row) {
+
+            if (!$header) {
+                fputcsv($createFile, array_keys($row));
                 $header = true;
             }
-     
-        fputcsv($createFile,$row);   // write the data for all rows
-    }
-    
+
+            fputcsv($createFile, $row);   // write the data for all rows
+        }
+
         fclose($createFile);
         return true;
     }
@@ -267,25 +327,7 @@ class VoucherController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-
-        $data = $request->except('_token', '_method');
-        $data['expiry_date'] = date('Y-m-d', strtotime($request->expiry_date));
-        $data['start_date'] = date('Y-m-d', strtotime($request->start_date));
-
-        $voucher = $this->voucherRepo->findVoucherById($id);
-
-        $channel = $this->channelRepo->findChannelById($voucher->channel);
-
-        $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
-        // Validate the input and return correct response
-        if ($validator->fails()) {
-            return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
-        }
-
-        $update = new VoucherRepository($voucher);
-        $update->updateVoucher($data);
-
-        return response()->json(['http_code' => 200]);
+        
     }
 
     /**

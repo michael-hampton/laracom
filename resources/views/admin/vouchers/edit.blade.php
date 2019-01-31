@@ -39,12 +39,13 @@ foreach ($codes as $unusedCode) {
         </form>
 
 
-        <form id="UpdateVoucherForm" action="{{ route('admin.vouchers.updateVoucher', $voucher->id) }}" method="post" class="form" enctype="multipart/form-data">
+        <form id="UpdateVoucherForm" action="{{ route('admin.vouchers.updateVoucher') }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
 
                 <!-- <input type="hidden" name="_method" value="put">-->
                 <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
+                <input type="hidden" name="id" id="id" value="{{ $voucher->id }}">
                 <input type="hidden" name="scope_value" id="scope_value" value="{{ $voucher->scope_value ?: old('scope_value') }}">
 
                 <div class="form-group">
@@ -75,11 +76,11 @@ foreach ($codes as $unusedCode) {
                     <label for="expiry_date">Expiry Date </label>
                     <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ date('m-d-Y', strtotime($voucher->expiry_date)) ?: old('expiry_date') }}">
                 </div>
-                
-                 <div class="form-group">
-                         <label for="cover">Codes</label>
-                         <input type="file" name="csv_file" id="csv_file" class="form-control">
-                     </div>
+
+                <div class="form-group">
+                    <label for="cover">Codes</label>
+                    <input type="file" name="csv_file" id="csv_file" class="form-control">
+                </div>
 
                 @if(!empty($scopes))
                 <div class="form-group">
@@ -214,6 +215,8 @@ foreach ($codes as $unusedCode) {
                                 type: "POST",
                                 url: href,
                                 data: formdata,
+                                contentType: false,
+                                processData: false,
                                 success: function (response) {
                                     if (response.http_code == 400) {
                                         $('.content').prepend("<div class='alert alert-danger'></div>");

@@ -29,6 +29,7 @@ trait ChannelTransformable {
         $channelObj->send_backorder_email = $channel->send_backorder_email;
         $channelObj->send_dispatched_email = $channel->send_dispatched_email;
         $channelObj->cover = $channel->cover;
+         $channelObj->status = $channel->status;
         return $channelObj;
     }
 

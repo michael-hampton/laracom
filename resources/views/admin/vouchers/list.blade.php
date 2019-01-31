@@ -155,10 +155,10 @@ $(document).ready(function () {
     });
 
     $('.saveNewVoucher').on('click', function (e) {
-    
+
         e.preventDefault();
         $('.modal-body .alert-danger').remove();
-        $('.saveNewVoucher').prop('disabled' true);
+        $('.saveNewVoucher').prop('disabled', true);
         //var formdata = $('#NewVoucherForm').serialize();
         var formdata = new FormData($('#NewVoucherForm')[0]);
         var href = $('#NewVoucherForm').attr('action');
@@ -166,6 +166,8 @@ $(document).ready(function () {
         $.ajax({
             type: "POST",
             url: href,
+            processData: false,
+            contentType: false,
             data: formdata,
             success: function (response) {
                 if (response.http_code == 400) {
@@ -176,8 +178,8 @@ $(document).ready(function () {
                 } else {
                     $('.modal-body').prepend("<div class='alert alert-success'>Voucher has been created successfully</div>");
                 }
-                
-                $('.saveNewVoucher').prop('disabled' false);
+
+                $('.saveNewVoucher').prop('disabled', false);
             }
         });
     });

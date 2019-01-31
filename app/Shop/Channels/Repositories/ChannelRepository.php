@@ -66,6 +66,7 @@ class ChannelRepository extends BaseRepository implements ChannelRepositoryInter
      */
     public function updateChannel(array $data): bool {
         try {
+            
             return $this->model->where('id', $this->model->id)->update($data);
         } catch (QueryException $e) {
             throw new ChannelInvalidArgumentException($e);
