@@ -129,6 +129,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::delete('channels/deleteProvider/{id}', 'Channels\ChannelController@deleteProvider')->name('channels.deleteProvider');
         Route::delete('voucher-codes/destroy/{id}', 'VoucherCodes\VoucherCodeController@destroy')->name('voucher-codes.destroy');
         Route::resource('voucher-codes', 'VoucherCodes\VoucherCodeController');
+        Route::post('vouchers/updateVoucher', 'Vouchers\VoucherController@updateVoucher')->name('vouchers.updateVoucher');
         Route::resource('vouchers', 'Vouchers\VoucherController');
         Route::get('voucher-codes/batch/{id?}', 'VoucherCodes\VoucherCodeController@getCodesByBatch')->name('voucher-codes.batch');
         Route::get('voucher-codes/validate/{code}', 'VoucherCodes\VoucherCodeController@validateVoucherCode')->name('voucher-codes.validateVoucherCode');
