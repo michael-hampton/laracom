@@ -159,7 +159,8 @@ $(document).ready(function () {
         e.preventDefault();
         $('.modal-body .alert-danger').remove();
         $('.saveNewVoucher').prop('disabled' true);
-        var formdata = $('#NewVoucherForm').serialize();
+        //var formdata = $('#NewVoucherForm').serialize();
+        var formdata = new FormData($('#NewVoucherForm')[0]);
         var href = $('#NewVoucherForm').attr('action');
 
         $.ajax({
