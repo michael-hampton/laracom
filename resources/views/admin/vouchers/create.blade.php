@@ -95,6 +95,11 @@
                     </div>
                 </div>
                 <div class="form-inline">
+                
+                     <div class="form-group">
+                         <label for="cover">Cover </label>
+                         <input type="file" name="csv_file" id="csv_file" class="form-control">
+                     </div>
 
                     @if(!empty($products))
                     <div class="form-group products scope-type col-lg-6" style="display:none;">
