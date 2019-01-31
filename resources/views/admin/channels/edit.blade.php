@@ -30,7 +30,7 @@ function buildcheckBox($value, $label) {
 
                 <form action="{{ route('admin.channels.updateChannel') }}" id="channelForm" channel-id="{{ $channel->id }}" class="form" enctype="multipart/form-data">
                     {{ csrf_field() }}
-                    <input type="hidden" name="_method" value="put">
+                    <!-- <input type="hidden" name="_method" value="put"> -->
                     <h2>{{ ucfirst($channel->name) }}</h2>
 
                     <input type="hidden" name="channel" value="{{$channel->id}}">
