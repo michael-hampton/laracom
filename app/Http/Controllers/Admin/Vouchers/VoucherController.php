@@ -175,8 +175,33 @@ class VoucherController extends Controller {
         } catch (Exception $ex) {
             return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
         }
+        
+        $filename = 'codes_'.md5(date('Y-m-d H:i:s:u')).'.csv';
+        $this->generateCsvFile($filename, $voucher);
 
-        return response()->json(['http_code' => 200]);
+        return response()->json(['http_code' => 200, 'filename' => $filename]);
+    }
+    
+    private function generateCsvFile($pathToGenerate, Voucher $voucher) {
+    
+        $header = false;
+        $createFile = fopen($pathToGenerate,'w+');
+        $arrCodes = $this->voucherCodeRepo->listVoucherCode()->where('voucher_id', $voucher->id)->toArray();
+        
+        foreach ($arrCodes as $row)
+        {   
+            
+            if (!$header)
+            {   
+                fputcsv($createFile,array_keys($row));
+                $header = true;
+            }
+     
+        fputcsv($createFile,$row);   // write the data for all rows
+    }
+    
+        fclose($createFile);
+        return true;
     }
 
     /**
