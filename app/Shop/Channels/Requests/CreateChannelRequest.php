@@ -14,7 +14,7 @@ class CreateChannelRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'unique:products'],
+            'name' => ['required', 'unique:channels'],
             'allocate_on_order' => ['required'],
             'backorders_enabled' => ['required'],
             'has_priority' => ['required']
