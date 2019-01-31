@@ -75,6 +75,11 @@ foreach ($codes as $unusedCode) {
                     <label for="expiry_date">Expiry Date </label>
                     <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ date('m-d-Y', strtotime($voucher->expiry_date)) ?: old('expiry_date') }}">
                 </div>
+                
+                 <div class="form-group">
+                         <label for="cover">Codes</label>
+                         <input type="file" name="csv_file" id="csv_file" class="form-control">
+                     </div>
 
                 @if(!empty($scopes))
                 <div class="form-group">
