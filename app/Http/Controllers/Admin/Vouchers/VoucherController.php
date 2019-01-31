@@ -177,7 +177,8 @@ class VoucherController extends Controller {
         }
         
         $filename = 'codes_'.md5(date('Y-m-d H:i:s:u')).'.csv';
-        $this->generateCsvFile($filename, $voucher);
+        $downloadPath = storage_path($filename);
+        $this->generateCsvFile($downloadPath, $voucher);
 
         return response()->json(['http_code' => 200, 'filename' => $filename]);
     }
@@ -185,7 +186,8 @@ class VoucherController extends Controller {
     private function generateCsvFile($pathToGenerate, Voucher $voucher) {
     
         $header = false;
-        $createFile = fopen($pathToGenerate,'w+');
+        $file = fopen('../storage/app/'.$pathToGenerate,'w+');
+     
         $arrCodes = $this->voucherCodeRepo->listVoucherCode()->where('voucher_id', $voucher->id)->toArray();
         
         foreach ($arrCodes as $row)
