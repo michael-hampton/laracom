@@ -136,8 +136,9 @@
         $('.UpdateChannel').prop('disabled', true);
         $('.modal-body .alert-danger').remove();
 
-        $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').addClass('added');
-        $('.variationList > li[attributeid="' + $('#attribute_id').val() + '"]').append('a href="#" class="removeVariation">');
+        var attributeId = $('#attribute_id').val();
+        $('.variationList > li[attributeid="' + attributeId + '"]').addClass('added');
+        $('.variationList > li[attributeid="' + attributeId + '"]').append('a href="#" class="removeVariation">');
 
         var formdata = $('#channelPriceForm').serialize();
         var href = $('#channelPriceForm').attr('action');
@@ -163,6 +164,8 @@
                         $('#channelPriceForm').slideUp();
                         $('#variationWrapper').slideDown();
                     }
+                    
+                         $('.variationList > li[attributeid="' + attributeId + '"]').prop('price', $('#price').val());
 
                 }
                 
