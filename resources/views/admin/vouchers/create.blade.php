@@ -106,12 +106,15 @@
                         <label for="cover">Cover </label>
                         <input type="file" name="csv_file" id="csv_file" class="form-control">
 
-                        <input type="file" id="fileUpload" />
-                        <input type="button" id="uploadProducts" value="Add Product Codes" class="btn btn-primary" />
+                        
                     </div>
 
                     @if(!empty($products))
                     <div class="form-group products scope-type col-lg-6" style="display:none;">
+                        
+                        <input type="file" id="fileUpload" />
+                        <input type="button" id="uploadProducts" value="Add Product Codes" class="btn btn-primary" />
+                        
                         <label for="product">Product</label>
                         <select name="product" id="product" class="form-control select2 scope-select">
                             <option value="">--Select--</option>
