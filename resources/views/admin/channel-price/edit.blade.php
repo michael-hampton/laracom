@@ -165,7 +165,7 @@
                         $('#variationWrapper').slideDown();
                     }
                     
-                         $('.variationList > li[attributeid="' + attributeId + '"]').prop('price', $('#price').val());
+                         $('.variationList > li[attributeid="' + attributeId + '"]').attr('price', $('#price').val());
 
                 }
                 
