@@ -14,6 +14,7 @@
         <form id="NewVoucherForm" action="{{ route('admin.vouchers.store') }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
+                <input type="hidden" id="uploadedProductCodes" name="uploadedProductCodes">
 
                 @if(empty($selectedChannel) && !$channels->isEmpty())
                 <div class="form-group">
@@ -94,15 +95,20 @@
                         </select>
                     </div>
                 </div>
+
+                <ul class="form-inline uploaded-products">
+
+                </ul>
+
                 <div class="form-inline">
-                
-                     <div class="form-group">
-                         <label for="cover">Cover </label>
-                         <input type="file" name="csv_file" id="csv_file" class="form-control">
-                         
-                         <input type="file" id="fileUpload" />
-                        <input type="button" id="uploadProducts" value="Upload" class="btn btn-primary" />
-                     </div>
+
+                    <div class="form-group">
+                        <label for="cover">Cover </label>
+                        <input type="file" name="csv_file" id="csv_file" class="form-control">
+
+                        <input type="file" id="fileUpload" />
+                        <input type="button" id="uploadProducts" value="Add Product Codes" class="btn btn-primary" />
+                    </div>
 
                     @if(!empty($products))
                     <div class="form-group products scope-type col-lg-6" style="display:none;">
@@ -153,36 +159,40 @@
     $('.scope-select').on('change', function () {
         $('#scope_value').val($(this).val());
     });
-    
+
     $("#uploadProducts").on("click", function () {
-            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv|.txt)$/;
-            if (regex.test($("#fileUpload").val().toLowerCase())) {
-                if (typeof (FileReader) != "undefined") {
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        var customers = new Array();
-                        var rows = e.target.result.split("\r\n");
-                        for (var i = 0; i < rows.length; i++) {
-                            var cells = rows[i].split(",");
-                            if (cells.length > 1) {
-                                var customer = {};
-                                customer.Id = cells[0];
-                                customer.Name = cells[1];
-                                customer.Country = cells[2];
-                                customers.push(customer);
-                            }
-                        }
-                        //$("#dvCSV").html('');
-                        //$("#dvCSV").append(JSON.stringify(customers));
+        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv|.txt)$/;
+        if (regex.test($("#fileUpload").val().toLowerCase())) {
+            if (typeof (FileReader) != "undefined") {
+
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var customers = new Array();
+                    var rows = e.target.result.split("\r\n");
+
+                    for (var i = 0; i < rows.length; i++) {
+                        var cells = rows[i].split(",");
+
+                        $('.uploaded-products').append('<li class="uploaded-product">' + cells[0] + '</li>');
+
+
+//                            if (cells.length > 1) {
+//                                var customer = {};
+//                                customer.Id = cells[0];
+//                                customer.Name = cells[1];
+//                                customer.Country = cells[2];
+//                                customers.push(customer);
+//                            }
                     }
-                    reader.readAsText($("#fileUpload")[0].files[0]);
-                } else {
-                    alert("This browser does not support HTML5.");
                 }
+                reader.readAsText($("#fileUpload")[0].files[0]);
             } else {
-                alert("Please upload a valid CSV file.");
+                alert("This browser does not support HTML5.");
             }
-        });
+        } else {
+            alert("Please upload a valid CSV file.");
+        }        
+    });
 
     $('.scope').on('change', function () {
 

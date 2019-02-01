@@ -159,6 +159,15 @@ $(document).ready(function () {
         e.preventDefault();
         $('.modal-body .alert-danger').remove();
         $('.saveNewVoucher').prop('disabled', true);
+        
+         if ($('.uploaded-product').length > 0) {
+            var uploadedProductCodes = $(".uploaded-product").map(function () {
+                return $(this).html();
+            }).get().join(', ');
+            
+            $('#uploadedProductCodes').val(uploadedProductCodes);
+        }
+  
         //var formdata = $('#NewVoucherForm').serialize();
         var formdata = new FormData($('#NewVoucherForm')[0]);
         var href = $('#NewVoucherForm').attr('action');

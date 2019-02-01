@@ -324,4 +324,16 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     {
         return $this->model->brand;
     }
+    
+     /**
+     * 
+     * @param type $name
+     * @return type
+     */
+    public function findByName(string $name) {
+        $query = DB::table('products');
+        $query->whereRaw('LOWER(`name`) = ? ', [trim(strtolower($name))]);
+        $result = $query->get();
+        return Product::hydrate($result->toArray())[0];
+    }
 }

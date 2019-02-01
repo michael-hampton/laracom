@@ -41,11 +41,11 @@
 
         <?php
         $price = isset($channel_varaitions[$attribute->id]) ? $channel_varaitions[$attribute->id]->price : $attribute->price;
-        $cost_price = isset($channel_varaitions[$attribute->id]) ? $channel_varaitions[$attribute->id]->cost_price : $attribute->cost_price;
+        $cost_price = !empty($attribute->cost_price) ? $attribute->cost_price : $product->cost_price;
         ?>
 
         <li attribute-id="{{$attribute->id}}" cost-price='{{$cost_price}}' price='{{$price}}' class="list-group-item fist-item @if(in_array($attribute->id, $assignedAttributes)) added @endif">
-            <span class="float-right">{{$price}} </span>
+            <span class="float-right price-span">{{$price}} </span>
 
             @foreach($attribute->attributesValues as $value)
             {{ $value->attribute->name }} : {{ ucwords($value->value) }}
@@ -137,8 +137,8 @@
         $('.modal-body .alert-danger').remove();
 
         var attributeId = $('#attribute_id').val();
-        $('.variationList > li[attributeid="' + attributeId + '"]').addClass('added');
-        $('.variationList > li[attributeid="' + attributeId + '"]').append('a href="#" class="removeVariation">');
+        $('.variationList > li[attribute-id="' + attributeId + '"]').addClass('added');
+        $('.variationList > li[attribute-id="' + attributeId + '"]').append('<a href="#" class="removeVariation">');
 
         var formdata = $('#channelPriceForm').serialize();
         var href = $('#channelPriceForm').attr('action');
@@ -165,10 +165,12 @@
                         $('#variationWrapper').slideDown();
                     }
                     
-                         $('.variationList > li[attributeid="' + attributeId + '"]').attr('price', $('#price').val());
+
+                    $('.variationList > li[attribute-id="' + attributeId + '"]').attr('price', $('#price').val());
+                    $('.variationList > li[attribute-id="' + attributeId + '"] .price-span').html($('#price').val());
 
                 }
-                
+
                 $('.UpdateChannel').prop('disabled', false);
 
             }
