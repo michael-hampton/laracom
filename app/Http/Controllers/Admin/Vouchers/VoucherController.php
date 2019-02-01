@@ -196,7 +196,7 @@ class VoucherController extends Controller {
         return response()->json(['http_code' => 200, 'filename' => $filename]);
     }
     
-    function csv_to_array($filename='', $delimiter=',')
+    private function csv_to_array($filename='', $delimiter=',')
     {
 	    if(!file_exists($filename) || !is_readable($filename)) {
 		   return false;
@@ -227,14 +227,14 @@ class VoucherController extends Controller {
     public function importVoucherCodes(Request $request, Voucher $voucher) {
 
         $file_path = $request->csv_file->path();
-        $data = $request->except('_token', '_method');
+        //$data = $request->except('_token', '_method');
 
         $arrCodes = $this->csv_to_array($file_path);
-        $file = fopen($file_path, 'r');
-        while (($line = fgetcsv($file)) !== FALSE) {
-
+        //$file = fopen($file_path, 'r');
+        //while (($line = fgetcsv($file)) !== FALSE) {
+        foreach($arrCodes as $arrCode) {
             $data = array(
-                'voucher_code' => $line[0],
+                'voucher_code' => $arrCode['voucher_code'],
                 'use_count' => $request->use_count,
                 'status' => 1,
                 'voucher_id' => $voucher->id
@@ -243,7 +243,7 @@ class VoucherController extends Controller {
             (new VoucherCodeRepository(new VoucherCode))->createVoucherCode($data);
         }
 
-        fclose($file);
+        //fclose($file);
     }
 
     public function updateVoucher(Request $request) {
