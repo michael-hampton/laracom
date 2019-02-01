@@ -188,6 +188,8 @@ $(document).ready(function () {
 
                     $('.modal-body').prepend("<div class='alert alert-success'>Voucher has been created successfully</div>");
 
+                    $('.modal-body .alert-success').append('<a href="' + response.filename + '">Download</a>');
+
                     if (response.import_result != undefined) {
 
                         $('.modal-body .alert-success').append('<p>' + response.import_result.added + ' voucher codes were imported</p>');

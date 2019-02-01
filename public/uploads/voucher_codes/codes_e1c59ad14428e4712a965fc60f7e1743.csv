@@ -1,0 +1,3 @@
+id,voucher_code,use_count,status,voucher_id,created_at,updated_at,deleted_at
+97,zxcvbn,2,1,99,"2019-02-01 20:30:09","2019-02-01 20:30:09","-0001-11-30 00:00:00"
+96,abcdefghij,2,1,99,"2019-02-01 20:30:09","2019-02-01 20:30:09","-0001-11-30 00:00:00"

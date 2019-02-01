@@ -85,7 +85,7 @@ class VoucherController extends Controller {
     public function index() {
 
         $list = $this->voucherRepo->listVoucher('expiry_date', 'desc');
-
+        
         if (request()->has('q')) {
             $list = $this->voucherRepo->searchVoucher(request()->input('q'));
         }
@@ -229,8 +229,7 @@ class VoucherController extends Controller {
         }
 
         $file = 'codes_' . md5(date('Y-m-d H:i:s:u')) . '.csv';
-        $downloadPath = storage_path('/app/public/voucher_codes/'.$file);
-        
+        $downloadPath = public_path('uploads/voucher_codes/'.$file);
         $this->generateCsvFile($downloadPath, $this->voucherRepo->findVoucherById($voucher->id));
 
         return response()->json(
@@ -238,7 +237,7 @@ class VoucherController extends Controller {
                             'http_code' => 200,
                             'import_result' => $arrImportResult,
                             'product_result' => $arrProductIds,
-                            'filename' => asset("voucher_codes/{$file}")
+                            'filename' => asset("/uploads/voucher_codes/{$file}")
                         ]
         );
     }
