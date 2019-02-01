@@ -162,9 +162,17 @@ class VoucherController extends Controller {
 
             $productCodes = explode(',', $request->uploadedProductCodes);
 
+            $products = array_change_key_case($this->productRepo->listProducts()->where('status', 1)->keyBy('name')->toArray(), CASE_LOWER);
+            $arrNotFound = [];
+            
             foreach ($productCodes as $productCode) {
-                $objProduct = $this->productRepo->findByName($productCode);
+                //$objProduct = $this->productRepo->findByName($productCode);
 
+                if(in_array(strtolower($productCode), $products)) {
+                    $arrNotFound[] = $productCode;
+                    continue;
+                }
+                    
                 $arrProductIds[] = $objProduct->id;
             }
 
