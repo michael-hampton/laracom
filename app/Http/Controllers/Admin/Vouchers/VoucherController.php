@@ -229,6 +229,7 @@ class VoucherController extends Controller {
         $file_path = $request->csv_file->path();
 
         $arrCodes = $this->csv_to_array($file_path);
+        $arrCodes = array_map("unserialize", array_unique(array_map("serialize", $arrCodes)));
 
         foreach ($arrCodes as $arrCode) {
             $data = array(
