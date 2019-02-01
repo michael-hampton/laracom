@@ -312,7 +312,7 @@ $(document).ready(function () {
                         $('.provider-div .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
-                    $('.provider-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                    $('.provider-div').prepend("<div class='alert alert-success'>Provider has been added successfully</div>");
                 }
 
 
@@ -340,7 +340,7 @@ $(document).ready(function () {
                         $('.template-div .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
-                    $('.template-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                    $('.template-div').prepend("<div class='alert alert-success'>Template has been updated successfully</div>");
                 }
 
 
@@ -376,7 +376,7 @@ $(document).ready(function () {
                     });
                 } else {
                     $('.product-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
-                    $('#productSelect[value="'+product+'"]').remove();
+                    $('#productSelect option[value="'+product+'"]').remove();
                 }
 
 
