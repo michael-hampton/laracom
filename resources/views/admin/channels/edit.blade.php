@@ -53,7 +53,7 @@ function buildcheckBox($value, $label) {
                         @if(isset($channel->cover))
                         <div class="col-md-3">
                             <div class="row">
-                                <img src="{{ asset("storage/$channel->cover") }}" alt="" class="img-responsive"> <br />
+                                <img src="{{ asset($channel->cover) }}" alt="" class="img-responsive"> <br />
                             </div>
                         </div>
                         @endif

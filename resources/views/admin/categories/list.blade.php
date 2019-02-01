@@ -25,7 +25,7 @@
                             <a href="{{ route('admin.categories.show', $category->id) }}">{{ $category->name }}</a></td>
                         <td>
                             @if(isset($category->cover))
-                            <img src="{{ asset("storage/$category->cover") }}" alt="" class="img-responsive">
+                            <img src="{{ asset($category->cover) }}" alt="" class="img-responsive">
                             @endif
                         </td>
                         <td>@include('layouts.status', ['status' => $category->status])</td>

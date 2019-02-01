@@ -91,9 +91,8 @@
 
                 <div class="product-imitation">
                     @if(isset($product->cover))
-                    <img src="{{ asset("storage/$product->cover") }}" alt="" class="img-responsive">
+                    <img src="{{ asset($product->cover) }}" alt="" class="img-responsive">
                     @endif
-                    @include('layouts.status', ['status' => $product->status])
                 </div>
                 <div class="product-desc" style="max-height:200px">
                     <span class="product-price">

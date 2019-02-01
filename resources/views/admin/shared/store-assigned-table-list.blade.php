@@ -16,7 +16,7 @@
                 <tr>
                     <td>
                         @if(isset($channel->cover))
-                        <img src="{{ asset("storage/$channel->cover") }}" alt="" class="img-thumbnail" height="100" width="200">
+                        <img src="{{ asset("$channel->cover") }}" alt="" class="img-thumbnail" height="100" width="200">
                         @else
                         -
                         @endif

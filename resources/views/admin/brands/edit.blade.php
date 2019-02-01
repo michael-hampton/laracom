@@ -17,7 +17,7 @@
                     
                     @if(isset($brand->cover))
                     <div class="form-group">
-                        <img src="{{ asset("storage/$brand->cover") }}" alt="" class="img-responsive"> <br/>
+                        <img src="{{ asset($brand->cover) }}" alt="" class="img-responsive"> <br/>
                         <a onclick="return confirm('Are you sure?')" href="{{ route('admin.brand.remove.image', ['brand' => $brand->id]) }}" class="btn btn-danger">Remove image?</a>
                     </div>
                     @endif

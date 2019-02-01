@@ -5,7 +5,7 @@
     <meta property="og:title" content="{{ $product->name }}"/>
     <meta property="og:description" content="{{ strip_tags($product->description) }}"/>
     @if(!is_null($product->cover))
-        <meta property="og:image" content="{{ asset("storage/$product->cover") }}"/>
+        <meta property="og:image" content="{{ asset("$product->cover") }}"/>
     @endif
 @endsection
 

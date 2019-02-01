@@ -24,7 +24,7 @@
                                 <td>{{ $category->description }}</td>
                                 <td>
                                     @if(isset($category->cover))
-                                        <img src="{{asset("storage/$category->cover")}}" alt="category image" class="img-thumbnail">
+                                        <img src="{{asset("$category->cover")}}" alt="category image" class="img-thumbnail">
                                     @endif
                                 </td>
                             </tr>
@@ -49,7 +49,7 @@
                                     <tr>
                                         <td><a href="{{route('admin.categories.show', $cat->id)}}">{{ $cat->name }}</a></td>
                                         <td>{{ $cat->description }}</td>
-                                        <td>@if(isset($cat->cover))<img src="{{asset("storage/$cat->cover")}}" alt="category image" class="img-thumbnail">@endif</td>
+                                        <td>@if(isset($cat->cover))<img src="{{asset("$cat->cover")}}" alt="category image" class="img-thumbnail">@endif</td>
                                         <td><a class="btn btn-primary" href="{{route('admin.categories.edit', $cat->id)}}"><i class="fa fa-edit"></i> Edit</a></td>
                                     </tr>
                                 @endforeach

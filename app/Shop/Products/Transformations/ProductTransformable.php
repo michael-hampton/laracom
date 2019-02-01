@@ -45,7 +45,7 @@ trait ProductTransformable {
         $prod->sku = $product->sku;
         $prod->slug = $product->slug;
         $prod->description = $product->description;
-        $prod->cover = asset("storage/$product->cover");
+        $prod->cover = asset($product->cover);
         $prod->quantity = $product->quantity;
         $prod->reserved_stock = $product->reserved_stock;
         $prod->price = isset($price) ? $price : $product->price;
