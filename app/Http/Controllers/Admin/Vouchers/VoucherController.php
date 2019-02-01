@@ -188,7 +188,7 @@ class VoucherController extends Controller {
 
         $arrProductIds = $this->getUploadedProductIds($request);
         $data['scope_value'] = !empty($arrProductIds) ? implode(',', $arrProductIds) : $request->scope_value;
-        $data['scope_type'] = !empty($arrProductIds) ? 'Product' : $request->scope_type;
+        //$data['scope_type'] = !empty($arrProductIds) ? 'Product' : $request->scope_type;
 
         $validator = Validator::make($data, (new CreateVoucherRequest())->rules());
 
