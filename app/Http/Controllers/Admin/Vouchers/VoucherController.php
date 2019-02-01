@@ -230,12 +230,12 @@ class VoucherController extends Controller {
 
         $arrCodes = $this->csv_to_array($file_path);
         $arrCodes = array_map("unserialize", array_unique(array_map("serialize", $arrCodes)));
-        $arrExistingCodes = (new VoucherCodeRepository(new VoucherCode))->listVoucherCode()->where('voucher_id', $voucher->id)->keyBy('voucher_code')->toArray();
+        $arrExistingCodes = array_change_key_case((new VoucherCodeRepository(new VoucherCode))->listVoucherCode()->where('voucher_id', $voucher->id)->keyBy('voucher_code')->toArray(), CASE_LOWER);
         $arrDuplicates = [];
         
         foreach ($arrCodes as $arrCode) {
            
-            if(in_array($arrCode['voucher_code'], $arrExistingCodes)) {
+            if(in_array(strtolower($arrCode['voucher_code']), $arrExistingCodes)) {
                 $arrDuplicates[] = $arrCode['voucher_code'];
                 continue;
             }
