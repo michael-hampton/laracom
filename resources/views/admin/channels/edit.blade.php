@@ -376,6 +376,7 @@ $(document).ready(function () {
                     });
                 } else {
                     $('.product-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                    $('#productSelect[value="'+product+'"]').remove();
                 }
 
 
