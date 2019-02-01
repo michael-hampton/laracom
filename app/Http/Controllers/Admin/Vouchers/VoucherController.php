@@ -155,30 +155,40 @@ class VoucherController extends Controller {
         );
     }
 
+    /**
+     * 
+     * @param Request $request
+     * @return boolean
+     */
     private function getUploadedProductIds(Request $request) {
+
         if ($request->has('uploadedProductCodes')) {
 
             $arrProductIds = [];
-
             $productCodes = explode(',', $request->uploadedProductCodes);
-
             $products = array_change_key_case($this->productRepo->listProducts()->where('status', 1)->keyBy('name')->toArray(), CASE_LOWER);
             $arrNotFound = [];
-            
-            foreach ($productCodes as $productCode) {
-                //$objProduct = $this->productRepo->findByName($productCode);
 
-                if(in_array(strtolower($productCode), $products)) {
+            if (empty($productCodes[0])) {
+
+                return false;
+            }
+
+            foreach ($productCodes as $productCode) {
+
+                $productCode = trim(strtolower($productCode));
+
+                if (in_array($productCode, $products)) {
                     $arrNotFound[] = $productCode;
                     continue;
                 }
-                    
-                $arrProductIds[] = $objProduct->id;
+
+                $arrProductIds[] = $products[$productCode]['id'];
             }
 
-            return $arrProductIds;
+            return ['product_ids' => $arrProductIds, 'not_found' => $arrNotFound];
         }
-        
+
         return false;
     }
 
@@ -189,14 +199,13 @@ class VoucherController extends Controller {
      * @return type
      */
     public function store(Request $request) {
-        
-         $data = $request->except('_token', '_method', 'uploadedProductCodes');
+
+        $data = $request->except('_token', '_method', 'uploadedProductCodes');
         $data['expiry_date'] = date('Y-m-d', strtotime($request->expiry_date));
         $data['start_date'] = date('Y-m-d', strtotime($request->start_date));
 
         $arrProductIds = $this->getUploadedProductIds($request);
-        $data['scope_value'] = !empty($arrProductIds) ? implode(',', $arrProductIds) : $request->scope_value;
-        //$data['scope_type'] = !empty($arrProductIds) ? 'Product' : $request->scope_type;
+        $data['scope_value'] = !empty($arrProductIds) && !empty($arrProductIds['product_ids']) ? implode(',', $arrProductIds['product_ids']) : $request->scope_value;
 
         $validator = Validator::make($data, (new CreateVoucherRequest())->rules());
 
@@ -204,7 +213,6 @@ class VoucherController extends Controller {
         if ($validator->fails()) {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
-
         $blImport = $request->hasFile('csv_file') && $request->file('csv_file') instanceof UploadedFile ? true : false;
 
         try {
@@ -212,7 +220,7 @@ class VoucherController extends Controller {
 
             if ($blImport === true) {
 
-                $this->importVoucherCodes($request, $voucher);
+                $arrImportResult = $this->importVoucherCodes($request, $voucher);
             } else {
                 (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
             }
@@ -222,9 +230,16 @@ class VoucherController extends Controller {
 
         $filename = 'app\public\voucher_codes\codes_' . md5(date('Y-m-d H:i:s:u')) . '.csv';
         $downloadPath = storage_path($filename);
-        $this->generateCsvFile($downloadPath, $this->voucherRepo->findVoucherById(82));
+        $this->generateCsvFile($downloadPath, $this->voucherRepo->findVoucherById($voucher->id));
 
-        return response()->json(['http_code' => 200, 'filename' => $filename]);
+        return response()->json(
+                        [
+                            'http_code' => 200,
+                            'import_result' => $arrImportResult,
+                            'product_result' => $arrProductIds,
+                            'filename' => $filename
+                        ]
+        );
     }
 
     /**
@@ -238,16 +253,20 @@ class VoucherController extends Controller {
 
         $arrCodes = $this->csv_to_array($file_path);
         $arrCodes = array_map("unserialize", array_unique(array_map("serialize", $arrCodes)));
-        $arrExistingCodes = array_change_key_case((new VoucherCodeRepository(new VoucherCode))->listVoucherCode()->where('voucher_id', $voucher->id)->keyBy('voucher_code')->toArray(), CASE_LOWER);
+
+        $arrExistingCodes = array_change_key_case((new VoucherCodeRepository(new VoucherCode))->listVoucherCode()->keyBy('voucher_code')->toArray(), CASE_LOWER);
+
         $arrDuplicates = [];
-        
+        $intAdded = 0;
+
         foreach ($arrCodes as $arrCode) {
-           
-            if(in_array(strtolower($arrCode['voucher_code']), $arrExistingCodes)) {
+
+            if (array_key_exists(strtolower($arrCode['voucher_code']), $arrExistingCodes)) {
+
                 $arrDuplicates[] = $arrCode['voucher_code'];
                 continue;
             }
-            
+
             $data = array(
                 'voucher_code' => $arrCode['voucher_code'],
                 'use_count' => $request->use_count,
@@ -256,7 +275,10 @@ class VoucherController extends Controller {
             );
 
             (new VoucherCodeRepository(new VoucherCode))->createVoucherCode($data);
+            $intAdded++;
         }
+
+        return ['duplicates' => $arrDuplicates, 'added' => $intAdded];
     }
 
     public function updateVoucher(Request $request) {

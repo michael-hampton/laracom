@@ -106,15 +106,19 @@
                         <label for="cover">Cover </label>
                         <input type="file" name="csv_file" id="csv_file" class="form-control">
 
-                        
+
                     </div>
 
                     @if(!empty($products))
-                    <div class="form-group products scope-type col-lg-6" style="display:none;">
-                        
-                        <input type="file" id="fileUpload" />
-                        <input type="button" id="uploadProducts" value="Add Product Codes" class="btn btn-primary" />
-                        
+                    <div class="form-group products scope-type col-lg-12" style="display:none;">
+
+                        <div class="row col-lg-12">
+                            <input class="pull-lrft" type="file" id="fileUpload" />
+                            <input type="button" id="uploadProducts" value="Add Product Codes" class="btn btn-primary pull-right" />
+                        </div>
+
+
+
                         <label for="product">Product</label>
                         <select name="product" id="product" class="form-control select2 scope-select">
                             <option value="">--Select--</option>
@@ -176,7 +180,7 @@
                     for (var i = 0; i < rows.length; i++) {
                         var cells = rows[i].split(",");
 
-                        $('.uploaded-products').append('<li class="uploaded-product">' + cells[0] + '</li>');
+                        $('.uploaded-products').append('<li class="uploaded-product label label-success">' + cells[0] + '</li>');
 
 
 //                            if (cells.length > 1) {
@@ -194,7 +198,7 @@
             }
         } else {
             alert("Please upload a valid CSV file.");
-        }        
+        }
     });
 
     $('.scope').on('change', function () {

@@ -159,15 +159,15 @@ $(document).ready(function () {
         e.preventDefault();
         $('.modal-body .alert-danger').remove();
         $('.saveNewVoucher').prop('disabled', true);
-        
-         if ($('.uploaded-product').length > 0) {
+
+        if ($('.uploaded-product').length > 0) {
             var uploadedProductCodes = $(".uploaded-product").map(function () {
                 return $(this).html();
             }).get().join(', ');
-            
+
             $('#uploadedProductCodes').val(uploadedProductCodes);
         }
-  
+
         //var formdata = $('#NewVoucherForm').serialize();
         var formdata = new FormData($('#NewVoucherForm')[0]);
         var href = $('#NewVoucherForm').attr('action');
@@ -185,7 +185,48 @@ $(document).ready(function () {
                         $('.modal-body .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
+
                     $('.modal-body').prepend("<div class='alert alert-success'>Voucher has been created successfully</div>");
+
+                    if (response.import_result != undefined) {
+
+                        $('.modal-body .alert-success').append('<p>' + response.import_result.added + ' voucher codes were imported</p>');
+                        if (response.import_result.duplicates != undefined) {
+
+                            $('.modal-body .alert-success').append('<p>The following voucher codes were duplicates and could not be added</p><ul>');
+                            $.each(response.import_result.duplicates, function (key, value) {
+
+                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
+                            });
+
+                            $('.modal-body .alert-success').append('</ul>');
+                        }
+                    }
+
+                    if (response.product_result != undefined) {
+
+                        if (response.product_result.not_found != undefined) {
+                            $('.modal-body .alert-success').append('<p>The following product codes could not be found</p><ul>');
+
+                            $.each(response.product_result.not_found, function (key, value) {
+
+                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
+                            });
+                        }
+
+                        if (response.product_result.product_ids != undefined) {
+
+                            $('.modal-body .alert-success').append('<p>The following product codes have been added</p><ul>');
+
+                            $.each(response.product_result.product_ids, function (key, value) {
+
+                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
+                            });
+                        }
+                    }
+
+
+
                 }
 
                 $('.saveNewVoucher').prop('disabled', false);
