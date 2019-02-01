@@ -195,6 +195,29 @@ class VoucherController extends Controller {
 
         return response()->json(['http_code' => 200, 'filename' => $filename]);
     }
+    
+    function csv_to_array($filename='', $delimiter=',')
+    {
+	    if(!file_exists($filename) || !is_readable($filename)) {
+		   return false;
+        }
+	
+	$header = null;
+	$data = array();
+        
+	if (($handle = fopen($filename, 'r')) !== FALSE)
+	{
+		while (($row = fgetcsv($handle, 1000, $delimiter)) !== FALSE)
+		{
+			if(!$header)
+				$header = $row;
+			else
+				$data[] = array_combine($header, $row);
+		}
+		fclose($handle);
+	}
+	return $data;
+}
 
     /**
      * 
@@ -206,6 +229,7 @@ class VoucherController extends Controller {
         $file_path = $request->csv_file->path();
         $data = $request->except('_token', '_method');
 
+        $arrCodes = $this->csv_to_array($file_path);
         $file = fopen($file_path, 'r');
         while (($line = fgetcsv($file)) !== FALSE) {
 
