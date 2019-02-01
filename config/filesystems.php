@@ -53,6 +53,12 @@ return [
             'root' => storage_path('app/public'),
             'visibility' => 'public',
         ],
+        
+         'voucher_codes' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/voucher_codes'),
+            'visibility' => 'public',
+        ],
 
         's3' => [
             'driver' => 's3',

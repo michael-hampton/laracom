@@ -228,8 +228,9 @@ class VoucherController extends Controller {
             return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
         }
 
-        $filename = 'app\public\voucher_codes\codes_' . md5(date('Y-m-d H:i:s:u')) . '.csv';
-        $downloadPath = storage_path($filename);
+        $file = 'codes_' . md5(date('Y-m-d H:i:s:u')) . '.csv';
+        $downloadPath = storage_path('/app/public/voucher_codes/'.$file);
+        
         $this->generateCsvFile($downloadPath, $this->voucherRepo->findVoucherById($voucher->id));
 
         return response()->json(
@@ -237,7 +238,7 @@ class VoucherController extends Controller {
                             'http_code' => 200,
                             'import_result' => $arrImportResult,
                             'product_result' => $arrProductIds,
-                            'filename' => $filename
+                            'filename' => asset("voucher_codes/{$file}")
                         ]
         );
     }
