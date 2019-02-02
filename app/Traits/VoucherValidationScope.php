@@ -8,8 +8,7 @@
 
 namespace App\Traits;
 
-use App\Shop\Vouchers\Repositories\VoucherRepository;
-use App\Shop\VoucherCodes\VoucherCode;
+use App\Shop\Vouchers\Voucher;
 
 /**
  * Description of VoucherValidationScope
@@ -25,14 +24,7 @@ trait VoucherValidationScope {
      * @param type $cartProducts
      * @return boolean
      */
-    protected function validateVoucherScopes(VoucherRepository $voucherRepo, VoucherCode $objVoucherCode, $cartProducts) {
-
-        $objVoucher = $voucherRepo->findVoucherById($objVoucherCode->voucher_id);
-
-        if (empty($objVoucher)) {
-
-            return false;
-        }
+    protected function validateVoucherScopes(Voucher $objVoucher, $cartProducts) {
 
         $scopeType = $objVoucher->scope_type;
 
