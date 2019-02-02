@@ -55,7 +55,7 @@
                                         <div class="col-md-3">
                                             <div class="row">
                                                 <img src="{{ asset($image->src) }}" alt="" class="img-responsive img-thumbnail"> <br /> <br>
-                                                <a onclick="return confirm('Are you sure?')" href="{{ route('admin.product.remove.thumb', ['src' => $image->src]) }}" class="btn btn-danger btn-block">Remove?</a><br />
+                                                <a onclick="return confirm('Are you sure?')" href="{{ route('admin.product.remove.thumb', ['src' => $image->src]) }}" class="btn btn-danger btn-block remove-thumb">Remove?</a><br />
                                             </div>
                                         </div>
                                         @endforeach
@@ -209,6 +209,7 @@
     $(document).ready(function () {
 
 
+        $('.UpdateProduct').off();
         $('.UpdateProduct').on('click', function (e) {
             e.preventDefault();
             $('.modal-body .alert-danger').remove();
@@ -219,14 +220,37 @@
             console.log(formdata);
             var href = $('#productForm').attr('action');
 
-            alert(href);
-
             $.ajax({
                 type: "POST",
                 url: href,
                 data: formdata,
                 processData: false,
                 contentType: false,
+                success: function (response) {
+                    if (response.http_code == 400) {
+                        $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                        $.each(response.errors, function (key, value) {
+                            $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                        });
+                    } else {
+                        $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
+                        $('.Search').click();
+                    }
+                }
+            });
+        });
+        
+        $('.remove-thumb').off();
+        $('.remove-thumb').on('click', function (e) {
+            e.preventDefault();
+            $('.modal-body .alert-danger').remove();
+            $('.modal-body .alert-success').remove();
+
+            var href = $(this).attr('href');
+
+            $.ajax({
+                type: "GET",
+                url: href,
                 success: function (response) {
                     if (response.http_code == 400) {
                         $('.modal-body').prepend("<div class='alert alert-danger'></div>");

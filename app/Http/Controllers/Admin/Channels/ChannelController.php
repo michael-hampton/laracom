@@ -278,6 +278,7 @@ class ChannelController extends Controller {
         $data = $request->except('_token', '_method', 'id');
 
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
+            
             $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
         }
 

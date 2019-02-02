@@ -160,7 +160,7 @@ class ChannelRepository extends BaseRepository implements ChannelRepositoryInter
      * @return string
      */
     public function saveCoverImage(UploadedFile $file): string {
-        return $file->store('channels', ['disk' => 'public']);
+        return $file->store('channels', ['disk' => 'images']);
     }
 
     /**

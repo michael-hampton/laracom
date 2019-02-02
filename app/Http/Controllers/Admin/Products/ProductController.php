@@ -288,8 +288,7 @@ class ProductController extends Controller {
      */
     public function removeThumbnail(Request $request) {
         $this->productRepo->deleteThumb($request->input('src'));
-        request()->session()->flash('message', 'Image delete successful');
-        return redirect()->back();
+        return response()->json(['http_code' => 200]);
     }
 
     /**
@@ -382,7 +381,7 @@ class ProductController extends Controller {
     }
 
     public function updateProduct(Request $request) {
-        
+
         $id = $request->id;
 
         $product = $this->productRepo->findProductById($id);
