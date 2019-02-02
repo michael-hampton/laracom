@@ -219,7 +219,7 @@ class ProductImport extends BaseImport {
     public function isValid($file) {
 
         if (!file_exists($file)) {
-            $this->arrErrors[] = 'File ' . $file . ' does not exist.';
+            $this->arrErrors[$this->lineCount]['file']= 'File ' . $file . ' does not exist.';
             return false;
         }
 
@@ -263,7 +263,7 @@ class ProductImport extends BaseImport {
         foreach ($categories as $category) {
 
             if (!isset($this->arrCategories[$category])) {
-                $this->arrErrors['category'] = "Category is invalid.";
+                $this->arrErrors[$this->lineCount]['category'] = "Category is invalid.";
                 continue;
             }
 
@@ -283,7 +283,7 @@ class ProductImport extends BaseImport {
         $brandName = strtolower($brand);
 
         if (!isset($this->arrBrands[$brandName])) {
-            $this->arrErrors['brand'] = "Brand is invalid.";
+            $this->arrErrors[$this->lineCount]['brand'] = "Brand is invalid.";
             return false;
         }
 
@@ -301,7 +301,7 @@ class ProductImport extends BaseImport {
         foreach ($channels as $channel) {
 
             if (!isset($this->arrChannels[$channel])) {
-                $this->arrErrors['channel'] = "Channel is invalid.";
+                $this->arrErrors[$this->lineCount]['channel'] = "Channel is invalid.";
                 continue;
             }
 
