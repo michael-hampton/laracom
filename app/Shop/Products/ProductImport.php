@@ -63,7 +63,6 @@ class ProductImport extends BaseImport {
      * @var type 
      */
     private $productRepo;
-    
     private $lineCount = 1;
 
     /**
@@ -119,10 +118,15 @@ class ProductImport extends BaseImport {
             $brand = $this->validateBrand($order['brand']);
             $this->checkIfProductExists($order['name']);
 
-            $this->buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
             $this->lineCount++;
+
+            if (!empty($this->arrErrors)) {
+                continue;
+            }
+
+            $this->buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
         }
-        
+
         if (!empty($this->arrErrors)) {
             return false;
         }
@@ -219,7 +223,7 @@ class ProductImport extends BaseImport {
     public function isValid($file) {
 
         if (!file_exists($file)) {
-            $this->arrErrors[$this->lineCount]['file']= 'File ' . $file . ' does not exist.';
+            $this->arrErrors[$this->lineCount]['file'] = 'File ' . $file . ' does not exist.';
             return false;
         }
 

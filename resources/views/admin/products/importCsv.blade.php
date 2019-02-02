@@ -24,9 +24,12 @@
 
                     $('.modal-body').prepend("<div class='alert alert-danger'></div>");
 
-                    $.each(response.arrErrors, function (key, value) {
+                    $.each(response.arrErrors, function (lineId, arrLine) {
 
-                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                        $.each(arrLine, function (field, message) {
+
+                            $('.modal-body .alert-danger').append("<p> Line Id: " + lineId + " message: " + message + "</p>");
+                        });
                     });
                 } else {
                     $('.modal-body').prepend("<div class='alert alert-success'>Import was successful</div>");

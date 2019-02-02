@@ -1,40 +1,45 @@
 <?php
+
 namespace App\Shop\ChannelPrices;
+
 use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Import\BaseImport;
+
 class ChannelPriceImport extends BaseImport {
+
     protected $requiredFields = array(
         'product',
         'channel',
         'price',
         'warehouse'
     );
+
     /**
      *
      * @var type 
      */
     private $arrProducts = [];
-    
+
     /**
      *
      * @var type 
      */
     private $arrWarehouses = [];
-    
+
     /**
      *
      * @var type 
      */
     private $arrChannels = [];
-   
+
     /**
      *
      * @var type 
      */
     private $productRepo;
-    
     private $lineCount = 1;
+
     /**
      * 
      * @param WarehouseRepository $warehouseRep
@@ -47,10 +52,11 @@ class ChannelPriceImport extends BaseImport {
         parent::__construct();
         $this->productRepo = $productRepo;
         //$this->arrWarehouses = array_change_key_case($categoryRepo->listCategories()->keyBy('name')->toArray(), CASE_LOWER);
-       
+
         $this->arrChannels = array_change_key_case($channelRepo->listChannels()->keyBy('name')->toArray(), CASE_LOWER);
         $this->arrProducts = array_change_key_case($productRepo->listProducts()->keyBy('name')->toArray(), CASE_LOWER);
     }
+
     /**
      * 
      * @param type $file
@@ -63,38 +69,44 @@ class ChannelPriceImport extends BaseImport {
         }
         //Parse the first row, instantiate all the validators
         $row = $this->parseFirstRow($this->fgetcsv($handle));
-        
+
         if (!empty($this->arrErrors)) {
             return false;
         }
-       
+
         while (($data = $this->fgetcsv($handle)) !== false) {
             $order = array_map('trim', $this->mapData($data));
-            
+
             foreach ($order as $key => $params) {
                 $this->checkRule(['key' => $key, 'value' => $params]);
             }
-            
+
             $this->validateChannel($order['channel']);
-           
+
             $this->checkIfProductExists($order['product']);
-            
-            $this->buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
+
             $this->lineCount++;
+
+            if (!empty($this->arrErrors)) {
+                continue;
+            }
+
+            $this->buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
         }
-        
+
         if (!empty($this->arrErrors)) {
-                return false;
+            return false;
         }
-        
+
         if (!$this->saveImport()) {
             $this->arrErrors[] = 'Failed to save import';
             return false;
         }
-        
+
         fclose($handle);
         return true;
     }
+
     /**
      * 
      * @param type $productName
@@ -108,6 +120,7 @@ class ChannelPriceImport extends BaseImport {
         }
         return false;
     }
+
     private function mapData($data) {
         list(
                 $order['product'],
@@ -117,6 +130,7 @@ class ChannelPriceImport extends BaseImport {
                 ) = $data;
         return $order;
     }
+
     /**
      * 
      * @return boolean
@@ -141,6 +155,7 @@ class ChannelPriceImport extends BaseImport {
         }
         return true;
     }
+
     /**
      * Checks a CSV file for validity based on defined policies.
      *
@@ -155,12 +170,12 @@ class ChannelPriceImport extends BaseImport {
             $this->arrErrors[$this->lineCount]['file'] = 'File ' . $file . ' does not exist.';
             return false;
         }
-        
+
         $this->importCsv($file);
-        
+
         return empty($this->arrErrors);
     }
-    
+
     private function buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand) {
         $this->arrProducts[] = [
             'product' => $order['product'],
@@ -168,36 +183,36 @@ class ChannelPriceImport extends BaseImport {
             'warehouse' => $order['warehouse'],
             'channel' => $order['channel'],
             'price' => $order['price']
-           
         ];
     }
+
     /**
      * 
      * @param type $categories
      * @return type
      */
     private function validateWarehouse($warehouse) {
-       if (!isset($this->arrWarehouses[$warehouse])) {
-                $this->arrErrors[$this->lineCount]['warehouse'] = "Warehouse is invalid.";
-                return false;
+        if (!isset($this->arrWarehouses[$warehouse])) {
+            $this->arrErrors[$this->lineCount]['warehouse'] = "Warehouse is invalid.";
+            return false;
         }
-        
+
         return true;
-        
     }
- 
+
     private function validateChannel($channel) {
-      
-            if (!isset($this->arrChannels[$channel])) {
-                $this->arrErrors[$this->lineCount]['channel'] = "Channel is invalid.";
-                return false;
+
+        if (!isset($this->arrChannels[$channel])) {
+            $this->arrErrors[$this->lineCount]['channel'] = "Channel is invalid.";
+            return false;
         }
-        
+
         return true;
     }
-    
+
     private function validateCostPrice($price) {
-      
+
         return true;
     }
+
 }

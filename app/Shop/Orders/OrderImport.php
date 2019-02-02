@@ -137,7 +137,6 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $shipping;
-    
     private $lineCount = 1;
 
     /**
@@ -176,14 +175,14 @@ class OrderImport extends BaseImport {
      */
     private function importCsv($file) {
         $handle = fopen($file, 'r');
-        
+
         if (!$handle) {
             return false;
         }
-        
+
         //Parse the first row, instantiate all the validators
         $row = $this->parseFirstRow($this->fgetcsv($handle));
-        
+
         if (!empty($this->arrErrors)) {
             return false;
         }
@@ -206,10 +205,15 @@ class OrderImport extends BaseImport {
             $this->setOrderTotal($order);
             $this->calculateShippingCost();
 
-            $this->buildOrder($order);
             $this->lineCount++;
+
+            if (!empty($this->arrErrors)) {
+                continue;
+            }
+
+            $this->buildOrder($order);
         }
-        
+
         if (!empty($this->arrErrors)) {
             return false;
         }
@@ -442,11 +446,11 @@ class OrderImport extends BaseImport {
      * @return boolean
      */
     private function calculateShippingCost() {
-        
-       if(empty($this->courier)) {
-           $this->arrErrors[$this->lineCount]['courier'] = 'invalid courier';
-           return false;
-       }
+
+        if (empty($this->courier)) {
+            $this->arrErrors[$this->lineCount]['courier'] = 'invalid courier';
+            return false;
+        }
 
         $this->shipping = $this->objCourierRate->findShippingMethod($this->orderTotal, $this->courier, $this->channel, $this->deliveryAddress->country_id);
 
@@ -487,7 +491,7 @@ class OrderImport extends BaseImport {
      * @return boolean
      */
     private function sendToQueue() {
-        
+
         $this->objWorker->execute(json_encode($this->arrOrders));
 
         return true;
