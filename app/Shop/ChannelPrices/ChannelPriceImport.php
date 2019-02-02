@@ -33,6 +33,8 @@ class ChannelPriceImport extends BaseImport {
      * @var type 
      */
     private $productRepo;
+    
+    private $lineCount = 1;
     /**
      * 
      * @param WarehouseRepository $warehouseRep
@@ -61,30 +63,37 @@ class ChannelPriceImport extends BaseImport {
         }
         //Parse the first row, instantiate all the validators
         $row = $this->parseFirstRow($this->fgetcsv($handle));
+        
         if (!empty($this->arrErrors)) {
             return false;
         }
+       
         while (($data = $this->fgetcsv($handle)) !== false) {
             $order = array_map('trim', $this->mapData($data));
+            
             foreach ($order as $key => $params) {
                 $this->checkRule(['key' => $key, 'value' => $params]);
             }
-            //$arrSelectedCategories = $this->validateCategories($order['categories']);
-            $this->validateChannel($order['channels']);
-           
-            $this->checkIfProductExists($order['name']);
             
-            if (!empty($this->arrErrors)) {
-                return false;
-            }
+            $this->validateChannel($order['channel']);
+           
+            $this->checkIfProductExists($order['product']);
             
             $this->buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
+            $this->lineCount++;
         }
+        
+        if (!empty($this->arrErrors)) {
+                return false;
+        }
+        
         if (!$this->saveImport()) {
             $this->arrErrors[] = 'Failed to save import';
             return false;
         }
+        
         fclose($handle);
+        return true;
     }
     /**
      * 
