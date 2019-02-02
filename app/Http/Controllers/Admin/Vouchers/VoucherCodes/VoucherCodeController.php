@@ -14,6 +14,8 @@ use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Products\Product;
 use App\Shop\Products\Transformations\ProductTransformable;
 use Gloudemans\Shoppingcart\CartItem;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
+use App\Shop\Vouchers\Voucher;
 use App\Shop\Carts\Repositories\CartRepository;
 use App\Shop\Carts\ShoppingCart;
 use App\Shop\Channels\Channel;
@@ -200,8 +202,11 @@ class VoucherCodeController extends Controller {
 
         $channelRepo = new ChannelRepository(new Channel);
         $channel = $channelRepo->findByName(env('CHANNEL'));
+        
+        $voucherRepo = new VoucherRepository(new Voucher);
+        
 
-        $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts);
+        $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts, $voucherRepo);
 
         if (!$voucherCode) {
 

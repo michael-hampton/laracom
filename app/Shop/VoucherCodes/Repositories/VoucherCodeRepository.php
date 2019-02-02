@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use App\Shop\Channels\Channel;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Traits\VoucherValidationScope;
 use Illuminate\Support\Facades\DB;
 
@@ -137,42 +138,46 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
      * 
      * @param Channel $channel
      * @param string $voucherCode
+     * @param type $cartProducts
+     * @param VoucherRepository $voucherRepo
      * @return boolean
      */
-    public function validateVoucherCode(Channel $channel, string $voucherCode, $cartProducts) {
+    public function validateVoucherCode(Channel $channel, string $voucherCode, $cartProducts, VoucherRepository $voucherRepo) {
 
-        $results = DB::select(DB::raw("SELECT *, vc.id AS code_id 
-                                        FROM voucher_codes vc
-                                        INNER JOIN vouchers v ON v.id = vc.voucher_id
-
-                                       WHERE voucher_code = :code
-
-                                         AND (use_count > 0)
-
-                                         AND (expiry_date IS NULL or expiry_date > NOW()) 
-                                         AND (NOW() >= start_date)
-
-                                         AND channel = :channel"), ['channel' => $channel->id, 'code' => $voucherCode]);
-
-
+        $results = DB::select(DB::raw("SELECT *, 
+                                            vc.id AS code_id 
+                                     FROM   voucher_codes vc 
+                                            INNER JOIN vouchers v 
+                                                    ON v.id = vc.voucher_id 
+                                     WHERE  voucher_code = :code 
+                                            AND ( use_count > 0 ) 
+                                            AND ( expiry_date IS NULL 
+                                                   OR expiry_date > Now() ) 
+                                            AND Date(Now()) >= start_date 
+                                            AND v.status = 1 
+                                            AND channel = :channel"), [
+                    'channel' => $channel->id,
+                    'code' => $voucherCode
+                        ]
+        );
 
         if (empty($results)) {
             $this->validationFailures[] = 'unable to find voucher code';
             return false;
         }
-        
+
         $objVoucherCode = $this->findVoucherCodeById($results[0]->code_id);
 
-        if (!$this->validateVoucherScopes($objVoucherCode, $cartProducts)) {
+        if (!$this->validateVoucherScopes($voucherRepo, $objVoucherCode, $cartProducts)) {
             $this->validationFailures[] = 'unable to validate voucher code';
             return false;
         }
-        
-        request()->session()->put('voucherCode', $results[0]->voucher_code);
+
+        request()->session()->put('voucherCode', $objVoucherCode->voucher_code);
 
         return $objVoucherCode;
     }
-    
+
     /**
      * 
      * @param type $voucherCode
@@ -180,13 +185,12 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
      * @throws VoucherCodeNotFoundException
      */
     public function getByVoucherCode($voucherCode) {
-        
+
         try {
             return $this->model->where('voucher_code', $voucherCode)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new VoucherCodeNotFoundException($e->getMessage());
         }
-        
     }
 
 }
