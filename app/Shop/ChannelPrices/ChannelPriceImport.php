@@ -103,7 +103,7 @@ class ChannelPriceImport extends BaseImport {
     private function checkIfProductExists($productName) {
         $productName = trim(strtolower($productName));
         if (isset($this->arrProducts[$productName])) {
-            $this->arrErrors['product'] = 'The product you are trying to create already exists';
+            $this->arrErrors[$this->lineCount]['product'] = 'The product you are trying to create already exists';
             return true;
         }
         return false;
@@ -152,12 +152,15 @@ class ChannelPriceImport extends BaseImport {
      */
     public function isValid($file) {
         if (!file_exists($file)) {
-            $this->arrErrors[] = 'File ' . $file . ' does not exist.';
+            $this->arrErrors[$this->lineCount]['file'] = 'File ' . $file . ' does not exist.';
             return false;
         }
+        
         $this->importCsv($file);
+        
         return empty($this->arrErrors);
     }
+    
     private function buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand) {
         $this->arrProducts[] = [
             'product' => $order['product'],
@@ -175,7 +178,7 @@ class ChannelPriceImport extends BaseImport {
      */
     private function validateWarehouse($warehouse) {
        if (!isset($this->arrWarehouses[$warehouse])) {
-                $this->arrErrors['warehouse'] = "Warehouse is invalid.";
+                $this->arrErrors[$this->lineCount]['warehouse'] = "Warehouse is invalid.";
                 return false;
         }
         
@@ -186,9 +189,10 @@ class ChannelPriceImport extends BaseImport {
     private function validateChannel($channel) {
       
             if (!isset($this->arrChannels[$channel])) {
-                $this->arrErrors['channel'] = "Channel is invalid.";
+                $this->arrErrors[$this->lineCount]['channel'] = "Channel is invalid.";
                 return false;
         }
+        
         return true;
     }
     
