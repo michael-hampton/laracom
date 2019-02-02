@@ -112,7 +112,7 @@
         </div>
     </div>
 
-    <div class="col-lg-3">
+    <div class="col-lg-3 voucher-div">
         <input type="text" placeholder="Enter Voucher Code" class="form-control" id="voucher_code">
         <button class="btn btn-default btn-block use_voucher pull-right">Use</button>
     </div>
@@ -143,16 +143,32 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
-        $('.use_voucher').on('click', function () {
+        $('.use_voucher').on('click', function (e) {
+
+            e.preventDefault();
 
             var voucherCode = $('#voucher_code').val();
 
             $.ajax({
                 type: "GET",
-                url: '/admin/voucher-codes/validate/' + voucherCode,
-                success: function (msg) {
-                    alert(msg);
-                    location.reload();
+                url: '/cart/validate/' + voucherCode,
+                success: function (response) {
+                    if (response.http_code == 400) {
+
+                        $('.voucher-div').prepend("<div class='alert alert-danger'></div>");
+
+                        $.each(response.errors, function (key, value) {
+
+                            $('.voucher-div .alert-danger').append("<p>" + value + "</p>");
+                        });
+
+                        return false;
+                    }
+
+                    if (response.http_code == 200) {
+                        $('.voucher-div').prepend("<div class='alert alert-success'>Voucher has been added to the order successfully</div>");
+                        location.reload();
+                    }
                 }
             });
         });

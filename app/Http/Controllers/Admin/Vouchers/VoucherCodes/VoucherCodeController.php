@@ -189,11 +189,11 @@ class VoucherCodeController extends Controller {
      * @param type $voucherCode
      */
     public function validateVoucherCode($voucherCode) {
-
+        
         if (session()->has('voucherCode')) {
             return response()->json(['http_code' => 400, 'error' => 'voucher code has already been set']); // Status code here
         }
-            
+
         $cartRepo = new CartRepository(new ShoppingCart);
 
         $cartProducts = $cartRepo->getCartItems()->map(function (CartItem $item) {
@@ -206,9 +206,9 @@ class VoucherCodeController extends Controller {
 
         $channelRepo = new ChannelRepository(new Channel);
         $channel = $channelRepo->findByName(env('CHANNEL'));
-        
+
         $voucherRepo = new VoucherRepository(new Voucher);
-        
+
 
         $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts, $voucherRepo);
 
@@ -218,16 +218,15 @@ class VoucherCodeController extends Controller {
 
             if (!empty($arrErrors)) {
 
-                return response()->json(['http_code' => 400, 'error' => implode('<br>', $arrErrors)]); // Status code here
+                return response()->json(['http_code' => 400, 'errors' => $arrErrors]); // Status code here
             }
 
-            return response()->json(['http_code' => 400, 'error' => 'Voucher could not be found']);
+            return response()->json(['http_code' => 400, 'errors' => ['Voucher could not be found']]);
         }
 
         $voucherCode->use_count = $voucherCode->use_count - 1;
         $voucherCode->save();
+        return response()->json(['http_code' => 200]);
     }
-    
-  
 
 }

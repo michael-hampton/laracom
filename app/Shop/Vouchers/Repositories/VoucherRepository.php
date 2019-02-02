@@ -120,8 +120,14 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
         return $result;
     }
     
+    /**
+     * 
+     * @param int $id
+     * @param type $cartProducts
+     * @return boolean
+     */
     public function validateVoucher(int $id, $cartProducts) {
-        
+                
         $objVoucher = $this->findVoucherById($id);
         
         if (!$this->validateVoucherScopes($objVoucher, $cartProducts)) {

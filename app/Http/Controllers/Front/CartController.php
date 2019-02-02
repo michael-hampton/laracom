@@ -15,6 +15,9 @@ use App\Shop\Channels\Channel;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Gloudemans\Shoppingcart\CartItem;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
+use App\Shop\Vouchers\Voucher;
 
 class CartController extends Controller {
 
@@ -39,7 +42,7 @@ class CartController extends Controller {
      * @var ProductAttributeRepositoryInterface
      */
     private $productAttributeRepo;
-    
+
     /**
      * @var VoucherCodeRepositoryInterface
      */
@@ -53,11 +56,7 @@ class CartController extends Controller {
      * @param ProductAttributeRepositoryInterface $productAttributeRepository
      */
     public function __construct(
-	    CartRepositoryInterface $cartRepository, 
-	    ProductRepositoryInterface $productRepository,
-	    CourierRepositoryInterface $courierRepository, 
-	    ProductAttributeRepositoryInterface $productAttributeRepository,
-	    VoucherCodeRepositoryInterface $voucherCodeRepository
+    CartRepositoryInterface $cartRepository, ProductRepositoryInterface $productRepository, CourierRepositoryInterface $courierRepository, ProductAttributeRepositoryInterface $productAttributeRepository, VoucherCodeRepositoryInterface $voucherCodeRepository
     ) {
         $this->cartRepo = $cartRepository;
         $this->productRepo = $productRepository;
@@ -73,12 +72,12 @@ class CartController extends Controller {
      */
     public function index() {
 
-         $voucher = null;
-	
-	     if (request()->session()->has('voucherCode')) {
-	         $voucher = $this->voucherCodeRepo->getByVoucherCode(request()->session()->get('voucherCode', 1));
-	     }
-                
+        $voucher = null;
+
+        if (request()->session()->has('voucherCode')) {
+            $voucher = $this->voucherCodeRepo->getByVoucherCode(request()->session()->get('voucherCode', 1));
+        }
+
         $courier = $this->courierRepo->findCourierById(request()->session()->get('courierId', 1));
         $shippingFee = $this->cartRepo->getShippingFee($courier);
         return view('front.carts.cart', [
@@ -97,14 +96,14 @@ class CartController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(AddToCartRequest $request) {
-        
+
         $product = $this->productRepo->findProductById($request->input('product'));
-        
-        if(!empty(env('CHANNEL'))) {
-             $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
+
+        if (!empty(env('CHANNEL'))) {
+            $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
             $channelAttributes = (new ChannelPriceRepository(new ChannelPrice))->getAttributesByParentProduct($product, $channel);
         }
-       
+
 
         if ($product->attributes()->count() > 0) {
             $productAttr = $product->attributes()->where('default', 1)->first();
@@ -161,6 +160,43 @@ class CartController extends Controller {
         $this->cartRepo->removeToCart($id);
         request()->session()->flash('message', 'Removed to cart successful');
         return redirect()->route('cart.index');
+    }
+
+    public function validateVoucherCode($voucherCode) {
+
+//        if (session()->has('voucherCode')) {
+//            return response()->json(['http_code' => 400, 'errors' => ['voucher code has already been set']]); // Status code here
+//        }
+
+        $cartProducts = $this->cartRepo->getCartItems()->map(function (CartItem $item) {
+            $product = $this->productRepo->findProductById($item->id);
+            $item->product = $this->transformProduct($product);
+            return $item;
+        });
+
+        $channelRepo = new ChannelRepository(new Channel);
+        $channel = $channelRepo->findByName(env('CHANNEL'));
+
+        $voucherRepo = new VoucherRepository(new Voucher);
+
+
+        $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts, $voucherRepo);
+
+        if (!$voucherCode) {
+
+            $arrErrors = $this->voucherCodeRepo->getValidationFailures();
+
+            if (!empty($arrErrors)) {
+
+                return response()->json(['http_code' => 400, 'errors' => $arrErrors]); // Status code here
+            }
+
+            return response()->json(['http_code' => 400, 'errors' => ['Voucher could not be found']]);
+        }
+
+        $voucherCode->use_count = $voucherCode->use_count - 1;
+        $voucherCode->save();
+        return response()->json(['http_code' => 200]);
     }
 
 }

@@ -13,7 +13,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use App\Shop\Channels\Channel;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
-
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -164,15 +163,14 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
             $this->validationFailures[] = 'unable to find voucher code';
             return false;
         }
-        
+
         try {
             $objVoucherCode = $this->findVoucherCodeById($results[0]->code_id);
-        
-            if(!$voucherRepo->validateVoucher($objVoucherCode->voucher_id, $cartProducts);
+
+            if (!$voucherRepo->validateVoucher($objVoucherCode->voucher_id, $cartProducts)) {
                 $this->validationFailures[] = 'unable to validate voucher';
                 return false;
-             }
-           
+            }
         } catch (\Exception $e) {
             $this->validationFailures[] = $e->getMessage();
         }

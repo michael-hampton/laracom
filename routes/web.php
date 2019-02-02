@@ -217,6 +217,7 @@ Route::namespace('Front')->group(function () {
         Route::resource('customer', 'CustomerController');
         Route::resource('customer.address', 'CustomerAddressController');
     });
+     Route::get('cart/validate/{code}', 'CartController@validateVoucherCode')->name('cart.validateVoucherCode');
     Route::resource('cart', 'CartController');
     Route::get("category/{slug}", 'CategoryController@getCategory')->name('front.category.slug');
     Route::get("search", 'ProductController@search')->name('search.product');
