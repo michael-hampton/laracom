@@ -137,6 +137,8 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $shipping;
+    
+    private $lineCount = 1;
 
     /**
      * 
@@ -174,11 +176,14 @@ class OrderImport extends BaseImport {
      */
     private function importCsv($file) {
         $handle = fopen($file, 'r');
+        
         if (!$handle) {
             return false;
         }
-//Parse the first row, instantiate all the validators
+        
+        //Parse the first row, instantiate all the validators
         $row = $this->parseFirstRow($this->fgetcsv($handle));
+        
         if (!empty($this->arrErrors)) {
             return false;
         }
@@ -201,12 +206,12 @@ class OrderImport extends BaseImport {
             $this->setOrderTotal($order);
             $this->calculateShippingCost();
 
-
-            if (!empty($this->arrErrors)) {
-                return false;
-            }
-
             $this->buildOrder($order);
+            $this->lineCount++;
+        }
+        
+        if (!empty($this->arrErrors)) {
+            return false;
         }
 
         if (!$this->sendToQueue()) {
@@ -215,6 +220,7 @@ class OrderImport extends BaseImport {
         }
 
         fclose($handle);
+        return true;
     }
 
     /**
@@ -248,7 +254,7 @@ class OrderImport extends BaseImport {
         $arrCouriers = array_change_key_case($this->arrCouriers->keyBy('name')->toArray(), CASE_LOWER);
 
         if (!isset($arrCouriers[$courier])) {
-            $this->arrErrors['courier'] = "Courier is invalid.";
+            $this->arrErrors[$this->lineCount]['courier'] = "Courier is invalid.";
             return false;
         }
 
@@ -266,7 +272,7 @@ class OrderImport extends BaseImport {
         $customer = trim(strtolower($customer));
 
         if (!isset($this->arrCustomers[$customer])) {
-            $this->arrErrors['customer'] = "Customer is invalid.";
+            $this->arrErrors[$this->lineCount]['customer'] = "Customer is invalid.";
             return false;
         }
 
@@ -298,7 +304,7 @@ class OrderImport extends BaseImport {
 
         if (empty($this->product)) {
 
-            $this->arrErrors['product'] = 'Invalid product';
+            $this->arrErrors[$this->lineCount]['product'] = 'Invalid product';
             return false;
         }
 
@@ -321,7 +327,7 @@ class OrderImport extends BaseImport {
 
         if (empty($customerId)) {
 
-            $this->arrErrors['customer'] = 'Invalid customer';
+            $this->arrErrors[$this->lineCount]['customer'] = 'Invalid customer';
             return false;
         }
 
@@ -343,7 +349,7 @@ class OrderImport extends BaseImport {
      */
     public function isValid($file) {
         if (!file_exists($file)) {
-            $this->arrErrors[] = 'File ' . $file . ' does not exist.';
+            $this->arrErrors[$this->lineCount]['file'] = 'File ' . $file . ' does not exist.';
             return false;
         }
         $this->importCsv($file);
@@ -395,7 +401,7 @@ class OrderImport extends BaseImport {
         $arrVoucherCodes = array_change_key_case($this->arrVoucherCodes->keyBy('voucher_code')->toArray(), CASE_LOWER);
 
         if (!isset($arrVoucherCodes[$voucherCode])) {
-            $this->arrErrors['voucher_code'] = "Voucher Code is invalid.";
+            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
             return false;
         }
 
@@ -404,7 +410,7 @@ class OrderImport extends BaseImport {
 
         if (!isset($this->arrVouchers[$voucherId])) {
 
-            $this->arrErrors['voucher_code'] = "Voucher Code is invalid.";
+            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
             return false;
         }
 
@@ -424,7 +430,7 @@ class OrderImport extends BaseImport {
 
         if (!isset($this->arrExistingProducts[$product])) {
 
-            $this->arrErrors['product'] = "Product is invalid.";
+            $this->arrErrors[$this->lineCount]['product'] = "Product is invalid.";
             return false;
         }
 
@@ -438,7 +444,7 @@ class OrderImport extends BaseImport {
     private function calculateShippingCost() {
         
        if(empty($this->courier)) {
-           
+           $this->arrErrors[$this->lineCount]['courier'] = 'invalid courier';
            return false;
        }
 
@@ -466,7 +472,7 @@ class OrderImport extends BaseImport {
         $arrChannels = array_change_key_case($this->arrChannels->keyBy('name')->toArray(), CASE_LOWER);
 
         if (!isset($arrChannels[$channel])) {
-            $this->arrErrors['channel'] = "Channel is invalid.";
+            $this->arrErrors[$this->lineCount]['channel'] = "Channel is invalid.";
             return false;
         }
 
