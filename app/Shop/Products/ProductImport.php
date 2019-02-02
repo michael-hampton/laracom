@@ -63,6 +63,8 @@ class ProductImport extends BaseImport {
      * @var type 
      */
     private $productRepo;
+    
+    private $lineCount = 1;
 
     /**
      * 
@@ -117,11 +119,12 @@ class ProductImport extends BaseImport {
             $brand = $this->validateBrand($order['brand']);
             $this->checkIfProductExists($order['name']);
 
-            if (!empty($this->arrErrors)) {
-                return false;
-            }
-
             $this->buildProduct($order, $arrSelectedCategories, $arrSelectedChannels, $brand);
+            $this->lineCount++;
+        }
+        
+        if (!empty($this->arrErrors)) {
+            return false;
         }
 
         if (!$this->saveImport()) {
@@ -142,7 +145,7 @@ class ProductImport extends BaseImport {
         $productName = trim(strtolower($productName));
 
         if (isset($this->arrExistingProducts[$productName])) {
-            $this->arrErrors['product'] = 'The product you are trying to create already exists';
+            $this->arrErrors[$this->lineCount]['product'] = 'The product you are trying to create already exists';
             return true;
         }
 
