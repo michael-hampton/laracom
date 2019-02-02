@@ -32,6 +32,7 @@ use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterfac
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\Comments\Transformers\CommentTransformer;
+use App\Shop\Orders\Transformers\OrderCsvTransformable;
 use App\Shop\Refunds\Repositories\Interfaces\RefundRepositoryInterface;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Http\Controllers\Controller;
@@ -46,8 +47,9 @@ use Validator;
 
 class OrderController extends Controller {
 
-    use AddressTransformable;
-    use CommentTransformer;
+    use AddressTransformable,
+        CommentTransformer,
+        OrderCsvTransformable;
 
     /**
      * @var OrderRepositoryInterface
@@ -565,10 +567,10 @@ class OrderController extends Controller {
     }
 
     public function backorders() {
-        
+
         $channels = $this->channelRepo->listChannels();
         $couriers = $this->courierRepo->listCouriers();
-        
+
         return view('admin.orders.backorders', [
             'channels' => $channels,
             'couriers' => $couriers
@@ -577,7 +579,7 @@ class OrderController extends Controller {
     }
 
     public function allocations() {
-        
+
         $channels = $this->channelRepo->listChannels();
         $couriers = $this->courierRepo->listCouriers();
 
@@ -613,6 +615,21 @@ class OrderController extends Controller {
     public function importCsv() {
 
         return view('admin.orders.importCsv');
+    }
+
+    /**
+     * 
+     * @param Request $request
+     */
+    public function export(Request $request) {
+
+        $list = OrderSearch::apply($request);
+
+        $arrOrders = $list->map(function (Order $item) {
+                    return $this->transformOrderForCsv($item);
+                })->all();
+
+        return response()->json($arrOrders);
     }
 
 }

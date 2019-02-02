@@ -9,6 +9,8 @@
         <div class="box">
             <div class="box-body">
                 <h2>Orders</h2>
+                <i style="font-size: 30px; cursor: pointer;" href="{{ route('admin.orders.export') }}" class="fa fa-cloud-download Export"></i>
+                <a href="{{ route('admin.orders.importCsv') }}"><i style="font-size: 30px; cursor: pointer;" class="fa fa-cloud-upload Import"></i></a>
 
                 <!-- search form -->
                 <div class="col-lg-12">
@@ -109,6 +111,20 @@
     $(document).ready(function () {
 
         loadPagination();
+
+        $('.Export').on('click', function (e) {
+            href = $(this).attr('href');
+            var formdata = $('#admin-search').serialize();
+
+            $.ajax({
+                type: "POST",
+                url: href,
+                data: formdata,
+                success: function (response) {
+                    exportCSVFile(response, 'orders');
+                }
+            });
+        });
 
         $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');

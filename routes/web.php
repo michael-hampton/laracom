@@ -35,12 +35,20 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::get('remove-image-thumb', 'ProductController@removeThumbnail')->name('product.remove.thumb');
             Route::post('getProductAutoComplete', 'ProductController@getProductAutoComplete')->name('product.getProductAutoComplete');
             Route::post('search/{page?}', 'ProductController@search')->name('products.search');
+            Route::post('export', 'ProductController@export')->name('products.export');
         });
+
+        Route::post('products/updateProduct', 'Products\ProductController@updateProduct')->name('products.updateProduct');
+        Route::post('products/saveImport', 'Products\ProductController@saveImport')->name('products.saveImport');
+        Route::get('products/importCsv/get', 'Products\ProductController@importCsv')->name('products.importCsv');
+        Route::post('products/getProductAutoComplete/get/', 'Products\ProductController@getProductAutoComplete')->name('products.getProductAutoComplete');
+
         Route::namespace('Categories')->group(function () {
             Route::resource('categories', 'CategoryController');
             Route::get('remove-image-category', 'CategoryController@removeImage')->name('category.remove.image');
         });
         Route::namespace('Orders')->group(function () {
+            Route::post('export', 'OrderController@export')->name('orders.export');
             Route::resource('orders', 'OrderController');
             Route::post('orderLine/updateLineStatus', 'OrderLineController@updateLineStatus')->name('orders.updateLineStatus');
             Route::post('orderLine/update', 'OrderLineController@update')->name('orderLine.update');
@@ -112,11 +120,6 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');
         Route::get('channels/getAvailiableProducts/{channelId}', 'Channels\ChannelController@getAvailiableProducts')->name('channels.getAvailiableProducts');
 
-         Route::post('products/updateProduct', 'Products\ProductController@updateProduct')->name('products.updateProduct');
-        Route::post('products/saveImport', 'Products\ProductController@saveImport')->name('products.saveImport');
-        Route::get('products/importCsv/get', 'Products\ProductController@importCsv')->name('products.importCsv');
-        Route::post('products/getProductAutoComplete/get/', 'Products\ProductController@getProductAutoComplete')->name('products.getProductAutoComplete');
-
         /* employees */
         Route::resource('employees', 'EmployeeController');
         Route::get('employees/{id}/profile', 'EmployeeController@getProfile')->name('employee.profile');
@@ -164,6 +167,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('channel-prices/get/{channel}', 'ChannelPrices\ChannelPriceController@index')->name('channel-prices.index');
         Route::get('channel-prices/editForm/{product}/{channel}', 'ChannelPrices\ChannelPriceController@editForm')->name('channel-prices.editForm');
         Route::post('channel-prices/search/{page?}', 'ChannelPrices\ChannelPriceController@search')->name('channel-prices.search');
+        Route::post('channel-prices/export', 'ChannelPrices\ChannelPriceController@export')->name('channel-prices.export');
+        Route::get('channel-prices/import', 'ChannelPrices\ChannelPriceController@import')->name('channel-prices.import');
     });
 });
 

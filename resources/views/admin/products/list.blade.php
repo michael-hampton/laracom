@@ -10,6 +10,9 @@
             <div class="box-body">
                 <h2>Products</h2>
 
+                <i style="font-size: 30px; cursor: pointer;" href="{{ route('admin.products.export') }}" class="fa fa-cloud-download Export"></i>
+                <a href="{{ route('admin.products.importCsv') }}"><i style="font-size: 30px; cursor: pointer;" class="fa fa-cloud-upload Import"></i></a>
+
                 <!-- search form -->
                 <div class="col-lg-12">
                     <form action="{{ route('admin.products.search') }}" method="post" id="admin-search">
@@ -35,7 +38,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        
+
                         <div style="margin-bottom: 10px;">
                             <label for="status">Status </label>
                             <select name="product_status" id="status" class="form-control">
@@ -57,7 +60,7 @@
         </div>
     </div>
     <div class="col-lg-9 search-results">
-        
+
     </div>
 
 </section>
@@ -87,24 +90,38 @@
 @section('js')
 <script type="text/javascript">
     $(document).ready(function () {
-    
+
+        $('.Export').on('click', function (e) {
+            href = $(this).attr('href');
+            var formdata = $('#admin-search').serialize();
+
+            $.ajax({
+                type: "POST",
+                url: href,
+                data: formdata,
+                success: function (response) {
+                    exportCSVFile(response, 'products');
+                }
+            });
+        });
+
         $(document).on('click', '.Edit', function (e) {
             e.preventDefault();
             var href = $(this).attr("href");
-                        
+
             $.ajax({
                 type: "GET",
                 url: href,
                 success: function (response) {
-                   $('#myModal').find('.modal-body').html(response);
-                   $('#myModal').modal('show');
+                    $('#myModal').find('.modal-body').html(response);
+                    $('#myModal').modal('show');
                 }
             });
         });
-    
+
         loadPagination();
-         
-         $('.Search').on('click', function (e) {
+
+        $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
             $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
             $('.Search').text('Loading...');

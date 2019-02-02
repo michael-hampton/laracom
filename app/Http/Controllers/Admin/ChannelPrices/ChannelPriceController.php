@@ -12,6 +12,7 @@ use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Shop\Brands\Repositories\BrandRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Shop\ChannelPrices\Transformations\ChannelPriceTransformable;
+use App\Shop\ChannelPrices\Transformations\ProductCsvTransformable;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,7 @@ use App\Search\ChannelPriceSearch;
 class ChannelPriceController extends Controller {
 
     use ChannelPriceTransformable;
+    use ProductCsvTransformable;
 
     /**
      * @var ProductRepositoryInterface
@@ -101,12 +103,24 @@ class ChannelPriceController extends Controller {
     /**
      * 
      * @param Request $request
+     */
+    public function export(Request $request) {
+
+        $list = ChannelPriceSearch::apply($request);
+
+        $arrProducts = $list->map(function (ChannelPrice $item) {
+                    return $this->transformProductForCsv($item);
+                })->all();
+
+        return response()->json($arrProducts);
+    }
+
+    /**
+     * 
+     * @param Request $request
      * @return type
      */
     public function search(Request $request) {
-
-        $export = $request->export;
-        $request->request->remove('export');
 
         $list = ChannelPriceSearch::apply($request);
 
@@ -115,35 +129,10 @@ class ChannelPriceController extends Controller {
                     return $this->transformProduct($item);
                 })->all();
 
-        if ((int) $export === 1) {
-
-            $arrProducts = $this->formatExportData($products);
-
-            return response()->json($arrProducts);
-        }
-
         return view('admin.channel-price.search', [
             'products' => $this->channelPriceRepo->paginateArrayResults($products, 10)
                 ]
         );
-    }
-
-    private function formatExportData($products) {
-        $arrProducts = [];
-
-        foreach ($products as $product) {
-
-            $arrProducts[] = array(
-                'name' => $product->name,
-                'description' => strip_tags($product->description),
-                'brand_name' => $product->brand_name,
-                'sku' => $product->sku,
-                'quantity' => $product->quantity,
-                'status' => $product->status
-            );
-        }
-
-        return $arrProducts;
     }
 
     /**

@@ -18,6 +18,7 @@ use App\Shop\Products\Requests\UpdateProductRequest;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Shop\Products\Transformations\ProductTransformable;
+use App\Shop\Products\Transformations\ProductCsvTransformable;
 use App\Shop\Tools\UploadableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -29,7 +30,8 @@ use App\Search\ProductSearch;
 class ProductController extends Controller {
 
     use ProductTransformable,
-        UploadableTrait;
+        UploadableTrait,
+        ProductCsvTransformable;
 
     /**
      * @var ProductRepositoryInterface
@@ -108,6 +110,21 @@ class ProductController extends Controller {
             'categories' => $categories,
             'brands' => $brands
         ]);
+    }
+
+    /**
+     * 
+     * @param Request $request
+     */
+    public function export(Request $request) {
+
+        $list = ProductSearch::apply($request);
+
+        $arrProducts = $list->map(function (Product $item) {
+                    return $this->transformProductForCsv($item);
+                })->all();
+
+        return response()->json($arrProducts);
     }
 
     public function search(Request $request) {
