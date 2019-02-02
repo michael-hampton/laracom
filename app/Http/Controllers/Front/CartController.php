@@ -164,9 +164,9 @@ class CartController extends Controller {
 
     public function validateVoucherCode($voucherCode) {
 
-//        if (session()->has('voucherCode')) {
-//            return response()->json(['http_code' => 400, 'errors' => ['voucher code has already been set']]); // Status code here
-//        }
+        if (session()->has('voucherCode')) {
+            return response()->json(['http_code' => 400, 'errors' => ['voucher code has already been set']]); // Status code here
+        }
 
         $cartProducts = $this->cartRepo->getCartItems()->map(function (CartItem $item) {
             $product = $this->productRepo->findProductById($item->id);
