@@ -13,7 +13,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use App\Shop\Channels\Channel;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
-use App\Traits\VoucherValidationScope;
+
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\DB;
 class VoucherCodeRepository extends BaseRepository implements VoucherCodeRepositoryInterface {
 
     use VoucherCodeTransformable;
-    use VoucherValidationScope;
 
     /**
      *
@@ -152,7 +151,7 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
                                      WHERE  voucher_code = :code 
                                             AND ( use_count > 0 ) 
                                             AND ( expiry_date IS NULL 
-                                                   OR expiry_date > Now() ) 
+                                                   OR expiry_date > Date(Now()) ) 
                                             AND Date(Now()) >= start_date 
                                             AND v.status = 1 
                                             AND channel = :channel"), [
@@ -165,12 +164,17 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
             $this->validationFailures[] = 'unable to find voucher code';
             return false;
         }
-
-        $objVoucherCode = $this->findVoucherCodeById($results[0]->code_id);
-
-        if (!$this->validateVoucherScopes($voucherRepo, $objVoucherCode, $cartProducts)) {
-            $this->validationFailures[] = 'unable to validate voucher code';
-            return false;
+        
+        try {
+            $objVoucherCode = $this->findVoucherCodeById($results[0]->code_id);
+        
+            if(!$voucherRepo->validateVoucher($objVoucherCode->voucher_id, $cartProducts);
+                $this->validationFailures[] = 'unable to validate voucher';
+                return false;
+             }
+           
+        } catch (\Exception $e) {
+            $this->validationFailures[] = $e->getMessage();
         }
 
         request()->session()->put('voucherCode', $objVoucherCode->voucher_code);
