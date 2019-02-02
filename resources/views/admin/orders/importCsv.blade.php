@@ -1,31 +1,41 @@
-
-@extends('layouts.admin.app')
-
-@section('content')
-
-@if(isset($arrErrors) && $valid === false)
-
-<div class="alert alert-danger">
-    The import has the following errors:
-    <ul>
-        @foreach ($arrErrors as $message)
-        <li>{{ $message }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif;
-
-@if(isset($valid) && $valid === true)
-
-<div class="alert alert-success">
-    The import was successful:
-</div>
-@endif;
-
-<form action="/admin/orders/saveImport" method="post"enctype="multipart/form-data">
+<form id="importForm" action="/admin/orders/saveImport" method="post"enctype="multipart/form-data">
     {{ csrf_field() }}
     <input type="file" id="csv_file" name="csv_file">
-    <input type="submit" value="Submit">
 </form>
 
-@endsection;
+<script>
+    $('.SaveImport').off();
+    $('.SaveImport').on('click', function () {
+
+        var href = $('#importForm').attr('action');
+        var formdata = new FormData($('#importForm')[0]);
+        $('.saveImport').prop('disabled', true);
+        $('.modal-body .alert-danger').remove();
+        $('.modal-body .alert-success').remove();
+
+        $.ajax({
+            type: "POST",
+            url: href,
+            data: formdata,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.http_code == 400) {
+
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+
+                    $.each(response.arrErrors, function (key, value) {
+
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+                    $('.modal-body').prepend("<div class='alert alert-success'>Import was successful</div>");
+
+                }
+
+                $('.saveImport').prop('disabled', false);
+            }
+        });
+    });
+</script>
+

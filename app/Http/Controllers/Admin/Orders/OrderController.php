@@ -597,19 +597,18 @@ class OrderController extends Controller {
     public function saveImport(Request $request) {
 
         $file_path = $request->csv_file->path();
+
         $objOrderImport = new OrderImport(
                 $this->courierRepo, $this->orderStatusRepo, $this->channelRepo, $this->productRepo, $this->customerRepo, $this->voucherCodeRepo, new CourierRateRepository(new CourierRate), $this->voucherRepo, new \App\RabbitMq\Worker('bulk_import')
         );
 
-        $blValid = true;
-
         if (!$objOrderImport->isValid($file_path)) {
 
             $arrErrors = $objOrderImport->getErrors();
-            return view('admin.orders.importCsv', ['arrErrors' => $arrErrors, 'valid' => false]);
+            return response()->json(['http_code' => '400', 'arrErrors' => $arrErrors]);
         }
 
-        return view('admin.orders.importCsv', ['valid' => true]);
+        return response()->json(['http_code' => '200']);
     }
 
     public function importCsv() {

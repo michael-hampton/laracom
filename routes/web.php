@@ -35,9 +35,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::get('remove-image-thumb', 'ProductController@removeThumbnail')->name('product.remove.thumb');
             Route::post('getProductAutoComplete', 'ProductController@getProductAutoComplete')->name('product.getProductAutoComplete');
             Route::post('search/{page?}', 'ProductController@search')->name('products.search');
-            Route::post('export', 'ProductController@export')->name('products.export');
         });
 
+        Route::post('products/export', 'Products\ProductController@export')->name('products.export');
         Route::post('products/updateProduct', 'Products\ProductController@updateProduct')->name('products.updateProduct');
         Route::post('products/saveImport', 'Products\ProductController@saveImport')->name('products.saveImport');
         Route::get('products/importCsv/get', 'Products\ProductController@importCsv')->name('products.importCsv');
@@ -162,13 +162,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('remove-image-brand', 'Brands\BrandController@removeImage')->name('brand.remove.image');
 
         /* channel prices */
+        Route::get('channel-prices/import', 'ChannelPrices\ChannelPriceController@import')->name('channel-prices.import');
+        Route::post('channel-prices/saveImport', 'ChannelPrices\ChannelPriceController@saveImport')->name('channel-prices.saveImport');
         Route::delete('channel-prices/deleteAttribute/{id}', 'ChannelPrices\ChannelPriceController@deleteAttribute')->name('channel-prices.deleteAttribute');
         Route::resource('channel-prices', 'ChannelPrices\ChannelPriceController');
         Route::get('channel-prices/get/{channel}', 'ChannelPrices\ChannelPriceController@index')->name('channel-prices.index');
         Route::get('channel-prices/editForm/{product}/{channel}', 'ChannelPrices\ChannelPriceController@editForm')->name('channel-prices.editForm');
         Route::post('channel-prices/search/{page?}', 'ChannelPrices\ChannelPriceController@search')->name('channel-prices.search');
         Route::post('channel-prices/export', 'ChannelPrices\ChannelPriceController@export')->name('channel-prices.export');
-        Route::get('channel-prices/import', 'ChannelPrices\ChannelPriceController@import')->name('channel-prices.import');
     });
 });
 

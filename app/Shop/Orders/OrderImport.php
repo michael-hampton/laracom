@@ -436,6 +436,11 @@ class OrderImport extends BaseImport {
      * @return boolean
      */
     private function calculateShippingCost() {
+        
+       if(empty($this->courier)) {
+           
+           return false;
+       }
 
         $this->shipping = $this->objCourierRate->findShippingMethod($this->orderTotal, $this->courier, $this->channel, $this->deliveryAddress->country_id);
 

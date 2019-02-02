@@ -270,4 +270,28 @@ class ChannelPriceController extends Controller {
         return \Redirect::route('admin.channel-prices.index', $channel->name)->with('message', 'Delete successful');
     }
 
+    /**
+     * 
+     * @return type
+     */
+    public function import() {
+        return view('admin.channel-price.importCsv');
+    }
+
+    public function saveImport(Request $request) {
+        $file_path = $request->csv_file->path();
+
+        $objOrderImport = new OrderImport(
+                $this->courierRepo, $this->orderStatusRepo, $this->channelRepo, $this->productRepo, $this->customerRepo, $this->voucherCodeRepo, new CourierRateRepository(new CourierRate), $this->voucherRepo, new \App\RabbitMq\Worker('bulk_import')
+        );
+
+        if (!$objOrderImport->isValid($file_path)) {
+
+            $arrErrors = $objOrderImport->getErrors();
+            return response()->json(['http_code' => '400', 'arrErrors' => $arrErrors]);
+        }
+
+        return response()->json(['http_code' => '200']);
+    }
+
 }

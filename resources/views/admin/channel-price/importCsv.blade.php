@@ -1,4 +1,4 @@
-<form id="importForm" action="/admin/products/saveImport" method="post"enctype="multipart/form-data">
+<form id="importForm" action="/admin/channel-prices/saveImport" method="post"enctype="multipart/form-data">
     {{ csrf_field() }}
     <input type="file" id="csv_file" name="csv_file">
 </form>
@@ -38,4 +38,3 @@
         });
     });
 </script>
-

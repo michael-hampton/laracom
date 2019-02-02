@@ -10,7 +10,7 @@
             <div class="box-body">
 
                 <i style="font-size: 30px; cursor: pointer;" href="{{ route('admin.channel-prices.export') }}" class="fa fa-cloud-download Export"></i>
-                 <i style="font-size: 30px; cursor: pointer;" href="{{ route('admin.channel-prices.import') }}" class="fa fa-cloud-upload Import"></i>
+                <i style="font-size: 30px; cursor: pointer;" href="{{ route('admin.channel-prices.import') }}" class="fa fa-cloud-upload Import"></i>
 
                 <!-- search form -->
                 <div class="col-lg-12">
@@ -96,6 +96,26 @@
     </div>
 </div>
 
+<div class="modal inmodal" id="importModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Channel Product Import</h4>
+            </div>
+
+            <div class="modal-body">
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary SaveImport">Import</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section('js')
 <script type="text/javascript">
@@ -103,6 +123,21 @@
 
         loadPagination();
 
+        $('.Import').off();
+        $('.Import').on('click', function (e) {
+            href = $(this).attr('href');
+
+            $.ajax({
+                type: "GET",
+                url: href,
+                success: function (response) {
+                    $('#importModal').find('.modal-body').html(response);
+                    $('#importModal').modal('show');
+                }
+            });
+        });
+
+        $('.Search').off();
         $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
             $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
@@ -121,6 +156,7 @@
             });
         });
 
+        $('.Export').off();
         $('.Export').on('click', function (e) {
             href = $(this).attr('href');
             var formdata = $('#admin-search').serialize();
@@ -162,6 +198,6 @@
         });
     });
 
-   
+
 </script>
 @endsection;

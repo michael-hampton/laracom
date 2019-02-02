@@ -135,6 +135,7 @@
 
         $('.UpdateChannel').prop('disabled', true);
         $('.modal-body .alert-danger').remove();
+        $('.modal-body .alert-success').remove();
 
         var attributeId = $('#attribute_id').val();
         $('.variationList > li[attribute-id="' + attributeId + '"]').addClass('added');

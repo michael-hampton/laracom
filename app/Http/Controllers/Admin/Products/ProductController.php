@@ -381,6 +381,7 @@ class ProductController extends Controller {
      * @param Request $request
      */
     public function saveImport(Request $request) {
+
         $file_path = $request->csv_file->path();
 
         $objProductImport = new \App\Shop\Products\ProductImport(
@@ -391,10 +392,10 @@ class ProductController extends Controller {
         if (!$objProductImport->isValid($file_path)) {
 
             $arrErrors = $objProductImport->getErrors();
-            return view('admin.products.importCsv', ['arrErrors' => $arrErrors, 'valid' => false]);
+            return response()->json(['http_code' => '400', 'arrErrors' => $arrErrors]);
         }
 
-        return view('admin.products.importCsv', ['valid' => true]);
+        return response()->json(['http_code' => '200']);
     }
 
     public function updateProduct(Request $request) {
