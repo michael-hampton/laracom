@@ -190,6 +190,10 @@ class VoucherCodeController extends Controller {
      */
     public function validateVoucherCode($voucherCode) {
 
+        if (session()->has('voucherCode')) {
+            return response()->json(['http_code' => 400, 'error' => 'voucher code has already been set']); // Status code here
+        }
+            
         $cartRepo = new CartRepository(new ShoppingCart);
 
         $cartProducts = $cartRepo->getCartItems()->map(function (CartItem $item) {
@@ -214,10 +218,10 @@ class VoucherCodeController extends Controller {
 
             if (!empty($arrErrors)) {
 
-                return response()->json(['error' => implode('<br>', $arrErrors)], 404); // Status code here
+                return response()->json(['http_code' => 400, 'error' => implode('<br>', $arrErrors)]); // Status code here
             }
 
-            return response()->json(['error' => 'Voucher could not be found'], 404);
+            return response()->json(['http_code' => 400, 'error' => 'Voucher could not be found']);
         }
 
         $voucherCode->use_count = $voucherCode->use_count - 1;
