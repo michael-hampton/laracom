@@ -13,10 +13,12 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use App\Shop\Orders\Order;
 use Illuminate\Support\Facades\DB;
+use App\Traits\VoucherValidationScope;
 
 class VoucherRepository extends BaseRepository implements VoucherRepositoryInterface {
 
-    use VoucherTransformable;
+    use VoucherTransformable,
+    VoucherValidationScope;
 
     /**
      * VoucherRepository constructor.
@@ -116,6 +118,18 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
                 ->get();
 
         return $result;
+    }
+    
+    public function validateVoucher(int $id, $cartProducts) {
+        
+        $objVoucher = $this->findVoucherById($id);
+        
+        if (!$this->validateVoucherScopes($objVoucher, $cartProducts)) {
+            $this->validationFailures[] = 'unable to validate voucher code';
+            return false;
+        }
+        
+        return $objVoucher;
     }
 
 }
