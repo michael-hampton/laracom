@@ -151,7 +151,7 @@ class ProductController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function create() {
-        $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
+        $categories = $this->categoryRepo->listCategories('name', 'asc');
         $channels = $this->channelRepo->listChannels('name', 'asc');
 
         return view('admin.products.create', [
