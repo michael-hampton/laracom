@@ -38,7 +38,10 @@ class ChannelPriceImport extends BaseImport {
      * @var type 
      */
     private $productRepo;
+    
     private $lineCount = 1;
+    
+    private $objProduct;
 
     /**
      * 
@@ -114,11 +117,15 @@ class ChannelPriceImport extends BaseImport {
      */
     private function checkIfProductExists($productName) {
         $productName = trim(strtolower($productName));
-        if (isset($this->arrProducts[$productName])) {
+        
+        if (!isset($this->arrProducts[$productName])) {
             $this->arrErrors[$this->lineCount]['product'] = 'The product you are trying to create already exists';
-            return true;
+            return false;
         }
-        return false;
+        
+        $objProduct = $this->arrProducts[$productName];
+        
+        return true;
     }
 
     private function mapData($data) {
@@ -181,8 +188,7 @@ class ChannelPriceImport extends BaseImport {
             'product' => $order['product'],
             'price' => $order['price'],
             'warehouse' => $order['warehouse'],
-            'channel' => $order['channel'],
-            'price' => $order['price']
+            'channel' => $order['channel']
         ];
     }
 
@@ -212,6 +218,10 @@ class ChannelPriceImport extends BaseImport {
 
     private function validateCostPrice($price) {
 
+        if($price < $objProduct['cost_price']) {
+            return false;
+        }
+        
         return true;
     }
 
