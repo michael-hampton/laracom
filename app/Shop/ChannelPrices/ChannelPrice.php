@@ -22,7 +22,8 @@ class ChannelPrice extends Model
         'attribute_id',
         'product_id',
         'description',
-        'price'
+        'price',
+        'warehouse'
     ];
 
     /**
