@@ -12,6 +12,7 @@ use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Shop\Brands\Repositories\BrandRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Shop\ChannelPrices\ChannelPriceImport;
+use App\Shop\Channels\Repositories\WarehouseRepository;
 use App\Shop\Channels\Warehouse;
 use App\Shop\ChannelPrices\Transformations\ChannelPriceTransformable;
 use App\Shop\ChannelPrices\Transformations\ProductCsvTransformable;
@@ -160,14 +161,16 @@ class ChannelPriceController extends Controller {
 
         $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
         $channel = $this->channelRepo->findChannelById($channelPrice->channel_id);
+        $arrWarehouses = (new WarehouseRepository(new Warehouse))->listWarehouses('name', 'asc');
 
         $product = $this->productRepo->findProductById($channelPrice->product_id);
         $attributes = (new \App\Shop\ProductAttributes\Repositories\ProductAttributeRepository(new \App\Shop\ProductAttributes\ProductAttribute))->getAttributesForProduct($product);
 
         $channelVaraitions = $this->channelPriceRepo->getChannelVariations($channel)->keyBy('attribute_id');
         $assignedAttributes = $channelVaraitions->pluck('attribute_id')->toArray();
-
+        
         return view('admin.channel-price.edit', [
+            'warehouses'         => $arrWarehouses,
             'assignedAttributes' => $assignedAttributes,
             'channel_varaitions' => $channelVaraitions,
             'attributes'         => $attributes,
@@ -291,7 +294,7 @@ class ChannelPriceController extends Controller {
     public function saveImport(Request $request) {
         $file_path = $request->csv_file->path();
 
-        $objChannelProductImport = new ChannelPriceImport(new \App\Shop\Channels\Repositories\WarehouseRepository(new Warehouse), $this->channelRepo, $this->productRepo, $this->channelPriceRepo
+        $objChannelProductImport = new ChannelPriceImport(new WarehouseRepository(new Warehouse), $this->channelRepo, $this->productRepo, $this->channelPriceRepo
         );
 
         if (!$objChannelProductImport->isValid($file_path))

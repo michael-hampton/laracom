@@ -202,7 +202,9 @@ function buildcheckBox($value, $label) {
                     <button channel-id="{{ $channel->id }}"  class="btn btn-primary addProduct">+</button>
                 </div>
 
-                <ul class='productList list list-group clear-list'>
+                <a href="#" class="view-all-products">View All Products</a>
+
+                <ul class='productList list list-group clear-list' style="display:none;">
                     @foreach($assigned_products as $objProduct)
                     <li style="margin-top:12px;" class='list-group-item'>{{$objProduct->name}} {{$objProduct->price}}</li>
                     @endforeach;
@@ -286,6 +288,28 @@ $(document).ready(function () {
         });
     });
     $('.test').bootstrapSwitch();
+
+    $('.view-all-providers').off();
+    $('.view-all-providers').on('click', function (e) {
+        e.preventDefault();
+        $('.providerList').animate({opacity: 'toggle'}, 'slow');
+        var text = $(this).text();
+
+        $(this).text(
+                text == "View All Providers" ? "Hide Providers" : "View All Providers");
+
+    });
+
+    $('.view-all-products').off();
+    $('.view-all-products').on('click', function (e) {
+        e.preventDefault();
+        $('.productList').animate({opacity: 'toggle'}, 'slow');
+        var text = $(this).text();
+
+        $(this).text(
+                text == "View All Products" ? "Hide Products" : "View All Products");
+
+    });
 
     $('.addProvider').on('click', function () {
 
@@ -376,7 +400,7 @@ $(document).ready(function () {
                     });
                 } else {
                     $('.product-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
-                    $('#productSelect option[value="'+product+'"]').remove();
+                    $('#productSelect option[value="' + product + '"]').remove();
                 }
 
 
@@ -406,7 +430,7 @@ $(document).ready(function () {
                         $('.channel-div .alert-danger').append("<p>" + value + "</p>");
                     });
                 } else {
-                $('.channel-name').html($('#name').val());
+                    $('.channel-name').html($('#name').val());
                     $('.channel-div').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                 }
 

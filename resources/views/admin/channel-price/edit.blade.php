@@ -27,11 +27,20 @@
 
             <div class="form-group">
                 <label for="alias">Description <span class="text-danger">*</span></label>
-                <textarea name="description" id="alias" placeholder="Description" class="form-control"><?= (!empty($channelPrice->description) ? strip_tags($channelPrice->description) : strip_tags($product->description)) ?></textarea>
+                <textarea name="description" id="description" placeholder="Description" class="form-control"><?= (!empty($channelPrice->description) ? strip_tags($channelPrice->description) : strip_tags($product->description)) ?></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="alias">Warehouse <span class="text-danger">*</span></label>
+                <select name="warehouse" id="warehouse" class="form-control">
+                    @foreach($warehouses as $warehouse)
+                    <option value="{{ $warehouse->id }}" @if($channelPrice->warehouse == $warehouse->id) selected="selected" @endif>{{ $warehouse->name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
 
-        <button class='cancelChanges' type='button'>cancel</button>
+        <button class="btn btn-danger cancelChanges" type='button'>cancel</button>
     </form>
 </div>
 
@@ -41,10 +50,19 @@
 
         <?php
         $price = isset($channel_varaitions[$attribute->id]) ? $channel_varaitions[$attribute->id]->price : $attribute->price;
+        $warehouse = isset($channel_varaitions[$attribute->id]) && !empty($channel_varaitions[$attribute->id]->warehouse) ? $channel_varaitions[$attribute->id]->warehouse : 1;
+        $description = isset($channel_varaitions[$attribute->id]) && !empty($channel_varaitions[$attribute->id]->description) ? strip_tags($channel_varaitions[$attribute->id]->description) : '';
         $cost_price = !empty($attribute->cost_price) ? $attribute->cost_price : $product->cost_price;
         ?>
 
-        <li attribute-id="{{$attribute->id}}" cost-price='{{$cost_price}}' price='{{$price}}' class="list-group-item fist-item @if(in_array($attribute->id, $assignedAttributes)) added @endif">
+        <li 
+            description="{{$description}}" 
+            attribute-id="{{$attribute->id}}" 
+            warehouse="{{$warehouse}}" 
+            cost-price='{{$cost_price}}' 
+            price='{{$price}}' 
+            class="list-group-item fist-item @if(in_array($attribute->id, $assignedAttributes)) added @endif
+            ">
             <span class="float-right price-span">{{$price}} </span>
 
             @foreach($attribute->attributesValues as $value)
@@ -122,6 +140,8 @@
         $('#channelPriceForm').slideDown();
         $('#added').val(added);
         $('#price').val($(this).attr('price'));
+        $('#description').val($(this).attr('description'));
+        $('#warehouse').val($(this).attr('warehouse'));
         $('#cost_price').val($(this).attr('cost-price'));
         $('.productCode').html($(this).attr('name'));
         $('#attribute_id').val($(this).attr('attribute-id'));
@@ -165,7 +185,7 @@
                         $('#channelPriceForm').slideUp();
                         $('#variationWrapper').slideDown();
                     }
-                    
+
 
                     $('.variationList > li[attribute-id="' + attributeId + '"]').attr('price', $('#price').val());
                     $('.variationList > li[attribute-id="' + attributeId + '"] .price-span').html($('#price').val());
