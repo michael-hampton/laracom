@@ -4,6 +4,7 @@ namespace App\Shop\ChannelPrices\Repositories;
 
 use App\Shop\Base\BaseRepository;
 use App\Shop\ChannelPrices\Exceptions\ChannelPriceNotFoundException;
+use App\Shop\ChannelPrices\Exceptions\ChannelPriceInvalidArgumentException;
 use App\Shop\ChannelPrices\Transformations\ChannelPriceTransformable;
 use App\Shop\ChannelPrices\ChannelPrice;
 use App\Shop\Channels\Channel;
@@ -63,7 +64,7 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
                         ->where('channel_id', $channel->id)
                         ->whereNull('attribute_id')->first();
     }
-    
+
     /**
      * 
      * @param Product $product
@@ -71,13 +72,12 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
      * @return type
      */
     public function getAttributesByParentProduct(Product $product, Channel $channel) {
-        
+
         return $this->model
-                ->where('channel_id', $channel->id)
-                ->where('product_id', $product->id)
-                ->whereNotNull('attribute_id')->get()
-                ->keyBy('attribute_id');
-        
+                        ->where('channel_id', $channel->id)
+                        ->where('product_id', $product->id)
+                        ->whereNotNull('attribute_id')->get()
+                        ->keyBy('attribute_id');
     }
 
     /**
@@ -162,6 +162,21 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
                 ->get();
 
         return \App\Shop\Products\Product::hydrate($result->toArray());
+    }
+
+    /**
+     * Create the courier
+     *
+     * @param array $params
+     * @return Courier
+     * @throws CourierInvalidArgumentException
+     */
+    public function createChannelPrice(array $params): ChannelPrice {
+        try {
+            return $this->create($params);
+        } catch (QueryException $e) {
+            throw new ChannelPriceInvalidArgumentException($e->getMessage());
+        }
     }
 
     /**

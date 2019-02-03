@@ -11,12 +11,11 @@ use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Shop\Brands\Repositories\BrandRepositoryInterface;
 use App\Http\Controllers\Controller;
+use App\Shop\ChannelPrices\ChannelPriceImport;
+use App\Shop\Channels\Warehouse;
 use App\Shop\ChannelPrices\Transformations\ChannelPriceTransformable;
 use App\Shop\ChannelPrices\Transformations\ProductCsvTransformable;
 use Illuminate\Http\Request;
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Search\ChannelPriceSearch;
 
@@ -92,11 +91,11 @@ class ChannelPriceController extends Controller {
                 })->all();
 
         return view('admin.channel-price.list', [
-            'products' => $this->channelPriceRepo->paginateArrayResults($products, 10),
-            'channel' => $channel,
+            'products'   => $this->channelPriceRepo->paginateArrayResults($products, 10),
+            'channel'    => $channel,
             'categories' => $categories,
-            'channels' => $channels,
-            'brands' => $brands
+            'channels'   => $channels,
+            'brands'     => $brands
         ]);
     }
 
@@ -171,9 +170,9 @@ class ChannelPriceController extends Controller {
         return view('admin.channel-price.edit', [
             'assignedAttributes' => $assignedAttributes,
             'channel_varaitions' => $channelVaraitions,
-            'attributes' => $attributes,
-            'channelPrice' => $channelPrice,
-            'product' => $product
+            'attributes'         => $attributes,
+            'channelPrice'       => $channelPrice,
+            'product'            => $product
         ]);
     }
 
@@ -192,27 +191,30 @@ class ChannelPriceController extends Controller {
 
         $validator = Validator::make($data, (new UpdateChannelPriceRequest())->rules());
 
-        if ($request->price < $request->cost_price) {
+        if ($request->price < $request->cost_price)
+        {
             $arrErrors['cost_price'] = ['The price cannot be less than the cost price.'];
             return response()->json(['http_code' => 400, 'errors' => $arrErrors]);
         }
 
         // Validate the input and return correct response
-        if ($validator->fails()) {
+        if ($validator->fails())
+        {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
         $channel = $this->channelRepo->findChannelById($request->channel_id);
 
-        if ($request->added == 1) {
+        if ($request->added == 1)
+        {
 
             try {
                 $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
                 $channelPriceRepo->create([
                     'attribute_id' => !empty($request->attribute_id) ? $request->attribute_id : null,
-                    'channel_id' => $request->channel_id,
-                    'product_id' => $request->product_id,
-                    'price' => $request->price
+                    'channel_id'   => $request->channel_id,
+                    'product_id'   => $request->product_id,
+                    'price'        => $request->price
                 ]);
             } catch (Exception $ex) {
                 return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
@@ -223,9 +225,12 @@ class ChannelPriceController extends Controller {
 
         try {
 
-            if (isset($data['attribute_id']) && !empty($data['attribute_id'])) {
+            if (isset($data['attribute_id']) && !empty($data['attribute_id']))
+            {
                 $channelPrice = $this->channelPriceRepo->findChannelPriceByAttributeId($request->attribute_id, $channel);
-            } else {
+            }
+            else
+            {
                 $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
             }
 
@@ -278,16 +283,21 @@ class ChannelPriceController extends Controller {
         return view('admin.channel-price.importCsv');
     }
 
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
     public function saveImport(Request $request) {
         $file_path = $request->csv_file->path();
 
-        $objOrderImport = new OrderImport(
-                $this->courierRepo, $this->orderStatusRepo, $this->channelRepo, $this->productRepo, $this->customerRepo, $this->voucherCodeRepo, new CourierRateRepository(new CourierRate), $this->voucherRepo, new \App\RabbitMq\Worker('bulk_import')
+        $objChannelProductImport = new ChannelPriceImport(new \App\Shop\Channels\Repositories\WarehouseRepository(new Warehouse), $this->channelRepo, $this->productRepo, $this->channelPriceRepo
         );
 
-        if (!$objOrderImport->isValid($file_path)) {
+        if (!$objChannelProductImport->isValid($file_path))
+        {
 
-            $arrErrors = $objOrderImport->getErrors();
+            $arrErrors = $objChannelProductImport->getErrors();
             return response()->json(['http_code' => '400', 'arrErrors' => $arrErrors]);
         }
 

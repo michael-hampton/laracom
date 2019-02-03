@@ -33,6 +33,7 @@
                     });
                 } else {
                     $('.modal-body').prepend("<div class='alert alert-success'>Import was successful</div>");
+                    $('#csv_file').replaceWith($('#csv_file').val('').clone(true));
 
                 }
 

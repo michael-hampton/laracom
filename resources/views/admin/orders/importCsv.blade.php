@@ -25,15 +25,15 @@
                     $('.modal-body').prepend("<div class='alert alert-danger'></div>");
 
                     $.each(response.arrErrors, function (lineId, arrLine) {
-                        
+
                         $.each(arrLine, function (field, message) {
-                                                        
+
                             $('.modal-body .alert-danger').append("<p> Line Id: " + lineId + " message: " + message + "</p>");
                         });
                     });
                 } else {
                     $('.modal-body').prepend("<div class='alert alert-success'>Import was successful</div>");
-
+                    $('#csv_file').replaceWith($('#csv_file').val('').clone(true));
                 }
 
                 $('.saveImport').prop('disabled', false);

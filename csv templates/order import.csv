@@ -1,0 +1,3 @@
+order_id,channel,customer,courier,voucher_code,product,quantity,price
+1,mike,Michael Hampton,Leffler-Fritsch,CV9L3AQ1XOQU,test mike 7, 1, 12.99
+1,mike,Michael Hampton,Leffler-Fritsch,CV9L3AQ1XOQU,test mike 4, 1, 12.99

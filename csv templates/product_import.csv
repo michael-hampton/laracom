@@ -1,0 +1,3 @@
+name,channels,categories,brand,sku,description,quantity,price,sale_price,weight,mass_unit,length,width,height,distance_unit
+Test Import Product 23, Mike, Gear, test brand, IMPORTPROD, this is an imported product,10, 12,99, 12,99, 2,2,2,2,2,,
+Test Import Product 24, Mike, Gear, test brand, IMPORTPROD, this is an imported product,10, 12,99, 12,99, 2,2,2,2,2,,
