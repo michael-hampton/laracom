@@ -35,7 +35,7 @@
                 <h2>Details</h2>
 
                 <small>Customer Ref: <strong>{{ $order->customer_ref }}</strong></small>
-                
+
                 <table class="table table-striped" width="100%" border="0" cellspacing="0" cellpadding="0">
                     <thead>
                         <tr>
@@ -49,12 +49,13 @@
                     <tbody>
 
                         <?php
-                        foreach ($items as $item) {
+                        foreach ($items as $item)
+                        {
 
-                            if ($item->status !== $allowed_status) {
-
-                                continue;
-                            }
+//                            if ($item->status !== $allowed_status) {
+//
+//                                continue;
+//                            }
                             ?>
 
                             <tr>
@@ -72,5 +73,12 @@
                 </table>
             </div>
         </section>
+
+        @if(!empty($terms->description))
+        <section class="row col-lg-12">
+            <h2>Terms and Conditions</h2>
+            {{$terms->description }}
+        </section>
+        @endif
     </body>
 </html>

@@ -16,7 +16,6 @@ use Illuminate\Support\Collection;
 use App\Shop\Channels\Channel;
 use App\Shop\Channels\Repositories\Interfaces\ChannelTemplateRepositoryInterface;
 
-
 class ChannelTemplateRepository extends BaseRepository implements ChannelTemplateRepositoryInterface {
 
     use ChannelTransformable;
@@ -74,6 +73,20 @@ class ChannelTemplateRepository extends BaseRepository implements ChannelTemplat
 
     public function getTemplatesForChannel(Channel $channel) {
         return $this->model->where('channel_id', $channel->id)->get()->keyBy('section_id');
+    }
+
+    /**
+     * 
+     * @param Channel $channel
+     * @param int $sectionId
+     * @return type
+     */
+    public function getTemplateForChannelBySection(Channel $channel, int $sectionId) {
+        return $this->model
+                        ->where('channel_id', $channel->id)
+                        ->where('section_id', $sectionId)
+                        ->get()
+                        ->first();
     }
 
 }

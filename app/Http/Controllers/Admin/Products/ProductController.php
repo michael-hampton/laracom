@@ -7,13 +7,10 @@ use App\Shop\AttributeValues\Repositories\AttributeValueRepositoryInterface;
 use App\Shop\Brands\Repositories\BrandRepositoryInterface;
 use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Shop\ProductAttributes\ProductAttribute;
-use App\Shop\Products\Exceptions\ProductInvalidArgumentException;
-use App\Shop\Products\Exceptions\ProductNotFoundException;
 use App\Shop\Products\Product;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Products\Requests\CreateProductRequest;
-use App\Shop\Products\Requests\ProductImportRequest;
 use App\Shop\Products\Requests\UpdateProductRequest;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Http\Controllers\Controller;
@@ -22,8 +19,8 @@ use App\Shop\Products\Transformations\ProductCsvTransformable;
 use App\Shop\Tools\UploadableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Shop\Channels\Repositories\WarehouseRepository;
+use App\Shop\Channels\Warehouse;
 use Illuminate\Support\Facades\Validator;
 use App\Search\ProductSearch;
 
@@ -108,7 +105,7 @@ class ProductController extends Controller {
 
         return view('admin.products.list', [
             'categories' => $categories,
-            'brands' => $brands
+            'brands'     => $brands
         ]);
     }
 
@@ -139,8 +136,8 @@ class ProductController extends Controller {
 
         return view('admin.products.search', [
             'categories' => $categories,
-            'brands' => $this->brandRepo->listBrands(),
-            'products' => $this->productRepo->paginateArrayResults($products, 10),
+            'brands'     => $this->brandRepo->listBrands(),
+            'products'   => $this->productRepo->paginateArrayResults($products, 10),
                 ]
         );
     }
@@ -154,13 +151,19 @@ class ProductController extends Controller {
         $categories = $this->categoryRepo->listCategories('name', 'asc');
         $channels = $this->channelRepo->listChannels('name', 'asc');
 
+        $arrWarehouses = (new WarehouseRepository(new Warehouse))->listWarehouses('name', 'asc');
+        $warehouses_on = !empty(env('ALLOW_WAREHOUSES')) ? true : false;
+
+
         return view('admin.products.create', [
-            'categories' => $categories,
-            'channels' => $channels,
-            'brands' => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
+            'warehouses_on'  => $warehouses_on,
+            'warehouses'     => $arrWarehouses,
+            'categories'     => $categories,
+            'channels'       => $channels,
+            'brands'         => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
             'default_weight' => env('SHOP_WEIGHT'),
-            'weight_units' => (new Product())->MASS_UNIT,
-            'product' => new Product
+            'weight_units'   => (new Product())->MASS_UNIT,
+            'product'        => new Product
         ]);
     }
 
@@ -176,7 +179,8 @@ class ProductController extends Controller {
         $data['slug'] = str_slug($request->input('name'));
 
         // cover image
-        if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile) {
+        if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile)
+        {
             $data['cover'] = $this->productRepo->saveCoverImage($request->file('cover'));
         }
 
@@ -184,22 +188,29 @@ class ProductController extends Controller {
         $productRepo = new ProductRepository($product);
 
         // image
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image'))
+        {
             $productRepo->saveProductImages(collect($request->file('image')));
         }
 
         // categories
-        if ($request->has('categories')) {
+        if ($request->has('categories'))
+        {
             $productRepo->syncCategories($request->input('categories'));
-        } else {
+        }
+        else
+        {
             $productRepo->detachCategories();
         }
 
         // channels
-        if ($request->has('channels')) {
+        if ($request->has('channels'))
+        {
 
             $productRepo->syncChannels($request->input('channels'));
-        } else {
+        }
+        else
+        {
             $productRepo->detachChannels();
         }
 
@@ -233,7 +244,8 @@ class ProductController extends Controller {
         $qty = $productAttributes->map(function ($item) {
                     return $item->quantity;
                 })->sum();
-        if (request()->has('delete') && request()->has('pa')) {
+        if (request()->has('delete') && request()->has('pa'))
+        {
             $pa = $productAttributes->where('id', request()->input('pa'))->first();
             $pa->attributesValues()->detach();
             $pa->delete();
@@ -242,21 +254,25 @@ class ProductController extends Controller {
         }
 
         $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
+        $arrWarehouses = (new WarehouseRepository(new Warehouse))->listWarehouses('name', 'asc');
+        $warehouses_on = !empty(env('ALLOW_WAREHOUSES')) ? true : false;
 
         return view('admin.products.edit', [
-            'product' => $product,
-            'images' => $product->images()->get(['src']),
-            'categories' => $categories,
-            'selectedIds' => $product->categories()->pluck('category_id')->all(),
+            'warehouses_on'      => $warehouses_on,
+            'warehouses'         => $arrWarehouses,
+            'product'            => $product,
+            'images'             => $product->images()->get(['src']),
+            'categories'         => $categories,
+            'selectedIds'        => $product->categories()->pluck('category_id')->all(),
             'selectedChannelIds' => $product->channels()->pluck('channel_id')->all(),
-            'attributes' => $this->attributeRepo->listAttributes(),
-            'productAttributes' => $productAttributes,
-            'qty' => $qty,
-            'brands' => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
-            'channels' => $this->channelRepo->listChannels('name', 'asc'),
-            'weight' => $product->weight,
-            'default_weight' => $product->mass_unit,
-            'weight_units' => (new Product())->MASS_UNIT
+            'attributes'         => $this->attributeRepo->listAttributes(),
+            'productAttributes'  => $productAttributes,
+            'qty'                => $qty,
+            'brands'             => $this->brandRepo->listBrands(['*'], 'name', 'asc'),
+            'channels'           => $this->channelRepo->listChannels('name', 'asc'),
+            'weight'             => $product->weight,
+            'default_weight'     => $product->mass_unit,
+            'weight_units'       => (new Product())->MASS_UNIT
         ]);
     }
 
@@ -313,7 +329,8 @@ class ProductController extends Controller {
      * @param Product $product
      */
     private function saveProductImages(Request $request, Product $product) {
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image'))
+        {
             $this->productRepo->saveProductImages(collect($request->file('image')), $product);
         }
     }
@@ -329,7 +346,8 @@ class ProductController extends Controller {
                 'productAttributeQuantity', 'productAttributePrice', 'sale_price', 'default'
         );
 
-        if ($errors = $this->validateFields($fields)) {
+        if ($errors = $this->validateFields($fields))
+        {
             return redirect()->route('admin.products.edit', [$product->id, 'combination' => 1])
                             ->withErrors($errors);
         }
@@ -339,18 +357,21 @@ class ProductController extends Controller {
         $cost_price = $request->cost_price;
         $sale_price = null;
 
-        if (isset($fields['sale_price'])) {
+        if (isset($fields['sale_price']))
+        {
             $sale_price = $fields['sale_price'];
         }
         $attributeValues = $request->input('attributeValue');
         $productRepo = new ProductRepository($product);
         $hasDefault = $productRepo->listProductAttributes()->where('default', 1)->count();
         $default = 0;
-        if ($request->has('default')) {
+        if ($request->has('default'))
+        {
             $default = $fields['default'];
         }
 
-        if ($default == 1 && $hasDefault > 0) {
+        if ($default == 1 && $hasDefault > 0)
+        {
             $default = 0;
         }
 
@@ -389,7 +410,8 @@ class ProductController extends Controller {
         );
 
 
-        if (!$objProductImport->isValid($file_path)) {
+        if (!$objProductImport->isValid($file_path))
+        {
 
             $arrErrors = $objProductImport->getErrors();
             return response()->json(['http_code' => '400', 'arrErrors' => $arrErrors]);
@@ -405,7 +427,8 @@ class ProductController extends Controller {
         $product = $this->productRepo->findProductById($id);
         $productRepo = new ProductRepository($product);
 
-        if ($request->has('attributeValue')) {
+        if ($request->has('attributeValue'))
+        {
             $this->saveProductCombinations($request, $product);
             return response()->json(['http_code' => 200, 'message' => 'Attribute combination created successfully']);
         }
@@ -417,33 +440,42 @@ class ProductController extends Controller {
         $validator = Validator::make($data, (new UpdateProductRequest())->rules());
 
         // Validate the input and return correct response
-        if ($validator->fails()) {
+        if ($validator->fails())
+        {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
         $data['slug'] = str_slug($request->input('name'));
 
         // cover image
-        if ($request->hasFile('cover')) {
+        if ($request->hasFile('cover'))
+        {
             $data['cover'] = $productRepo->saveCoverImage($request->file('cover'));
         }
 
         // images
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image'))
+        {
             $productRepo->saveProductImages(collect($request->file('image')));
         }
 
         // categories
-        if ($request->has('categories')) {
+        if ($request->has('categories'))
+        {
             $productRepo->syncCategories($request->input('categories'));
-        } else {
+        }
+        else
+        {
             $productRepo->detachCategories();
         }
 
         // channels
-        if ($request->has('channels')) {
+        if ($request->has('channels'))
+        {
             $productRepo->syncChannels($request->input('channels'));
-        } else {
+        }
+        else
+        {
             $productRepo->detachChannels();
         }
 
@@ -466,18 +498,19 @@ class ProductController extends Controller {
         ]);
 
         if ($validator->fails(
-                )) {
+                ))
+        {
             return $validator;
         }
     }
 
     public function download() {
         $headers = [
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0'
-            , 'Content-type' => 'text/csv'
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0'
+            , 'Content-type'        => 'text/csv'
             , 'Content-Disposition' => 'attachment; filename=galleries.csv'
-            , 'Expires' => '0'
-            , 'Pragma' => 'public'
+            , 'Expires'             => '0'
+            , 'Pragma'              => 'public'
         ];
 
         $list = Product::all()->toArray();
@@ -487,7 +520,8 @@ class ProductController extends Controller {
 
         $callback = function() use ($list) {
             $FH = fopen('php://output', 'w');
-            foreach ($list as $row) {
+            foreach ($list as $row)
+            {
                 fputcsv($FH, $row);
             }
             fclose($FH);

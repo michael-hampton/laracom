@@ -54,6 +54,7 @@ trait ProductTransformable {
         $prod->mass_unit = $product->mass_unit;
         $prod->sale_price = $product->sale_price;
         $prod->cost_price = $product->cost_price;
+        $prod->warehouse = $product->warehouse;
         $prod->brand_id = (int) $product->brand_id;
         $prod->brand_name = $brand->name;
         return $prod;

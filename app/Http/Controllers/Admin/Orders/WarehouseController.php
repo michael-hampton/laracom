@@ -12,6 +12,8 @@ use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Products\Product;
+use App\Shop\Channels\Repositories\ChannelTemplateRepository;
+use App\Shop\Channels\ChannelTemplate;
 use App\Shop\Orders\Order;
 use App\Shop\OrderStatuses\OrderStatus;
 use App\Shop\Comments\OrderCommentRepository;
@@ -22,7 +24,7 @@ use App\Shop\Orders\Requests\WarehouseRequest;
 use App\Shop\Addresses\Transformations\AddressTransformable;
 
 class WarehouseController extends Controller {
-    
+
     use AddressTransformable;
 
     /**
@@ -79,21 +81,23 @@ class WarehouseController extends Controller {
         $arrOrders = [
             'pending' => [
                 'picklists' => [],
-                'count' => 0
+                'count'     => 0
             ],
             'picking' => [
                 'picklists' => [],
-                'count' => 0
+                'count'     => 0
             ],
             'packing' => [
                 'picklists' => [],
-                'count' => 0
+                'count'     => 0
             ]
         ];
 
-        foreach ($arrLines as $objLine) {
+        foreach ($arrLines as $objLine)
+        {
 
-            switch ($objLine->status) {
+            switch ($objLine->status)
+            {
 
                 case 5:
                     $arrOrders['pending']['picklists'][$objLine->picklist_ref]['data'][] = $objLine;
@@ -125,8 +129,8 @@ class WarehouseController extends Controller {
         $items = $this->orderLineRepo->paginateArrayResults($items, 10);
         $channels = $this->channelRepo->listChannels();
         return view('admin.warehouse.getPicklist', [
-            'items' => $items,
-            'channels' => $channels,
+            'items'        => $items,
+            'channels'     => $channels,
             'picklist_ref' => $picklistRef
                 ]
         );
@@ -145,7 +149,8 @@ class WarehouseController extends Controller {
         $arrErrors = [];
         $arrSuccesses = [];
 
-        if ($order->total_paid <= 0 || empty($order->payment)) {
+        if ($order->total_paid <= 0 || empty($order->payment))
+        {
             $message = 'Failed to pick order as payment information is incorrect or missing';
             $data = [
                 'content' => $message,
@@ -168,7 +173,8 @@ class WarehouseController extends Controller {
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
 
 
-        if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
+        if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0)
+        {
             $orderRepo = new OrderRepository($order);
             $orderRepo->updateOrder(['order_status_id' => $newStatus->id]);
         }
@@ -196,14 +202,14 @@ class WarehouseController extends Controller {
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
 
-        if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
+        if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0)
+        {
             $orderRepo = new OrderRepository($order);
             $orderRepo->updateOrder(['order_status_id' => $newStatus->id]);
         }
 
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
         return response()->json(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
-        
     }
 
     /**
@@ -228,19 +234,20 @@ class WarehouseController extends Controller {
             $objProductRepo->updateProduct(['quantity' => $quantity, 'reserved_stock' => $reserved_stock]);
             $objOrderLineRepo = new OrderProductRepository($objLine);
             $objOrderLineRepo->updateOrderProduct(
-                    ['status' => $newStatus->id,
+                    ['status'        => $newStatus->id,
                         'dispatch_date' => date('Y-m-d')
                     ]
             );
         } catch (Exception $ex) {
             $arrErrors[$request->orderId][] = $ex->getMessage();
-           return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
 
 
 
         (new \App\RabbitMq\Worker('dispatch'))->execute($request->lineId);
-        if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0) {
+        if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0)
+        {
             $order->order_status_id = $completeStatus->id;
             $order->save();
             //complete order
@@ -257,24 +264,26 @@ class WarehouseController extends Controller {
      * @return mixed
      */
     public function generateDispatchNote(int $id) {
-              
+
         $order = $this->orderRepo->findOrderById($id);
         $channel = $this->channelRepo->findChannelById($order->channel);
         $newStatus = $this->orderStatusRepo->findByName('Dispatch');
         $items = $this->orderLineRepo->listOrderProducts()->where('order_id', $id);
+        $terms = (new ChannelTemplateRepository(new ChannelTemplate))->getTemplateForChannelBySection($channel, 2);
 
         $data = [
-            'order' => $order,
-            'items' => $items,
+            'order'          => $order,
+            'items'          => $items,
             'allowed_status' => $newStatus->id,
-            'products' => $order->products,
-            'customer' => $order->customer,
-            'courier' => $order->courier,
-            'address' => $this->transformAddress($order->address),
-            'status' => $order->orderStatus,
-            'channel' => $channel
+            'products'       => $order->products,
+            'customer'       => $order->customer,
+            'courier'        => $order->courier,
+            'address'        => $this->transformAddress($order->address),
+            'status'         => $order->orderStatus,
+            'channel'        => $channel,
+            'terms'          => $terms
         ];
-        
+
         $pdf = app()->make('dompdf.wrapper');
         $pdf->loadView('dispatchNote.dispatchNote', $data)->stream();
 

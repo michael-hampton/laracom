@@ -32,7 +32,7 @@
 
             <div class="form-group">
                 <label for="alias">Warehouse <span class="text-danger">*</span></label>
-                <select name="warehouse" id="warehouse" class="form-control">
+                <select readonly="readonly" name="warehouse" id="warehouse" class="form-control">
                     @foreach($warehouses as $warehouse)
                     <option value="{{ $warehouse->id }}" @if($channelPrice->warehouse == $warehouse->id) selected="selected" @endif>{{ $warehouse->name }}</option>
                     @endforeach

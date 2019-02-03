@@ -7,6 +7,8 @@ use App\Shop\Channels\Exceptions\ChannelNotFoundException;
 use App\Shop\Channels\Warehouse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
+use App\Shop\Channels\Channel;
+use Illuminate\Support\Facades\DB;
 
 class WarehouseRepository extends BaseRepository {
 
@@ -30,7 +32,7 @@ class WarehouseRepository extends BaseRepository {
     public function listWarehouses(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection {
         return $this->all($columns, $order, $sort);
     }
-    
+
     /**
      * Find the channel by ID
      *
@@ -43,6 +45,21 @@ class WarehouseRepository extends BaseRepository {
         } catch (ModelNotFoundException $e) {
             throw new ChannelNotFoundException($e->getMessage());
         }
+    }
+
+    /**
+     * 
+     * @param Channel $channel
+     * @return type
+     */
+    public function getWarehousesForChannel(Channel $channel) {
+        $warehouses = $this->model
+                ->join('channel_warehouses', 'channel_warehouses.warehouse_id', '=', 'warehouse.id')
+                ->where('channel_warehouses.channel_id', $channel->id)
+                ->select('warehouse.*')
+                ->get();
+
+        return $warehouses;
     }
 
     /**

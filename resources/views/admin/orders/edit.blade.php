@@ -8,9 +8,9 @@
         font-size: 26px;
     }
 
-/*    .current-line-ref:not(.active) {
-        background-color: #999 !important;
-    }*/
+    /*    .current-line-ref:not(.active) {
+            background-color: #999 !important;
+        }*/
 
     .current-line-ref .active {
         color: #FFF;
@@ -39,6 +39,10 @@
                 </div>
                 <div class="col-md-1">
                     <a href="{{route('admin.orders.invoice.generate', $order['id'])}}">Download Invoice</a>
+                </div>
+
+                <div class="col-md-1">
+                    <a class='btn btn-primary btn-sm' href="{{route('admin.warehouse.generateDispatchNote', $order['id'])}}">Download Dispatch Note</a>
                 </div>
 
                 <div class="col-md-1">
@@ -149,7 +153,8 @@
 
                     <?php
                     $count = 0;
-                    foreach ($items as $item) {
+                    foreach ($items as $item)
+                    {
 
                         $activeState = $count === 0 ? 'active' : '';
                         ?>
@@ -239,7 +244,8 @@
                     <h3>Current Products</h3>
                     <?php
                     $count = 0;
-                    foreach ($items as $item) {
+                    foreach ($items as $item)
+                    {
 
                         $activeState = $count === 0 ? 'active' : '';
                         ?>
@@ -334,9 +340,11 @@
                                 @endif
                                 <div class="input-group">
                                     <select name="order_status_id" id="order_status_id" class="form-control select2">
-                                        @foreach($statuses as $status)
+                                       @if(!empty($status_mapping[$currentStatus->id]))
+                                        @foreach($status_mapping[$currentStatus->id] as $status)
                                         <option @if($currentStatus->id == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
                                         @endforeach
+                                        @endif;
                                     </select>
                                     <span class=""><button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-primary">Update</button></span>
                                 </div>

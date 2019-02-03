@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Channels;
 use App\Shop\Channels\Channel;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\Employees\Repositories\Interfaces\EmployeeRepositoryInterface;
+use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Shop\Employees\Repositories\EmployeeRepository;
@@ -40,15 +41,22 @@ class ChannelController extends Controller {
     private $employeeRepo;
 
     /**
-     * ProductController constructor.
-     * @param ProductRepositoryInterface $productRepository
-     * @param CategoryRepositoryInterface $categoryRepository
+     * @var EmployeeInterface
+     */
+    private $productRepo;
+
+    /**
+     * 
+     * @param ChannelRepositoryInterface $channelRepository
+     * @param EmployeeRepositoryInterface $employeeRepository
+     * @param \App\Http\Controllers\Admin\Channels\ProductRepositoryInterface $productRepository
      */
     public function __construct(
-    ChannelRepositoryInterface $channelRepository, EmployeeRepositoryInterface $employeeRepository
+    ChannelRepositoryInterface $channelRepository, EmployeeRepositoryInterface $employeeRepository, ProductRepositoryInterface $productRepository
     ) {
         $this->employeeRepo = $employeeRepository;
         $this->channelRepo = $channelRepository;
+        $this->productRepo = $productRepository;
     }
 
     /**
@@ -59,10 +67,23 @@ class ChannelController extends Controller {
     public function addProductToChannel(Request $request) {
 
         try {
+            $channel = $this->channelRepo->findChannelById($request->channel);
+            $channelWarehouses = (new WarehouseRepository(new Warehouse))->getWarehousesForChannel($channel)->keyBy('id');
+            $product = $this->productRepo->findProductById($request->product);
+            $productWarehouse = $product->warehouse;
+
+
+            if (!isset($channelWarehouses[$productWarehouse]))
+            {
+
+                return response()->json(['http_code' => 400, 'errors' => ['The product is in a warehouse which the channel doesnt have access to.']]);
+            }
+
             $channelPriceRepo = new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice);
 
             $channelPriceRepo->create([
                 'channel_id' => $request->channel,
+                'warehouse'  => $productWarehouse,
                 'product_id' => $request->product,
                 'price'      => $request->price
             ]);

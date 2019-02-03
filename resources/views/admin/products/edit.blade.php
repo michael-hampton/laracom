@@ -120,6 +120,18 @@
                                         </div>
                                     </div>
 
+                                    @if($warehouses_on === true && !$warehouses->isEmpty())
+                                    <div class="form-group">
+                                        <label for="brand_id">Warehouse </label>
+                                        <select name="warehouse" id="warehouse" class="form-control select2">
+                                            <option value=""></option>
+                                            @foreach($warehouses as $warehouse)
+                                            <option  @if($warehouse->id == $product->warehouse) selected="selected" @endif value="{{ $warehouse->id }}">{{ $warehouse->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @endif
+
                                     @if(!$brands->isEmpty())
                                     <div class="form-group">
                                         <label for="brand_id">Brand </label>
@@ -239,7 +251,7 @@
                 }
             });
         });
-        
+
         $('.remove-thumb').off();
         $('.remove-thumb').on('click', function (e) {
             e.preventDefault();
