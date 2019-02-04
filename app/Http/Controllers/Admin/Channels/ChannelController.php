@@ -71,9 +71,9 @@ class ChannelController extends Controller {
             $channelWarehouses = (new WarehouseRepository(new Warehouse))->getWarehousesForChannel($channel)->keyBy('id');
             $product = $this->productRepo->findProductById($request->product);
             $productWarehouse = $product->warehouse;
+            $warehouses_on = !empty(env('ALLOW_WAREHOUSES')) ? true : false;
 
-
-            if (!isset($channelWarehouses[$productWarehouse]))
+            if ($warehouses_on === true && !isset($channelWarehouses[$productWarehouse]))
             {
 
                 return response()->json(['http_code' => 400, 'errors' => ['The product is in a warehouse which the channel doesnt have access to.']]);
