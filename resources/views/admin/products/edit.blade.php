@@ -259,6 +259,7 @@
             $('.modal-body .alert-success').remove();
 
             var href = $(this).attr('href');
+            var $this = $(this);
 
             $.ajax({
                 type: "GET",
@@ -272,6 +273,8 @@
                     } else {
                         $('.modal-body').prepend("<div class='alert alert-success'>Product has been updated successfully</div>");
                         $('.Search').click();
+                        $this.parent().find('img').remove();
+                        $this.remove();
                     }
                 }
             });
