@@ -176,6 +176,44 @@
         });
         $('.Search').click();
 
+        $(document).off('.deleteProduct');
+        $(document).on('click', '.deleteProduct', function (e) {
+
+            e.preventDefault();
+            var $this = $(this);
+            var form = $(this).parent().parent();
+
+            var href = form.attr('action');
+            var formdata = form.serialize();
+
+            $('body .alert-danger').remove();
+            $('body .alert-success').remove();
+
+            var $target = $this.parent().parent().parent().parent().parent();
+
+
+            $.ajax({
+                type: "DELETE",
+                data: formdata,
+                url: href,
+                success: function (response) {
+                    if (response.http_code == 400) {
+                        $('body').prepend("<div class='alert alert-danger'></div>");
+                        $.each(response.errors, function (key, value) {
+                            $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                        });
+                    } else {
+                        $('body').prepend("<div class='alert alert-success'>Product has been deleted successfully</div>");
+                        $target.hide('slow', function () {
+                            $target.remove();
+                        });
+                    }
+                }
+            });
+
+        });
+
+        $(document).off('.product-div');
         $(document).on('mouseenter', '.product-div', function () {
 
             $(this).find(".btn-group").show();

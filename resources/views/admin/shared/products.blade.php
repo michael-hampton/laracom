@@ -17,7 +17,7 @@
                     <input type="hidden" name="_method" value="delete">
                     <div class="btn-group" style="margin-top:10px;">
                         <a style="margin-left: 10px;" href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-primary Edit"><i class="fa fa-edit"></i> Edit</a>
-                        <button style="margin-left: 10px;" onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger"><i class="fa fa-times"></i> Delete</button>
+                        <button style="margin-left: 10px;" onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger deleteProduct"><i class="fa fa-times"></i> Delete</button>
                     </div>
                 </form>
 

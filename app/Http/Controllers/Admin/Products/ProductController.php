@@ -296,13 +296,12 @@ class ProductController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
+
         $product = $this->productRepo->findProductById($id);
         $product->categories()->sync([]);
 
         $this->productRepo->delete($id);
-
-        request()->session()->flash('message', 'Delete successful');
-        return redirect()->route('admin.products.index');
+        return response()->json(['http_code' => 200]);
     }
 
     /**
