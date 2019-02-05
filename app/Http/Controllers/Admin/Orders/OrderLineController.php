@@ -422,54 +422,27 @@ p
                     // if partial shipping allowed and more than 1 line backordered then move single line
                 } elseif ($intCantMove === 0 && $backorderCount > 1) {
 
-                    foreach ($arrProducts as $objProduct) {
+                    foreach ($arrProducts as $objLine2) {
                         
-                       
-                            // here
-                            if(!$this->reserveStock($objLine2, $order)){
-                                $arrFailed[$lineId][] = 'failed to allocate stock';
-                            }
+                        if(!$this->reserveStock($objLine2, $order)){
+                            $arrFailed[$lineId][] = 'failed to allocate stock';
+                        }
                     }
-
                 
                 } elseif (($backorderCount === $total && $backorderCount === 1) || $channel->partial_shipment === 1) {
 
                     $objLine2 = $this->orderLineRepo->findOrderProductById($lineId);
-                    $objProduct = $productRepo->findProductById($objLine2->product_id);
+                        
+                    $updateOrder = null;
 
-                    $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
-
-                    if ($availiableQty < $objLine2->quantity) {
-                        $arrFailed[$lineId] = 'No quantity availiable for products';
-                        $blError = true;
-                        continue;
-                        //return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
+                    if ($total === 1 && $backorderCount === 1) {
+                        $updateOrder = $order;
                     }
-
-                    // check enough quantity to fulfil line if not reject
-        
-                        try {
-                            // update stock
-                            $reserved_stock = $objProduct->reserved_stock + $objLine2->quantity;
-                            //$quantity = $objProduct->quantity - $objLine2->quantity;
-                            $objProductRepo = new ProductRepository($objProduct);
-                            $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-
-                            // update line status
-                            $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                            $orderLineRepo->update(['status' => $objNewStatus->id], $lineId);
-
-
-                            if ($total === 1 && $backorderCount === 1) {
-                                $order->order_status_id = $objNewStatus->id;
-                                $order->save();
-                            }
-                        } catch (\Exception $e) {
-
-                            $arrFailed[$lineId][] = $e->getMessage();
-                            $blError = true;
-                            continue;
-                        }
+                    
+                    if(!$this->reserveStock($objLine2, $updateOrder)){
+                        $arrFailed[$lineId][] = 'failed to allocate stock';
+                    }
+                    
                 }
 
                 $arrDone[$lineId] = "Order {$orderId} Line {$lineId} was updated successfully";
