@@ -309,13 +309,12 @@ class VoucherController extends Controller {
 
         $voucher = $this->voucherRepo->findVoucherById($id);
 
-        $channel = $this->channelRepo->findChannelById($voucher->channel);
-
         $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
+        
         // Validate the input and return correct response
         if ($validator->fails())
         {
-            return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
         $update = new VoucherRepository($voucher);
