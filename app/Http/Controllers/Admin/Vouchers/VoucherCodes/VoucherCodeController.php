@@ -38,6 +38,10 @@ class VoucherCodeController extends Controller {
     VoucherCodeRepositoryInterface $voucherCodeRepository
     ) {
         $this->voucherCodeRepo = $voucherCodeRepository;
+        $this->middleware(['permission:create-voucher-code, guard:admin'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:update-voucher-code, guard:admin'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:delete-voucher-code, guard:admin'], ['only' => ['destroy']]);
+        $this->middleware(['permission:view-voucher-code, guard:admin'], ['only' => ['index', 'show']]);
     }
 
     /**

@@ -59,6 +59,11 @@ class ChannelController extends Controller {
         $this->employeeRepo = $employeeRepository;
         $this->channelRepo = $channelRepository;
         $this->productRepo = $productRepository;
+        
+        $this->middleware(['permission:create-channel, guard:admin'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:update-channel, guard:admin'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:delete-channel, guard:admin'], ['only' => ['destroy']]);
+        $this->middleware(['permission:view-channel, guard:admin'], ['only' => ['index', 'show', 'export']]);
     }
 
     /**

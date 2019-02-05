@@ -7,11 +7,13 @@ use App\Shop\Roles\Role;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laratrust\Traits\LaratrustUserTrait;
 
 class Employee extends Authenticatable {
 
     use Notifiable,
-        SoftDeletes;
+        SoftDeletes,
+        LaratrustUserTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -39,8 +41,8 @@ class Employee extends Authenticatable {
     public function channels() {
         return $this->belongsToMany(Channel::class);
     }
-    
-     public function roles() {
+
+    public function roles() {
         return $this->belongsToMany(Role::class);
     }
 

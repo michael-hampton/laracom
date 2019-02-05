@@ -66,10 +66,10 @@ class ChannelPriceController extends Controller {
         $this->categoryRepo = $categoryRepository;
         $this->brandRepo = $brandRepository;
 
-//        $this->middleware(['permission:create-product, guard:employee'], ['only' => ['create', 'store']]);
-//        $this->middleware(['permission:update-product, guard:employee'], ['only' => ['edit', 'update']]);
-//        $this->middleware(['permission:delete-product, guard:employee'], ['only' => ['destroy']]);
-//        $this->middleware(['permission:view-product, guard:employee'], ['only' => ['index', 'show']]);
+        $this->middleware(['permission:create-channel-price, guard:admin'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:update-channel-price, guard:admin'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:delete-channel-price, guard:admin'], ['only' => ['destroy']]);
+        $this->middleware(['permission:view-channel-price, guard:admin'], ['only' => ['index', 'show']]);
     }
 
     /**

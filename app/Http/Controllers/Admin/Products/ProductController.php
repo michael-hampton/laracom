@@ -87,10 +87,11 @@ class ProductController extends Controller {
         $this->brandRepo = $brandRepository;
         $this->channelRepo = $channelRepository;
 
-//        $this->middleware(['permission:create-product, guard:employee'], ['only' => ['create', 'store']]);
-//        $this->middleware(['permission:update-product, guard:employee'], ['only' => ['edit', 'update']]);
-//        $this->middleware(['permission:delete-product, guard:employee'], ['only' => ['destroy']]);
-//        $this->middleware(['permission:view-product, guard:employee'], ['only' => ['index', 'show']]);
+        $this->middleware(['permission:create-product, guard:admin'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:update-product, guard:admin'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:delete-product, guard:admin'], ['only' => ['destroy']]);
+        $this->middleware(['permission:view-product, guard:admin'], ['only' => ['index', 'show', 'export']]);
+        $this->middleware(['permission:product-import, guard:admin'], ['only' => ['importCsv']]);
     }
 
     /**

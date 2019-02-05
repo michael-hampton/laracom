@@ -69,6 +69,11 @@ class ReturnController extends Controller {
         $this->orderRepo = $orderRepository;
         $this->orderStatusRepo = $orderStatusRepository;
         $this->orderProductRepo = $orderProductRepository;
+
+        $this->middleware(['permission:create-return, guard:admin'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:update-return, guard:admin'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:delete-return, guard:admin'], ['only' => ['destroy']]);
+        $this->middleware(['permission:view-return, guard:admin'], ['only' => ['index', 'show', 'export']]);
     }
 
     /**
@@ -80,7 +85,8 @@ class ReturnController extends Controller {
 
         $list = $this->returnRepo->listReturn('created_at', 'desc');
 
-        if (request()->has('q')) {
+        if (request()->has('q'))
+        {
             $list = $this->returnRepo->searchReturn(request()->input('q'));
         }
 
@@ -91,7 +97,7 @@ class ReturnController extends Controller {
         $customers = $this->customerRepo->listCustomers('created_at', 'desc')->keyBy('id');
 
         return view('admin.returns.list', [
-            'returns' => $this->returnRepo->paginateArrayResults($returns),
+            'returns'   => $this->returnRepo->paginateArrayResults($returns),
             'customers' => $customers
         ]);
     }
@@ -110,12 +116,12 @@ class ReturnController extends Controller {
         $customers = $this->customerRepo->listCustomers('created_at', 'desc');
 
         return view('admin.returns.create', [
-            'order' => $order,
-            'items' => $items,
-            'reasons' => explode(',', env('RETURN_REASON')),
-            'statuses' => $status,
-            'customers' => $customers,
-            'conditions' => explode(',', env('RETURN_CONDITIONS')),
+            'order'       => $order,
+            'items'       => $items,
+            'reasons'     => explode(',', env('RETURN_REASON')),
+            'statuses'    => $status,
+            'customers'   => $customers,
+            'conditions'  => explode(',', env('RETURN_CONDITIONS')),
             'resolutions' => explode(',', env('RETURN_RESOLUTIONS'))
         ]);
     }
@@ -132,9 +138,11 @@ class ReturnController extends Controller {
 
         $return = $this->returnRepo->createReturn($data);
 
-        foreach ($request->lines as $line) {
+        foreach ($request->lines as $line)
+        {
 
-            if (!isset($line['return']) || $line['return'] != 'on') {
+            if (!isset($line['return']) || $line['return'] != 'on')
+            {
 
                 continue;
             }
@@ -174,15 +182,15 @@ class ReturnController extends Controller {
         $messages = (new \App\Shop\Messages\Thread)->getByOrderIdAndType($return->order_id, 2);
 
         return view('admin.returns.edit', [
-            'return' => $return,
-            'order' => $order,
-            'customers' => $customers,
-            'items' => $items,
+            'return'      => $return,
+            'order'       => $order,
+            'customers'   => $customers,
+            'items'       => $items,
             'returnLines' => $returnLines,
-            'reasons' => explode(',', env('RETURN_REASON')),
-            'messages' => $messages,
-            'statuses' => $status,
-            'conditions' => explode(',', env('RETURN_CONDITIONS')),
+            'reasons'     => explode(',', env('RETURN_REASON')),
+            'messages'    => $messages,
+            'statuses'    => $status,
+            'conditions'  => explode(',', env('RETURN_CONDITIONS')),
             'resolutions' => explode(',', env('RETURN_RESOLUTIONS'))
         ]);
     }
@@ -199,9 +207,11 @@ class ReturnController extends Controller {
         $update = new ReturnRepository($return);
         $update->updateReturn($request->except('_method', '_token', 'lines'));
 
-        foreach ($request->lines as $returnLineId => $line) {
+        foreach ($request->lines as $returnLineId => $line)
+        {
 
-            if (!isset($line['return']) || $line['return'] != 'on') {
+            if (!isset($line['return']) || $line['return'] != 'on')
+            {
 
                 continue;
             }

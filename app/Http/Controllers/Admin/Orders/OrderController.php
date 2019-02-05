@@ -135,7 +135,13 @@ class OrderController extends Controller {
         $this->voucherRepo = $voucherRepository;
         $this->voucherCodeRepo = $voucherCodeRepository;
 
-        //$this->middleware(['permission:update-order, guard:employee'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:update-order, guard:admin'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:create-order, guard:admin'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:import-order, guard:admin'], ['only' => ['importCsv', 'saveImport']]);
+        $this->middleware(['permission:allocations-order, guard:admin'], ['only' => ['allocations']]);
+        $this->middleware(['permission:backorders-order, guard:admin'], ['only' => ['backorders']]);
+        $this->middleware(['permission:clone-order, guard:admin'], ['only' => ['cloneOrder']]);
+        $this->middleware(['permission:view-order, guard:admin'], ['only' => ['index', 'show']]);
     }
 
     /**
@@ -151,9 +157,9 @@ class OrderController extends Controller {
         $customers = $this->customerRepo->listCustomers();
 
         return view('admin.orders.list', [
-            'channels' => $channels,
-            'statuses' => $statuses,
-            'couriers' => $couriers,
+            'channels'  => $channels,
+            'statuses'  => $statuses,
+            'couriers'  => $couriers,
             'customers' => $customers
                 ]
         );
@@ -177,14 +183,14 @@ class OrderController extends Controller {
         $arrAudits = $order->audits;
 
         return view('admin.orders.show', [
-            'order' => $order,
-            'items' => $items,
-            'customer' => $this->customerRepo->findCustomerById($order->customer_id),
+            'order'         => $order,
+            'items'         => $items,
+            'customer'      => $this->customerRepo->findCustomerById($order->customer_id),
             'currentStatus' => $this->orderStatusRepo->findOrderStatusById($order->order_status_id),
-            'payment' => $order->payment,
-            'user' => auth()->guard('admin')->user(),
-            'channel' => $channel,
-            'audits' => $arrAudits
+            'payment'       => $order->payment,
+            'user'          => auth()->guard('admin')->user(),
+            'channel'       => $channel,
+            'audits'        => $arrAudits
         ]);
     }
 
@@ -206,7 +212,8 @@ class OrderController extends Controller {
 
         $voucher = null;
 
-        if (!empty($order->voucher_code)) {
+        if (!empty($order->voucher_code))
+        {
 
 
             $voucher = $this->voucherCodeRepo->findVoucherCodeById($order->voucher_code);
@@ -227,20 +234,20 @@ class OrderController extends Controller {
         $arrStatusMapping = $this->orderStatusRepo->buildStatusMapping();
 
         return view('admin.orders.edit', [
-            'statuses' => $this->orderStatusRepo->listOrderStatuses(),
+            'statuses'       => $this->orderStatusRepo->listOrderStatuses(),
             'status_mapping' => $arrStatusMapping,
-            'products' => $arrProducts,
-            'order' => $order,
-            'couriers' => $couriers,
-            'items' => $items,
-            'refunds' => $arrRefunds,
-            'customer' => $this->customerRepo->findCustomerById($order->customer_id),
-            'currentStatus' => $this->orderStatusRepo->findOrderStatusById($order->order_status_id),
-            'payment' => $order->payment,
-            'user' => auth()->guard('admin')->user(),
-            'audits' => $arrAudits,
-            'voucher' => $voucher,
-            'comments' => $comments
+            'products'       => $arrProducts,
+            'order'          => $order,
+            'couriers'       => $couriers,
+            'items'          => $items,
+            'refunds'        => $arrRefunds,
+            'customer'       => $this->customerRepo->findCustomerById($order->customer_id),
+            'currentStatus'  => $this->orderStatusRepo->findOrderStatusById($order->order_status_id),
+            'payment'        => $order->payment,
+            'user'           => auth()->guard('admin')->user(),
+            'audits'         => $arrAudits,
+            'voucher'        => $voucher,
+            'comments'       => $comments
         ]);
     }
 
@@ -254,9 +261,12 @@ class OrderController extends Controller {
 
         $order = $this->orderRepo->findOrderById($orderId);
         $orderRepo = new OrderRepository($order);
-        if ($request->has('total_paid') && $request->input('total_paid') != null) {
+        if ($request->has('total_paid') && $request->input('total_paid') != null)
+        {
             $orderData = $request->except('_method', '_token');
-        } else {
+        }
+        else
+        {
             $orderData = $request->except('_method', '_token', 'total_paid');
         }
         $orderRepo->updateOrder($orderData);
@@ -281,12 +291,15 @@ class OrderController extends Controller {
      * @return type
      */
     public function create($channel = null) {
-        if (!is_null($channel)) {
+        if (!is_null($channel))
+        {
             $channels = null;
             $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
             $repo = new ChannelRepository($channel);
             $products = $repo->findProducts()->where('status', 1)->all();
-        } else {
+        }
+        else
+        {
             $channels = $this->channelRepo->listChannels();
             $products = $this->productRepo->listProducts()->where('status', 1);
         }
@@ -296,10 +309,10 @@ class OrderController extends Controller {
 
         return view('admin.orders.create', [
             'selectedChannel' => isset($channel) ? $channel->id : null,
-            'channels' => $channels,
-            'products' => $products,
-            'customers' => $customers,
-            'couriers' => $couriers,
+            'channels'        => $channels,
+            'products'        => $products,
+            'customers'       => $customers,
+            'couriers'        => $couriers,
                 ]
         );
     }
@@ -335,7 +348,8 @@ class OrderController extends Controller {
 
         $shippingCost = 0;
 
-        if (!empty($shipping)) {
+        if (!empty($shipping))
+        {
 
             $shippingCost = $shipping->cost;
         }
@@ -344,7 +358,8 @@ class OrderController extends Controller {
 
         $voucherAmount = 0;
 
-        if (!empty($request->voucher_code)) {
+        if (!empty($request->voucher_code))
+        {
             $voucherCode = $this->voucherCodeRepo->getByVoucherCode($request->voucher_code);
 
             $voucher_id = $voucherCode->voucher_id;
@@ -356,23 +371,23 @@ class OrderController extends Controller {
         $orderTotal -= $voucherAmount;
 
         $arrData = [
-            'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-            'courier_id' => $request->courier,
-            'customer_id' => $customer->id,
-            'voucher_id' => !empty($request->voucher_code) ? $request->voucher_code : null,
-            'voucher_code' => isset($voucherCode) ? $voucherCode->id : null,
-            'address_id' => $deliveryAddress->id,
+            'reference'       => md5(uniqid(mt_rand(), true) . microtime(true)),
+            'courier_id'      => $request->courier,
+            'customer_id'     => $customer->id,
+            'voucher_id'      => !empty($request->voucher_code) ? $request->voucher_code : null,
+            'voucher_code'    => isset($voucherCode) ? $voucherCode->id : null,
+            'address_id'      => $deliveryAddress->id,
             'order_status_id' => $os->id,
             'delivery_method' => $shipping,
-            'payment' => 'import',
-            'discounts' => $voucherAmount,
-            'total_shipping' => $shippingCost,
-            'total_products' => count($request->products),
-            'total' => $orderTotal,
-            'total_paid' => 0,
-            'channel' => $channel,
-            'tax' => 0,
-            'products' => $request->products
+            'payment'         => 'import',
+            'discounts'       => $voucherAmount,
+            'total_shipping'  => $shippingCost,
+            'total_products'  => count($request->products),
+            'total'           => $orderTotal,
+            'total_paid'      => 0,
+            'channel'         => $channel,
+            'tax'             => 0,
+            'products'        => $request->products
         ];
 
 
@@ -395,13 +410,13 @@ class OrderController extends Controller {
         $channel = $this->channelRepo->findChannelById($order->channel);
 
         $data = [
-            'order' => $order,
+            'order'    => $order,
             'products' => $order->products,
             'customer' => $order->customer,
-            'courier' => $order->courier,
-            'address' => $this->transformAddress($order->address),
-            'status' => $order->orderStatus,
-            'channel' => $channel
+            'courier'  => $order->courier,
+            'address'  => $this->transformAddress($order->address),
+            'status'   => $order->orderStatus,
+            'channel'  => $channel
         ];
 
         $pdf = app()->make('dompdf.wrapper');
@@ -480,7 +495,8 @@ class OrderController extends Controller {
             $blError = true;
         }
 
-        if (!$newOrder) {
+        if (!$newOrder)
+        {
             $strMessage = 'failed to create rma order';
             $arrErrors['errors'][$request->dbID][] = $strMessage;
 
@@ -498,30 +514,36 @@ class OrderController extends Controller {
 
         $productId = null;
 
-        foreach ($request->order as $arrOrder) {
+        foreach ($request->order as $arrOrder)
+        {
 
-            if ($arrOrder['name'] == 'kondor_product_code[' . $lineId . ']') {
+            if ($arrOrder['name'] == 'kondor_product_code[' . $lineId . ']')
+            {
                 $productId = $arrOrder['value'];
             }
         }
 
-        if ($productId === null) {
+        if ($productId === null)
+        {
             $arrErrors['errors'][$request->dbID][] = 'unable to find product';
         }
 
         $arrProducts[0] = [
-            'id' => $productId,
+            'id'       => $productId,
             'quantity' => $orderedProduct->quantity
         ];
 
         try {
             $newOrderRepo = new OrderRepository($newOrder);
 
-            if (!$newOrderRepo->buildOrderLinesForManualOrder($arrProducts)) {
+            if (!$newOrderRepo->buildOrderLinesForManualOrder($arrProducts))
+            {
                 $strMessage .= 'failed to clone order lines';
                 $arrErrors['errors'][$request->dbID][] = $strMessage;
                 $blError = true;
-            } else {
+            }
+            else
+            {
                 $order->update(['customer_ref' => 'RMA_' . md5(uniqid(mt_rand(), true) . microtime(true))]);
             }
         } catch (Exception $e) {
@@ -543,9 +565,12 @@ class OrderController extends Controller {
             'body' => $arrBody
         );
 
-        if ($blError === true) {
+        if ($blError === true)
+        {
             $arrResponse['data']['details']['FAILURES'] = $arrErrors;
-        } else {
+        }
+        else
+        {
             $arrResponse['data']['details']['SUCCESS'][$orderId] = ['order updated successfully'];
         }
 
@@ -602,7 +627,8 @@ class OrderController extends Controller {
                 $this->courierRepo, $this->orderStatusRepo, $this->channelRepo, $this->productRepo, $this->customerRepo, $this->voucherCodeRepo, new CourierRateRepository(new CourierRate), $this->voucherRepo, new \App\RabbitMq\Worker('bulk_import')
         );
 
-        if (!$objOrderImport->isValid($file_path)) {
+        if (!$objOrderImport->isValid($file_path))
+        {
 
             $arrErrors = $objOrderImport->getErrors();
             return response()->json(['http_code' => '400', 'arrErrors' => $arrErrors]);

@@ -1,11 +1,7 @@
 <?php
-
 namespace App\Shop\Roles;
-
-//use Laratrust\Models\LaratrustRole;
-use Illuminate\Database\Eloquent\Model;
-
-class Role extends Model
+use Laratrust\Models\LaratrustRole;
+class Role extends LaratrustRole
 {
     protected $fillable = [
         'name',

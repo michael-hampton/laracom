@@ -14,6 +14,7 @@ class RoleMiddleware {
      * @return mixed
      */
     public function handle($request, Closure $next) {
+        
         echo "Role:";
         return $next($request);
     }

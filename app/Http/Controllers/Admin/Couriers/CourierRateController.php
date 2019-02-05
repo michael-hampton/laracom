@@ -46,6 +46,11 @@ class CourierRateController extends Controller {
         $this->courierRepo = $courierRepository;
         $this->courierRateRepo = $courierRateRepository;
         $this->channelRepo = $channelRepository;
+        
+        $this->middleware(['permission:create-courier-rate, guard:admin'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:update-courier-rate, guard:admin'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:delete-courier-rate, guard:admin'], ['only' => ['destroy']]);
+        $this->middleware(['permission:view-courier-rate, guard:admin'], ['only' => ['index', 'show', 'export']]);
     }
 
     /**

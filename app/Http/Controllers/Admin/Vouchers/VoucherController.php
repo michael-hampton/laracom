@@ -75,6 +75,11 @@ class VoucherController extends Controller {
         $this->brandRepo = $brandRepository;
         $this->categoryRepo = $categoryRepository;
         $this->productRepo = $productRepository;
+
+        $this->middleware(['permission:create-voucher, guard:admin'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:update-voucher, guard:admin'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:delete-voucher, guard:admin'], ['only' => ['destroy']]);
+        $this->middleware(['permission:view-voucher, guard:admin'], ['only' => ['index', 'show', 'export']]);
     }
 
     /**
@@ -85,8 +90,9 @@ class VoucherController extends Controller {
     public function index() {
 
         $list = $this->voucherRepo->listVoucher('expiry_date', 'desc');
-        
-        if (request()->has('q')) {
+
+        if (request()->has('q'))
+        {
             $list = $this->voucherRepo->searchVoucher(request()->input('q'));
         }
 
@@ -131,13 +137,16 @@ class VoucherController extends Controller {
     public function create($channel = null) {
 
 
-        if (!is_null($channel)) {
+        if (!is_null($channel))
+        {
             $channels = null;
             $channel = $this->channelRepo->listChannels()->where('name', $channel)->first();
             $repo = new ChannelRepository($channel);
 
             $products = $repo->findProducts()->where('status', 1)->all();
-        } else {
+        }
+        else
+        {
             $channels = $this->channelRepo->listChannels();
             $products = $this->productRepo->listProducts()->where('status', 1);
         }
@@ -146,11 +155,11 @@ class VoucherController extends Controller {
 
         return view('admin.vouchers.create', [
             'selectedChannel' => isset($channel) ? $channel->id : null,
-            'channels' => $channels,
-            'scopes' => $scopes,
-            'products' => $products,
-            'brands' => $this->brandRepo->listBrands(),
-            'categories' => $this->categoryRepo->listCategories('parent_id', 1)
+            'channels'        => $channels,
+            'scopes'          => $scopes,
+            'products'        => $products,
+            'brands'          => $this->brandRepo->listBrands(),
+            'categories'      => $this->categoryRepo->listCategories('parent_id', 1)
                 ]
         );
     }
@@ -162,23 +171,27 @@ class VoucherController extends Controller {
      */
     private function getUploadedProductIds(Request $request) {
 
-        if ($request->has('uploadedProductCodes')) {
+        if ($request->has('uploadedProductCodes'))
+        {
 
             $arrProductIds = [];
             $productCodes = explode(',', $request->uploadedProductCodes);
             $products = array_change_key_case($this->productRepo->listProducts()->where('status', 1)->keyBy('name')->toArray(), CASE_LOWER);
             $arrNotFound = [];
 
-            if (empty($productCodes[0])) {
+            if (empty($productCodes[0]))
+            {
 
                 return false;
             }
 
-            foreach ($productCodes as $productCode) {
+            foreach ($productCodes as $productCode)
+            {
 
                 $productCode = trim(strtolower($productCode));
 
-                if (in_array($productCode, $products)) {
+                if (in_array($productCode, $products))
+                {
                     $arrNotFound[] = $productCode;
                     continue;
                 }
@@ -210,7 +223,8 @@ class VoucherController extends Controller {
         $validator = Validator::make($data, (new CreateVoucherRequest())->rules());
 
         // Validate the input and return correct response
-        if ($validator->fails()) {
+        if ($validator->fails())
+        {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
         $blImport = $request->hasFile('csv_file') && $request->file('csv_file') instanceof UploadedFile ? true : false;
@@ -218,10 +232,13 @@ class VoucherController extends Controller {
         try {
             $voucher = $this->voucherRepo->createVoucher($data);
 
-            if ($blImport === true) {
+            if ($blImport === true)
+            {
 
                 $arrImportResult = $this->importVoucherCodes($request, $voucher);
-            } else {
+            }
+            else
+            {
                 (new VoucherGenerator())->createVoucher($voucher, $request->use_count, $request->quantity);
             }
         } catch (Exception $ex) {
@@ -229,15 +246,15 @@ class VoucherController extends Controller {
         }
 
         $file = 'codes_' . md5(date('Y-m-d H:i:s:u')) . '.csv';
-        $downloadPath = public_path('uploads/voucher_codes/'.$file);
+        $downloadPath = public_path('uploads/voucher_codes/' . $file);
         $this->generateCsvFile($downloadPath, $this->voucherRepo->findVoucherById($voucher->id));
 
         return response()->json(
                         [
-                            'http_code' => 200,
-                            'import_result' => $arrImportResult,
+                            'http_code'      => 200,
+                            'import_result'  => $arrImportResult,
                             'product_result' => $arrProductIds,
-                            'filename' => asset("/uploads/voucher_codes/{$file}")
+                            'filename'       => asset("/uploads/voucher_codes/{$file}")
                         ]
         );
     }
@@ -259,9 +276,11 @@ class VoucherController extends Controller {
         $arrDuplicates = [];
         $intAdded = 0;
 
-        foreach ($arrCodes as $arrCode) {
+        foreach ($arrCodes as $arrCode)
+        {
 
-            if (array_key_exists(strtolower($arrCode['voucher_code']), $arrExistingCodes)) {
+            if (array_key_exists(strtolower($arrCode['voucher_code']), $arrExistingCodes))
+            {
 
                 $arrDuplicates[] = $arrCode['voucher_code'];
                 continue;
@@ -269,9 +288,9 @@ class VoucherController extends Controller {
 
             $data = array(
                 'voucher_code' => $arrCode['voucher_code'],
-                'use_count' => $request->use_count,
-                'status' => 1,
-                'voucher_id' => $voucher->id
+                'use_count'    => $request->use_count,
+                'status'       => 1,
+                'voucher_id'   => $voucher->id
             );
 
             (new VoucherCodeRepository(new VoucherCode))->createVoucherCode($data);
@@ -294,7 +313,8 @@ class VoucherController extends Controller {
 
         $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
         // Validate the input and return correct response
-        if ($validator->fails()) {
+        if ($validator->fails())
+        {
             return response()->json(['http_code' => 400, 'errors' => [$ex->getMessage()]]);
         }
 
@@ -342,26 +362,29 @@ class VoucherController extends Controller {
         $voucherCodes = (new \App\Shop\VoucherCodes\Repositories\VoucherCodeRepository(new \App\Shop\VoucherCodes\VoucherCode))->listVoucherCode()->where('voucher_id', $id);
         $usedVoucherCodes = $this->voucherRepo->getUsedVoucherCodes($voucher);
 
-        if (!empty($channel)) {
+        if (!empty($channel))
+        {
             $objChannel = $this->channelRepo->findChannelById($channel);
             $repo = new ChannelRepository($objChannel);
 
             $products = $repo->findProducts()->where('status', 1)->all();
-        } else {
+        }
+        else
+        {
             $products = $this->productRepo->listProducts()->where('status', 1);
         }
 
         $scopes = !empty(env('VOUCHER_SCOPES')) ? explode(',', env('VOUCHER_SCOPES')) : [];
 
         return view('admin.vouchers.edit', [
-            'voucher' => $voucher,
-            'codes' => $voucherCodes,
-            'used' => $usedVoucherCodes,
+            'voucher'         => $voucher,
+            'codes'           => $voucherCodes,
+            'used'            => $usedVoucherCodes,
             'selectedChannel' => $channel,
-            'scopes' => $scopes,
-            'products' => $products,
-            'brands' => $this->brandRepo->listBrands(),
-            'categories' => $this->categoryRepo->listCategories('parent_id', 1)
+            'scopes'          => $scopes,
+            'products'        => $products,
+            'brands'          => $this->brandRepo->listBrands(),
+            'categories'      => $this->categoryRepo->listCategories('parent_id', 1)
         ]);
     }
 
