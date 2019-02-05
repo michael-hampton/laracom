@@ -80,12 +80,12 @@
         <div class="">
             <div class="product-box">
 
-                <form action="{{ route('admin.products.destroy', $product->id) }}" method="post" class="form-horizontal">
+                <form action="{{ route('admin.channel-prices.destroy', $product->id) }}" method="post" class="form-horizontal">
                     {{ csrf_field() }}
                     <input type="hidden" name="_method" value="delete">
                     <div class="btn-group" style="margin-top:10px;">
                         <a style="margin-left: 10px;" href="{{ route('admin.channel-prices.edit', $product->id) }}" class="btn btn-primary btn-sm Edit"><i class="fa fa-edit"></i> Edit</a>
-                        <button style="margin-left: 10px;" onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
+                        <button style="margin-left: 10px;" onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm deleteProduct"><i class="fa fa-times"></i> Delete</button>
                     </div>
                 </form>
 

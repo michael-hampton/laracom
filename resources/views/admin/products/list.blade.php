@@ -200,7 +200,7 @@
                     if (response.http_code == 400) {
                         $('body').prepend("<div class='alert alert-danger'></div>");
                         $.each(response.errors, function (key, value) {
-                            $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                            $('body .alert-danger').append("<p>" + value + "</p>");
                         });
                     } else {
                         $('body').prepend("<div class='alert alert-success'>Product has been deleted successfully</div>");

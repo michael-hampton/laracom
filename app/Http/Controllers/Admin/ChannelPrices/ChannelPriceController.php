@@ -168,7 +168,7 @@ class ChannelPriceController extends Controller {
 
         $channelVaraitions = $this->channelPriceRepo->getChannelVariations($channel)->keyBy('attribute_id');
         $assignedAttributes = $channelVaraitions->pluck('attribute_id')->toArray();
-        
+
         return view('admin.channel-price.edit', [
             'warehouses'         => $arrWarehouses,
             'assignedAttributes' => $assignedAttributes,
@@ -272,10 +272,8 @@ class ChannelPriceController extends Controller {
      */
     public function destroy($id) {
         $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
-        $channel = $this->channelRepo->findChannelById($channelPrice->channel_id);
         $this->channelPriceRepo->delete($id);
-
-        return \Redirect::route('admin.channel-prices.index', $channel->name)->with('message', 'Delete successful');
+        return response()->json(['http_code' => 200]);
     }
 
     /**
