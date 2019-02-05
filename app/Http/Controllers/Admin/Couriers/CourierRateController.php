@@ -83,8 +83,6 @@ class CourierRateController extends Controller {
 
         $countries = (new CountryRepository(new Country))->listCountries();
 
-
-
         return view('admin.courier-rates.search', [
             'couriers' => $couriers,
             'courier_rates' => $courier_rates,
@@ -119,7 +117,7 @@ class CourierRateController extends Controller {
     public function store(CreateCourierRateRequest $request) {
 
         $this->courierRateRepo->createCourierRate($request->all());
-        echo json_encode(['http_code' => 200]);
+        return response()->json(['http_code' => 200]);
     }
 
     /**
