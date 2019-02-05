@@ -217,7 +217,6 @@ class OrderLineController extends Controller {
      */
     public function doAllocation(Request $request) {
 
-        $productRepo = new ProductRepository(new Product);
         $os = $this->orderStatusRepo->findByName('Waiting Allocation');
         
         $arrDone = [];
@@ -339,7 +338,7 @@ class OrderLineController extends Controller {
     
     private function increaseReservedStock($objLine, $blAllowPartial = true) {
         try {
-            $objProduct = $productRepo->findProductById($objLine->product_id);
+            $objProduct = $this->productRepo->findProductById($objLine->product_id);
             
             $quantity = $objProduct->quantity - $objProduct->reserved_stock;
                               
