@@ -161,9 +161,6 @@ class OrderLineController extends Controller {
 
     public function search(Request $request) {
 
-        $module = $request->module;
-        unset($request->module);
-
         $orders = $this->orderRepo->listOrders('is_priority', 'desc')->keyBy('id');
         $orders = $this->transFormOrder($orders);
 
@@ -372,12 +369,12 @@ class OrderLineController extends Controller {
 
                     $availiableQty = $product->quantity - $product->reserved_stock;
 
-                    if ($objProductLine->status === 11 && $availiableQty <= $objProductLine->quantity) {
+                    if ($objProductLine->status === $os->id && $availiableQty <= $objProductLine->quantity) {
 
                         $intCantMove++;
                     }
 
-                    if ($objProductLine->status === 11) {
+                    if ($objProductLine->status === $os->id) {
                         $backorderCount++;
                     }
                 }
@@ -434,10 +431,13 @@ class OrderLineController extends Controller {
 
                     $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
 
+                    if ($availiableQty < $objLine2->quantity) {
+                        $arrFailed[$lineId] = 'No quantity availiable for products';
+                        return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
+                    }
 
                     // check enough quantity to fulfil line if not reject
-                    if ($availiableQty > $objLine2->quantity) {
-
+        
                         try {
                             // update stock
                             $reserved_stock = $objProduct->reserved_stock + $objLine2->quantity;
@@ -460,11 +460,6 @@ class OrderLineController extends Controller {
                             $blError = true;
                             continue;
                         }
-                    } else {
-
-                        $arrFailed[$lineId] = 'No quantity availiable for products';
-                        $blError = true;
-                    }
                 }
 
                 $arrDone[$lineId] = "Order {$orderId} Line {$lineId} was updated successfully";
