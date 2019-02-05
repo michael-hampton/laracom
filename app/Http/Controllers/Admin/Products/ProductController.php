@@ -327,17 +327,6 @@ class ProductController extends Controller {
     /**
      * @param Request $request
      * @param Product $product
-     */
-    private function saveProductImages(Request $request, Product $product) {
-        if ($request->hasFile('image'))
-        {
-            $this->productRepo->saveProductImages(collect($request->file('image')), $product);
-        }
-    }
-
-    /**
-     * @param Request $request
-     * @param Product $product
      * @return boolean
      */
     private function saveProductCombinations(Request $request, Product $product) {
@@ -394,7 +383,7 @@ class ProductController extends Controller {
 
         $list = $this->productRepo->searchProduct($request->product_code);
 
-        echo json_encode(['results' => $list->toArray()]);
+        return response()->json(['results' => $list->toArray()]);
     }
 
     /**
