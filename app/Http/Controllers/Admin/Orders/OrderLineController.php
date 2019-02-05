@@ -433,7 +433,9 @@ class OrderLineController extends Controller {
 
                     if ($availiableQty < $objLine2->quantity) {
                         $arrFailed[$lineId] = 'No quantity availiable for products';
-                        return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
+                        $blError = true;
+                        continue;
+                        //return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
                     }
 
                     // check enough quantity to fulfil line if not reject
