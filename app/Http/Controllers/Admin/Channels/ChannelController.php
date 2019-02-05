@@ -270,18 +270,38 @@ class ChannelController extends Controller {
         $arrProviders = (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->getProvidersForChannel($channel);
         $arrAssignedProducts = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAssignedProductsForChannel($channel);
         $arrPaymentProviders = (new \App\Shop\Channels\PaymentProvider)->get();
-        $arrWarehouses = (new WarehouseRepository(new Warehouse))->listWarehouses('name', 'asc');
+        $objWarehouseRepository = (new WarehouseRepository(new Warehouse));
+        $arrWarehouses = $objWarehouseRepository->listWarehouses('name', 'asc');
+        $arrAssignedWarehouses = $objWarehouseRepository->getWarehousesForChannel($channel)->keyBy('id');
 
         return view('admin.channels.edit', [
-            'templates'         => $arrTemplates,
-            'products'          => $arrProducts,
-            'warehouses'        => $arrWarehouses,
-            'channel'           => $channel,
-            'channels'          => $arrChannels,
-            'arrProviders'      => $arrPaymentProviders,
-            'providers'         => $arrProviders,
-            'assigned_products' => $arrAssignedProducts
+            'assigned_warehouses' => $arrAssignedWarehouses,
+            'templates'           => $arrTemplates,
+            'products'            => $arrProducts,
+            'warehouses'          => $arrWarehouses,
+            'channel'             => $channel,
+            'channels'            => $arrChannels,
+            'arrProviders'        => $arrPaymentProviders,
+            'providers'           => $arrProviders,
+            'assigned_products'   => $arrAssignedProducts
         ]);
+    }
+
+    /**
+     * 
+     * @param Request $request
+     */
+    public function addChannelToWarehouse(Request $request) {
+        $channelWarehouseRepo = new ChannelWarehouseRepository(new ChannelWarehouse);
+
+        $channelWarehouseRepo->create([
+            'channel_id' => $request->channel,
+            'warehouse'  => $request->warehouse,
+        ]);
+    }
+
+    public function deleteWarehouse($id) {
+        
     }
 
     /**

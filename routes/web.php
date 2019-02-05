@@ -107,6 +107,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('refunds', 'Refunds\RefundController');
 
         /* channels */
+        Route::post('channels/addChannelToWarehouse', 'Channels\ChannelController@addChannelToWarehouse')->name('channels.addChannelToWarehouse');
+        Route::delete('channels/deleteWarehouse/{id}', 'Channels\ChannelController@deleteWarehouse')->name('channels.deleteWarehouse');
+        Route::delete('channels/deleteProvider/{id}', 'Channels\ChannelController@deleteProvider')->name('channels.deleteProvider');
         Route::post('channels/saveChannelAttribute/', 'Channels\ChannelController@saveChannelAttribute')->name('channels.saveChannelAttribute');
 
         Route::post('channels/saveChannel/{channel}', 'Channels\ChannelController@saveChannel')->name('channels.saveChannel');
@@ -129,7 +132,6 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::resource('addresses', 'Addresses\AddressController');
 
         /* vouchers */
-        Route::delete('channels/deleteProvider/{id}', 'Channels\ChannelController@deleteProvider')->name('channels.deleteProvider');
         Route::delete('voucher-codes/destroy/{id}', 'VoucherCodes\VoucherCodeController@destroy')->name('voucher-codes.destroy');
         Route::resource('voucher-codes', 'VoucherCodes\VoucherCodeController');
         Route::post('vouchers/updateVoucher', 'Vouchers\VoucherController@updateVoucher')->name('vouchers.updateVoucher');
@@ -217,7 +219,7 @@ Route::namespace('Front')->group(function () {
         Route::resource('customer', 'CustomerController');
         Route::resource('customer.address', 'CustomerAddressController');
     });
-     Route::get('cart/validate/{code}', 'CartController@validateVoucherCode')->name('cart.validateVoucherCode');
+    Route::get('cart/validate/{code}', 'CartController@validateVoucherCode')->name('cart.validateVoucherCode');
     Route::resource('cart', 'CartController');
     Route::get("category/{slug}", 'CategoryController@getCategory')->name('front.category.slug');
     Route::get("search", 'ProductController@search')->name('search.product');
