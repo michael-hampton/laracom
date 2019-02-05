@@ -219,7 +219,7 @@ class OrderLineController extends Controller {
 
         $productRepo = new ProductRepository(new Product);
         $os = $this->orderStatusRepo->findByName('Waiting Allocation');
-        $objNewStatus = $this->orderStatusRepo->findByName('ordered');
+        
         $arrDone = [];
         $arrFailed = [];
         $blError = false;
@@ -296,8 +296,8 @@ class OrderLineController extends Controller {
                             }
                     }
 
-                    if(!$this->addToPicklist()) {
-                        
+                    if(!$this->addToPicklist($picklistRef)) {
+                        $arrFailed[$lineId][] = 'Unable to add picklist';
                     }
                 }
 
@@ -309,15 +309,17 @@ class OrderLineController extends Controller {
         return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
     }
     
-    private function addToPicklist() {
+    private function addToPicklist($picklistRef) {
         try {
+            $objNewStatus = $this->orderStatusRepo->findByName('ordered');
                         // update line status
                         $orderLineRepo = new OrderProductRepository(new OrderProduct);
                         $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $picklistRef], $lineId);
                     } catch (\Exception $e) {
-                        $arrFailed[$lineId][] = $e->getMessage();
-                        $blError = true;
+                        return false;
                     }
+        
+        return true;
     }
     
     private function updateReservedStock($reserved_stock, Product $objProduct) {
