@@ -249,16 +249,8 @@ class OrderLineController extends Controller {
                         if ($channel->allocate_on_order === 0 || $order->payment === 'import') {
                             // check enough quantity to fulfil line if not reject
                             // update stock
-
-                            $quantity = $objProduct->quantity - $objProduct->reserved_stock;
-                            
-                            if($objLine->quantity < $quantity) {
-                                $arrFailed[$lineId][] = $e->getMessage();
-                                $blError = true;
-                                continue;
-                            }
                            
-                            if(!$this->increaseReservedStock($objLine)) {
+                            if(!$this->increaseReservedStock($objLine, false)) {
                                 $arrFailed[$lineId][] = 'failed to update stock';
                             }
                             
@@ -345,9 +337,16 @@ class OrderLineController extends Controller {
         return true;
     }
     
-    private function increaseReservedStock($objLine) {
+    private function increaseReservedStock($objLine, $blAllowPartial = true) {
         try {
-                   $objProduct = $productRepo->findProductById($objLine->product_id);
+            $objProduct = $productRepo->findProductById($objLine->product_id);
+            
+            $quantity = $objProduct->quantity - $objProduct->reserved_stock;
+                              
+            if($blAllowPartial === false && $objLine->quantity < $quantity) {
+                return false;             
+            }
+            
             $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
                                 $objProductRepo = new ProductRepository($objProduct);
                                 $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
