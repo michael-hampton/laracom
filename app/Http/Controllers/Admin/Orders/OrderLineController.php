@@ -224,8 +224,6 @@ class OrderLineController extends Controller {
         $arrFailed = [];
         $blError = false;
 
-        $picklistRef = $this->generatePIN();
-
         foreach ($request->lineIds as $orderId => $arrLines) {
 
             foreach ($arrLines as $lineId) {
@@ -269,17 +267,9 @@ class OrderLineController extends Controller {
                             
                         }
 
-                        try {
-                            // update line status
-                            $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                            $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $picklistRef], $lineId);
-
-                            $order->order_status_id = $objNewStatus->id;
-                            $order->save();
-                        } catch (\Exception $e) {
-                            $arrFailed[$lineId][] = $e->getMessage();
-                            $blError = true;
-                        }
+                         if(!$this->addToPicklist($lineId, $order)) {
+                        $arrFailed[$lineId][] = 'Unable to add picklist';
+                    }
                     }
                 } elseif ($channel->partial_shipment === 1) {
 
@@ -296,7 +286,7 @@ class OrderLineController extends Controller {
                             }
                     }
 
-                    if(!$this->addToPicklist($picklistRef)) {
+                    if(!$this->addToPicklist($lineId)) {
                         $arrFailed[$lineId][] = 'Unable to add picklist';
                     }
                 }
@@ -309,12 +299,18 @@ class OrderLineController extends Controller {
         return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
     }
     
-    private function addToPicklist($picklistRef) {
+    private function addToPicklist($lineId, $order = null) {
         try {
+            $picklistRef = $this->generatePIN();
             $objNewStatus = $this->orderStatusRepo->findByName('ordered');
                         // update line status
                         $orderLineRepo = new OrderProductRepository(new OrderProduct);
                         $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $picklistRef], $lineId);
+            
+            if($order !== null) {
+                $order->order_status_id = $objNewStatus->id;
+                $order->save();
+            }
                     } catch (\Exception $e) {
                         return false;
                     }
