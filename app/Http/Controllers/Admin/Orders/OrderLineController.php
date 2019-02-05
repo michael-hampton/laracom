@@ -236,10 +236,7 @@ class OrderLineController extends Controller {
 
                 $order = $this->orderRepo->findOrderById($orderId);
                 $channel = $this->channelRepo->findChannelById($order->channel);
-
-
                 $statusCount = $this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, $os->id);
-
                 $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id);
 
                 if ($statusCount === 0) {
@@ -266,15 +263,10 @@ class OrderLineController extends Controller {
                             }
                             
                             $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
-                            
-                            try {
-                                $objProductRepo = new ProductRepository($objProduct);
-                                $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-                            } catch (\Exception $e) {
-                                $arrFailed[$lineId][] = $e->getMessage();
-                                $blError = true;
-                                continue;
+                            if(!$this->updateReservedStock($reserved_stock, $objProduct)) {
+                                $arrFailed[$lineId][] = 'failed to update stock';
                             }
+                            
                         }
 
                         try {
@@ -299,22 +291,13 @@ class OrderLineController extends Controller {
                         $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
                         //$quantity = $objProduct->quantity - $objLine2->quantity;
 
-                        try {
-                            $objProductRepo = new ProductRepository($objProduct);
-                            $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-                        } catch (\Exception $e) {
-                            $arrFailed[$lineId][] = $e->getMessage();
-                            $blError = true;
-                        }
+                         if(!$this->updateReservedStock($reserved_stock, $objProduct)) {
+                                $arrFailed[$lineId][] = 'failed to update stock';
+                            }
                     }
 
-                    try {
-                        // update line status
-                        $orderLineRepo = new OrderProductRepository(new OrderProduct);
-                        $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $picklistRef], $lineId);
-                    } catch (\Exception $e) {
-                        $arrFailed[$lineId][] = $e->getMessage();
-                        $blError = true;
+                    if(!$this->addToPicklist()) {
+                        
                     }
                 }
 
@@ -324,6 +307,29 @@ class OrderLineController extends Controller {
 
         $http_code = $blError === true ? 400 : 200;
         return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
+    }
+    
+    private function addToPicklist() {
+        try {
+                        // update line status
+                        $orderLineRepo = new OrderProductRepository(new OrderProduct);
+                        $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $picklistRef], $lineId);
+                    } catch (\Exception $e) {
+                        $arrFailed[$lineId][] = $e->getMessage();
+                        $blError = true;
+                    }
+    }
+    
+    private function updateReservedStock($reserved_stock, Product $objProduct) {
+        try {
+                                $objProductRepo = new ProductRepository($objProduct);
+                                $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
+                            } catch (\Exception $e) {
+                                return false;
+                                
+                            }
+        
+        return true;
     }
 
     /**
