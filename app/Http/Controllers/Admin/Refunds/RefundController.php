@@ -130,8 +130,7 @@ class RefundController extends Controller {
 
         if ($order->total_paid <= 0) {
             $arrFailures[$request->order_id][] = 'The order has not yet been paid';
-            echo json_encode(['http_code' => 400, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
-            die;
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
         }
 
         $objCustomerRepository = new CustomerRepository(new Customer);
@@ -161,15 +160,15 @@ class RefundController extends Controller {
             $strMessage = "Order has been refunded";
         } catch (\Exception $e) {
             $strMessage = "Unable to refund order {$e->getMessage()}";
-            $blError = true;
             $arrFailures[$request->order_id][] = $e->getMessage();
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
         }
 
         if (!$this->authorizePayment($order, $customer)) {
 
             $strMessage = "Order was refunded but we failed to authorize payment";
             $arrFailures[$request->order_id][] = $strMessage;
-            $blError = true;
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
         }
 
         if ($customer->customer_type == 'credit') {
@@ -188,8 +187,7 @@ class RefundController extends Controller {
 
 
         $http_code = $blError === true ? 400 : 200;
-        echo json_encode(['http_code' => $http_code, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
-        die;
+        return response()->json(['http_code' => $http_code, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
     }
 
     /**
