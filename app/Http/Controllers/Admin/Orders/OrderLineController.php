@@ -258,7 +258,7 @@ class OrderLineController extends Controller {
                                 continue;
                             }
                            
-                            if(!$this->updateReservedStock($objLine)) {
+                            if(!$this->increaseReservedStock($objLine)) {
                                 $arrFailed[$lineId][] = 'failed to update stock';
                             }
                             
@@ -276,7 +276,7 @@ class OrderLineController extends Controller {
                         
                         //$quantity = $objProduct->quantity - $objLine2->quantity;
 
-                         if(!$this->updateReservedStock($objLine)) {
+                         if(!$this->increaseReservedStock($objLine)) {
                                 $arrFailed[$lineId][] = 'failed to update stock';
                             }
                     }
@@ -313,7 +313,39 @@ class OrderLineController extends Controller {
         return true;
     }
     
-    private function updateReservedStock($objLine) {
+    private function reserveStock($objLine, $order = null) {
+        try {
+            $objProduct = $this->productRepo->findProductById($objLine->product_id);
+
+            $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
+
+            if($availiableQty < $objLine->quantity) {
+                return false;
+            }
+                    
+            $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
+            $reserved_stock = $objProduct->reserved_stock - $objLine->quantity;
+                                //$quantity = $objProduct->quantity - $objLine2->quantity;
+
+                                $objProductRepo = new ProductRepository($objProduct);
+                                $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
+
+                                $objLine->status = $objNewStatus->id;
+                                $objLine->save();
+            
+            if($order !== null) {
+                $order->order_status_id = $objNewStatus->id;
+               $order->save();
+            }
+                            } catch (\Exception $e) {
+                                
+                                return false;
+                            }
+        
+        return true;
+    }
+    
+    private function increaseReservedStock($objLine) {
         try {
                    $objProduct = $productRepo->findProductById($objLine->product_id);
             $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
@@ -335,7 +367,7 @@ class OrderLineController extends Controller {
 
         $productRepo = new ProductRepository(new Product);
         $os = $this->orderStatusRepo->findByName('Backorder');
-        $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
+p
         $arrDone = [];
         $arrFailed = [];
         $blError = false;
@@ -390,41 +422,16 @@ class OrderLineController extends Controller {
                     // if partial shipping allowed and more than 1 line backordered then move single line
                 } elseif ($intCantMove === 0 && $backorderCount > 1) {
 
-                    foreach ($arrProducts as $objLine2) {
-
-                        $objProduct = $productRepo->findProductById($objLine2->product_id);
-
-                        $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
-
-                        if ($availiableQty > $objLine2->quantity) {
-
-                            try {
-                                $reserved_stock = $objProduct->reserved_stock - $objLine2->quantity;
-                                //$quantity = $objProduct->quantity - $objLine2->quantity;
-
-                                $objProductRepo = new ProductRepository($objProduct);
-                                $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-
-                                $objLine2->status = $objNewStatus->id;
-                                $objLine2->save();
-                            } catch (\Exception $e) {
-                                $arrFailed[$lineId][] = $e->getMessage();
-                                $blError = true;
-                                continue;
+                    foreach ($arrProducts as $objProduct) {
+                        
+                       
+                            // here
+                            if(!$this->reserveStock($objLine2, $order)){
+                                $arrFailed[$lineId][] = 'failed to allocate stock';
                             }
-                        } else {
-                            $arrFailed[$lineId][] = 'unable to move';
-                            $blError = true;
-                        }
                     }
 
-                    try {
-                        $order->order_status_id = $objNewStatus->id;
-                        $order->save();
-                    } catch (\Exception $e) {
-                        $arrFailed[$lineId][] = $e->getMessage();
-                        $blError = true;
-                    }
+                
                 } elseif (($backorderCount === $total && $backorderCount === 1) || $channel->partial_shipment === 1) {
 
                     $objLine2 = $this->orderLineRepo->findOrderProductById($lineId);
