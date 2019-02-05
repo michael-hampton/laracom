@@ -246,8 +246,6 @@ class OrderLineController extends Controller {
                             continue;
                         }
 
-                        $objProduct = $productRepo->findProductById($objLine->product_id);
-
                         if ($channel->allocate_on_order === 0 || $order->payment === 'import') {
                             // check enough quantity to fulfil line if not reject
                             // update stock
@@ -259,9 +257,8 @@ class OrderLineController extends Controller {
                                 $blError = true;
                                 continue;
                             }
-                            
-                            $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
-                            if(!$this->updateReservedStock($reserved_stock, $objProduct)) {
+                           
+                            if(!$this->updateReservedStock($objLine)) {
                                 $arrFailed[$lineId][] = 'failed to update stock';
                             }
                             
@@ -274,14 +271,12 @@ class OrderLineController extends Controller {
                 } elseif ($channel->partial_shipment === 1) {
 
                     $objLine = $this->orderLineRepo->findOrderProductById($lineId);
-                    $objProduct = $productRepo->findProductById($objLine->product_id);
 
                     if ($channel->allocate_on_order === 1 || $order->payment === 'import') {
-                        // update stock
-                        $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
+                        
                         //$quantity = $objProduct->quantity - $objLine2->quantity;
 
-                         if(!$this->updateReservedStock($reserved_stock, $objProduct)) {
+                         if(!$this->updateReservedStock($objLine)) {
                                 $arrFailed[$lineId][] = 'failed to update stock';
                             }
                     }
@@ -318,8 +313,10 @@ class OrderLineController extends Controller {
         return true;
     }
     
-    private function updateReservedStock($reserved_stock, Product $objProduct) {
+    private function updateReservedStock($objLine) {
         try {
+                   $objProduct = $productRepo->findProductById($objLine->product_id);
+            $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
                                 $objProductRepo = new ProductRepository($objProduct);
                                 $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
                             } catch (\Exception $e) {
