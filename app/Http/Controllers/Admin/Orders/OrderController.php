@@ -332,8 +332,6 @@ class OrderController extends Controller {
 
         $channel = $this->channelRepo->findChannelById($request->channel);
 
-        $orderRepo = new OrderRepository(new Order);
-
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Waiting Allocation');
 
@@ -437,17 +435,6 @@ class OrderController extends Controller {
                     $order->customer = $customerRepo->findCustomerById($order->customer_id);
                     $order->status = $orderStatusRepo->findOrderStatusById($order->order_status_id);
                     $order->channel = $this->channelRepo->findChannelById($order->channel);
-                    return $order;
-                })->all();
-    }
-
-    /**
-     * @param Collection $list
-     * @return array
-     */
-    private function transFormOrderLines(Collection $list) {
-        return $list->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
-
                     return $order;
                 })->all();
     }
@@ -568,11 +555,10 @@ class OrderController extends Controller {
         if ($blError === true)
         {
             $arrResponse['data']['details']['FAILURES'] = $arrErrors;
+            return response()->json($arrResponse);
         }
-        else
-        {
-            $arrResponse['data']['details']['SUCCESS'][$orderId] = ['order updated successfully'];
-        }
+        
+        $arrResponse['data']['details']['SUCCESS'][$orderId] = ['order updated successfully'];
 
         return response()->json($arrResponse);
     }
