@@ -78,13 +78,11 @@ class ChannelPriceController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index($channel) {
-
-
+        
         $channel = $this->channelRepo->findByName($channel);
         $channels = $this->channelRepo->listChannels('name', 'asc');
         $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
         $brands = $this->brandRepo->listBrands();
-        //$list = $this->channelPriceRepo->listChannelPrices()->where('channel_id', $channel->id);
         $list = $this->channelPriceRepo->getChannelProducts($channel);
 
         $products = $list->map(function (ChannelPrice $item) {
@@ -271,7 +269,6 @@ class ChannelPriceController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $channelPrice = $this->channelPriceRepo->findChannelPriceById($id);
         $this->channelPriceRepo->delete($id);
         return response()->json(['http_code' => 200]);
     }
@@ -304,5 +301,4 @@ class ChannelPriceController extends Controller {
 
         return response()->json(['http_code' => '200']);
     }
-
 }
