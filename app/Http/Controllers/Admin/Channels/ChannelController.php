@@ -156,7 +156,8 @@ class ChannelController extends Controller {
     public function getAvailiableProducts($channelId) {
         $channel = $this->channelRepo->findChannelById(4);
 
-        $test = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel);
+        $products = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel)->toArray();
+        return response()->json($products);
     }
 
     /**
@@ -185,9 +186,7 @@ class ChannelController extends Controller {
                 'channels' => $this->channelRepo->paginateArrayResults($channels, 8)
             ]);
         }
-
-
-
+        
         $employee = $this->employeeRepo->findEmployeeById($currentAuthUserId);
 
         $employeeRepo = new EmployeeRepository($employee);
@@ -224,18 +223,18 @@ class ChannelController extends Controller {
 
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile)
         {
-
             $data['cover'] = $this->channelRepo->saveCoverImage($request->file('cover'));
         }
 
         $validator = Validator::make($data, (new CreateChannelRequest())->rules());
         // Validate the input and return correct response
+        
         if ($validator->fails())
         {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
-        $channel = $this->channelRepo->createChannel($data);
+        $this->channelRepo->createChannel($data);
 
         return response()->json(['http_code' => 200]);
     }
@@ -350,20 +349,18 @@ class ChannelController extends Controller {
 
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile)
         {
-
             $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
         }
 
         $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
+        
         // Validate the input and return correct response
         if ($validator->fails())
         {
-
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
 
         $channelRepo->updateChannel($data);
-        die;
 
         return response()->json(['http_code' => 200, 'message' => 'Channel has been updated successfully']);
     }
@@ -405,16 +402,4 @@ class ChannelController extends Controller {
 
         $channelRepo->updateChannel($data);
     }
-
-    /**
-     * @param Request $request
-     * @param Product $channel
-     */
-    private function saveChannelImages(Request $request, Channel $channel) {
-        if ($request->hasFile('image'))
-        {
-            $this->channelRepo->saveChannelImages(collect($request->file('image')), $channel);
-        }
-    }
-
 }
