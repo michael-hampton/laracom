@@ -255,13 +255,15 @@ function buildcheckBox($value, $label) {
                         <?php
                         foreach ($warehouses as $warehouse)
                         {
+
+                            $channel_warehouse_id = isset($assigned_warehouses[$warehouse->id]) ? $assigned_warehouses[$warehouse->id]->id : '';
                             $class = isset($assigned_warehouses[$warehouse->id]) ? 'warehouse-assigned' : 'warehouse-not-assigned';
                             ?>
 
 
                             <li style = "margin-top:12px;" class='list-group-item'>
                                 {{$warehouse->name}}
-                                <img channel-id="{{$channel->id}}" warehouse-id="{{$warehouse->id}}" style = "width:30px;" class = "<?= $class ?>" src="{{url('/images/tick.png')}}"/>
+                                <img channel-warehouse-id="{{$channel_warehouse_id}}" channel-id="{{$channel->id}}" warehouse-id="{{$warehouse->id}}" style = "width:30px;" class = "<?= $class ?>" src="{{url('/images/tick.png')}}"/>
                             </li>
                             <?php
                         }
@@ -317,15 +319,16 @@ $(document).ready(function () {
 
         $this = $(this);
 
-        let id = $(this).attr("warehouse-id");
+        let id = $(this).attr("channel-warehouse-id");
+        var $this = $(this);
+
         $.ajax({
             type: 'DELETE',
             url: '/admin/channels/deleteWarehouse/' + id,
             data: {id: id, "_token": "{{ csrf_token() }}"},
             success: function (data) {
-                $(this).removeClass('warehouse-assigned').addClass('warehouse-not-assigned');
-                ``````````
-                $('.provider-div').prepend("<div class='alert alert-success'>Provider has been deleted successfully</div>");
+                $this.removeClass('warehouse-assigned').addClass('warehouse-not-assigned');
+                $('.warehouse-div').prepend("<div class='alert alert-success'>Provider has been deleted successfully</div>");
             },
             error: function (data) {
                 alert(data);
@@ -338,6 +341,7 @@ $(document).ready(function () {
 
         var channel = $(this).attr('channel-id');
         var warehouse = $(this).attr('warehouse-id');
+        var $this = $(this);
 
         $('.warehouse-div .alert-danger').remove();
         $('.warehouse-div .alert-success').remove();
@@ -351,7 +355,6 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (response) {
-                $('.providerList').append('<li>' + name + '<a href="#" class="deleteProvider" provider-id="' + provider + '">x</a></li>');
                 if (response.http_code == 400) {
                     $('.warehouse-div').prepend("<div class='alert alert-danger'></div>");
                     $.each(response.errors, function (key, value) {
@@ -359,7 +362,7 @@ $(document).ready(function () {
                     });
                 } else {
                     $('.warehouse-div').prepend("<div class='alert alert-success'>Warehouse has been added successfully</div>");
-                    $(this).removeClass('warehouse-not-assigned').addClass('warehouse-assigned');
+                    $this.removeClass('warehouse-not-assigned').addClass('warehouse-assigned');
                 }
             }
             ,

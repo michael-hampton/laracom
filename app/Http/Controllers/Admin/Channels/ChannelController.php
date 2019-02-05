@@ -7,6 +7,8 @@ use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\Employees\Repositories\Interfaces\EmployeeRepositoryInterface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Channels\Repositories\ChannelRepository;
+use App\Shop\Channels\Repositories\ChannelWarehouseRepository;
+use App\Shop\Channels\ChannelWarehouse;
 use Illuminate\Support\Facades\Auth;
 use App\Shop\Employees\Repositories\EmployeeRepository;
 use App\Shop\Channels\Requests\CreateChannelRequest;
@@ -252,6 +254,8 @@ class ChannelController extends Controller {
         $paymentProvider = (new \App\Shop\Channels\PaymentProvider())->where('id', $id)->first();
 
         (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->deleteChannelFromProvider($paymentProvider);
+
+        return response()->json(['http_code' => 200]);
     }
 
     /**
@@ -272,7 +276,7 @@ class ChannelController extends Controller {
         $arrPaymentProviders = (new \App\Shop\Channels\PaymentProvider)->get();
         $objWarehouseRepository = (new WarehouseRepository(new Warehouse));
         $arrWarehouses = $objWarehouseRepository->listWarehouses('name', 'asc');
-        $arrAssignedWarehouses = $objWarehouseRepository->getWarehousesForChannel($channel)->keyBy('id');
+        $arrAssignedWarehouses = (new ChannelWarehouseRepository(new ChannelWarehouse))->getWarehousesForChannel($channel)->keyBy('warehouse_id');
 
         return view('admin.channels.edit', [
             'assigned_warehouses' => $arrAssignedWarehouses,
@@ -295,13 +299,25 @@ class ChannelController extends Controller {
         $channelWarehouseRepo = new ChannelWarehouseRepository(new ChannelWarehouse);
 
         $channelWarehouseRepo->create([
-            'channel_id' => $request->channel,
-            'warehouse'  => $request->warehouse,
+            'channel_id'   => $request->channel,
+            'warehouse_id' => $request->warehouse,
         ]);
+
+        return response()->json(['http_code' => 200]);
     }
 
+    /**
+     * 
+     * @param type $id
+     * @return type
+     */
     public function deleteWarehouse($id) {
-        
+
+        (new ChannelWarehouseRepository(new ChannelWarehouse))
+                ->findChannelWarehouseById($id)
+                ->delete();
+
+        return response()->json(['http_code' => 200]);
     }
 
     /**
