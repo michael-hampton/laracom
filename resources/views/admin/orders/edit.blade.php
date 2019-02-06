@@ -8,6 +8,10 @@
         font-size: 26px;
     }
 
+    img {
+        width:50px;
+    }
+
     /*    .current-line-ref:not(.active) {
             background-color: #999 !important;
         }*/
@@ -160,11 +164,11 @@
                         ?>
 
 
-                        <div class="current-line-ref btn btn-primary btn-outline {{ $activeState  }}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
+                        <div class="current-line-ref btn btn-primary btn-outline {{ $activeState  }}" data-line-quantity="{{$item->quantity}}" data-line-ref="{{ $item->id }}" data-product-code="{{ $item->product_sku }}" data-warehouse-ref ="KW" >
                             @if ($products[$item->product_id]['quantity'] > 0 || $products[$item->product_id]['reserved_stock'] > 0)
-                            <img src="/images/accept.png" />
+                            <img src="http://laravel.develop/images/tick.png" />
                             @else
-                            <img alt="No stock information available " title="No stock information available" src="/images/exclamation-point.png" />
+                            <img alt="No stock information available " title="No stock information available" src="http://laravel.develop/images/exclamation-mark.png" />
                             @endif;
                             <div class="product-code">{{ $item->product_sku }}</div>
                             <div class="product-title">{{ $item->product_name }}</div>
@@ -197,6 +201,8 @@
                     <input type="hidden" name="product-image" class="product-image" value="">
                     <input type="hidden" name="freestock" class="freestock" value="">
                     <input type="hidden" name="product-rrp" class="product-rrp" value="">
+                    <input type="hidden" name="product-sku" class="product-sku" value="">
+                    <input type="hidden" name="product-description" class="product-description" value="">
                     <input type="hidden" name="product-std-cost" class="product-std-cost" value="">
                     <button id="replaceProduct" class="btn btn-primary koms-submit-button">Swap To This</button>
                 </div>
@@ -255,9 +261,9 @@
                              data-product-title="{{ $item->product_name }}" data-product-rrp="{{ $item->product_price }}" data-product-cost="{{ $item->product_price }}"
                              data-line-quantity="{{ $item->quantity }}" data-line-status="{{ $item->status }}">
                             @if ($products[$item->product_id]['quantity'] > 0 || $products[$item->product_id]['reserved_stock'] > 0)
-                            <img src="/images/accept.png" />
+                            <img src="http://laravel.develop/images/tick.png" />
                             @else;
-                            <img alt="No stock information availabe " title="No stock information available" src="/images/exclamation-point.png" />
+                            <img alt="No stock information availabe " title="No stock information available" src="http://laravel.develop/images/exclamation-mark.png" />
                             @endif;
                             <div class="product-code">{{ $item->product_sku }}</div>
                             <div class="product-title">{{ $item->product_name }}</div>
@@ -289,6 +295,8 @@
                     <input type="hidden" name="freestock" class="freestock" value="">
                     <input type="hidden" name="product-image" class="product-image" value="">
                     <input type="hidden" name="product-rrp" class="product-rrp" value="">
+                    <input type="hidden" name="product-sku" class="product-sku" value="">
+                    <input type="hidden" name="product-description" class="product-description" value="">
                     <input type="hidden" name="product-std-cost" class="product-std-cost" value="">
                     <button id="swapToSelectedProduct" class="btn btn-primary koms-submit-button">Swap To This</button>
                 </div>
@@ -340,7 +348,7 @@
                                 @endif
                                 <div class="input-group">
                                     <select name="order_status_id" id="order_status_id" class="form-control select2">
-                                       @if(!empty($status_mapping[$currentStatus->id]))
+                                        @if(!empty($status_mapping[$currentStatus->id]))
                                         @foreach($status_mapping[$currentStatus->id] as $status)
                                         <option @if($currentStatus->id == $status->id) selected="selected" @endif value="{{ $status->id }}">{{ $status->name }}</option>
                                         @endforeach
@@ -1005,9 +1013,10 @@ crossorigin="anonymous"></script>
                                                                     $('.swap-window').slideUp();
                                                                     return false;
                                                                 }
-                                                                search = $.parseJSON(search);
+
                                                                 if (search.results.length > 0) {
                                                                     $.each(search.results, function (ind, val) {
+
                                                                         data.push({
                                                                             label: val.sku + " - " + val.description + " - "
                                                                                     + val.warehouse,
@@ -1015,7 +1024,8 @@ crossorigin="anonymous"></script>
                                                                             product: {
                                                                                 id: val.id,
                                                                                 product_code: val.sku,
-                                                                                product_title: val.description,
+                                                                                product_title: val.name,
+                                                                                product_description: val.description,
                                                                                 product_id: val.id,
                                                                                 rrp: val.price,
                                                                                 freestock: val.quantity,
@@ -1049,9 +1059,11 @@ crossorigin="anonymous"></script>
                                                     // hidden inputs
                                                     $('.selected-for-swap .product-code').val(ui.item.product.id);
                                                     $('.selected-for-swap .product-title').val(ui.item.product.product_title);
+                                                    $('.selected-for-swap .product-description').val(ui.item.product.product_description);
                                                     $('.selected-for-swap .freestock').val(ui.item.product.freestock);
                                                     $('.selected-for-swap #warehouse-ref').val(ui.item.product.warehouse);
                                                     $('.selected-for-swap .product-rrp').val(ui.item.product.rrp);
+                                                    $('.selected-for-swap .product-sku').val(ui.item.product.product_code);
                                                     $('.selected-for-swap .selected-image').html(
                                                             "<img src='" + ui.item.product.image + "' alt='" + ui.item.description + "' />"
                                                             );
@@ -1067,6 +1079,7 @@ crossorigin="anonymous"></script>
                                             });
                                         }
                                         function createNewOrder(type) {
+
                                             var strUrl = "/admin/orders/cloneOrder";
                                             var newOrder = $('#newOrder');
                                             $.each(newOrder.children(), function (ind, val) {
@@ -1144,20 +1157,25 @@ crossorigin="anonymous"></script>
                                             var newProductCode = productForSwap.find('.product-code').val();
 
                                             var newProductTitle = productForSwap.find('.product-title').val();
+                                            var newProductDescription = productForSwap.find('.product-description').val();
+
                                             var newProductWarehouse = productForSwap.find('#warehouse-ref').val();
                                             var newProductStatus = originalProduct.attr('data-line-status');
                                             var newProductRrp = productForSwap.find('.product-rrp').val();
+                                            var newProductSku = productForSwap.find('.product-sku').val();
                                             var newProductStdCost = productForSwap.find('.product-std-cost').val();
                                             var newOrder = $('.replace-window #newOrder');
-                                            newProduct.append('<input class="kondor_product_code" name="kondor_product_code[' + lineRef + ']" type="hidden" value="' + newProductCode + '" />');
-                                            newProduct.append('<input class="customer_product_title" name="customer_product_title[' + lineRef + ']" type="hidden" value="' + newProductTitle + '" />');
-                                            newProduct.append('<input class="wms_warehouse_ref" name="wms_warehouse_ref[' + lineRef + ']"' + ' type="hidden"' +
+                                            newProduct.append('<input class="product_code" name="product_id[' + lineRef + ']" type="hidden" value="' + newProductCode + '" />');
+                                            newProduct.append('<input class="product_description" name="product_description[' + lineRef + ']" type="hidden" value="' + newProductDescription + '" />');
+                                            newProduct.append('<input class="product_title" name="product_name[' + lineRef + ']" type="hidden" value="' + newProductTitle + '" />');
+                                            newProduct.append('<input class="product_sku" name="product_sku[' + lineRef + ']" type="hidden" value="' + newProductSku + '" />');
+                                            newProduct.append('<input class="warehouse" name="warehouse[' + lineRef + ']"' + ' type="hidden"' +
                                                     ' value="' + newProductWarehouse + '" />');
-                                            newProduct.append('<input class="rrp" name="rrp[' + lineRef + ']" type="hidden" value="' + newProductRrp + '" />');
-                                            newProduct.append('<input class="stdCost" name="stdCost[' + lineRef + ']" type="hidden" value="' + newProductStdCost + '" />');
-                                            newProduct.append('<input class="lineStatus" name="lineStatus[' + lineRef + ']" type="hidden" value="' + newProductStatus + '" />');
+                                            newProduct.append('<input class="product_price" name="product_price[' + lineRef + ']" type="hidden" value="' + newProductRrp + '" />');
+                                            //newProduct.append('<input class="stdCost" name="stdCost[' + lineRef + ']" type="hidden" value="' + newProductStdCost + '" />');
+                                            newProduct.append('<input class="lineStatus" name="status[' + lineRef + ']" type="hidden" value="14" />');
                                             newProduct.removeClass('active').attr('data-product-code', newProductCode).attr('data-original-product-code', originalProduct.attr('data-product-code'));
-                                            newProduct.find('.product-code').html(newProductCode);
+                                            newProduct.find('.product-code').html(newProductSku);
                                             newProduct.find('.product-title').html(newProductTitle);
                                             var swappedTitle = originalProduct.find('.product-code');
                                             $('.replace-window #freeTextLostinPost').val('');

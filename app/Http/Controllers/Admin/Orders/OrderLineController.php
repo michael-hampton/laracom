@@ -124,6 +124,8 @@ class OrderLineController extends Controller {
         $blError = false;
         $arrErrors = [];
         $arrSuccess = [];
+        
+        die('Here');
 
         foreach ($request->form as $arrLine)
         {
@@ -150,7 +152,7 @@ class OrderLineController extends Controller {
             }
 
             $comment = $orderProduct->product_name . ' changed to ' . $product->name;
-            $this->saveComment($order, $comment);
+            $this->saveNewComment($order, $comment);
         }
 
         $arrResponse['details']['FAILURES'] = $arrErrors;

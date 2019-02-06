@@ -44,12 +44,14 @@ use Psr\Log\NullLogger;
 use Illuminate\Events\Dispatcher;
 use App\Search\OrderSearch;
 use Validator;
+use App\Traits\OrderCommentTrait;
 
 class OrderController extends Controller {
 
     use AddressTransformable,
         CommentTransformer,
-        OrderCsvTransformable;
+        OrderCsvTransformable,
+        OrderCommentTrait;
 
     /**
      * @var OrderRepositoryInterface
@@ -466,11 +468,7 @@ class OrderController extends Controller {
 
         $lineId = $request->line_id;
 
-
-        $blError = false;
-
         try {
-            $orderedProduct = $this->orderProductRepo->findOrderProductById($lineId);
             $channel = $this->channelRepo->findChannelById($request->channelCode);
             $order = $this->orderRepo->findOrderById($request->dbID);
 
@@ -478,88 +476,55 @@ class OrderController extends Controller {
                     $order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address)
             );
         } catch (Exception $e) {
-            $arrErrors['errors'][$request->dbID][] = $e->getMessage();
-            $blError = true;
+            $strMessage = 'failed to create rma order ' . $e->getMessage();
+            $this->saveNewComment($order, $strMessage);
+            $arrResponse['data']['details']['FAILURES']['errors'][$request->dbID][] = $strMessage;
+            return response()->json($arrResponse);
         }
 
         if (!$newOrder)
         {
             $strMessage = 'failed to create rma order';
-            $arrErrors['errors'][$request->dbID][] = $strMessage;
-
-            $data = [
-                'content' => $strMessage,
-                'user_id' => auth()->guard('admin')->user()->id
-            ];
-
-            $postRepo = new OrderCommentRepository($order);
-            $postRepo->createComment($data);
+            $this->saveNewComment($order, $strMessage);
+            $arrResponse['data']['details']['FAILURES']['errors'][$request->dbID][] = $strMessage;
+            return response()->json($arrResponse);
         }
 
         $orderId = $newOrder->id;
-        $strMessage = $orderId . 'was created as RMA';
 
-        $productId = null;
+        $arrOrderLineData = [];
 
         foreach ($request->order as $arrOrder)
         {
-
-            if ($arrOrder['name'] == 'kondor_product_code[' . $lineId . ']')
-            {
-                $productId = $arrOrder['value'];
-            }
+            $key = str_replace("[{$lineId}]", '', $arrOrder['name']);
+            $arrOrderLineData[$key] = $arrOrder['value'];
         }
 
-        if ($productId === null)
-        {
-            $arrErrors['errors'][$request->dbID][] = 'unable to find product';
-        }
-
-        $arrProducts[0] = [
-            'id'       => $productId,
-            'quantity' => $orderedProduct->quantity
-        ];
+        $arrOrderLineData['order_id'] = $orderId;
 
         try {
-            $newOrderRepo = new OrderRepository($newOrder);
 
-            if (!$newOrderRepo->buildOrderLinesForManualOrder($arrProducts))
+
+            if (!$this->orderProductRepo->createOrderProduct($arrOrderLineData))
             {
                 $strMessage .= 'failed to clone order lines';
-                $arrErrors['errors'][$request->dbID][] = $strMessage;
-                $blError = true;
+                $arrResponse['data']['details']['FAILURES']['errors'][$request->dbID][] = $strMessage;
+                return response()->json($arrResponse);
             }
-            else
-            {
-                $order->update(['customer_ref' => 'RMA_' . md5(uniqid(mt_rand(), true) . microtime(true))]);
-            }
+
+            $order->update(['customer_ref' => 'RMA_' . md5(uniqid(mt_rand(), true) . microtime(true))]);
         } catch (Exception $e) {
-            $arrErrors['errors'][$request->dbID][] = $e->getMessage();
-            $blError = true;
-        }
-
-        $data = [
-            'content' => $strMessage,
-            'user_id' => auth()->guard('admin')->user()->id
-        ];
-
-        $postRepo = new OrderCommentRepository($order);
-        $postRepo->createComment($data);
-
-        $arrBody = array(0 => ['test']);
-
-        $arrResponse = array(
-            'body' => $arrBody
-        );
-
-        if ($blError === true)
-        {
-            $arrResponse['data']['details']['FAILURES'] = $arrErrors;
+            $arrResponse['data']['details']['FAILURES']['errors'][$request->dbID][] = $e->getMessage();
             return response()->json($arrResponse);
         }
-        
-        $arrResponse['data']['details']['SUCCESS'][$orderId] = ['order updated successfully'];
 
+        $this->saveNewComment($order, $orderId . 'was created as RMA');
+
+        $arrResponse = array(
+            'body' => array(0 => ['rma created successfully'])
+        );
+
+        $arrResponse['data']['details']['SUCCESS'][$orderId] = ['order updated successfully'];
         return response()->json($arrResponse);
     }
 
