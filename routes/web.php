@@ -164,6 +164,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('remove-image-brand', 'Brands\BrandController@removeImage')->name('brand.remove.image');
 
         /* channel prices */
+        Route::post('channel-prices/getProductsForSwap', 'ChannelPrices\ChannelPriceController@getProductsForSwap')->name('channel-prices.getProductsForSwap');
         Route::get('channel-prices/import', 'ChannelPrices\ChannelPriceController@import')->name('channel-prices.import');
         Route::post('channel-prices/saveImport', 'ChannelPrices\ChannelPriceController@saveImport')->name('channel-prices.saveImport');
         Route::delete('channel-prices/deleteAttribute/{id}', 'ChannelPrices\ChannelPriceController@deleteAttribute')->name('channel-prices.deleteAttribute');

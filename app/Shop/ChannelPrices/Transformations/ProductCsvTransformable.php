@@ -29,18 +29,19 @@ trait ProductCsvTransformable {
         $brand = $brandRepo->findBrandById($brandId);
 
         $arrProducts = array(
-            'id' => $product->id,
-            'name' => $product->name,
-            'description' => strip_tags($product->description),
-            'brand_name' => $brand->name,
-            'sku' => $product->sku,
-            'quantity' => $product->quantity,
+            'id'             => $product->id,
+            'name'           => $product->name,
+            'description'    => strip_tags($product->description),
+            'brand_name'     => $brand->name,
+            'sku'            => $product->sku,
+            'quantity'       => $product->quantity,
             'reserved_stock' => $product->reserved_stock,
-            'status' => $product->status,
-            'price' => !empty($price) ? $price : $product->price,
-            'cost_price' => $product->cost_price,
-            'sale_price' => $product->sale_price,
-            'weight' => (float) $product->weight
+            'status'         => $product->status,
+            'price'          => !empty($price) ? $price : $product->price,
+            'cost_price'     => $product->cost_price,
+            'sale_price'     => $product->sale_price,
+            'weight'         => (float) $product->weight,
+            'url'            => $product->cover
         );
 
         return $arrProducts;

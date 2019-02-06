@@ -14,7 +14,8 @@ class ProductName {
      * @return Builder $builder
      */
     public static function apply(Builder $builder, $value) {
-        return $builder->where('products.name', 'LIKE', '%' . $value . '%');
+                
+        return $builder->whereRaw('LOWER(`products`.`name`) LIKE ? ',[trim(strtolower($value)).'%']);
     }
 
 }

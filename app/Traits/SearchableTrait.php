@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait SearchableTrait {
 
+    /**
+     * 
+     * @param Request $request
+     * @param Builder $query
+     * @return type
+     */
     protected static function applyDecoratorsFromRequest(Request $request, Builder $query) {
 
         foreach ($request->all() as $filterName => $value) {
@@ -19,7 +25,6 @@ trait SearchableTrait {
             if(empty($value) && (int)$value !== 0 || $value === null) {
                 continue;
             }
-
 
             $decorator = static::createFilterDecorator($filterName);
 

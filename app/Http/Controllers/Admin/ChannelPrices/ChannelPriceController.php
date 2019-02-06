@@ -78,7 +78,7 @@ class ChannelPriceController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index($channel) {
-        
+
         $channel = $this->channelRepo->findByName($channel);
         $channels = $this->channelRepo->listChannels('name', 'asc');
         $categories = $this->categoryRepo->listCategories('name', 'asc')->where('parent_id', 1);
@@ -301,4 +301,22 @@ class ChannelPriceController extends Controller {
 
         return response()->json(['http_code' => '200']);
     }
+
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function getProductsForSwap(Request $request) {
+
+
+        $list = ChannelPriceSearch::apply($request);
+
+        $products = $list->map(function (ChannelPrice $item) {
+                    return $this->transformProductForCsv($item);
+                })->all();
+
+        return response()->json(['results' => $products]);
+    }
+
 }

@@ -181,7 +181,7 @@
 
                 <div id="searchBoxWrapper" class="col-lg-4 col-md-2">
                     <label for="freeTextLostinPost">Replace to...</label>
-                    <input type="text" placeholder="Start typing to find a swappable product" class="form-control" data-channel="EEA/3/14" name="freeTextLostinPost" id="freeTextLostinPost">
+                    <input type="text" placeholder="Start typing to find a swappable product" class="form-control" data-channel="{{$order->channel->id}}" name="freeTextLostinPost" id="freeTextLostinPost">
                     <p class="no-products"></p>
                     <h4 class="title">Notice: Product codes may ONLY contain "a-z 0-9 - _"</h4>
                     <input type="hidden" name="channel" id="channel" value="{{$order->channel->id}}">
@@ -277,7 +277,7 @@
 
                 <div id="searchBoxWrapper" class="col-lg-4 col-md-2">
                     <h3>Replace to...</h3>
-                    <input type="text" placeholder="Start typing to find a swappable product" class="form-control" data-channel="EEA/3/14" name="freeTextLostinPost" id="SwapFinder">
+                    <input type="text" placeholder="Start typing to find a swappable product" class="form-control" data-channel="{{$order->channel->id}}" name="freeTextLostinPost" id="SwapFinder">
                     <input type="hidden" name="channel" id="channel" value="{{$order->channel->id}}">
                     <input type="hidden" name="current-line" id="current-line" value="">
                     <p class="no-products"></p>
@@ -1054,11 +1054,11 @@ crossorigin="anonymous"></script>
                                                 source: function (request, response) {
                                                     var pattern = new RegExp(/^[a-zA-Z0-9\-_]+/);
                                                     var arrData = {
-                                                        product_code: $ele.val().toUpperCase(),
-                                                        channelCode: channelCode,
+                                                        product_name: $ele.val().toUpperCase(),
+                                                        channel_id: channelCode,
                                                         _token: '{{ csrf_token() }}'
                                                     };
-                                                    var strUrl = "/admin/products/getProductAutoComplete/get";
+                                                    var strUrl = "/admin/channel-prices/getProductsForSwap";
                                                     if ($ele.val().match(pattern)) {
                                                         var data = [];
                                                         $.ajax({
@@ -1077,8 +1077,7 @@ crossorigin="anonymous"></script>
                                                                     $.each(search.results, function (ind, val) {
 
                                                                         data.push({
-                                                                            label: val.sku + " - " + val.description + " - "
-                                                                                    + val.warehouse,
+                                                                            label: val.sku + " - " + val.description,
                                                                             value: val.sku,
                                                                             product: {
                                                                                 id: val.id,
