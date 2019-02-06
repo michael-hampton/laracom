@@ -1,5 +1,6 @@
-
+<?php
 namespace App\Traits;
+
 use App\Shop\Orders\Order;
 /**
  * Description of OrderCommentTrait
@@ -8,7 +9,14 @@ use App\Shop\Orders\Order;
  */
 trait OrderCommentTrait {
 
-public function saveComment(Order $order) {
-
+public function saveComment(Order $order, string $comment) : bool {
+$postRepo = new OrderCommentRepository($order);
+ 
+  $data = [
+      'content' => $comment,
+      'user_id' => auth()->guard('admin')->user()->id
+  ];
+           
+  $postRepo->createComment($data);
 }
 }
