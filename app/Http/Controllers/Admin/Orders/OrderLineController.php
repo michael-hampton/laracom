@@ -26,9 +26,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Shop\Orders\Requests\UpdateLineRequest;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\OrderCommentTrait;
 
 class OrderLineController extends Controller {
 
+    use OrderCommentTrait;
     /**
      * @var OrderRepositoryInterface
      */
@@ -142,12 +144,8 @@ class OrderLineController extends Controller {
                 $blError = true;
             }
 
-            $data = [
-                'content' => $orderProduct->product_name . ' changed to ' . $product->name,
-                'user_id' => auth()->guard('admin')->user()->id
-            ];
-
-            $postRepo->createComment($data);
+            $comment = $orderProduct->product_name . ' changed to ' . $product->name;
+            $this->saveComment($order, $comment);
         }
 
         if ($blError === true) {
