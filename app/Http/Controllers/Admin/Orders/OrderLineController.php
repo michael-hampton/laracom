@@ -147,13 +147,9 @@ class OrderLineController extends Controller {
             $comment = $orderProduct->product_name . ' changed to ' . $product->name;
             $this->saveComment($order, $comment);
         }
-
-        if ($blError === true) {
-            $arrResponse['details']['FAILURES'] = $arrErrors;
-        } else {
-            $arrResponse['details']['SUCCESS'] = $arrSuccess;
-        }
-
+        
+        $arrResponse['details']['FAILURES'] = $arrErrors;
+        $arrResponse['details']['SUCCESS'] = $arrSuccess;
         return response()->json($arrResponse);
     }
 
