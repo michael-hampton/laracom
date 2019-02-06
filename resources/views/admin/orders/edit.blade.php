@@ -642,7 +642,7 @@
                 {{ csrf_field() }}
                 <input type="hidden" name="order_id" value="{{ $order->id }}">
                 <textarea id="comment" name="comment" class="form-control"></textarea>
-                <span class=""><button type="submit" class="btn btn-primary">Save</button></span>
+                <span class=""><button type="submit" class="btn btn-primary SaveComment">Save</button></span>
 
             </form>
 
@@ -746,6 +746,47 @@ crossorigin="anonymous"></script>
                                                 //$('#line-status-form').submit();
                                                 return false;
                                             });
+                                            
+                                            $('.SaveComment').on('click', function () {
+                                                $(this).prop('disabled', false);
+                                                
+                                                var formdata = $('.SaveComment').parent().parent().serialize();
+                                                var href = $('.SaveComment').parent().parent().attr('action');
+                                                
+                                                 $.ajax({
+                                                    type: "POST",
+                                                    url: href,
+                                                    data: formdata,
+                                                    success: function (response) {
+
+                                                        if (response.http_code === 400) {
+
+                                                            $('.content').prepend("<div class='alert alert-danger'></div>");
+
+                                                            $.each(response.FAILURES, function (lineId, val) {
+
+                                                                $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
+
+                                                            });
+                                                        } else {
+                                                            $('.content').prepend("<div class='alert alert-success'></div>");
+
+                                                            $.each(response.SUCCESS, function (lineId, val) {
+
+                                                                $('.content .alert-success').append("<p>" + val + "</p>");
+
+                                                            });
+
+                                                            $('.toBeRemoved').remove();
+
+                                                        }
+                                                    },
+                                                    error: function (data) {
+                                                        alert('unable to complete action');
+                                                    }
+                                                });
+                                            });
+                                            
                                             $('.do-swap').on('click', function () {
                                                 $('.productSelect').prop('disabled', false);
                                             });
@@ -883,7 +924,6 @@ crossorigin="anonymous"></script>
                                                         _token: '{{ csrf_token() }}'
                                                     },
                                                     success: function (response) {
-                                                        var response = JSON.parse(response);
 
                                                         if (response.http_code === 400) {
 

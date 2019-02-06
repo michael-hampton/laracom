@@ -20,6 +20,7 @@ use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
+use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Orders\Order;
 use App\Shop\Orders\OrderImport;
@@ -468,12 +469,49 @@ class OrderController extends Controller {
 
         $lineId = $request->line_id;
 
+        $arrOrderLineData = [];
+
+        foreach ($request->order as $arrOrder)
+        {
+            $key = str_replace("[{$lineId}]", '', $arrOrder['name']);
+            $arrOrderLineData[$key] = $arrOrder['value'];
+        }
+
+
         try {
             $channel = $this->channelRepo->findChannelById($request->channelCode);
             $order = $this->orderRepo->findOrderById($request->dbID);
+            $orderLine = $this->orderProductRepo->findOrderProductById($lineId);
+            $rmaStatus = $this->orderStatusRepo->findByName('RMA');
+
+            $order_ref = $order->reference;
+            $rma_order_reference = 'RMA_' . $order_ref;
+            if ($orderLine->status === $rmaStatus->id)
+            {
+
+                $arrResponse['data']['details']['FAILURES']['errors'][$request->dbID][] = 'The order line is already at RMA status';
+                return response()->json($arrResponse);
+            }
+
+            $lineTotal = $arrOrderLineData['product_price'] * $arrOrderLineData['quantity'];
+            $courier = $this->courierRepo->findCourierById($request->delivery);
+
+            $deliveryRate = (new CourierRateRepository(new CourierRate))->findShippingMethod($lineTotal, $courier, $channel, 225);
+            $total = $lineTotal + $deliveryRate->cost;
+
+            $arrOrderParams = array(
+                'total_products'  => 1,
+                'delivery_method' => $courier,
+                'total_shipping'  => $deliveryRate->cost,
+                'total'           => $total,
+                'total_paid'      => $total,
+                'order_reference' => $rma_order_reference
+            );
+
+
 
             $newOrder = $this->orderRepo->cloneOrder(
-                    $order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address)
+                    $order, $channel, new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address), $arrOrderParams
             );
         } catch (Exception $e) {
             $strMessage = 'failed to create rma order ' . $e->getMessage();
@@ -491,19 +529,9 @@ class OrderController extends Controller {
         }
 
         $orderId = $newOrder->id;
-
-        $arrOrderLineData = [];
-
-        foreach ($request->order as $arrOrder)
-        {
-            $key = str_replace("[{$lineId}]", '', $arrOrder['name']);
-            $arrOrderLineData[$key] = $arrOrder['value'];
-        }
-
         $arrOrderLineData['order_id'] = $orderId;
 
         try {
-
 
             if (!$this->orderProductRepo->createOrderProduct($arrOrderLineData))
             {
@@ -512,7 +540,7 @@ class OrderController extends Controller {
                 return response()->json($arrResponse);
             }
 
-            $order->update(['customer_ref' => 'RMA_' . md5(uniqid(mt_rand(), true) . microtime(true))]);
+            (new OrderProductRepository($orderLine))->updateOrderProduct(['status' => $rmaStatus->id]);
         } catch (Exception $e) {
             $arrResponse['data']['details']['FAILURES']['errors'][$request->dbID][] = $e->getMessage();
             return response()->json($arrResponse);

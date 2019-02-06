@@ -75,12 +75,14 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                             $params, (new NewOrderRequest())->rules()
                     )->errors();
 
-            if ($blFieldsValid->any()) {
+            if ($blFieldsValid->any())
+            {
                 throw new \Exception('invalid fields found');
             }
 
-            if (isset($params['channel']) && !empty($params['channel'])) {
-                
+            if (isset($params['channel']) && !empty($params['channel']))
+            {
+
                 $customer_ref = substr($params['channel']->name, 0, 4) . md5(uniqid(mt_rand(), true) . microtime(true));
 
                 $this->validateCustomerRef($customer_ref);
@@ -90,14 +92,16 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $params['is_priority'] = $blPriority;
                 $params['channel'] = $params['channel']->id;
             }
-            
-            if ($blManualOrder === false) {
+
+            if ($blManualOrder === false)
+            {
                 $items = Cart::content();
 
                 $this->validateTotal($params, $items);
             }
 
-            if (isset($params['voucher_code']) && !empty($params['voucher_code'])) {
+            if (isset($params['voucher_code']) && !empty($params['voucher_code']))
+            {
 
                 $this->validateVoucherCode($voucherCodeRepository, $params['voucher_code']);
             }
@@ -106,13 +110,15 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             $this->validateAddress($addressRepository, $params['address_id']);
             $this->validateCourier($courierRepository, $params['courier_id']);
 
-            if (count($this->validationFailures) > 0) {
+            if (count($this->validationFailures) > 0)
+            {
                 $params['order_status_id'] = 13;
             }
 
             $order = $this->create($params);
 
-            if (count($this->validationFailures) > 0) {
+            if (count($this->validationFailures) > 0)
+            {
 
                 $strMessage = implode('<br>', $this->validationFailures);
                 //create comment
@@ -189,20 +195,22 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function associateProduct(Product $product, int $quantity = 1, int $status = 1, array $data = []) {
 
         $this->model->products()->attach($product, [
-            'quantity' => $quantity,
-            'product_name' => $product->name,
-            'product_sku' => $product->sku,
-            'status' => $status,
-            'product_description' => $product->description,
-            'product_price' => $product->price,
+            'quantity'             => $quantity,
+            'product_name'         => $product->name,
+            'product_sku'          => $product->sku,
+            'status'               => $status,
+            'product_description'  => $product->description,
+            'product_price'        => $product->price,
             'product_attribute_id' => isset($data['product_attribute_id']) ? $data['product_attribute_id'] : null,
         ]);
 
-        if ($this->allocate_on_order === true && $status !== 11) {
+        if ($this->allocate_on_order === true && $status !== 11)
+        {
             //$product->quantity = ($product->quantity - $quantity);
         }
 
-        if ($this->allocate_on_order === true && $status !== 11) {
+        if ($this->allocate_on_order === true && $status !== 11)
+        {
 
             $product->reserved_stock = ($product->reserved_stock + $quantity);
         }
@@ -244,12 +252,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         Mail::to($this->model->customer)
                 ->send(new SendRefundToCustomerMailable($this->findOrderById($this->model->id)));
     }
-    
+
     public function sendBackorderEmail() {
         Mail::to($this->model->customer)
                 ->send(new SendBackorderToCustomerMailable($this->findOrderById($this->model->id)));
     }
-    
+
     public function sendHungEmail() {
         Mail::to($this->model->customer)
                 ->send(new SendHungMailable($this->findOrderById($this->model->id)));
@@ -272,8 +280,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @return Collection
      */
     public function searchOrder(Request $request): Collection {
-
-       
+        
     }
 
     /**
@@ -319,7 +326,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $countBackorderedItems = 0;
         $status = 5;
 
-        foreach ($items as $item) {
+        foreach ($items as $item)
+        {
 
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item->id);
@@ -329,59 +337,77 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
             $this->allocate_on_order = $channel->allocate_on_order === 1 ? true : false;
 
-            if (!is_null($channel) && $channel->allocate_on_order === 0) {
+            if (!is_null($channel) && $channel->allocate_on_order === 0)
+            {
                 $status = 14;
-            } elseif ($blOrderHung === true || ($totalStock <= 0 &&
+            }
+            elseif ($blOrderHung === true || ($totalStock <= 0 &&
                     $blOrderHung === false &&
                     !is_null($channel) &&
                     (int) $channel->backorders_enabled === 0)
-            ) {
+            )
+            {
                 $status = 13;
                 $blOrderHung = true;
-            } elseif ($totalStock <= 0 &&
+            }
+            elseif ($totalStock <= 0 &&
                     !is_null($channel) &&
                     (int) $channel->backorders_enabled === 1 &&
                     $channel->partial_shipment === 0
-            ) {
+            )
+            {
                 $status = 11;
                 $blBackorderAllItems++;
                 $countBackorderedItems++;
-            } elseif ($totalStock <= 0 &&
+            }
+            elseif ($totalStock <= 0 &&
                     !is_null($channel) &&
                     (int) $channel->backorders_enabled === 1 &&
                     $channel->partial_shipment === 1
-            ) {
+            )
+            {
                 $status = 11;
                 $countBackorderedItems++;
             }
 
-            if ($blBackorderAllItems > 0 && !is_null($channel) && $channel->partial_shipment === 0) {
+            if ($blBackorderAllItems > 0 && !is_null($channel) && $channel->partial_shipment === 0)
+            {
 
                 $status = 11;
             }
 
 
-            if ($item->options->has('product_attribute_id')) {
+            if ($item->options->has('product_attribute_id'))
+            {
                 $this->associateProduct($product, $item->qty, $status, [
                     'product_attribute_id' => $item->options->product_attribute_id
                 ]);
-            } else {
+            }
+            else
+            {
 
                 $this->associateProduct($product, $item->qty, $status);
             }
         }
 
-        if (in_array($order->order_status_id, [12, 13]) && !is_null($channel) && $channel->strict_validation === 0) {
+        if (in_array($order->order_status_id, [12, 13]) && !is_null($channel) && $channel->strict_validation === 0)
+        {
             
-        } elseif ($blOrderHung === true && !is_null($channel) && $channel->strict_validation === 1) {
+        }
+        elseif ($blOrderHung === true && !is_null($channel) && $channel->strict_validation === 1)
+        {
             $order->delete();
-        } elseif ($blOrderHung === true && $order->order_status_id !== 12) {
+        }
+        elseif ($blOrderHung === true && $order->order_status_id !== 12)
+        {
             $order->order_status_id = 13;
             $order->save();
             event(new HungEvent($order));
-        } elseif ($items->count() == $countBackorderedItems || (
-                
-            $items->count() > 1 && $countBackorderedItems > 0 && !is_null($channel) && $channel->partial_shipment === 0)) {
+        }
+        elseif ($items->count() == $countBackorderedItems || (
+
+                $items->count() > 1 && $countBackorderedItems > 0 && !is_null($channel) && $channel->partial_shipment === 0))
+        {
 
             $order->order_status_id = 11;
             $order->save();
@@ -398,7 +424,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      */
     public function buildOrderLinesForManualOrder(array $items) {
 
-        foreach ($items as $item) {
+        foreach ($items as $item)
+        {
 
             $productRepo = new ProductRepository(new Product);
             $product = $productRepo->find($item['id']);
@@ -409,28 +436,34 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return true;
     }
 
-    /**
-     * 
-     * @param Order $order
-     * @param Channel $channel
-     * @return type
-     */
-    public function cloneOrder(Order $order, Channel $channel, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository) {
-
+  /**
+   * 
+   * @param Order $order
+   * @param Channel $channel
+   * @param VoucherCodeRepositoryInterface $voucherCodeRepository
+   * @param CourierRepositoryInterface $courierRepository
+   * @param CustomerRepositoryInterface $customerRepository
+   * @param AddressRepositoryInterface $addressRepository
+   * @param array $arrParams
+   * @return type
+   */
+    public function cloneOrder(Order $order, Channel $channel, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, array $arrParams) {
+        
         return $this->createOrder([
-                    'reference' => md5(uniqid(mt_rand(), true) . microtime(true)),
-                    'courier_id' => $order->courier_id,
-                    'customer_id' => $order->customer_id,
-                    'address_id' => $order->address_id,
-                    'order_status_id' => 9,
-                    'payment' => $order->payment,
-                    'discounts' => $order->discounts,
-                    'total_products' => $order->total_products,
-                    'total' => $order->total,
-                    'total_paid' => $order->total_paid,
-                    'total_shipping' => $order->total_shipping,
-                    'tax' => $order->tax,
-                    'channel' => $channel
+                    'reference'       => isset($arrParams['order_reference']) ? $arrParams['order_reference'] : md5(uniqid(mt_rand(), true) . microtime(true)),
+                    'courier_id'      => $order->courier_id,
+                    'customer_id'     => $order->customer_id,
+                    'address_id'      => $order->address_id,
+                    'order_status_id' => 14,
+                    'delivery_method' => isset($arrParams['delivery_method']) ? $arrParams['delivery_method'] : null,
+                    'payment'         => 'import',
+                    'discounts'       => 0,
+                    'total_products'  => isset($arrParams['total_products']) ? $arrParams['total_products'] : $order->total_products,
+                    'total'           => isset($arrParams['total']) ? $arrParams['total'] : $order->total,
+                    'total_paid'      => isset($arrParams['total_paid']) ? $arrParams['total_paid'] : $order->total_paid,
+                    'total_shipping'  => isset($arrParams['total_shipping']) ? $arrParams['total_shipping'] : $order->total_shipping,
+                    'tax'             => $order->tax,
+                    'channel'         => $channel
                         ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository, true);
     }
 

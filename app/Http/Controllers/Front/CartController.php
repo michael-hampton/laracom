@@ -107,6 +107,11 @@ class CartController extends Controller {
 
         if ($product->attributes()->count() > 0) {
             $productAttr = $product->attributes()->where('default', 1)->first();
+            
+            if(empty($productAttr)) {
+                
+              $productAttr = $product->attributes()->first();
+            }
 
             if (isset($channelAttributes[$productAttr->id]) && !empty($channelAttributes[$productAttr->id]->price)) {
                 $product->price = $channelAttributes[$productAttr->id]->price;
