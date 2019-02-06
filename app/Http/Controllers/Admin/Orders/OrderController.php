@@ -450,15 +450,15 @@ class OrderController extends Controller {
 
         $order = $this->orderRepo->findOrderById($request->order_id);
 
-        $data = [
-            'content' => $request->comment,
-            'user_id' => auth()->guard('admin')->user()->id
-        ];
+        $this->saveNewComment($order, $request->comment);
 
-        $postRepo = new OrderCommentRepository($order);
-        $postRepo->createComment($data);
+        $list = (new OrderCommentRepository($order))->listComments();
 
-        return redirect()->route('admin.orders.edit', $request->order_id);
+        $comments = $list->map(function (Comment $item) {
+                    return $this->transformCommentToArray($item);
+                })->all();
+
+        return response()->json(['http_code' => '200', 'comments' => $comments]);
     }
 
     /**

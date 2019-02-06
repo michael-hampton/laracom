@@ -32,4 +32,25 @@ trait CommentTransformer {
         return $commentObj;
     }
 
+    /**
+     * 
+     * @param Comment $comment
+     * @return type
+     */
+    public function transformCommentToArray(Comment $comment) {
+        $userRepo = new EmployeeRepository(new Employee);
+        $objUser = $userRepo->findEmployeeById($comment->user_id);
+
+        return [
+            'id'         => (int) $comment->id,
+            'content'    => $comment->content,
+            'subtype'    => $comment->subtype,
+            'source'     => $comment->source,
+            'ip_address' => $comment->ip_address,
+            'user'       => $objUser->name,
+            'created_at' => $comment->created_at->format('d-m-Y'),
+            'updated_at' => $comment->updated_at
+        ];
+    }
+
 }

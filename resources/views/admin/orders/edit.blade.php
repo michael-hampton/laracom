@@ -646,7 +646,7 @@
 
             </form>
 
-            <div style="width:100%; overflow: auto; max-height: 250px">
+            <div class="comments-list" style="width:100%; overflow: auto; max-height: 250px">
                 @if (!empty($comments))
                 <br><br>
                 <ul class="list-group">
@@ -746,14 +746,15 @@ crossorigin="anonymous"></script>
                                                 //$('#line-status-form').submit();
                                                 return false;
                                             });
-                                            
-                                            $('.SaveComment').on('click', function () {
-                                                $(this).prop('disabled', false);
-                                                
+
+                                            $('.SaveComment').on('click', function (e) {
+                                                e.preventDefault();
+                                                $('.SaveComment').html('Saving comment');
+                                                $(this).prop('disabled', true);
                                                 var formdata = $('.SaveComment').parent().parent().serialize();
                                                 var href = $('.SaveComment').parent().parent().attr('action');
-                                                
-                                                 $.ajax({
+
+                                                $.ajax({
                                                     type: "POST",
                                                     url: href,
                                                     data: formdata,
@@ -777,16 +778,34 @@ crossorigin="anonymous"></script>
 
                                                             });
 
-                                                            $('.toBeRemoved').remove();
+                                                            var HTML = '';
 
+                                                            $.each(response.comments, function (lineId, val) {
+
+                                                                HTML += '<li class="list-group-item">';
+
+                                                                HTML += '<p>';
+                                                                HTML += '<a class="text-info" href="#">';
+                                                                HTML += '@' + val.user + ' </a>';
+                                                                HTML += val.content;
+                                                                HTML += '</p>';
+                                                                HTML += '<small class="block text-muted"><i class="fa fa-clock-o"></i> ' + val.created_at + '</small>';
+                                                                HTML += '</li>';
+
+                                                            });
+
+                                                            $('.comments-list').html(HTML);
                                                         }
                                                     },
                                                     error: function (data) {
                                                         alert('unable to complete action');
                                                     }
                                                 });
+
+                                                $('.SaveComment').html('Save');
+                                                $(this).prop('disabled', false);
                                             });
-                                            
+
                                             $('.do-swap').on('click', function () {
                                                 $('.productSelect').prop('disabled', false);
                                             });
@@ -1187,10 +1206,10 @@ crossorigin="anonymous"></script>
                                                 }
                                             });
                                         }
-                                        
-                                        /**
-                                        * 
 
+                                        /**
+                                         * 
+                                         
                                          * @param {type} lineRef
                                          * @returns {undefined}                                         */
                                         function replaceProductInOrder(lineRef) {
