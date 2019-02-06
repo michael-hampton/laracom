@@ -12,7 +12,7 @@
                 <th class="col-md-2">Channel</th>
                 <th class="col-md-2">Order Date</th>
                 <th class="col-md-2">Customer Name</th>
-                <th class="col-md-2">Name</th>
+                <th class="col-md-2">Product</th>
                 <th class="col-md-2">Quantity</th>
 
                 <th class="col-md-2">Actions</th>
@@ -22,7 +22,8 @@
 
                     <?php
                     $customerRef = '';
-                    foreach ($items as $item) {
+                    foreach ($items as $item)
+                    {
 
 //                        if(!isset($orders[$item->order_id])) {
 //                            
@@ -31,13 +32,20 @@
 
                         $arrOrder = $orders[$item->order_id];
 
-                        if ($item->status === 14) {
+                        if ($item->status === 14)
+                        {
                             $color = $arrOrder->is_priority == 1 ? 'table-warning' : '';
-                        } elseif (strtotime($item->created_at) < strtotime('-30 days')) {
+                        }
+                        elseif (strtotime($item->created_at) < strtotime('-30 days'))
+                        {
                             $color = 'table-danger';
-                        } elseif (strtotime($item->created_at) < strtotime('-15 days')) {
+                        }
+                        elseif (strtotime($item->created_at) < strtotime('-15 days'))
+                        {
                             $color = 'table-warning';
-                        } else {
+                        }
+                        else
+                        {
                             $color = 'table-info';
                         }
                         ?>
@@ -46,7 +54,7 @@
                             @if($customerRef !== $arrOrder->customer_ref)
                             <td>{{$arrOrder->id}}</td>
                             <td>{{$arrOrder->channel->name}}</td>
-                            <td>{{$arrOrder->created_at}}</td>
+                            <td>{{date('d-m-Y', strtotime($arrOrder->created_at))}}</td>
                             <td>{{$arrOrder->customer->name}}</td>
                             @else
                             <td></td>
@@ -58,12 +66,12 @@
                                 {{ $item->product_name }}
 
                             </td>
-                            <?php
-                            $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
-                            $reservedStock = $products[$item->product_id]['reserved_stock'];
-                            $checked = $item->status === 14 || $quantityAvailiable > 0 ? 'checked="checked"' : '';
-                            $disabled = $item->status !== 14 && $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
-                            ?>
+    <?php
+    $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
+    $reservedStock = $products[$item->product_id]['reserved_stock'];
+    $checked = $item->status === 14 || $quantityAvailiable > 0 ? 'checked="checked"' : '';
+    $disabled = $item->status !== 14 && $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+    ?>
 
                             <td>{{ $item->quantity }}
                                 <br>Free Stock {{$quantityAvailiable}}
@@ -78,10 +86,10 @@
                                 @endif
                             </td>
                         </tr>
-                        <?php
-                        $customerRef = $arrOrder['customer_ref'];
-                    }
-                    ?>
+    <?php
+    $customerRef = $arrOrder['customer_ref'];
+}
+?>
                 </tbody>
             </table>
         </div>
