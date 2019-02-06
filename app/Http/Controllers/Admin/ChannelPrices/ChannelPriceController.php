@@ -319,4 +319,20 @@ class ChannelPriceController extends Controller {
         return response()->json(['results' => $products]);
     }
 
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function getAvailiableProducts(Request $request) {
+
+        $channel = $this->channelRepo->findChannelById($request->channel_id);
+
+        $availiableProducts = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))
+                ->getAvailiableProducts($channel, $request->product_name)
+                ->toArray();
+
+        return response()->json(['results' => $availiableProducts]);
+    }
+
 }

@@ -187,12 +187,14 @@ function buildcheckBox($value, $label) {
 
                     <div class="form-inline">
                         <div class="form-group col-lg-6">
-                            <!-- <input placeholder="Search Product" type="text" class="form-control">-->
-                            <select style="width:100%;" id='productSelect' class="form-control">
+                            <input placeholder="Search Product" placeholder="Search Product" data-channel="{{$channel->id}}" id="ProductSearch" type="text" class="form-control">
+                            <input type="hidden" id="productSelect" name="">
+
+<!--                            <select style="width:100%;" id='productSelect' class="form-control">
                                 @foreach($products as $product)
                                 <option value="{{$product->id}}">{{$product->name}}</option>
                                 @endforeach
-                            </select>
+                            </select>-->
                         </div>
 
                         <div class="form-group">
@@ -309,6 +311,8 @@ function buildcheckBox($value, $label) {
 <script type="text/javascript">
 
 $(document).ready(function () {
+
+    initProductAutoComplete('#ProductSearch');
 
     $('#channelSelect').on('change', function () {
         location.href = '/admin/channels/' + $(this).val() + '/edit';
@@ -488,7 +492,7 @@ $(document).ready(function () {
 
         var channel = $(this).attr('channel-id');
         var product = $('#productSelect').val();
-        var productName = $('#productSelect option:selected').text();
+        var productName = $('#productSelect').attr('name');
 
         $('.product-div .alert-danger').remove();
         $('.product-div .alert-success').remove();
@@ -587,6 +591,83 @@ $(document).ready(function () {
         });
     });
 });
+
+function initProductAutoComplete(selector) {
+    var $ele = $(selector);
+    var channelCode = $ele.attr('data-channel');
+
+    // Init autocomplete swap product finder
+    $ele.autocomplete({
+        minLength: 0,
+        // Get and format data for other products on the same channel
+        source: function (request, response) {
+            var pattern = new RegExp(/^[a-zA-Z0-9\-_]+/);
+            var arrData = {
+                product_name: $ele.val().toUpperCase(),
+                channel_id: channelCode,
+                _token: '{{ csrf_token() }}'
+            };
+            var strUrl = "/admin/channel-prices/getAvailiableProducts";
+            if ($ele.val().match(pattern)) {
+                var data = [];
+                $.ajax({
+                    type: "POST",
+                    url: strUrl,
+                    data: arrData,
+                    success: function (search) {
+                        var search = search;
+                        if (search == false) {
+                            //$('#order-details-update-error').html(handleAccessDenied('message')).show().delay(5000).fadeOut();
+                            $('.swap-window').slideUp();
+                            return false;
+                        }
+
+                        if (search.results.length > 0) {
+                            $.each(search.results, function (ind, val) {
+
+                                data.push({
+                                    label: val.sku + " - " + val.description,
+                                    value: val.sku,
+                                    product: {
+                                        id: val.id,
+                                        product_code: val.sku,
+                                        product_title: val.name,
+                                        product_description: val.description,
+                                        product_id: val.id,
+                                        rrp: val.price,
+                                        freestock: val.quantity,
+                                        warehouse: 'KW',
+                                        image: val.url
+                                    }
+                                });
+                            });
+                            response(data);
+                            $(".no-products").html('');
+                        } else {
+                            $(".no-products").html('');
+                            $(".no-products").append('<h4 class="title">There are no products Found for this search</h4>');
+                        }
+                    }
+                });
+            } else {
+                $(".no-products").html('');
+            }
+        },
+        //Handle the click event on the autocomplete selection
+        select: function (event, ui) {
+            $(".no-products").html('');
+            $("#productSelect").attr('name', ui.item.product.product_title);
+            $("#productSelect").val(ui.item.product.id);
+        },
+        open: function () {
+            $('.ui-autocomplete').css({'position': 'fixed', 'border': 'none', 'display': 'block', 'z-index': 1000000});
+            $('.ui-autocomplete li').css({'margin-bottom': '1px', 'font-size': '0.8em', 'line-height': '1.4em', 'border-raduis': 'none', 'background': '#ddd', 'padding': '2px'});
+        },
+        close: function () {},
+        focus: function (event, ui) {
+        }
+    });
+}
 </script>
 @endsection
 

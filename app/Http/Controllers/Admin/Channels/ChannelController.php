@@ -59,7 +59,7 @@ class ChannelController extends Controller {
         $this->employeeRepo = $employeeRepository;
         $this->channelRepo = $channelRepository;
         $this->productRepo = $productRepository;
-        
+
         $this->middleware(['permission:create-channel, guard:admin'], ['only' => ['create', 'store']]);
         $this->middleware(['permission:update-channel, guard:admin'], ['only' => ['edit', 'update']]);
         $this->middleware(['permission:delete-channel, guard:admin'], ['only' => ['destroy']]);
@@ -80,7 +80,7 @@ class ChannelController extends Controller {
             $productWarehouse = $product->warehouse;
             $warehouses_on = !empty(env('ALLOW_WAREHOUSES')) ? true : false;
 
-            if ($warehouses_on === true && !isset($channelWarehouses[$productWarehouse]))
+            if ($warehouses_on === true && !empty($productWarehouse) && !isset($channelWarehouses[$productWarehouse]))
             {
 
                 return response()->json(['http_code' => 400, 'errors' => ['The product is in a warehouse which the channel doesnt have access to.']]);
@@ -153,13 +153,6 @@ class ChannelController extends Controller {
         return response()->json(['http_code' => 200]);
     }
 
-    public function getAvailiableProducts($channelId) {
-        $channel = $this->channelRepo->findChannelById(4);
-
-        $products = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getAvailiableProducts($channel)->toArray();
-        return response()->json($products);
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -186,7 +179,7 @@ class ChannelController extends Controller {
                 'channels' => $this->channelRepo->paginateArrayResults($channels, 8)
             ]);
         }
-        
+
         $employee = $this->employeeRepo->findEmployeeById($currentAuthUserId);
 
         $employeeRepo = new EmployeeRepository($employee);
@@ -228,7 +221,7 @@ class ChannelController extends Controller {
 
         $validator = Validator::make($data, (new CreateChannelRequest())->rules());
         // Validate the input and return correct response
-        
+
         if ($validator->fails())
         {
             return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
@@ -353,7 +346,7 @@ class ChannelController extends Controller {
         }
 
         $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
-        
+
         // Validate the input and return correct response
         if ($validator->fails())
         {
@@ -402,4 +395,5 @@ class ChannelController extends Controller {
 
         $channelRepo->updateChannel($data);
     }
+
 }

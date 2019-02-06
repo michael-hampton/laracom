@@ -124,17 +124,22 @@ class ChannelPriceRepository extends BaseRepository implements ChannelPriceRepos
      * @param Channel $channel
      * @return type
      */
-    public function getAvailiableProducts(Channel $channel) {
+    public function getAvailiableProducts(Channel $channel, $searchText = null) {
 
         $query = DB::table('products');
 
         $productIds = $this->getChannelProductIds($channel);
 
-        $result = $query->select('products.*')
-                ->whereNotIn('id', $productIds)
-                ->get();
+        $query->select('products.*')
+                ->whereNotIn('id', $productIds);
 
-        return $result;
+        if ($searchText !== null)
+        {
+
+            $query->whereRaw('LOWER(`products`.`name`) LIKE ? ', [trim(strtolower($searchText)) . '%']);
+        }
+
+        return $query->get();
     }
 
     /**

@@ -116,12 +116,11 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::post('channels/addProductToChannel/', 'Channels\ChannelController@addProductToChannel')->name('channels.addProductToChannel');
         Route::post('channels/saveChannelTemplate/', 'Channels\ChannelController@saveChannelTemplate')->name('channels.saveChannelTemplate');
         Route::post('channels/addChannelProvider/', 'Channels\ChannelController@addChannelProvider')->name('channels.addChannelProvider');
-
         Route::post('channels/updateChannel', 'Channels\ChannelController@updateChannel')->name('channels.updateChannel');
         Route::resource('channels', 'Channels\ChannelController');
         Route::resource('channels', 'Channels\ChannelController');
         Route::get('admin.channels.remove.image', 'ChannelController@removeImage')->name('channel.remove.image');
-        Route::get('channels/getAvailiableProducts/{channelId}', 'Channels\ChannelController@getAvailiableProducts')->name('channels.getAvailiableProducts');
+
 
         /* employees */
         Route::resource('employees', 'EmployeeController');
@@ -164,6 +163,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::get('remove-image-brand', 'Brands\BrandController@removeImage')->name('brand.remove.image');
 
         /* channel prices */
+        Route::post('channel-prices/getAvailiableProducts', 'ChannelPrices\ChannelPriceController@getAvailiableProducts')->name('channel-prices.getAvailiableProducts');
         Route::post('channel-prices/getProductsForSwap', 'ChannelPrices\ChannelPriceController@getProductsForSwap')->name('channel-prices.getProductsForSwap');
         Route::get('channel-prices/import', 'ChannelPrices\ChannelPriceController@import')->name('channel-prices.import');
         Route::post('channel-prices/saveImport', 'ChannelPrices\ChannelPriceController@saveImport')->name('channel-prices.saveImport');
