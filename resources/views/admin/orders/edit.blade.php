@@ -429,7 +429,7 @@
                             <div class="form-group col-md-6">
                                 <label for="product_name">Product</label><br>
                                 {{$item->product_name}}
-                                <input type='hidden' class='update-kondor-product-code' value='{{$item->product_id}}' name='form[{{$count}}][product_id]'>
+                                <input type='hidden' class='update-product-code' value='{{$item->product_id}}' name='form[{{$count}}][product_id]'>
                             </div>
 
                             <div class="form-group col-md-6">
@@ -1147,6 +1147,12 @@ crossorigin="anonymous"></script>
                                                 }
                                             });
                                         }
+                                        
+                                        /**
+                                        * 
+
+                                         * @param {type} lineRef
+                                         * @returns {undefined}                                         */
                                         function replaceProductInOrder(lineRef) {
 
                                             var originalProduct = $('.replace-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]');
@@ -1198,6 +1204,11 @@ crossorigin="anonymous"></script>
                                             $('.replace-window .swap-line #saveProductReplacementWrapper').show(500);
                                             $('.selected-for-swap').slideUp();
                                         }
+                                        /**
+                                         * 
+                                         * @param {type} lineRef
+                                         * @returns {undefined}
+                                         */
                                         function swapProductInOrder(lineRef) {
                                             var originalProduct = $('.swap-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]');
                                             var newProduct = $('.swap-window #currentLineWrap').find('div[data-line-ref="' + lineRef + '"]').clone();
@@ -1226,18 +1237,12 @@ crossorigin="anonymous"></script>
                                                 var newProductCode = $(value).attr('data-product-code');
                                                 var lineRef = $(value).attr('data-line-ref');
 
-                                                /*arrData.push({
-                                                 line_id: lineRef,
-                                                 product_id: newProductCode,
-                                                 order_id: $('#lostInPostBtn').attr('order-id')
-                                                 });*/
-
                                                 // this needs to be the lines form
                                                 var lines = $('#order-details-line-container');
 
                                                 var updateLine = lines.find('div[data-line-ref="' + lineRef + '"]');
 
-                                                updateLine.find('.update-kondor-product-code').val(newProductCode);
+                                                updateLine.find('.update-product-code').val(newProductCode);
                                                 updateLine.find('.update-customer-product-code').val("");
                                                 updateLine.find('[name="' + lineRef + '-line_status"]').append('<option value="2">Waiting Import</option>').val("2");
                                             });
