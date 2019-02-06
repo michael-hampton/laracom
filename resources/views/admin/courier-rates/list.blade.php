@@ -135,8 +135,6 @@
             href = $(this).attr('action');
             var formdata = $(this).serialize() + '&' + $.param({'channel': channel});
 
-
-
             $.ajax({
                 type: "POST",
                 url: href,
