@@ -110,6 +110,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::post('channels/addChannelToWarehouse', 'Channels\ChannelController@addChannelToWarehouse')->name('channels.addChannelToWarehouse');
         Route::delete('channels/deleteWarehouse/{id}', 'Channels\ChannelController@deleteWarehouse')->name('channels.deleteWarehouse');
         Route::delete('channels/deleteProvider/{id}', 'Channels\ChannelController@deleteProvider')->name('channels.deleteProvider');
+        Route::delete('channels/deleteProduct/{product_id}/{channel_id}', 'Channels\ChannelController@deleteProduct')->name('channels.deleteProduct');
         Route::post('channels/saveChannelAttribute/', 'Channels\ChannelController@saveChannelAttribute')->name('channels.saveChannelAttribute');
 
         Route::post('channels/saveChannel/{channel}', 'Channels\ChannelController@saveChannel')->name('channels.saveChannel');

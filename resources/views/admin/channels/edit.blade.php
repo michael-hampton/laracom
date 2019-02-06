@@ -172,7 +172,9 @@ function buildcheckBox($value, $label) {
                     <ul class='providerList list list-group clear-list'>
                         @foreach($providers as $provider)
                         <li class='list-group-item'>{{$provider->name}}
-                            <a href="#" class="deleteProvider" provider-id="{{$provider->id}}">x</a>
+                            <a href="#" class="deleteProvider" provider-id="{{$provider->id}}">
+                                <i class="fa fa-times-circle"></i>
+                            </a>
                         </li>
                         @endforeach
                     </ul>
@@ -189,12 +191,6 @@ function buildcheckBox($value, $label) {
                         <div class="form-group col-lg-6">
                             <input placeholder="Search Product" placeholder="Search Product" data-channel="{{$channel->id}}" id="ProductSearch" type="text" class="form-control">
                             <input type="hidden" id="productSelect" name="">
-
-<!--                            <select style="width:100%;" id='productSelect' class="form-control">
-                                @foreach($products as $product)
-                                <option value="{{$product->id}}">{{$product->name}}</option>
-                                @endforeach
-                            </select>-->
                         </div>
 
                         <div class="form-group">
@@ -208,7 +204,12 @@ function buildcheckBox($value, $label) {
 
                     <ul class='productList list list-group clear-list' style="display:none;">
                         @foreach($assigned_products as $objProduct)
-                        <li style="margin-top:12px;" class='list-group-item'>{{$objProduct->name}} {{$objProduct->price}}</li>
+                        <li style="margin-top:12px;" class='list-group-item'>
+                            {{$objProduct->name}} {{$objProduct->price}}
+                            <a href="#" class="deleteProduct" product-id="{{$objProduct->id}}">
+                                <i class="fa fa-times-circle"></i>
+                            </a>
+                        </li>
                         @endforeach;
                     </ul>
                 </div>
@@ -382,18 +383,53 @@ $(document).ready(function () {
         $this = $(this);
 
         let id = $(this).attr("provider-id");
-        $.ajax({
-            type: 'DELETE',
-            url: '/admin/channels/deleteProvider/' + id,
-            data: {id: id, "_token": "{{ csrf_token() }}"},
-            success: function (data) {
-                $this.parent().remove();
-                $('.provider-div').prepend("<div class='alert alert-success'>Provider has been deleted successfully</div>");
-            },
-            error: function (data) {
-                alert(data);
-            }
-        });
+
+        if (confirm('Are you sure you want to remove this provider?')) {
+
+
+            $.ajax({
+                type: 'DELETE',
+                url: '/admin/channels/deleteProvider/' + id,
+                data: {id: id, "_token": "{{ csrf_token() }}"},
+                success: function (data) {
+                    $this.parent().remove();
+                    $('.provider-div').prepend("<div class='alert alert-success'>Provider has been deleted successfully</div>");
+                },
+                error: function (data) {
+                    alert(data);
+                }
+            });
+        }
+
+        return false;
+    });
+
+    $(document).off('.deleteProduct');
+    $(document).on('click', '.deleteProduct', function (ev) {
+
+        $this = $(this);
+
+        let id = $(this).attr("product-id");
+        var channel = '{{$channel->id}}';
+
+        if (confirm('Are you sure you want to remove this product?')) {
+
+
+            $.ajax({
+                type: 'DELETE',
+                url: '/admin/channels/deleteProduct/' + id + '/' + channel,
+                data: {channel: '{{$channel->id}}', id: id, "_token": "{{ csrf_token() }}"},
+                success: function (data) {
+                    $this.parent().remove();
+                    $('.product-div').prepend("<div class='alert alert-success'>Product has been deleted successfully</div>");
+                },
+                error: function (data) {
+                    alert(data);
+                }
+            });
+        }
+
+        return false;
     });
     $('.test').bootstrapSwitch();
 
@@ -438,7 +474,7 @@ $(document).ready(function () {
                 _token: '{{ csrf_token() }}'
             },
             success: function (response) {
-                $('.providerList').append('<li>' + name + '<a href="#" class="deleteProvider" provider-id="' + provider + '">x</a></li>');
+                $('.providerList').append('<li class="list-group-item">' + name + '<a href="#" class="deleteProvider" provider-id="' + provider + '"> <i class="fa fa-times-circle"></i></a></li>');
                 if (response.http_code == 400) {
                     $('.provider-div').prepend("<div class='alert alert-danger'></div>");
                     $.each(response.errors, function (key, value) {

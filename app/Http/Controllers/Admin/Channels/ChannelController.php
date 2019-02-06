@@ -246,12 +246,31 @@ class ChannelController extends Controller {
         ]);
     }
 
+    /**
+     * 
+     * @param type $id
+     * @return type
+     */
     public function deleteProvider($id) {
 
         $paymentProvider = (new \App\Shop\Channels\PaymentProvider())->where('id', $id)->first();
 
         (new ChannelPaymentProviderRepository(new ChannelPaymentProvider))->deleteChannelFromProvider($paymentProvider);
 
+        return response()->json(['http_code' => 200]);
+    }
+
+    /**
+     * 
+     * @param type $id
+     * @return type
+     */
+    public function deleteProduct($product_id, $channel_id) {
+
+        $channel = $this->channelRepo->findChannelById($channel_id);
+        $objProduct = $this->productRepo->findProductById($product_id);
+        $channelProduct = (new ChannelPriceRepository(new \App\Shop\ChannelPrices\ChannelPrice))->getChannelProduct($objProduct, $channel);
+        $channelProduct->delete();
         return response()->json(['http_code' => 200]);
     }
 
