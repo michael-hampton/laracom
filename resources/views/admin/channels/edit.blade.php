@@ -17,9 +17,8 @@ function buildcheckBox($value, $label) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap2/bootstrap-switch.min.css" rel="stylesheet" type="text/css">
 
     <select name="channelSelect" id="channelSelect" class="form-control select2">
-        <option value="">Select Channel</option>
         @foreach($channels as $objChannel)
-        <option value="{{ $objChannel->id }}">{{ $objChannel->name }}</option>
+        <option @if($objChannel->id == $channel->id) selected="selected" @endif value="{{ $objChannel->id }}">{{ $objChannel->name }}</option>
         @endforeach
     </select>
 
@@ -312,6 +311,8 @@ function buildcheckBox($value, $label) {
 <script type="text/javascript">
 
 $(document).ready(function () {
+
+    $('#channelSelect').select2();
 
     initProductAutoComplete('#ProductSearch');
 
