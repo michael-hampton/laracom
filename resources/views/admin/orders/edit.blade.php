@@ -1051,8 +1051,6 @@ crossorigin="anonymous"></script>
                                                     console.log(ui.item.product);
                                                     $(".no-products").html('');
 
-                                                    alert(ui.item.product.id);
-
                                                     $('.selected-for-swap .selected-product-code').html(ui.item.product.product_code);
                                                     $('.selected-for-swap .selected-product-title').html(ui.item.product.product_title);
                                                     $('.selected-for-swap .selected-stock-lvl').html("Stock Level: " + ui.item.product.freestock);
@@ -1206,9 +1204,10 @@ crossorigin="anonymous"></script>
                                             var productForSwap = $('.swap-window .selected-for-swap');
                                             var newproductCode = productForSwap.find('.product-code').val();
                                             var newproductTitle = productForSwap.find('.product-title').val();
+                                            var newProductSku = productForSwap.find('.product-sku').val();
 
                                             newProduct.removeClass('active').attr('data-product-code', newproductCode).attr('data-line-ref', lineRef).attr('data-original-product-code', originalProduct.attr('data-product-code'));
-                                            newProduct.find('.product-code').html(newproductCode);
+                                            newProduct.find('.product-code').html(newProductSku);
                                             newProduct.find('.product-title').html(newproductTitle);
                                             newProduct.appendTo('.swapped-products');
                                             var swappedTitle = originalProduct.find('.product-code');

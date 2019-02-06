@@ -124,8 +124,6 @@ class OrderLineController extends Controller {
         $blError = false;
         $arrErrors = [];
         $arrSuccess = [];
-        
-        die('Here');
 
         foreach ($request->form as $arrLine)
         {
@@ -136,7 +134,6 @@ class OrderLineController extends Controller {
                 $orderId = $orderProduct->order_id;
 
                 $order = $this->orderRepo->findOrderById($orderProduct->order_id);
-                $postRepo = new OrderCommentRepository($order);
                 $orderProductRepo = new OrderProductRepository($orderProduct);
                 $product = $this->productRepo->findProductById($arrLine['product_id']);
                 $orderProductRepo->updateProduct($product, $orderProduct);
