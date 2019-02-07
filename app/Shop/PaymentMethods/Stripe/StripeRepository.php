@@ -11,7 +11,6 @@ use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\Couriers\Courier;
-use App\Shop\Orders\Order;
 use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\Customers\Customer;
 use App\Shop\Customers\Repositories\CustomerRepository;
