@@ -69,9 +69,11 @@ class StripeRepository {
      * 
      * @param Order $order
      */
-    public function doRefund(Order $order) {
+    public function doRefund(Order $order, $refundAmount) {
         
-        die('do refund');
+        $refund = \Stripe\Refund::create([
+            'charge' => 'ch_eqllhV2DKyDzE87KFgjP',
+        ]);
     }
 
 }
