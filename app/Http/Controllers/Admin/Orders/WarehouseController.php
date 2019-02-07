@@ -142,7 +142,7 @@ class WarehouseController extends Controller {
      */
     public function pickOrder(WarehouseRequest $request) {
         $order = $this->orderRepo->findOrderById($request->orderId);
-        $channel = $this->channelRepo->findChannelById($order->channel);
+
         $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
         $newStatus = $this->orderStatusRepo->findByName('Picking');
 
@@ -192,7 +192,6 @@ class WarehouseController extends Controller {
 
         try {
             $order = $this->orderRepo->findOrderById($request->orderId);
-            $channel = $this->channelRepo->findChannelById($order->channel);
             $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
             $newStatus = $this->orderStatusRepo->findByName('Packing');
             $objOrderLineRepo = new OrderProductRepository($objLine);
@@ -222,7 +221,6 @@ class WarehouseController extends Controller {
 
         try {
             $order = $this->orderRepo->findOrderById($request->orderId);
-            $channel = $this->channelRepo->findChannelById($order->channel);
             $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
             $newStatus = $this->orderStatusRepo->findByName('Dispatch');
             $completeStatus = $this->orderStatusRepo->findByName('Order Completed');
@@ -243,11 +241,10 @@ class WarehouseController extends Controller {
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
 
-
-
         (new \App\RabbitMq\Worker('dispatch'))->execute($request->lineId);
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0)
         {
+            $this->capturePayment($order);
             $order->order_status_id = $completeStatus->id;
             $order->save();
             //complete order
@@ -255,6 +252,16 @@ class WarehouseController extends Controller {
 
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
         return response()->json(['http_code' => 200, 'FAILURES' => $arrErrors, 'SUCCESS' => $arrSuccesses]);
+    }
+
+    /**
+     * 
+     * @param Order $order
+     * @return boolean
+     */
+    private function capturePayment(Order $order) {
+        (new \App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository())->capturePayment($order);
+        return true;
     }
 
     /**

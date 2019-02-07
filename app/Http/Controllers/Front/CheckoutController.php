@@ -95,6 +95,9 @@ class CheckoutController extends Controller {
         $this->payPal = new PayPalExpressCheckoutRepository;
         $this->shippingRepo = $shipping;
         $this->voucherCodeRepo = $voucherCodeRepository;
+
+        (new PayPalExpressCheckoutRepository())->capturePayment($this->orderRepo->findOrderById(104));
+        die('Here');
     }
 
     /**
@@ -111,9 +114,11 @@ class CheckoutController extends Controller {
         $rates = null;
         $shipment_object_id = null;
 
-        if (env('ACTIVATE_SHIPPING') == 1) {
+        if (env('ACTIVATE_SHIPPING') == 1)
+        {
             $shipment = $this->createShippingProcess($customer, $products);
-            if (!is_null($shipment)) {
+            if (!is_null($shipment))
+            {
                 $shipment_object_id = $shipment->object_id;
                 $rates = $shipment->rates;
             }
@@ -129,22 +134,23 @@ class CheckoutController extends Controller {
 
         $voucher = null;
 
-        if (request()->session()->has('voucherCode')) {
+        if (request()->session()->has('voucherCode'))
+        {
             $voucher = $this->voucherCodeRepo->getByVoucherCode(request()->session()->get('voucherCode', 1));
         }
 
         return view('front.checkout', [
-            'customer' => $customer,
-            'billingAddress' => $billingAddress,
-            'addresses' => $customer->addresses()->get(),
-            'products' => $this->cartRepo->getCartItems(),
-            'subtotal' => $this->cartRepo->getSubTotal(),
-            'tax' => $this->cartRepo->getTax(),
-            'total' => $this->cartRepo->getTotal(2, 0.00, $voucher),
-            'payments' => $paymentGateways,
-            'cartItems' => $this->cartRepo->getCartItemsTransformed(),
+            'customer'           => $customer,
+            'billingAddress'     => $billingAddress,
+            'addresses'          => $customer->addresses()->get(),
+            'products'           => $this->cartRepo->getCartItems(),
+            'subtotal'           => $this->cartRepo->getSubTotal(),
+            'tax'                => $this->cartRepo->getTax(),
+            'total'              => $this->cartRepo->getTotal(2, 0.00, $voucher),
+            'payments'           => $paymentGateways,
+            'cartItems'          => $this->cartRepo->getCartItemsTransformed(),
             'shipment_object_id' => $shipment_object_id,
-            'rates' => $rates
+            'rates'              => $rates
         ]);
     }
 
@@ -163,28 +169,22 @@ class CheckoutController extends Controller {
         $voucher = null;
         $shippingFee = 0;
 
-        if (request()->session()->has('voucherCode')) {
+        if (request()->session()->has('voucherCode'))
+        {
             $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
         }
 
-        switch ($request->input('payment')) {
+        switch ($request->input('payment'))
+        {
             case 'paypal':
                 return $this->payPal->process(
-                        $shippingFee,
-                        $voucher, 
-                        $request, 
-                        new VoucherCodeRepository(new VoucherCode), 
-                        $this->courierRepo, 
-                        $this->customerRepo, 
-                        $this->addressRepo,
-                        new CourierRateRepository(new CourierRate),
-                        (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
-                        );
+                                $shippingFee, $voucher, $request, new VoucherCodeRepository(new VoucherCode), $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
+                );
                 break;
             case 'stripe':
                 $details = [
                     'description' => 'Stripe payment',
-                    'metadata' => $this->cartRepo->getCartItems()->all()
+                    'metadata'    => $this->cartRepo->getCartItems()->all()
                 ];
                 $customer = $this->customerRepo->findCustomerById(auth()->id());
                 $customerRepo = new CustomerRepository($customer);
@@ -204,15 +204,17 @@ class CheckoutController extends Controller {
 
         try {
 
-            if (request()->session()->has('voucherCode')) {
+            if (request()->session()->has('voucherCode'))
+            {
                 $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
             }
-            
-            if (request()->session()->has('order_id')) {
-                 $order = $this->orderRepo->findOrderById(request()->session()->get('order_id', 1));
+
+            if (request()->session()->has('order_id'))
+            {
+                $order = $this->orderRepo->findOrderById(request()->session()->get('order_id', 1));
             }
-            
-           
+
+
 
             $this->payPal->execute($request, $order);
             $this->cartRepo->clearCart();
@@ -231,7 +233,8 @@ class CheckoutController extends Controller {
     public function charge(StripeExecutionRequest $request) {
         try {
 
-            if (request()->session()->has('voucherCode')) {
+            if (request()->session()->has('voucherCode'))
+            {
                 $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
             }
 
@@ -274,7 +277,8 @@ class CheckoutController extends Controller {
      */
     private function createShippingProcess(Customer $customer, Collection $products) {
         $customerRepo = new CustomerRepository($customer);
-        if ($customerRepo->findAddresses()->count() > 0 && $products->count() > 0) {
+        if ($customerRepo->findAddresses()->count() > 0 && $products->count() > 0)
+        {
             $this->shippingRepo->setPickupAddress();
             $deliveryAddress = $customerRepo->findAddresses()->first();
             $this->shippingRepo->setDeliveryAddress($deliveryAddress);

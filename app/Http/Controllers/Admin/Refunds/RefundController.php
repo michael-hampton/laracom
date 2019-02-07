@@ -21,13 +21,15 @@ use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use Illuminate\Http\Request;
+use App\Traits\OrderCommentTrait;
 use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
 use App\Http\Controllers\Controller;
 
 class RefundController extends Controller {
 
-    use RefundTransformable;
+    use RefundTransformable,
+        OrderCommentTrait;
 
     /* @param RefundRepositoryInterface $refundRepo */
 
@@ -68,7 +70,8 @@ class RefundController extends Controller {
     public function index() {
         $list = $this->refundRepo->listRefund('created_at', 'desc');
 
-        if (request()->has('q')) {
+        if (request()->has('q'))
+        {
             $list = $this->refundRepo->searchRefund(request()->input('q'));
         }
 
@@ -128,7 +131,8 @@ class RefundController extends Controller {
         $arrFailures = [];
 
 
-        if ($order->total_paid <= 0) {
+        if ($order->total_paid <= 0)
+        {
             $arrFailures[$request->order_id][] = 'The order has not yet been paid';
             return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
         }
@@ -139,52 +143,47 @@ class RefundController extends Controller {
 
         $refundAmount = $this->refundRepo->refundLinesForOrder($request, $order, $channel, $orderProducts);
 
-        if (!$refundAmount) {
+        if (!$refundAmount)
+        {
             return response()->json(['error' => 'failed to update order lines'], 404); // Status code here
         }
 
+        $refundAmount += $order->total_shipping;
+
         $totalPaid = $order->total_paid - $refundAmount;
-        $refundAmount = $order->amount_refunded + $refundAmount;
+        $totalRefunded = $order->amount_refunded + $refundAmount;
 
         try {
             $orderRepo = new OrderRepository($order);
 
             $orderRepo->updateOrder(
                     [
-                        'total_paid' => $totalPaid,
-                        'amount_refunded' => $refundAmount,
-                        'order_status_id' => $order->status
-                    ]
+                        //'total_paid'      => $totalPaid,
+                        'amount_refunded' => $totalRefunded                    ]
             );
 
-            $strMessage = "Order has been refunded";
         } catch (\Exception $e) {
             $strMessage = "Unable to refund order {$e->getMessage()}";
             $arrFailures[$request->order_id][] = $e->getMessage();
+            $this->saveNewComment($order, $strMessage);
             return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
         }
 
-        if (!$this->authorizePayment($order, $customer)) {
+        if (!$this->authorizePayment($order, $refundAmount, $customer))
+        {
 
             $strMessage = "Order was refunded but we failed to authorize payment";
             $arrFailures[$request->order_id][] = $strMessage;
+            $this->saveNewComment($order, $strMessage);
             return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
         }
 
-        if ($customer->customer_type == 'credit') {
+        if ($customer->customer_type == 'credit')
+        {
 
             $objCustomerRepository->addCredit($customer->id, 10);
+            $this->saveNewComment($order, 'customer has been credited for refund');
         }
-
-        $data = [
-            'content' => $strMessage,
-            'user_id' => auth()->guard('admin')->user()->id
-        ];
-
-
-        $postRepo = new OrderCommentRepository($order);
-        $postRepo->createComment($data);
-
 
         $http_code = $blError === true ? 400 : 200;
         return response()->json(['http_code' => $http_code, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
@@ -234,28 +233,33 @@ class RefundController extends Controller {
     /**
      * 
      * @param Order $order
+     * @param type $refundAmount
      * @param Customer $customer
      * @return boolean
      */
-    private function authorizePayment(Order $order, Customer $customer) {
+    private function authorizePayment(Order $order, $refundAmount, Customer $customer) {
 
-        return true;
-
-        switch ($order->payment) {
+        switch ($order->payment)
+        {
             case 'paypal':
 
-                if (!(new PayPalExpressCheckoutRepository())->doRefund($order)) {
+                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount))
+                {
 
                     return response()->json(['error' => 'failed to authorize'], 404); // Status code here
                 }
                 break;
 
             case 'stripe':
-                if (!(new StripeRepository($customer))->doRefund($order)) {
+                if (!(new StripeRepository($customer))->doRefund($order))
+                {
                     return response()->json(['error' => 'failed to authorize'], 404); // Status code here
                 }
                 break;
         }
+        
+        $strMessage = $refundAmount . 'was successfully refunded using ' . $order->payment;
+        $this->saveNewComment($order, $strMessage);
 
         return true;
     }

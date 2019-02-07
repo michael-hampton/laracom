@@ -33,3 +33,356 @@
 [07-02-2019 13:36:02] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
 [07-02-2019 13:36:02] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LRODIFY9LB32636HT132815M/execute
 [07-02-2019 13:36:04] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:13:59] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 16:14:01] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:14:44] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAY-66A04638DP721002YLROFSSA
+[07-02-2019 16:14:45] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:14:45] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAY-66A04638DP721002YLROFSSA/execute
+[07-02-2019 16:14:48] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:19:54] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/01B01933EP249811K
+[07-02-2019 16:19:55] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:19:55] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/01B01933EP249811K/capture
+[07-02-2019 16:20:06] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:26:33] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/01B01933EP249811K
+[07-02-2019 16:26:36] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:26:36] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/01B01933EP249811K/refund
+[07-02-2019 16:26:43] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 404
+[07-02-2019 16:26:43] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 404 when accessing https://api.sandbox.paypal.com/v1/payments/capture/01B01933EP249811K/refund. {"name":"INVALID_RESOURCE_ID","message":"Requested resource ID was not found.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"43091ee757e77"}
+[07-02-2019 16:38:19] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 16:38:21] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:39:28] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROF57A0EG797579P912123A
+[07-02-2019 16:39:29] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:39:29] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROF57A0EG797579P912123A/execute
+[07-02-2019 16:39:32] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:40:15] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J
+[07-02-2019 16:40:16] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:40:16] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J/capture
+[07-02-2019 16:40:23] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:42:38] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J
+[07-02-2019 16:42:39] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:42:39] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J/capture
+[07-02-2019 16:42:43] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 16:42:43] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"a242607554086"}
+[07-02-2019 16:43:02] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J
+[07-02-2019 16:43:04] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:43:04] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J/capture
+[07-02-2019 16:43:07] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 16:43:07] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"abb96874ace71"}
+[07-02-2019 16:43:41] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 16:43:42] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:44:16] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROGAPQ04C04701Y9506994L
+[07-02-2019 16:44:18] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:44:18] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROGAPQ04C04701Y9506994L/execute
+[07-02-2019 16:44:20] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:44:42] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J
+[07-02-2019 16:44:43] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:44:43] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J/capture
+[07-02-2019 16:44:47] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 16:44:47] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/52375777AP645293J/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"b45a5d7824da7"}
+[07-02-2019 16:45:05] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/02F11199DA0481723
+[07-02-2019 16:45:07] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:45:07] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/02F11199DA0481723/capture
+[07-02-2019 16:45:20] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:47:18] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/1C638446W81854717
+[07-02-2019 16:47:22] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:47:22] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/1C638446W81854717/refund
+[07-02-2019 16:47:27] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:54:00] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 16:54:02] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:54:29] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROGFKI8YX90552556357837
+[07-02-2019 16:54:30] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:54:31] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROGFKI8YX90552556357837/execute
+[07-02-2019 16:54:33] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:55:38] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/32R51487AU883644N
+[07-02-2019 16:55:39] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:55:39] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/32R51487AU883644N/capture
+[07-02-2019 16:55:42] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/32R51487AU883644N
+[07-02-2019 16:55:43] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:55:43] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/32R51487AU883644N/capture
+[07-02-2019 16:55:47] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:55:48] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 16:55:48] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/32R51487AU883644N/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"22fab19e47c9"}
+[07-02-2019 16:57:32] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/5GT48246SW632191Y
+[07-02-2019 16:57:35] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:57:35] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/5GT48246SW632191Y/refund
+[07-02-2019 16:57:45] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:59:11] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 16:59:13] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 16:59:39] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAY-72U1632713759944KLROGHYA
+[07-02-2019 16:59:40] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 16:59:40] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAY-72U1632713759944KLROGHYA/execute
+[07-02-2019 16:59:42] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:03:38] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/5W774954VL918784X
+[07-02-2019 17:03:40] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:03:40] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/5W774954VL918784X/capture
+[07-02-2019 17:03:48] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:04:21] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/0C181653E02737940
+[07-02-2019 17:04:22] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:04:22] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/0C181653E02737940/refund
+[07-02-2019 17:04:26] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:07:51] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 17:07:53] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:08:38] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROGL2A8LW908185B684514E
+[07-02-2019 17:08:39] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:08:39] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROGL2A8LW908185B684514E/execute
+[07-02-2019 17:08:42] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:09:35] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/4K935750RA2355631
+[07-02-2019 17:09:36] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:09:36] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/4K935750RA2355631/capture
+[07-02-2019 17:09:43] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:22:51] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 17:22:53] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:26:26] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAY-0AB93513M44834517LROGS3I
+[07-02-2019 17:26:28] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:26:28] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAY-0AB93513M44834517LROGS3I/execute
+[07-02-2019 17:26:31] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:27:13] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/9JT14364TN844703L
+[07-02-2019 17:27:14] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:27:14] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/9JT14364TN844703L/capture
+[07-02-2019 17:27:22] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:28:03] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/033726995M4238511
+[07-02-2019 17:28:05] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:28:05] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/033726995M4238511/refund
+[07-02-2019 17:28:06] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 17:28:06] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/033726995M4238511/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"141430b0aa6ba"}
+[07-02-2019 17:30:52] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 17:30:54] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:31:18] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAY-40639779TA111104XLROGWTI
+[07-02-2019 17:31:19] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:31:19] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAY-40639779TA111104XLROGWTI/execute
+[07-02-2019 17:31:21] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:32:00] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/8C363834BN463402F
+[07-02-2019 17:32:02] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:32:02] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/8C363834BN463402F/capture
+[07-02-2019 17:32:04] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/8C363834BN463402F
+[07-02-2019 17:32:06] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:32:06] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/8C363834BN463402F/capture
+[07-02-2019 17:32:09] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:32:10] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 17:32:10] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/8C363834BN463402F/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"6ddfd38a6ec97"}
+[07-02-2019 17:38:04] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 17:38:05] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:38:36] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAY-42Y62302R07119346LROGZ7I
+[07-02-2019 17:38:37] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:38:37] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAY-42Y62302R07119346LROGZ7I/execute
+[07-02-2019 17:38:41] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:39:26] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/4FY4918483107821S
+[07-02-2019 17:39:28] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:39:28] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/4FY4918483107821S/capture
+[07-02-2019 17:39:30] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/4FY4918483107821S
+[07-02-2019 17:39:32] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:39:32] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/4FY4918483107821S/capture
+[07-02-2019 17:39:35] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:39:38] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 17:39:38] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/4FY4918483107821S/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"59758fa6994e2"}
+[07-02-2019 17:40:56] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/1KK333747L363015P
+[07-02-2019 17:40:58] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:40:58] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/1KK333747L363015P/refund
+[07-02-2019 17:40:59] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 17:40:59] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/1KK333747L363015P/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"d8ff4da391c53"}
+[07-02-2019 17:44:33] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 17:44:35] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:45:01] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROG5AQ47Y781579R966770G
+[07-02-2019 17:45:02] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:45:02] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROG5AQ47Y781579R966770G/execute
+[07-02-2019 17:45:05] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:45:57] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/0HS13539PR603923T
+[07-02-2019 17:45:58] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:45:58] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/0HS13539PR603923T/capture
+[07-02-2019 17:46:01] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/0HS13539PR603923T
+[07-02-2019 17:46:03] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:46:03] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/0HS13539PR603923T/capture
+[07-02-2019 17:46:05] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:46:06] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 17:46:06] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/0HS13539PR603923T/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"61ef9557a91aa"}
+[07-02-2019 17:46:53] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/78N64764DE250534B
+[07-02-2019 17:46:55] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 404
+[07-02-2019 17:46:55] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 404 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/78N64764DE250534B. {"name":"INVALID_RESOURCE_ID","message":"The requested resource ID was not found","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"48f4579d280ed"}
+[07-02-2019 17:47:11] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 17:47:13] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:47:38] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROG6IA16V24377TP209222X
+[07-02-2019 17:47:40] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:47:40] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROG6IA16V24377TP209222X/execute
+[07-02-2019 17:47:42] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:47:59] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/8GU65774LK690105Y
+[07-02-2019 17:48:01] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:48:01] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/8GU65774LK690105Y/capture
+[07-02-2019 17:48:03] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/8GU65774LK690105Y
+[07-02-2019 17:48:05] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:48:05] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/8GU65774LK690105Y/capture
+[07-02-2019 17:48:08] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:48:09] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 17:48:09] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/8GU65774LK690105Y/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"7f55945e9468"}
+[07-02-2019 17:52:21] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/8GU65774LK690105Y
+[07-02-2019 17:52:23] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:52:23] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/8GU65774LK690105Y/capture
+[07-02-2019 17:52:27] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 17:52:27] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/8GU65774LK690105Y/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"4bc81c6aa85ac"}
+[07-02-2019 17:53:01] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 17:53:02] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:53:37] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHA7Q8CT58464YM585121K
+[07-02-2019 17:53:39] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:53:39] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHA7Q8CT58464YM585121K/execute
+[07-02-2019 17:53:42] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:54:31] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/5M2654991M991202G
+[07-02-2019 17:54:32] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:54:33] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/5M2654991M991202G/capture
+[07-02-2019 17:54:35] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/5M2654991M991202G
+[07-02-2019 17:54:40] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:54:40] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:54:40] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/5M2654991M991202G/capture
+[07-02-2019 17:54:44] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 17:54:44] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/5M2654991M991202G/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"a25a336b370a3"}
+[07-02-2019 17:56:36] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/5M2654991M991202G
+[07-02-2019 17:56:38] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:56:38] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/5M2654991M991202G/capture
+[07-02-2019 17:56:42] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 17:56:42] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/5M2654991M991202G/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"f73150be11ea3"}
+[07-02-2019 17:56:59] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 17:57:01] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:57:57] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHC3A3NM41891MG191080K
+[07-02-2019 17:57:57] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:57:58] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHC3A3NM41891MG191080K/execute
+[07-02-2019 17:58:03] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:59:11] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/51X84000XF652510P
+[07-02-2019 17:59:13] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:59:13] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/51X84000XF652510P/capture
+[07-02-2019 17:59:15] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/51X84000XF652510P
+[07-02-2019 17:59:17] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 17:59:17] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/51X84000XF652510P/capture
+[07-02-2019 17:59:20] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 17:59:21] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 17:59:21] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/51X84000XF652510P/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"af60458b90524"}
+[07-02-2019 18:04:52] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 18:04:54] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:05:26] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHGRI7RS69051UM131382K
+[07-02-2019 18:05:27] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:05:27] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHGRI7RS69051UM131382K/execute
+[07-02-2019 18:05:29] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:06:45] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/1N685893LG7654010
+[07-02-2019 18:06:46] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:06:46] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/1N685893LG7654010/capture
+[07-02-2019 18:06:53] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:07:59] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7U423075CF351843U
+[07-02-2019 18:08:01] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:08:01] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/7U423075CF351843U/refund
+[07-02-2019 18:08:04] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 18:08:04] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/7U423075CF351843U/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"b475ff1214d70"}
+[07-02-2019 18:10:54] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 18:10:56] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:11:20] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAY-6PN353808C546425VLROHJMA
+[07-02-2019 18:11:21] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:11:21] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAY-6PN353808C546425VLROHJMA/execute
+[07-02-2019 18:11:24] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:11:42] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/9CT10566W17730838
+[07-02-2019 18:11:46] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/9CT10566W17730838
+[07-02-2019 18:12:35] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/9CT10566W17730838
+[07-02-2019 18:12:36] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:12:36] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/9CT10566W17730838/capture
+[07-02-2019 18:12:43] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:13:58] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:14:02] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:14:02] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund
+[07-02-2019 18:14:03] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 18:14:03] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"b4d1b585820aa"}
+[07-02-2019 18:18:03] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:18:05] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:18:05] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund
+[07-02-2019 18:18:06] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 18:18:06] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"660937e3b5426"}
+[07-02-2019 18:22:00] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:22:01] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:23:28] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:23:30] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:23:30] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund
+[07-02-2019 18:23:31] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 18:23:31] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"1e53461ecfe9d"}
+[07-02-2019 18:27:05] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:27:06] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:27:25] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:27:28] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:27:28] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund
+[07-02-2019 18:27:29] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 18:27:29] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"83f7be088003f"}
+[07-02-2019 18:32:08] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:32:09] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:32:09] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund
+[07-02-2019 18:32:10] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 18:32:10] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"2448973d51666"}
+[07-02-2019 18:33:22] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:33:24] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:33:24] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund
+[07-02-2019 18:33:26] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 500
+[07-02-2019 18:33:26] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 500 when accessing https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund. {"name":"INTERNAL_SERVICE_ERROR","message":"An internal service error occurred.","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#INTERNAL_SERVICE_ERROR","debug_id":"c04bb514aa030"}
+[07-02-2019 18:37:10] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238
+[07-02-2019 18:37:15] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:37:15] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/7RW68261EE5410238/refund
+[07-02-2019 18:37:19] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:38:45] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 18:38:47] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:39:29] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHWNQ98N19110457011246
+[07-02-2019 18:39:31] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:39:31] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHWNQ98N19110457011246/execute
+[07-02-2019 18:39:34] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:40:11] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/53M68296M2192411E
+[07-02-2019 18:40:13] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:40:13] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/53M68296M2192411E/capture
+[07-02-2019 18:40:15] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/53M68296M2192411E
+[07-02-2019 18:40:16] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:40:16] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/53M68296M2192411E/capture
+[07-02-2019 18:40:20] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:40:21] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 18:40:21] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/53M68296M2192411E/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"b1c3143fcc50f"}
+[07-02-2019 18:40:56] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/68M00257EL978994X
+[07-02-2019 18:40:57] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 404
+[07-02-2019 18:40:57] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 404 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/68M00257EL978994X. {"name":"INVALID_RESOURCE_ID","message":"The requested resource ID was not found","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"732b3e46d4ed8"}
+[07-02-2019 18:41:17] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/68M00257EL978994X
+[07-02-2019 18:41:18] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 404
+[07-02-2019 18:41:18] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 404 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/68M00257EL978994X. {"name":"INVALID_RESOURCE_ID","message":"The requested resource ID was not found","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"b64be15511f83"}
+[07-02-2019 18:44:56] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/68M00257EL978994X
+[07-02-2019 18:44:59] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:44:59] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/68M00257EL978994X/refund
+[07-02-2019 18:45:05] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:45:55] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 18:45:57] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:46:20] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHZZI6HY46135SF280891M
+[07-02-2019 18:46:21] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:46:21] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROHZZI6HY46135SF280891M/execute
+[07-02-2019 18:46:24] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:46:55] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/20W46229VW631902A
+[07-02-2019 18:46:56] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:46:56] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/20W46229VW631902A/capture
+[07-02-2019 18:46:59] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/20W46229VW631902A
+[07-02-2019 18:47:00] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:47:00] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/20W46229VW631902A/capture
+[07-02-2019 18:47:04] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:47:05] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 18:47:05] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/20W46229VW631902A/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"45cb324e7c0f9"}
+[07-02-2019 18:48:27] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/8V825773JS409771W
+[07-02-2019 18:48:31] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:48:31] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/8V825773JS409771W/refund
+[07-02-2019 18:48:36] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:50:07] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 18:50:09] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:50:36] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAY-5VV01860GH667940WLROH3YI
+[07-02-2019 18:50:37] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:50:37] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAY-5VV01860GH667940WLROH3YI/execute
+[07-02-2019 18:50:41] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:51:11] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/6VG78616PV4971622
+[07-02-2019 18:51:12] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:51:12] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/6VG78616PV4971622/capture
+[07-02-2019 18:51:15] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/authorization/6VG78616PV4971622
+[07-02-2019 18:51:16] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:51:16] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/authorization/6VG78616PV4971622/capture
+[07-02-2019 18:51:19] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:51:23] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 18:51:23] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/authorization/6VG78616PV4971622/capture. {"name":"AUTHORIZATION_ALREADY_COMPLETED","message":"Capture refused. Authorization was already completed.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"c8b7708c4e23b"}
+[07-02-2019 18:52:31] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/09X138401S9218258
+[07-02-2019 18:52:32] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:52:32] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/09X138401S9218258/refund
+[07-02-2019 18:52:36] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 18:53:23] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/capture/09X138401S9218258
+[07-02-2019 18:53:25] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 18:53:25] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/capture/09X138401S9218258/refund
+[07-02-2019 18:53:28] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 18:53:28] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/capture/09X138401S9218258/refund. {"name":"TRANSACTION_ALREADY_REFUNDED","message":"Refund refused. Refund was already issued for transaction.","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"4a5ef092b3754"}

@@ -90,7 +90,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 $total = $cartRepo->getTotal(2, $shippingFee, $voucher);
             }
         }
-        
+
         $this->payPal->setOtherFees($subtotal, 0, $shippingFee);
         $this->payPal->setAmount($total);
         $this->payPal->setTransactions();
@@ -160,67 +160,81 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
         $trans = $payment->execute($execution, $this->payPal->getApiContext());
         $cartRepo = new CartRepository(new ShoppingCart);
         $transactions = $trans->getTransactions();
+
+        $authid = $payment->transactions[0]->related_resources[0]->authorization->id;
+
         foreach ($transactions as $transaction)
         {
             $total = $order->total;
             $paypalTotal = $transaction->getAmount()->getTotal();
             $orderRepo = (new \App\Shop\Orders\Repositories\OrderRepository($order));
-            $orderRepo->updateOrder(['total_paid' => $paypalTotal]);
-
-//            $checkoutRepo = new CheckoutRepository;
-//            $checkoutRepo->buildCheckoutItems([
-//                'reference' => Uuid::uuid4()->toString(),
-//                'courier_id' => 1,
-//                'customer_id' => $request->user()->id,
-//                'address_id' => $request->input('billing_address'),
-//                'order_status_id' => 1,
-//                'payment' => $request->input('payment'),
-//                'discounts' => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
-//                'voucher_id' => $voucher,
-//                'total_products' => $cartRepo->getSubTotal(),
-//                'total' => $cartRepo->getTotal(),
-//                'total_paid' => $transaction->getAmount()->getTotal(),
-//                'tax' => $cartRepo->getTax()
-//                    ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository);
+            $orderRepo->updateOrder(
+                    [
+                        'total_paid'     => $paypalTotal,
+                        'transaction_id' => $authid
+                    ]
+            );
         }
         $cartRepo->clearCart();
-    }
-    
-    public function capturePayment(Order $order) {
-        $authorizationId = "<your authorization id here>";
-        
-        try {
-            
-            $authorization = PayPalAuthorization::get($authorizationId, $this->payPal->getApiContext());
-            $this->payPal->setAmount($order->total);
-            $this->payPal->setCapture();
-            $this->payPal->capturePayment($authorization);
-         } catch (PayPalConnectionException $e) {
-            throw new PaypalRequestError($e->getMessage());
-        }
-        return true;
-        
     }
 
     /**
      * 
      * @param Order $order
+     * @return type
      */
-    public function doRefund(Order $order) {
-
-        $this->payPal->setAmount($order->total);
-
-        // Replace $captureId with any static Id you might already have. 
-        $captureId = "<your authorization id here>";
+    public function capturePayment(Order $order) {
+        $authorizationId = $order->transaction_id;
 
         try {
-            // ### Refund the Capture 
-            $this->payPal->doRefund($captureId);
-            
-        } catch (Exception $ex) {
-            return false;
+            $authorization = PayPalAuthorization::get($authorizationId, $this->payPal->getApiContext());
+            $this->payPal->setAmount($order->total);
+            $this->payPal->setCapture();
+            $response = $this->payPal->capturePayment($authorization);
+
+            $orderRepo = (new \App\Shop\Orders\Repositories\OrderRepository($order));
+            $orderRepo->updateOrder(
+                    [
+                        'order_status_id'  => 1,
+                        'payment_captured' => 1,
+                        'transaction_id'   => $response->getId()
+                    ]
+            );
+        } catch (PayPalConnectionException $e) {
+//            echo $e->getMessage();
+//            echo $e->getCode();
+//            echo $e->getData();
+//            die($e);
         }
+
         return true;
+    }
+
+    /**
+     * 
+     * @param Order $order
+     * @param type $refundAmount
+     * @return boolean
+     */
+    public function doRefund(Order $order, $refundAmount) {
+
+        try {
+                        
+             $this->payPal->setAmount($refundAmount);
+
+            // Replace $captureId with any static Id you might already have. 
+            $captureId = trim($order->transaction_id);
+
+            // ### Refund the Capture 
+            $response = $this->payPal->doRefund($captureId);
+            return $response;
+        } catch (PayPalConnectionException $e) {
+            echo $e->getMessage();
+            echo $e->getCode();
+            echo $e->getData();
+            die($e);
+        }
+       
     }
 
 }

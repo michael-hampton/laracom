@@ -507,5 +507,4 @@ class OrderLineController extends Controller {
         $http_code = $blError === true ? 400 : 200;
         return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
     }
-
 }

@@ -166,7 +166,10 @@ class PaypalExpress {
      */
     public function setAmount($amt) {
         $amount = new Amount();
-        $amount->setCurrency(ShoppingCart::$defaultCurrency)
+        
+        $currency = !empty(ShoppingCart::$defaultCurrency) ? ShoppingCart::$defaultCurrency : 'GBP';
+        
+        $amount->setCurrency($currency)
                 ->setTotal($amt)
                 ->setDetails($this->others);
         $this->amount = $amount;
@@ -184,11 +187,13 @@ class PaypalExpress {
     public function setCapture() {
         $capture = new Capture();
         $capture->setAmount($this->amount);
+        //$capture->setIsFinalCapture(true);
         $this->capture = $capture;
     }
     
     public function doRefund($captureId) {
         $refundRequest = new RefundRequest();
+        
         $refundRequest->setAmount($this->amount);
         
         $capture = Capture::get($captureId, $this->apiContext);
@@ -211,8 +216,10 @@ class PaypalExpress {
      */
     public function createPayment(string $returnUrl, string $cancelUrl) {
         
+        // $payment->setIntent('sale')
+        
         $payment = new Payment();
-        $payment->setIntent('sale')
+        $payment->setIntent('authorize')
                 ->setPayer($this->payer)
                 ->setTransactions([$this->transactions]);
         $redirectUrls = new RedirectUrls();

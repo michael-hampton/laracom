@@ -47,7 +47,9 @@ class Order extends Model implements Auditable {
         'amount_refunded',
         'channel',
         'invoice_reference',
-        'amount_invoiced'
+        'amount_invoiced',
+        'transaction_id',
+        'payment_captured'
     ];
 
     /**

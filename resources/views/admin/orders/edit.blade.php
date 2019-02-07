@@ -43,7 +43,7 @@
                 </div>
 
                 <div class="col-md-1">
-                    <a class='btn btn-primary btn-sm' href="{{route('admin.warehouse.generateDispatchNote', $order['id'])}}">Download Dispatch Note</a>
+                    <a class='btn btn-primary btn-sm' href="{{route('admin.warehouse.generateDispatchNote', $order['id'])}}">Download <br>Dispatch Note</a>
                 </div>
 
                 <div class="col-md-1">
