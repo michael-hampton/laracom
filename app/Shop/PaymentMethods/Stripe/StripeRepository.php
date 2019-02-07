@@ -83,7 +83,7 @@ class StripeRepository {
             $customerRepo = new CustomerRepository($this->customer);
             $options['source'] = $data['stripeToken'];
             $options['currency'] = config('cart.currency');
-            
+            $options['capture'] = false;
             
             if ($charge = $customerRepo->charge($totalComputed, $options)) {
                 $orderRepo = (new \App\Shop\Orders\Repositories\OrderRepository($order));
