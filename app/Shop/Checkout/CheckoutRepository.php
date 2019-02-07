@@ -34,6 +34,7 @@ class CheckoutRepository {
             'voucher_code' => !empty($data['voucher_code']) ? $data['voucher_code']->id : null,
             'voucher_id' => !empty($data['voucher_id']) ? $data['voucher_id'] : null,
             'address_id' => $data['address_id'],
+            'delivery_method' => isset($data['delivery_method']) && !empty($data['delivery_method']) ? $data['delivery_method'] : null,
             'order_status_id' => $data['order_status_id'],
             'payment' => $data['payment'],
             'discounts' => $data['discounts'],

@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
+use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
+use App\Shop\Channels\Channel;
+use App\Shop\Orders\Order;
 
 
 interface PayPalExpressCheckoutRepositoryInterface {
@@ -14,21 +17,32 @@ interface PayPalExpressCheckoutRepositoryInterface {
     
     public function getApiContext();
 
-    /**
-     * 
-     * @param type $shippingFee#
-     * @param type $voucherAmount
-     * @param Request $request
-     */
-    public function process($shippingFee, $voucher, Request $request);
+  /**
+   * 
+   * @param type $shippingFee
+   * @param type $voucher
+   * @param Request $request
+   * @param VoucherCodeRepositoryInterface $voucherCodeRepository
+   * @param CourierRepositoryInterface $courierRepository
+   * @param CustomerRepositoryInterface $customerRepository
+   * @param AddressRepositoryInterface $addressRepository
+   * @param CourierRateRepositoryInterface $courierRateRepository
+   */
+    public function process(
+            $shippingFee = 0, 
+            $voucher, 
+            Request $request, 
+            VoucherCodeRepositoryInterface $voucherCodeRepository, 
+            CourierRepositoryInterface $courierRepository, 
+            CustomerRepositoryInterface $customerRepository, 
+            AddressRepositoryInterface $addressRepository, 
+            CourierRateRepositoryInterface $courierRateRepository,
+            Channel $channel
+            );
 
    /**
     * 
     * @param Request $request
-    * @param \App\Shop\PaymentMethods\Paypal\Repositories\VoucherCodeRepositoryInterface $voucherCodeRepository
-    * @param \App\Shop\PaymentMethods\Paypal\Repositories\CourierRepositoryInterface $courierRepository
-    * @param \App\Shop\PaymentMethods\Paypal\Repositories\CustomerRepositoryInterface $customerRepository
-    * @param \App\Shop\PaymentMethods\Paypal\Repositories\AddressRepositoryInterface $addressRepository
     */
-    public function execute(Request $request, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository);
+    public function execute(Request $request, Order $order);
 }

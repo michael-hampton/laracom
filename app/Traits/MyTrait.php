@@ -122,7 +122,6 @@ trait MyTrait {
             $total -= $data['discounts'];
         }
 
-
         if (round($total, 2) !== round($data['total'], 2)) {
             $this->validationFailures[] = 'Invalid totals';
             return false;

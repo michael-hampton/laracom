@@ -30,12 +30,47 @@ use PayPal\Rest\ApiContext;
  */
 class PaypalExpress {
 
+    /**
+     *
+     * @var type 
+     */
     private $apiContext;
+    
+    /**
+     *
+     * @var type 
+     */
     private $payer;
+    
+    /**
+     *
+     * @var type 
+     */
     private $amount;
+    
+    /**
+     *
+     * @var type 
+     */
     private $transactions = [];
+    
+    /**
+     *
+     * @var type 
+     */
     private $itemList;
+    
+    /**
+     *
+     * @var type 
+     */
     private $others;
+    
+    /**
+     *
+     * @var type 
+     */
+    private $orderId;
 
     public function __construct($clientId, $clientSecret, $mode) {
         $apiContext = new ApiContext(
@@ -103,6 +138,19 @@ class PaypalExpress {
         $this->others = $details;
     }
 
+    /**
+     * 
+     * @param int $orderId
+     */
+    public function setOrderId(int $orderId) {
+        $this->orderId = $orderId;
+        request()->session()->put('order_id', $orderId);
+    }
+    
+    public function getAmount() {
+        return $this->amount;
+    }
+    
     /**
      * @param $amt
      */

@@ -1,0 +1,35 @@
+[07-02-2019 11:42:26] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/oauth2/token
+[07-02-2019 11:42:29] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 11:42:29] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 11:42:30] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 11:42:35] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 11:42:36] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 12:32:53] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 12:32:55] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 12:37:00] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 12:37:02] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 13:05:16] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 13:05:18] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 13:14:13] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 13:14:15] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 13:14:41] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROC6JQ7AM8384009429315M
+[07-02-2019 13:14:41] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 13:14:41] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LROC6JQ7AM8384009429315M/execute
+[07-02-2019 13:14:43] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 13:26:32] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 13:26:33] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 13:28:58] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 13:28:59] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 13:28:59] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/payment. {"name":"MALFORMED_REQUEST","message":"Incoming JSON request does not map to API request","information_link":"https://developer.paypal.com/webapps/developer/docs/api/#MALFORMED_REQUEST","debug_id":"9d0170569f110"}
+[07-02-2019 13:31:17] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 13:31:19] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 13:31:19] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/payment. {"name":"VALIDATION_ERROR","details":[{"field":"transactions[0]","issue":"Item amount must add up to specified amount subtotal (or total if amount details not specified)"},{"field":"transactions[0].amount","issue":"Transaction amount details (subtotal, tax, shipping) must add up to specified amount total"}],"message":"Invalid request - see details","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"b8b077526bfe7"}
+[07-02-2019 13:34:15] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 13:34:16] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 400
+[07-02-2019 13:34:16] PayPal\Core\PayPalHttpConnection : ERROR: Got Http response code 400 when accessing https://api.sandbox.paypal.com/v1/payments/payment. {"name":"VALIDATION_ERROR","details":[{"field":"transactions[0]","issue":"Item amount must add up to specified amount subtotal (or total if amount details not specified)"},{"field":"transactions[0].amount","issue":"Transaction amount details (subtotal, tax, shipping) must add up to specified amount total"}],"message":"Invalid request - see details","information_link":"https://developer.paypal.com/docs/api/payments/#errors","debug_id":"b6e56999824a5"}
+[07-02-2019 13:35:18] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment
+[07-02-2019 13:35:19] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 201
+[07-02-2019 13:36:01] PayPal\Core\PayPalHttpConnection : INFO: GET https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LRODIFY9LB32636HT132815M
+[07-02-2019 13:36:02] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200
+[07-02-2019 13:36:02] PayPal\Core\PayPalHttpConnection : INFO: POST https://api.sandbox.paypal.com/v1/payments/payment/PAYID-LRODIFY9LB32636HT132815M/execute
+[07-02-2019 13:36:04] PayPal\Core\PayPalHttpConnection : INFO: Response Status 	: 200

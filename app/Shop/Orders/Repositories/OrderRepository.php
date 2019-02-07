@@ -8,10 +8,12 @@ use App\Shop\Employees\Employee;
 use App\Shop\Employees\Repositories\EmployeeRepository;
 use App\Shop\Channels\Channel;
 use App\Events\OrderCreateEvent;
+use App\Events\BackorderEvent;
 use Illuminate\Http\Request;
 use App\Mail\sendEmailNotificationToAdminMailable;
 use App\Mail\SendOrderToCustomerMailable;
 use App\Mail\SendRefundToCustomerMailable;
+use App\Mail\SendBackorderToCustomerMailable;
 use App\Shop\Orders\Exceptions\OrderInvalidArgumentException;
 use App\Shop\Orders\Exceptions\OrderNotFoundException;
 use App\Shop\Orders\Order;
@@ -93,7 +95,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $params['channel'] = $params['channel']->id;
             }
 
-            if ($blManualOrder === false)
+            if ($blManualOrder === false && $params['total'] > 0)
             {
                 $items = Cart::content();
 
@@ -254,8 +256,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     }
 
     public function sendBackorderEmail() {
-        Mail::to($this->model->customer)
-                ->send(new SendBackorderToCustomerMailable($this->findOrderById($this->model->id)));
+//        Mail::to($this->model->customer)
+//                ->send(new SendBackorderToCustomerMailable($this->findOrderById($this->model->id)));
     }
 
     public function sendHungEmail() {

@@ -1,4 +1,3 @@
-
 <?php
 namespace App\Mail;
 use App\Shop\Addresses\Transformations\AddressTransformable;

@@ -1,6 +1,6 @@
 <?php
 namespace App\Listeners;
-use App\Events\DispatchCreateEvent;
+use App\Events\BackorderEvent;
 use App\Shop\Orders\Repositories\OrderRepository;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +18,7 @@ class BackorderEventListener {
      * @param  DispatchCreateEvent  $event
      * @return void
      */
-    public function handle(DispatchCreateEvent $event) {
+    public function handle(BackorderEvent $event) {
                        
         // send email to customer
         $orderRepo = new OrderRepository($event->order);

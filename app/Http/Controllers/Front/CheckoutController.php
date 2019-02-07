@@ -8,6 +8,10 @@ use App\Shop\Carts\Repositories\Interfaces\CartRepositoryInterface;
 use App\Shop\Carts\Requests\PayPalCheckoutExecutionRequest;
 use App\Shop\Carts\Requests\StripeExecutionRequest;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
+use App\Shop\CourierRates\Repositories\CourierRateRepository;
+use App\Shop\CourierRates\CourierRate;
+use App\Shop\Channels\Repositories\ChannelRepository;
+use App\Shop\Channels\Channel;
 use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Shop\VoucherCodes\VoucherCode;
@@ -156,8 +160,8 @@ class CheckoutController extends Controller {
      */
     public function store(CartCheckoutRequest $request) {
 
-        $shippingFee = 0;
         $voucher = null;
+        $shippingFee = 0;
 
         if (request()->session()->has('voucherCode')) {
             $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
@@ -165,7 +169,17 @@ class CheckoutController extends Controller {
 
         switch ($request->input('payment')) {
             case 'paypal':
-                return $this->payPal->process($shippingFee, $voucher, $request);
+                return $this->payPal->process(
+                        $shippingFee,
+                        $voucher, 
+                        $request, 
+                        new VoucherCodeRepository(new VoucherCode), 
+                        $this->courierRepo, 
+                        $this->customerRepo, 
+                        $this->addressRepo,
+                        new CourierRateRepository(new CourierRate),
+                        (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
+                        );
                 break;
             case 'stripe':
                 $details = [
@@ -193,9 +207,14 @@ class CheckoutController extends Controller {
             if (request()->session()->has('voucherCode')) {
                 $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
             }
+            
+            if (request()->session()->has('order_id')) {
+                 $order = $this->orderRepo->findOrderById(request()->session()->get('order_id', 1));
+            }
+            
+           
 
-            $this->payPal->execute($request, new VoucherCodeRepository(new VoucherCode), $this->courierRepo, $this->customerRepo, $this->addressRepo, $voucher
-            );
+            $this->payPal->execute($request, $order);
             $this->cartRepo->clearCart();
             return redirect()->route('checkout.success');
         } catch (PayPalConnectionException $e) {
