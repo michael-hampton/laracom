@@ -22,6 +22,8 @@ use PayPal\Api\Transaction;
 use PayPal\Exception\PayPalConnectionException;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
+use PayPal\Api\Refund;
+use PayPal\Api\RefundRequest;
 
 /**
  * Class PaypalExpress
