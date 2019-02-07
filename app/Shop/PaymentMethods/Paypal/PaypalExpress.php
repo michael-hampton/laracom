@@ -185,6 +185,17 @@ class PaypalExpress {
         $this->capture = $capture;
     }
     
+    public function doRefund($captureId) {
+        $refundRequest = new RefundRequest();
+        $refundRequest->setAmount($this->amount);
+        
+        $capture = Capture::get($captureId, $this->apiContext);
+    
+        // ### Refund the Capture 
+        $captureRefund = $capture->refundCapturedPayment($refundRequest, $this->apiContext);
+        return $captureRefund;
+    }
+    
     public function capturePayment($authorization) {
         $getCapture = $authorization->capture($this->capture, $this->apiContext);
         return $getCapture;
