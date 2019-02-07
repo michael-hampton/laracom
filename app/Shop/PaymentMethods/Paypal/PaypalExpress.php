@@ -13,6 +13,8 @@ use PayPal\Api\Item;
 use PayPal\Api\ItemList;
 use PayPal\Api\Payer;
 use PayPal\Api\Payment;
+use PayPal\Api\Capture;
+use PayPal\Api\Authorization;
 use PayPal\Api\PaymentExecution;
 use PayPal\Api\RedirectUrls;
 use PayPal\Api\ShippingAddress;
@@ -41,6 +43,8 @@ class PaypalExpress {
      * @var type 
      */
     private $payer;
+    
+    private $capture;
     
     /**
      *
@@ -151,6 +155,10 @@ class PaypalExpress {
         return $this->amount;
     }
     
+    public function getCapture() {
+        return $this->capture;
+    }
+    
     /**
      * @param $amt
      */
@@ -169,6 +177,17 @@ class PaypalExpress {
                 ->setDescription('Payment via Paypal')
                 ->setInvoiceNumber(uniqid());
         $this->transactions = $transaction;
+    }
+    
+    public function setCapture() {
+        $capture = new Capture();
+        $capture->setAmount($this->amount);
+        $this->capture = $capture;
+    }
+    
+    public function capturePayment($authorization) {
+        $getCapture = $authorization->capture($this->capture, $this->apiContext);
+        return $getCapture;
     }
 
     /**
