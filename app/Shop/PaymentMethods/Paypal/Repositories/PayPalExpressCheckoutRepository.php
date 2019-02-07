@@ -208,7 +208,19 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      */
     public function doRefund(Order $order) {
 
-        die('do refund');
+        $this->payPal->setAmount($order->total);
+
+        // Replace $captureId with any static Id you might already have. 
+        $captureId = "<your authorization id here>";
+
+        try {
+            // ### Refund the Capture 
+            $this->payPal->doRefund($captureId);
+            
+        } catch (Exception $ex) {
+            return false;
+        }
+        return true;
     }
 
 }
