@@ -18,6 +18,7 @@ use App\Shop\PaymentMethods\Paypal\PaypalExpress;
 use Illuminate\Http\Request;
 use PayPal\Exception\PayPalConnectionException;
 use PayPal\Api\Payment as PayPalPayment;
+use PayPal\Api\Authorization as PayPalAuthorization;
 use Ramsey\Uuid\Uuid;
 
 class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepositoryInterface {
@@ -183,6 +184,22 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
 //                    ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository);
         }
         $cartRepo->clearCart();
+    }
+    
+    public function capturePayment(Order $order) {
+        $authorizationId = "<your authorization id here>";
+        
+        try {
+            
+            $authorization = PayPalAuthorization::get($authorizationId, $this->payPal->getApiContext());
+            $this->payPal->setAmount($order->total);
+            $this->payPal->setCapture();
+            $this->payPal->capturePayment($authorization);
+         } catch (PayPalConnectionException $e) {
+            throw new PaypalRequestError($e->getMessage());
+        }
+        return true;
+        
     }
 
     /**
