@@ -96,8 +96,8 @@ class CheckoutController extends Controller {
         $this->shippingRepo = $shipping;
         $this->voucherCodeRepo = $voucherCodeRepository;
 
-        (new PayPalExpressCheckoutRepository())->capturePayment($this->orderRepo->findOrderById(104));
-        die('Here');
+        //(new PayPalExpressCheckoutRepository())->capturePayment($this->orderRepo->findOrderById(104));
+        //die('Here');
     }
 
     /**
