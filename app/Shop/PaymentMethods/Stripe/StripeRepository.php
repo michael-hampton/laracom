@@ -73,6 +73,7 @@ class StripeRepository {
         
         $refund = \Stripe\Refund::create([
             'charge' => 'ch_eqllhV2DKyDzE87KFgjP',
+            'amount' => $refundAmount
         ]);
     }
 
