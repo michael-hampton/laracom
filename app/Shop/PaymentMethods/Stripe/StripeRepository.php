@@ -107,7 +107,7 @@ class StripeRepository {
     
     public function capturePayment(Order $order) {
         $charge_id = $order->transaction_id;
-        $charge = \Stripe\Charge::retrieve($charge_id);
+        $charge = Stripe\Charge::retrieve($charge_id);
         $charge->capture();
               
         $orderRepo = (new \App\Shop\Orders\Repositories\OrderRepository($order));
@@ -129,7 +129,7 @@ class StripeRepository {
         
         $charge_id = $order->transaction_id;
         
-        $refund = \Stripe\Refund::create([
+        $refund = Stripe\Refund::create([
             'charge' => $charge_id,
             'amount' => $refundAmount
         ]);
