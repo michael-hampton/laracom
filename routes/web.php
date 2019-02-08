@@ -208,9 +208,12 @@ Route::namespace('Front')->group(function () {
         Route::get('bank-transfer', 'BankTransferController@index')->name('bank-transfer.index');
         Route::post('bank-transfer', 'BankTransferController@store')->name('bank-transfer.store');
     });
+    
+     Route::post('checkout.getShippingFee', 'CheckoutController@getShippingFee')->name('checkout.getShippingFee');
 
     Route::group(['middleware' => ['auth']], function () {
         Route::get('accounts', 'AccountsController@index')->name('accounts');
+       
         Route::get('checkout', 'CheckoutController@index')->name('checkout.index');
         Route::post('checkout', 'CheckoutController@store')->name('checkout.store');
         Route::post('set-courier', 'CheckoutController@setCourier')->name('set.courier');
@@ -225,6 +228,7 @@ Route::namespace('Front')->group(function () {
     Route::get('cart/validate/{code}', 'CartController@validateVoucherCode')->name('cart.validateVoucherCode');
     Route::resource('cart', 'CartController');
     Route::get("category/{slug}", 'CategoryController@getCategory')->name('front.category.slug');
+    Route::post("filter", 'ProductController@filter')->name('filter.product');
     Route::get("search", 'ProductController@search')->name('search.product');
     Route::get("{product}", 'ProductController@show')->name('front.get.product');
 });
