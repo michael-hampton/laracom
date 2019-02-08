@@ -9,6 +9,7 @@ use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Channels\Channel;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Shop\Products\Transformations\ProductTransformable;
 
 class ProductController extends Controller {
@@ -41,9 +42,12 @@ class ProductController extends Controller {
 //
 //        $products = $repo->findProducts()->where('status', 1)->all();
 
-        if (request()->has('q') && request()->input('q') != '') {
+        if (request()->has('q') && request()->input('q') != '')
+        {
             $list = $this->productRepo->searchProduct(request()->input('q'));
-        } else {
+        }
+        else
+        {
             $list = $this->productRepo->listProducts();
         }
 
@@ -69,7 +73,8 @@ class ProductController extends Controller {
         $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
         $channelProduct = $objChannelPriceRepository->getChannelProduct($product, $channel);
 
-        if (!empty($channelProduct) && !empty($channelProduct->price)) {
+        if (!empty($channelProduct) && !empty($channelProduct->price))
+        {
             $product->price = $channelProduct->price;
         }
 
@@ -82,6 +87,20 @@ class ProductController extends Controller {
         return view('front.products.product', compact(
                         'product', 'images', 'productAttributes', 'category', 'combos', 'channelAttributes'
         ));
+    }
+
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function filter(Request $request) {
+
+        $channel = !empty(env('CHANNEL')) ? (new ChannelRepository(new Channel))->findByName(env('CHANNEL')) : null;
+
+        $products = $this->productRepo->filterProducts($request, $channel);
+
+        return view('front.products.product-list', ['products' => $products]);
     }
 
 }

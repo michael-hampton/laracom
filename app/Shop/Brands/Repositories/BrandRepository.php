@@ -38,7 +38,8 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
         try {
             $collection = collect($data);
 
-            if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile)) {
+            if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile))
+            {
                 $cover = $this->uploadOne($data['cover'], 'brands');
             }
 
@@ -80,7 +81,8 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
             $brand = $this->findBrandById($this->model->id);
             $collection = collect($data)->except('_token');
 
-            if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile)) {
+            if (isset($data['cover']) && ($data['cover'] instanceof UploadedFile))
+            {
                 $cover = $this->uploadOne($data['cover'], 'brands');
             }
 
@@ -164,6 +166,10 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
         $query->whereRaw('LOWER(`name`) = ? ', [trim(strtolower($name))]);
         $result = $query->get();
         return Brand::hydrate($result->toArray())[0];
+    }
+
+    public function getBrandsForGivenIds(array $arrIds) {
+        return $this->model->whereIn('id', $arrIds)->get();
     }
 
 }

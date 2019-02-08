@@ -12,6 +12,8 @@ use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Products\Product;
+use App\Shop\Customers\Repositories\CustomerRepository;
+use App\Shop\Customers\Customer;
 use App\Shop\Channels\Repositories\ChannelTemplateRepository;
 use App\Shop\Channels\ChannelTemplate;
 use App\Shop\Orders\Order;
@@ -260,7 +262,31 @@ class WarehouseController extends Controller {
      * @return boolean
      */
     private function capturePayment(Order $order) {
-        (new \App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository())->capturePayment($order);
+
+
+        switch ($order->payment)
+        {
+            case 'paypal':
+
+                if (!(new \App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository())->capturePayment($order))
+                {
+
+                    return response()->json(['error' => 'failed to authorize'], 404); // Status code here
+                }
+                break;
+
+            case 'stripe':
+
+                $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer->id);
+
+                if (!(new \App\Shop\PaymentMethods\Stripe\StripeRepository($customer))->capturePayment($order))
+                {
+                    return false;
+                }
+                break;
+        }
+
+
         return true;
     }
 

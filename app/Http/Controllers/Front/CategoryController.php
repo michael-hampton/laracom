@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Front;
 
 use App\Shop\Categories\Repositories\CategoryRepository;
+use App\Shop\Brands\Repositories\BrandRepository;
+use App\Shop\Brands\Brand;
 use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Http\Controllers\Controller;
 
-class CategoryController extends Controller
-{
+class CategoryController extends Controller {
+
     /**
      * @var CategoryRepositoryInterface
      */
@@ -18,8 +20,7 @@ class CategoryController extends Controller
      *
      * @param CategoryRepositoryInterface $categoryRepository
      */
-    public function __construct(CategoryRepositoryInterface $categoryRepository)
-    {
+    public function __construct(CategoryRepositoryInterface $categoryRepository) {
         $this->categoryRepo = $categoryRepository;
     }
 
@@ -29,17 +30,28 @@ class CategoryController extends Controller
      * @param string $slug
      * @return \App\Shop\Categories\Category
      */
-    public function getCategory(string $slug)
-    {
+    public function getCategory(string $slug) {
         $category = $this->categoryRepo->findCategoryBySlug(['slug' => $slug]);
 
         $repo = new CategoryRepository($category);
 
-        $products = $repo->findProducts()->where('status', 1)->all();
+        $productObjects = $repo->findProducts()->where('status', 1);
+        $brand_ids = array_unique($productObjects->pluck('brand_id')->toArray());
+        
+        $cost = $productObjects->pluck('price')->toArray();
+        $products = $productObjects->all();
+        $brands = (new BrandRepository(new Brand))->getBrandsForGivenIds($brand_ids);
+        
+        $cost[] = 100;
+        $cost[] = 1;
+       
 
         return view('front.categories.category', [
+            'brands' => $brands,
+            'cost' => $cost,
             'category' => $category,
             'products' => $repo->paginateArrayResults($products, 20)
         ]);
     }
+
 }

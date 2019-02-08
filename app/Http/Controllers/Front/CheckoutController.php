@@ -96,8 +96,29 @@ class CheckoutController extends Controller {
         $this->shippingRepo = $shipping;
         $this->voucherCodeRepo = $voucherCodeRepository;
 
-        //(new PayPalExpressCheckoutRepository())->capturePayment($this->orderRepo->findOrderById(104));
-        //die('Here');
+
+//        $order = $this->orderRepo->findOrderById(112);
+//        $customer = $this->customerRepo->findCustomerById($order->customer->id);
+//        (new StripeRepository($customer))->doRefund($order, 6);
+//        die('Here');
+    }
+
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function getShippingFee(Request $request) {
+
+        $courier = $this->courierRepo->findCourierById(1);
+        $customer = $this->customerRepo->findCustomerById(auth()->id());
+        $country = (new CustomerRepository($customer))->findAddresses()->first()->country->id;
+        $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
+        $delivery = (new CourierRateRepository(new CourierRate))->findShippingMethod($request->total, $courier, $channel, $country);
+
+        $cost = !empty($delivery->cost) ? $delivery->cost : 0;
+
+        return response()->json(['cost' => $cost]);
     }
 
     /**
@@ -174,6 +195,15 @@ class CheckoutController extends Controller {
             $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
         }
 
+
+//        $courier = $this->courierRepo->findCourierById(1);
+//        $customer = $this->customerRepo->findCustomerById(auth()->id());
+//        $country = (new CustomerRepository($customer))->findAddresses()->first()->country->id;
+//        $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
+//        $delivery = (new CourierRateRepository(new CourierRate))->findShippingMethod($request->total, $courier, $channel, $country);
+//
+//        $cost = !empty($delivery->cost) ? $delivery->cost : 0;
+
         switch ($request->input('payment'))
         {
             case 'paypal':
@@ -188,6 +218,7 @@ class CheckoutController extends Controller {
                 ];
                 $customer = $this->customerRepo->findCustomerById(auth()->id());
                 $customerRepo = new CustomerRepository($customer);
+
                 $customerRepo->charge($this->cartRepo->getTotal(2, $shippingFee, $voucher), $details);
                 break;
             default:
@@ -204,17 +235,10 @@ class CheckoutController extends Controller {
 
         try {
 
-            if (request()->session()->has('voucherCode'))
-            {
-                $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
-            }
-
             if (request()->session()->has('order_id'))
             {
                 $order = $this->orderRepo->findOrderById(request()->session()->get('order_id', 1));
             }
-
-
 
             $this->payPal->execute($request, $order);
             $this->cartRepo->clearCart();
@@ -233,6 +257,8 @@ class CheckoutController extends Controller {
     public function charge(StripeExecutionRequest $request) {
         try {
 
+            $voucher = null;
+
             if (request()->session()->has('voucherCode'))
             {
                 $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
@@ -241,7 +267,7 @@ class CheckoutController extends Controller {
             $customer = $this->customerRepo->findCustomerById(auth()->id());
             $stripeRepo = new StripeRepository($customer);
             $stripeRepo->execute(
-                    $request->all(), Cart::total(), Cart::tax()
+                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherCodeRepository(new VoucherCode), $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
             );
             return redirect()->route('checkout.success')->with('message', 'Stripe payment successful!');
         } catch (StripeChargingErrorException $e) {

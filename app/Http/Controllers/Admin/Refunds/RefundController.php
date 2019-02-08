@@ -159,9 +159,8 @@ class RefundController extends Controller {
             $orderRepo->updateOrder(
                     [
                         //'total_paid'      => $totalPaid,
-                        'amount_refunded' => $totalRefunded                    ]
+                        'amount_refunded' => $totalRefunded]
             );
-
         } catch (\Exception $e) {
             $strMessage = "Unable to refund order {$e->getMessage()}";
             $arrFailures[$request->order_id][] = $e->getMessage();
@@ -251,13 +250,16 @@ class RefundController extends Controller {
                 break;
 
             case 'stripe':
-                if (!(new StripeRepository($customer))->doRefund($order))
+
+                $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer->id);
+
+                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount))
                 {
                     return response()->json(['error' => 'failed to authorize'], 404); // Status code here
                 }
                 break;
         }
-        
+
         $strMessage = $refundAmount . 'was successfully refunded using ' . $order->payment;
         $this->saveNewComment($order, $strMessage);
 
