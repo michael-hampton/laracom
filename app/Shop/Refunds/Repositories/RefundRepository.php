@@ -49,6 +49,15 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             throw new RefundInvalidArgumentException('Refund creation error', 500, $e);
         }
     }
+    
+    /**
+     * 
+     * @param Order $order
+     * @return type
+     */
+    public function setOrderRefundToCompleted(Order $order) {
+        $this->model->where('order_id', $order->id)->update(['status' => 4]);
+    }
 
     /**
      * @param array $update
@@ -154,7 +163,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             $data['quantity'] = $orderProduct->quantity;
             $data['line_id'] = $orderProduct->id;
             $data['order_id'] = $request->order_id;
-            $data['status'] = $request->status;
+            $data['status'] = 1;
             $data['amount'] = $orderProduct->product_price;
 
             $this->createRefund($data);

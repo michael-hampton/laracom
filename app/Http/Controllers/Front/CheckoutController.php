@@ -98,8 +98,8 @@ class CheckoutController extends Controller {
         $this->shippingRepo = $shipping;
         $this->voucherCodeRepo = $voucherCodeRepository;
 
-
-//        $order = $this->orderRepo->findOrderById(119);
+//
+//        $order = $this->orderRepo->findOrderById(121);
 //        $customer = $this->customerRepo->findCustomerById($order->customer->id);
 //        (new StripeRepository($customer))->capturePayment($order);
 //        die('Here');
