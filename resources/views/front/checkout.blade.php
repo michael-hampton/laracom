@@ -108,12 +108,11 @@
                     </ul>
                 </div>
             </div> <br>
-            @endif
+            @else
 
             <input type="hidden" id="total" value=" {{ $total }}">
             <input type="hidden" id="shippingFeeC" value="">
 
-            @if(!is_null($delivery_methods))
             <div class="row">
                 <div class="col-md-12">
                     <legend><i class="fa fa-truck"></i> Delivery</legend>

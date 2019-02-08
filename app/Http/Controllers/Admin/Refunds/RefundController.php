@@ -173,7 +173,7 @@ class RefundController extends Controller {
                         'amount_refunded' => $totalRefunded]
             );
 
-            $this->refundRepo->setOrderRefundToCompleted($order);
+            $this->refundRepo->setOrderLinesToCompleted();
         } catch (\Exception $e) {
             $strMessage = "Unable to refund order {$e->getMessage()}";
             $arrFailures[$request->order_id][] = $e->getMessage();

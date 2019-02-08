@@ -21,6 +21,8 @@ use Illuminate\Support\Collection;
 class RefundRepository extends BaseRepository implements RefundRepositoryInterface {
 
     use RefundTransformable;
+    
+    private $arrLineIds = [];
 
     /**
      * RefundRepository constructor.
@@ -52,11 +54,10 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
     
     /**
      * 
-     * @param Order $order
      * @return type
      */
-    public function setOrderRefundToCompleted(Order $order) {
-        $this->model->where('order_id', $order->id)->update(['status' => 4]);
+    public function setOrderLinesToCompleted() {
+        return $this->model->whereIn('line_id', $this->arrLineIds)->update(['status' => 4]);
     }
 
     /**
@@ -169,6 +170,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             $this->createRefund($data);
 
             $orderProductRepo->updateStatus($order, $channel, 8);
+            $this->arrLineIds[] = $orderProduct->id;
         }
        
         

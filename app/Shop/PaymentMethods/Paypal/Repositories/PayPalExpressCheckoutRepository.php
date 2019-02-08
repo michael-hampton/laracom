@@ -76,7 +76,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 $cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
         );
         $subtotal = $cartRepo->getTotal(2, $shippingFee, $voucher);
-        
+
         if ($shippingFee === 0)
         {
             $country_id = $billingAddress->country_id;
@@ -218,8 +218,13 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
     public function doRefund(Order $order, $refundAmount) {
 
         try {
-                        
-             $this->payPal->setAmount($refundAmount);
+
+            if ($refundAmount > $order->total_paid)
+            {
+                $refundAmount = $order->total_paid;
+            }
+
+            $this->payPal->setAmount($refundAmount);
 
             // Replace $captureId with any static Id you might already have. 
             $captureId = trim($order->transaction_id);
@@ -233,7 +238,6 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             echo $e->getData();
             die($e);
         }
-       
     }
 
 }
