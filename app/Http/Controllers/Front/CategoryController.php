@@ -39,7 +39,6 @@ class CategoryController extends Controller {
         $brand_ids = array_unique($productObjects->pluck('brand_id')->toArray());
         
         $cost = $productObjects->pluck('price')->toArray();
-        $products = $productObjects->all();
         $brands = (new BrandRepository(new Brand))->getBrandsForGivenIds($brand_ids);
         
         $cost[] = 100;

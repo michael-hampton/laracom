@@ -43,9 +43,34 @@
 </div>   
 
 <script>
+    
+    var page = 1;
+    
+    $(window).on('hashchange', function() {
+        if (window.location.hash) {
+            var page = window.location.hash.replace('#', '');
+            if (page == Number.NaN || page <= 0) {
+                return false;
+            } else {
+                getPosts(page);
+            }
+        }
+    });
 
     $(document).ready(function () {
     filter_data();
+    
+    $('body').on('click', '.pagination a', function(e) {
+        e.preventDefault();
+
+        $('#load a').css('color', '#dfecf6');
+        $('#load').append('<img style="position: absolute; left: 0; top: 0; z-index: 100000;" src="/images/loading.gif" />');
+
+        page = $(this).attr('href').split('page=')[1];
+        
+        filter_data();
+    });
+    
     $('#stock').change(function() {
     filter_data();
     });
@@ -115,6 +140,7 @@
             data:{
             order_by:order_by,
                     action:action,
+                    page:page,
                     category: category,
                     minimum_price:minimum_price,
                     maximum_price:maximum_price,
@@ -124,8 +150,11 @@
             },
             success:function(data){
             $('.filter_data').html(data);
+              location.hash = page;
             }
-    });
+     }).fail(function () {
+            alert('Posts could not be loaded.');
+        });
     }
 
     function get_filter(class_name)

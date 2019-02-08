@@ -387,7 +387,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
 
         $query->orderBy($orderByField, strtolower($orderDirection));
 
-        $result = $query->get();
+        $result = $query->paginate(20);
 
         return $result;
     }
