@@ -69,12 +69,6 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
 
         $cartRepo = new CartRepository(new ShoppingCart());
         $items = $cartRepo->getCartItemsTransformed();
-
-        $this->payPal->setPayer();
-        $this->payPal->setItems($items);
-        $this->payPal->setOtherFees(
-                $cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
-        );
         $subtotal = $cartRepo->getTotal(2, $shippingFee, $voucher);
 
         if ($shippingFee === 0)
@@ -89,18 +83,24 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 $total = $cartRepo->getTotal(2, $shippingFee, $voucher);
             }
         }
-
-        $this->payPal->setOtherFees($subtotal, 0, $shippingFee);
-        $this->payPal->setAmount($total);
-        $this->payPal->setTransactions();
-
+        
         if (request()->session()->has('discount_amount'))
         {
             $discountedAmount = request()->session()->get('discount_amount', 1);
             $items->first()->price -= $discountedAmount;
         }
+        
+        $this->payPal->setPayer();
+        $this->payPal->setItems($items);
+        //$this->payPal->setOtherFees(
+                //$cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
+        //);
 
+        $this->payPal->setOtherFees($subtotal, 0, $shippingFee);
+        $this->payPal->setAmount($total);
+        $this->payPal->setTransactions();
         $this->payPal->setBillingAddress($billingAddress);
+        
         if ($request->has('shipping_address'))
         {
             $shippingAddress = $addressRepository->findAddressById($request->input('shipping_address'));
