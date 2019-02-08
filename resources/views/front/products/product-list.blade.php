@@ -44,11 +44,14 @@
         </div>
     </li>
     @endforeach
+    
+    @if($products instanceof \Illuminate\Pagination\AbstractPaginator)
     <div class="row">
         <div class="col-md-12">
             <div class="pull-left">{{ $products->links() }}</div>
         </div>
     </div>
+    @endif
 </ul>
 @else
 <p class="alert alert-warning">No products yet.</p>

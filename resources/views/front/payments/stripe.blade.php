@@ -35,6 +35,7 @@ function setTotal(total, shippingCost) {
 }
 
 function setShippingFee(cost) {
+
     el = '#shippingFee';
     $(el).html(cost);
     $('#shippingFeeC').val(cost);
@@ -42,6 +43,7 @@ function setShippingFee(cost) {
 
 function setCourierDetails(courierId) {
     $('.courier_id').val(courierId);
+     $('.courier').val(courierId);
 }
 
 $(document).ready(function () {
@@ -70,8 +72,22 @@ $(document).ready(function () {
         $('.delivery_address_id').val(chosenDeliveryAddressId);
     });
 
+    let courier2 = 'input[name="rate"]';
+
+    $(courier2).on('change', function () {
+
+        let shippingCost = $(this).data('fee');
+        let total = $('#total').val();
+        let courier = $(this).data('courier');
+
+        setCourierDetails(courier);
+        setShippingFee(shippingCost);
+        setTotal(total, shippingCost);
+    });
+
     let courier = 'input[name="courier"]';
     $(courier).on('change', function () {
+
         let shippingCost = $(this).data('cost');
         let total = $('#total').data('total');
 
@@ -102,42 +118,28 @@ $(document).ready(function () {
         }
     });
 
-    /**
-     * 
-     * @param {type} total
-     * @returns {undefined}
-     */
-    function getShippingFee(total) {
-        $.ajax({
-            type: "POST",
-            url: '{{ route("checkout.getShippingFee") }}',
-            data: {total: total, "_token": "{{ csrf_token() }}"},
-            success: function (response) {
-
-                let shipping = response.cost;
-
-                let amount = total + shipping;
-
-                // Open Checkout with further options:
-                handler.open({
-                    name: "{{ config('stripe.name') }}",
-                    description: "{{ config('stripe.description') }}",
-                    currency: "{{ config('cart.currency') }}",
-                    amount: amount * 100,
-                    email: "{{ $customer->email }}"
-                });
-            }
-        });
-    }
-
     document.getElementById('paywithstripe').addEventListener('click', function (e) {
 
         e.preventDefault();
 
         let total = parseFloat("{{ $total }}");
+        let shipping = parseFloat($('#shippingFeeC').val());
 
-        getShippingFee(total);
+        let amount = total + shipping;
 
+        if ($.trim($('.courier').val()) === '') {
+            alert('You must select a delivery type');
+            return false;
+        }
+
+        // Open Checkout with further options:
+        handler.open({
+            name: "{{ config('stripe.name') }}",
+            description: "{{ config('stripe.description') }}",
+            currency: "{{ config('cart.currency') }}",
+            amount: amount * 100,
+            email: "{{ $customer->email }}"
+        });
 
         e.preventDefault();
     });

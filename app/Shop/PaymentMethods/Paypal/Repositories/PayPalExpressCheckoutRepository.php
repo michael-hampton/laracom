@@ -11,6 +11,7 @@ use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\Carts\Repositories\CartRepository;
 use App\Shop\Carts\ShoppingCart;
+use App\Shop\Couriers\Courier;
 use App\Shop\Checkout\CheckoutRepository;
 use App\Shop\PaymentMethods\Payment;
 use App\Shop\PaymentMethods\Paypal\Exceptions\PaypalRequestError;
@@ -61,7 +62,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * @throws PaypalRequestError
      */
     public function process(
-    $shippingFee = 0, $voucher, Request $request, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
+    $shippingFee = 0, $voucher, Request $request, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
     ) {
 
         $billingAddress = $addressRepository->findAddressById($request->input('billing_address'));
@@ -75,9 +76,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 $cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
         );
         $subtotal = $cartRepo->getTotal(2, $shippingFee, $voucher);
-
-        $courier = $courierRepository->findCourierById(1);
-
+        
         if ($shippingFee === 0)
         {
             $country_id = $billingAddress->country_id;

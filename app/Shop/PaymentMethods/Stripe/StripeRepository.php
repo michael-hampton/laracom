@@ -37,21 +37,28 @@ class StripeRepository {
     }
 
     /**
-     * @param array $data Cart data
-     * @param $total float Total items in the cart
-     * @param $tax float The tax applied to the cart
-     * @return Charge Stripe charge object
+     * 
+     * @param array $data
+     * @param type $total
+     * @param type $tax
+     * @param type $shipping
+     * @param type $voucher
+     * @param VoucherCodeRepositoryInterface $voucherCodeRepository
+     * @param Courier $courier
+     * @param CourierRepositoryInterface $courierRepository
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param AddressRepositoryInterface $addressRepository
+     * @param CourierRateRepositoryInterface $courierRateRepository
+     * @param Channel $channel
+     * @return Charge
      * @throws StripeChargingErrorException
      */
     public function execute(
-    array $data, $total, $tax, $shipping = 0, $voucher = null, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
+    array $data, $total, $tax, $shipping = 0, $voucher = null, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
     ): Charge {
         try {
 
-
             $billingAddress = $addressRepository->findAddressById($data['billing_address']);
-
-            $courier = $courierRepository->findCourierById(1);
 
             if ($shipping === 0)
             {
@@ -92,9 +99,11 @@ class StripeRepository {
             {
                 $orderRepo = (new \App\Shop\Orders\Repositories\OrderRepository($order));
 
+                $convertedAmount = number_format(($charge->amount / 100), 2);
+
                 $orderRepo->updateOrder(
                         [
-                            'total_paid'     => $totalComputed,
+                            'total_paid'     => $convertedAmount,
                             'transaction_id' => $charge->id
                         ]
                 );
@@ -134,7 +143,7 @@ class StripeRepository {
         } catch (Exception $ex) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -143,6 +152,11 @@ class StripeRepository {
      * @param Order $order
      */
     public function doRefund(Order $order, $refundAmount) {
+
+        if ($refundAmount > $order->total_paid)
+        {
+            $refundAmount = $order->total_paid;
+        }
 
         $refundAmount = $refundAmount * 100;
 

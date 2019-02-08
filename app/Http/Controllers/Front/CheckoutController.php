@@ -9,6 +9,8 @@ use App\Shop\Carts\Requests\PayPalCheckoutExecutionRequest;
 use App\Shop\Carts\Requests\StripeExecutionRequest;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\CourierRates\Repositories\CourierRateRepository;
+use App\Shop\Couriers\Courier;
+use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\CourierRates\CourierRate;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Channels\Channel;
@@ -97,9 +99,9 @@ class CheckoutController extends Controller {
         $this->voucherCodeRepo = $voucherCodeRepository;
 
 
-//        $order = $this->orderRepo->findOrderById(112);
+//        $order = $this->orderRepo->findOrderById(119);
 //        $customer = $this->customerRepo->findCustomerById($order->customer->id);
-//        (new StripeRepository($customer))->doRefund($order, 6);
+//        (new StripeRepository($customer))->capturePayment($order);
 //        die('Here');
     }
 
@@ -108,17 +110,21 @@ class CheckoutController extends Controller {
      * @param Request $request
      * @return type
      */
-    public function getShippingFee(Request $request) {
+    private function getShippingFee($voucher) {
+
+        $total = $this->cartRepo->getTotal(2, 0.00, $voucher);
 
         $courier = $this->courierRepo->findCourierById(1);
         $customer = $this->customerRepo->findCustomerById(auth()->id());
         $country = (new CustomerRepository($customer))->findAddresses()->first()->country->id;
         $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
-        $delivery = (new CourierRateRepository(new CourierRate))->findShippingMethod($request->total, $courier, $channel, $country);
+        $objCourierRateRepo = (new CourierRateRepository(new CourierRate));
+        $delivery = $objCourierRateRepo->findShippingMethod($total, $courier, $channel, $country);
+        $delivery_methods = $objCourierRateRepo->getShippingMethods($total, $channel, $country);
 
         $cost = !empty($delivery->cost) ? $delivery->cost : 0;
 
-        return response()->json(['cost' => $cost]);
+        return $delivery_methods;
     }
 
     /**
@@ -131,6 +137,7 @@ class CheckoutController extends Controller {
     public function index(Request $request) {
         $products = $this->cartRepo->getCartItems();
         $customer = $request->user();
+
 
         $rates = null;
         $shipment_object_id = null;
@@ -160,6 +167,10 @@ class CheckoutController extends Controller {
             $voucher = $this->voucherCodeRepo->getByVoucherCode(request()->session()->get('voucherCode', 1));
         }
 
+        $delivery_methods = $this->getShippingFee($voucher);
+
+        $couriers = (new CourierRepository(new Courier))->listCouriers()->keyBy('id');
+
         return view('front.checkout', [
             'customer'           => $customer,
             'billingAddress'     => $billingAddress,
@@ -171,7 +182,9 @@ class CheckoutController extends Controller {
             'payments'           => $paymentGateways,
             'cartItems'          => $this->cartRepo->getCartItemsTransformed(),
             'shipment_object_id' => $shipment_object_id,
-            'rates'              => $rates
+            'delivery_methods'   => $delivery_methods,
+            'couriers'           => $couriers,
+            'rates'              => null
         ]);
     }
 
@@ -195,20 +208,13 @@ class CheckoutController extends Controller {
             $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
         }
 
-
-//        $courier = $this->courierRepo->findCourierById(1);
-//        $customer = $this->customerRepo->findCustomerById(auth()->id());
-//        $country = (new CustomerRepository($customer))->findAddresses()->first()->country->id;
-//        $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
-//        $delivery = (new CourierRateRepository(new CourierRate))->findShippingMethod($request->total, $courier, $channel, $country);
-//
-//        $cost = !empty($delivery->cost) ? $delivery->cost : 0;
+        $courier = (new CourierRepository(new Courier))->findCourierById($request->courier);
 
         switch ($request->input('payment'))
         {
             case 'paypal':
                 return $this->payPal->process(
-                                $shippingFee, $voucher, $request, new VoucherCodeRepository(new VoucherCode), $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
+                                $shippingFee, $voucher, $request, new VoucherCodeRepository(new VoucherCode), $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
                 );
                 break;
             case 'stripe':
@@ -257,6 +263,8 @@ class CheckoutController extends Controller {
     public function charge(StripeExecutionRequest $request) {
         try {
 
+            $courier = (new CourierRepository(new Courier))->findCourierById($request->courier);
+
             $voucher = null;
 
             if (request()->session()->has('voucherCode'))
@@ -267,7 +275,7 @@ class CheckoutController extends Controller {
             $customer = $this->customerRepo->findCustomerById(auth()->id());
             $stripeRepo = new StripeRepository($customer);
             $stripeRepo->execute(
-                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherCodeRepository(new VoucherCode), $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
+                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherCodeRepository(new VoucherCode), $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
             );
             return redirect()->route('checkout.success')->with('message', 'Stripe payment successful!');
         } catch (StripeChargingErrorException $e) {

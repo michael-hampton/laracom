@@ -150,10 +150,21 @@ class RefundController extends Controller {
 
         $refundAmount += $order->total_shipping;
 
-        $totalPaid = $order->total_paid - $refundAmount;
+
+        //$totalPaid = $order->total_paid - $refundAmount;
         $totalRefunded = $order->amount_refunded + $refundAmount;
 
         try {
+
+            if (!$this->authorizePayment($order, $refundAmount, $customer))
+            {
+
+                $strMessage = "Order was refunded but we failed to authorize payment";
+                $arrFailures[$request->order_id][] = $strMessage;
+                $this->saveNewComment($order, $strMessage);
+                return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
+            }
+
             $orderRepo = new OrderRepository($order);
 
             $orderRepo->updateOrder(
@@ -168,14 +179,6 @@ class RefundController extends Controller {
             return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
         }
 
-        if (!$this->authorizePayment($order, $refundAmount, $customer))
-        {
-
-            $strMessage = "Order was refunded but we failed to authorize payment";
-            $arrFailures[$request->order_id][] = $strMessage;
-            $this->saveNewComment($order, $strMessage);
-            return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
-        }
 
         if ($customer->customer_type == 'credit')
         {

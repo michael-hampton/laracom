@@ -87,21 +87,39 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
      */
     public function findShippingMethod($total, Courier $courier, Channel $channel, int $country_id) {
 
+        $rates = $this->model
+                ->whereRaw('? between range_from and range_to', [$total])
+                ->where('courier', '=', $courier->id)
+                ->where('channel', '=', $channel->id)
+                ->where('country', '=', $country_id)
+                ->get();
 
-        $query = DB::table('courier_rates');
-        $query->whereRaw('? between range_from and range_to', [$total]);
-        $query->where('courier', '=', $courier->id);
-        $query->where('channel', '=', $channel->id);
-        $query->where('country', '=', $country_id);
-        $result = $query->get();
-
-        $rates = $this->model->hydrate($result->toArray());
-
-        if (isset($rates[0])) {
+        if (isset($rates[0]))
+        {
             return $rates[0];
         }
 
         return 0;
+    }
+
+    /**
+     * 
+     * @param type $total
+     * @param Courier $courier
+     * @param Channel $channel
+     * @param int $country_id
+     * @return type
+     */
+    public function getShippingMethods($total, Channel $channel, int $country_id) {
+
+        return $this->model->where('channel', '=', $channel->id)
+                        ->where('country', '=', $country_id)
+                        ->where(function ($query) use ($total) {
+                            $query->where('range_from', '<=', $total);
+                            $query->where('range_to', '>=', $total);
+                        })
+                        ->groupBy('courier')
+                        ->get();
     }
 
     /**
