@@ -99,6 +99,7 @@ class ProductController extends Controller {
         $channel = !empty(env('CHANNEL')) ? (new ChannelRepository(new Channel))->findByName(env('CHANNEL')) : null;
 
         $products = $this->productRepo->filterProducts($request, $channel);
+        //$repo->paginateArrayResults($products, 20)
 
         return view('front.products.product-list', ['products' => $products]);
     }

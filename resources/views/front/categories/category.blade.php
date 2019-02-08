@@ -51,7 +51,6 @@ $min = min($cost);
         </div>
         <hr>
         <div class="row filter_data">
-            @include('front.products.product-list', ['products' => $products])
         </div>
     </div>
 </div>

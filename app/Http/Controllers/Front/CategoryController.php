@@ -49,8 +49,7 @@ class CategoryController extends Controller {
         return view('front.categories.category', [
             'brands' => $brands,
             'cost' => $cost,
-            'category' => $category,
-            'products' => $repo->paginateArrayResults($products, 20)
+            'category' => $category
         ]);
     }
 

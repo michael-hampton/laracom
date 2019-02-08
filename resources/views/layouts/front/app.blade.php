@@ -19,9 +19,10 @@ gtag('config', '{{ env('GOOGLE_ANALYTICS') }}');
         <title>Laracom - Laravel FREE E-Commerce Software</title>
         <meta name="description" content="Modern open-source e-commerce framework for free">
         <meta name="tags" content="modern, opensource, open-source, e-commerce, framework, free, laravel, php, php7, symfony, shop, shopping, responsive, fast, software, blade, cart, test driven, adminlte, storefront">
-        <meta name="author" content="Jeff Simons Decena">
+        <meta name="author" content="Michael Hampton">
         <link href="{{ asset('css/style.min.css') }}" rel="stylesheet">
-        <link href=" https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet">
+        <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
 
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -52,6 +53,8 @@ gtag('config', '{{ env('GOOGLE_ANALYTICS') }}');
         @yield('og')
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js') }}"></script>
+        <script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js') }}"></script>
+        
     </head>
     <body>
         <noscript>

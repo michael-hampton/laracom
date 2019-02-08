@@ -22,6 +22,12 @@
 </div>    
 
 <div class="list-group">
+    <h3>In Stock Only</h3>
+
+    <input type="checkbox" id="stock" value="1" />
+</div> 
+
+<div class="list-group">
     <h3>Brand</h3>
     <div style="height: 180px; overflow-y: auto; overflow-x: hidden;">
 
@@ -34,13 +40,7 @@
         // }
         ?>
     </div>
-</div>
-
-<div class="list-group">
-    <h3>In Stock Only</h3>
-
-    <input type="checkbox" id="stock" value="1" />
-</div>    
+</div>   
 
 <script>
 
@@ -49,11 +49,34 @@
     $('#stock').change(function() {
     filter_data();
     });
-    
     $('#order_by').on('change', function () {
-        filter_data();
+    filter_data();
     });
+//    $('.categories-list > li').on('click', function(e) {
+//    if ($(this).hasClass('active')) {
+//
+//    return false;
+//    }
+//
+//    $('.categories-list > li').removeClass('active');
+//    $(this).addClass('active');
+//    
+//    reloadPage($(this));
+//    e.preventDefault();
+//    });
+    function reloadPage(element) {
+    var category = $('.categories-list > li.active').attr('category-id');
+    var href = element.find('a').attr('href');
     
+    $.ajax({
+    url: href,
+            method:"GET",
+            success:function(data){
+            $('.container').html(data);
+            }
+    });
+    }
+
     $('.common_selector').click(function () {
 
     filter_data();
@@ -63,7 +86,7 @@
             min: {{$min}},
             max: {{$max}},
             values: [{{$min}}, {{$max}}],
-            step: 500,
+            step: 1,
             stop: function (event, ui)
             {
             $('#price_show').html(ui.values[0] + ' - ' + ui.values[1]);
@@ -83,7 +106,6 @@
     var in_stock = $('#stock').is(':checked');
     var brand = get_filter('brand');
     var category = $('.categories-list > li.active').attr('category-id');
-        
     //var ram = get_filter('ram');
     //var storage = get_filter('storage');
 
