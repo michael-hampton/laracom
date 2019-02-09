@@ -152,8 +152,12 @@ class RefundController extends Controller {
         }
 
         // voucher calculation
-        
+        $voucherAmount =  $this->getVoucherTotal($order);
 
+        if (!empty($voucherAmount) && $voucherAmount > 0) {
+            $refundAmount -= $voucherAmount;
+        }
+        
         $refundAmount += $order->total_shipping;
 
         //$totalPaid = $order->total_paid - $refundAmount;
@@ -202,28 +206,27 @@ class RefundController extends Controller {
         );
     }
     
-    private function calculateVoucherTotals(Order $order) {
-        if (!empty($order->voucher_code))
-        {
+    private function getVoucherTotal(Order $order) {
+        
+        if(empty($order->voucher_code)) {
+            
+            return false;
+        }
 
             try {
                 $objVoucherCode = (new VoucherCodeRepository(new VoucherCode))->findVoucherCodeById($order->voucher_code);
                 $voucher_id = $objVoucherCode->voucher_id;
                 $objVoucher = (new VoucherRepository(new Voucher))->findVoucherById($voucher_id);
                 $voucherAmount = $objVoucher->amount;
-
-                if (!empty($voucherAmount) && $voucherAmount > 0)
-                {
-
-                    $refundAmount -= $voucherAmount;
-                }
+ 
             } catch (Exception $ex) {
                 $strMessage = "Order was refunded but we failed to calculate voucher totals";
                 $arrFailures[$request->order_id][] = $strMessage;
                 $this->saveNewComment($order, $strMessage);
                 return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
             }
-        }
+        
+        return $voucherAmount;
     }
 
     /**
