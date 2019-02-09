@@ -144,7 +144,7 @@ class StripeRepository {
                     ]
             );
             
-            $this->saveNewComment('Payment has been captured');
+            $this->saveNewComment($order, 'Payment has been captured');
         } catch (Exception $ex) {
             return false;
         }

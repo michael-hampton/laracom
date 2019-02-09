@@ -11,6 +11,8 @@ use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\CourierRates\Repositories\CourierRateRepository;
 use App\Shop\Couriers\Courier;
 use App\Shop\Couriers\Repositories\CourierRepository;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
+use App\Shop\Vouchers\Voucher;
 use App\Shop\CourierRates\CourierRate;
 use App\Shop\Channels\Repositories\ChannelRepository;
 use App\Shop\Channels\Channel;
@@ -202,10 +204,13 @@ class CheckoutController extends Controller {
 
         $voucher = null;
         $shippingFee = 0;
+        
+        $objVoucherCodeRepository = new VoucherCodeRepository(new VoucherCode);
 
         if (request()->session()->has('voucherCode'))
         {
-            $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+            
+            $voucher = $objVoucherCodeRepository->getByVoucherCode(request()->session()->get('voucherCode', 1));
         }
 
         $courier = (new CourierRepository(new Courier))->findCourierById($request->courier);
@@ -214,7 +219,7 @@ class CheckoutController extends Controller {
         {
             case 'paypal':
                 return $this->payPal->process(
-                                $shippingFee, $voucher, $request, new VoucherCodeRepository(new VoucherCode), $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
+                                $shippingFee, $voucher, $request, (new VoucherRepository(new Voucher)), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
                 );
                 break;
             case 'stripe':

@@ -18,7 +18,7 @@ use App\Traits\VoucherValidationScope;
 class VoucherRepository extends BaseRepository implements VoucherRepositoryInterface {
 
     use VoucherTransformable,
-    VoucherValidationScope;
+        VoucherValidationScope;
 
     /**
      * VoucherRepository constructor.
@@ -61,28 +61,30 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
      *
      */
     public function deleteVoucher() {
-        
-        if($this->checkIfVoucherUsed()) {
-            
+
+        if ($this->checkIfVoucherUsed())
+        {
+
             return false;
         }
-        
+
         return $this->model->delete();
     }
-    
+
     private function checkIfVoucherUsed() {
         //public function getUsedVoucherCodes(Voucher $voucher) {
-        
-        $result = $this-model
+
+        $result = $this->model
                 ->join('vouchers', 'vouchers.id', '=', 'voucher_codes.voucher_id')
-                ->join('orders', 'orders.voucher_code','=', 'voucher_codes.id')
+                ->join('orders', 'orders.voucher_code', '=', 'voucher_codes.id')
                 ->where('voucher_codes.use_count', 0)
                 ->where('vouchers.id', $this->model->id)
                 ->get();
-        if(!empty($result)) {
+        if (!empty($result))
+        {
             return true;
         }
-        
+
         return false;
     }
 
@@ -119,7 +121,7 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
     public function searchVoucher(string $text): Collection {
         return $this->model->search($text, [
                     'coupon_code' => 10,
-                    'amount' => 5,
+                    'amount'      => 5,
                     'amount_type' => 10
                 ])->get();
     }
@@ -141,7 +143,7 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
 
         return $result;
     }
-    
+
     /**
      * 
      * @param int $id
@@ -149,14 +151,15 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
      * @return boolean
      */
     public function validateVoucher(int $id, $cartProducts) {
-                
+
         $objVoucher = $this->findVoucherById($id);
-        
-        if (!$this->validateVoucherScopes($objVoucher, $cartProducts)) {
+
+        if (!$this->validateVoucherScopes($objVoucher, $cartProducts))
+        {
             $this->validationFailures[] = 'unable to validate voucher code';
             return false;
         }
-        
+
         return $objVoucher;
     }
 

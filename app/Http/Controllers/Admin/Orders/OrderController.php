@@ -11,7 +11,6 @@ use App\Shop\VoucherCodes\VoucherCode;
 use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Customers\Customer;
-use App\Shop\Orders\Requests\ImportRequest;
 use App\Shop\Comments\Comment;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Addresses\Repositories\AddressRepository;
@@ -40,11 +39,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Shop\Comments\OrderCommentRepository;
 use Illuminate\Support\Collection;
-use Illuminate\Container\Container;
-use Psr\Log\NullLogger;
-use Illuminate\Events\Dispatcher;
 use App\Search\OrderSearch;
-use Validator;
 use App\Traits\OrderCommentTrait;
 
 class OrderController extends Controller {

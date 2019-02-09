@@ -33,12 +33,14 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\MyTrait;
+use App\Traits\OrderCommentTrait;
 use App\Shop\Orders\Requests\NewOrderRequest;
 
 class OrderRepository extends BaseRepository implements OrderRepositoryInterface {
 
-    use OrderTransformable;
-    use MyTrait;
+    use OrderTransformable,
+        MyTrait,
+        OrderCommentTrait;
 
     protected $validationFailures = [];
 
@@ -123,16 +125,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             {
 
                 $strMessage = implode('<br>', $this->validationFailures);
-                //create comment
-                $data = [
-                    'content' => $strMessage,
-                    'user_id' => auth()->guard('admin')->user()->id
-                ];
-
-                $postRepo = new OrderCommentRepository($order);
-                $postRepo->createComment($data);
+                $this->saveNewComment($order, $strMessage);
             }
-
 
             event(new OrderCreateEvent($order));
 
@@ -438,19 +432,19 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return true;
     }
 
-  /**
-   * 
-   * @param Order $order
-   * @param Channel $channel
-   * @param VoucherCodeRepositoryInterface $voucherCodeRepository
-   * @param CourierRepositoryInterface $courierRepository
-   * @param CustomerRepositoryInterface $customerRepository
-   * @param AddressRepositoryInterface $addressRepository
-   * @param array $arrParams
-   * @return type
-   */
+    /**
+     * 
+     * @param Order $order
+     * @param Channel $channel
+     * @param VoucherCodeRepositoryInterface $voucherCodeRepository
+     * @param CourierRepositoryInterface $courierRepository
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param AddressRepositoryInterface $addressRepository
+     * @param array $arrParams
+     * @return type
+     */
     public function cloneOrder(Order $order, Channel $channel, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, array $arrParams) {
-        
+
         return $this->createOrder([
                     'reference'       => isset($arrParams['order_reference']) ? $arrParams['order_reference'] : md5(uniqid(mt_rand(), true) . microtime(true)),
                     'courier_id'      => $order->courier_id,

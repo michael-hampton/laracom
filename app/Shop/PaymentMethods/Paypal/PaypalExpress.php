@@ -39,39 +39,38 @@ class PaypalExpress {
      * @var type 
      */
     private $apiContext;
-    
+
     /**
      *
      * @var type 
      */
     private $payer;
-    
     private $capture;
-    
+
     /**
      *
      * @var type 
      */
     private $amount;
-    
+
     /**
      *
      * @var type 
      */
     private $transactions = [];
-    
+
     /**
      *
      * @var type 
      */
     private $itemList;
-    
+
     /**
      *
      * @var type 
      */
     private $others;
-    
+
     /**
      *
      * @var type 
@@ -84,12 +83,12 @@ class PaypalExpress {
         );
         $apiContext->setConfig(
                 array(
-                    'mode' => $mode,
-                    'log.LogEnabled' => env('APP_DEBUG'),
-                    'log.FileName' => storage_path('logs/paypal.log'),
-                    'log.LogLevel' => env('APP_LOG_LEVEL'),
-                    'cache.enabled' => true,
-                    'cache.FileName' => storage_path('logs/paypal.cache'),
+                    'mode'                    => $mode,
+                    'log.LogEnabled'          => env('APP_DEBUG'),
+                    'log.FileName'            => storage_path('logs/paypal.log'),
+                    'log.LogLevel'            => env('APP_LOG_LEVEL'),
+                    'cache.enabled'           => true,
+                    'cache.FileName'          => storage_path('logs/paypal.cache'),
                     'http.CURLOPT_SSLVERSION' => CURL_SSLVERSION_TLSv1
                 )
         );
@@ -115,14 +114,15 @@ class PaypalExpress {
      * @param Collection $products
      */
     public function setItems(Collection $products) {
-        
+
         $items = [];
-        foreach ($products as $product) {
+        foreach ($products as $product)
+        {
             $item = new Item();
             $item->setName($product->name)
                     ->setDescription($product->description)
                     ->setQuantity($product->qty)
-                    ->setCurrency(ShoppingCart::$defaultCurrency)
+                    ->setCurrency(!empty(ShoppingCart::$defaultCurrency) ? ShoppingCart::$defaultCurrency : 'GBP')
                     ->setPrice($product->price);
             $items[] = $item;
         }
@@ -152,23 +152,23 @@ class PaypalExpress {
         $this->orderId = $orderId;
         request()->session()->put('order_id', $orderId);
     }
-    
+
     public function getAmount() {
         return $this->amount;
     }
-    
+
     public function getCapture() {
         return $this->capture;
     }
-    
+
     /**
      * @param $amt
      */
     public function setAmount($amt) {
         $amount = new Amount();
-        
+
         $currency = !empty(ShoppingCart::$defaultCurrency) ? ShoppingCart::$defaultCurrency : 'GBP';
-        
+
         $amount->setCurrency($currency)
                 ->setTotal($amt)
                 ->setDetails($this->others);
@@ -183,26 +183,26 @@ class PaypalExpress {
                 ->setInvoiceNumber(uniqid());
         $this->transactions = $transaction;
     }
-    
+
     public function setCapture() {
         $capture = new Capture();
         $capture->setAmount($this->amount);
         //$capture->setIsFinalCapture(true);
         $this->capture = $capture;
     }
-    
+
     public function doRefund($captureId) {
         $refundRequest = new RefundRequest();
-        
+
         $refundRequest->setAmount($this->amount);
-        
+
         $capture = Capture::get($captureId, $this->apiContext);
-    
+
         // ### Refund the Capture 
         $captureRefund = $capture->refundCapturedPayment($refundRequest, $this->apiContext);
         return $captureRefund;
     }
-    
+
     public function capturePayment($authorization) {
         $getCapture = $authorization->capture($this->capture, $this->apiContext);
         return $getCapture;
@@ -215,9 +215,9 @@ class PaypalExpress {
      * @return Payment
      */
     public function createPayment(string $returnUrl, string $cancelUrl) {
-        
+
         // $payment->setIntent('sale')
-        
+
         $payment = new Payment();
         $payment->setIntent('authorize')
                 ->setPayer($this->payer)
@@ -227,7 +227,7 @@ class PaypalExpress {
                 ->setReturnUrl($returnUrl)
                 ->setCancelUrl($cancelUrl);
         $payment->setRedirectUrls($redirectUrls);
-        
+
         try {
             return $payment->create($this->apiContext);
         } catch (PayPalConnectionException $e) {

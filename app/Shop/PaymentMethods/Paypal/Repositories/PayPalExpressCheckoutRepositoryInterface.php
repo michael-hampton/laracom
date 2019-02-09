@@ -8,6 +8,7 @@ use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
+use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Channels\Channel;
 use App\Shop\Couriers\Courier;
 use App\Shop\Orders\Order;
@@ -33,6 +34,7 @@ interface PayPalExpressCheckoutRepositoryInterface {
             $shippingFee = 0, 
             $voucher, 
             Request $request, 
+            VoucherRepositoryInterface $voucherRepo,
             VoucherCodeRepositoryInterface $voucherCodeRepository, 
             Courier $courier,
             CourierRepositoryInterface $courierRepository, 

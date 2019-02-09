@@ -19,11 +19,14 @@ trait OrderCommentTrait {
      * @return bool
      */
     public function saveNewComment(Order $order, string $comment): bool {
+        
+        $userId = !empty(auth()->guard('admin')->user()->id) ? auth()->guard('admin')->user()->id : 1;
+                
         $postRepo = new OrderCommentRepository($order);
 
         $data = [
             'content' => $comment,
-            'user_id' => auth()->guard('admin')->user()->id
+            'user_id' => $userId
         ];
 
         $postRepo->createComment($data);

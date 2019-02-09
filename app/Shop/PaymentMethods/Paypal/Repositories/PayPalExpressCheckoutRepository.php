@@ -13,6 +13,7 @@ use App\Shop\Carts\Repositories\CartRepository;
 use App\Shop\Carts\ShoppingCart;
 use App\Shop\Couriers\Courier;
 use App\Shop\Checkout\CheckoutRepository;
+use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\PaymentMethods\Payment;
 use App\Shop\PaymentMethods\Paypal\Exceptions\PaypalRequestError;
 use App\Shop\PaymentMethods\Paypal\PaypalExpress;
@@ -24,7 +25,7 @@ use Ramsey\Uuid\Uuid;
 use App\Traits\OrderCommentTrait;
 
 class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepositoryInterface {
-    
+
     use OrderCommentTrait;
 
     /**
@@ -65,7 +66,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * @throws PaypalRequestError
      */
     public function process(
-    $shippingFee = 0, $voucher, Request $request, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
+    $shippingFee = 0, $voucher = null, Request $request, VoucherRepositoryInterface $voucherRepo, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
     ) {
 
         $billingAddress = $addressRepository->findAddressById($request->input('billing_address'));
@@ -87,14 +88,16 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             }
         }
 
-        if (request()->session()->has('discount_amount'))
+        if (!empty($voucher))
         {
-            $discountedAmount = request()->session()->get('discount_amount', 1);
-            $items->first()->price -= $discountedAmount;
+            $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
+            $products = $items;
+            $discountedAmount = $objVoucher->amount;
+            $products->first()->price -= $discountedAmount;
         }
 
         $this->payPal->setPayer();
-        $this->payPal->setItems($items);
+        $this->payPal->setItems($products);
         //$this->payPal->setOtherFees(
         //$cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
         //);
@@ -110,6 +113,8 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             $this->payPal->setShippingAddress($shippingAddress);
         }
 
+        //voucher code = object voucher_id = code
+
         try {
             $checkoutRepo = new CheckoutRepository;
             $order = $checkoutRepo->buildCheckoutItems([
@@ -121,8 +126,9 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 'payment'         => $request->input('payment'),
                 'delivery_method' => !empty($delivery) ? $delivery : null,
                 'channel'         => !empty($channel) ? $channel : null,
-                'discounts'       => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
-                'voucher_id'      => $voucher,
+                'discounts'       => $discountedAmount,
+                'voucher_id'      => request()->session()->get('voucherCode', 1),
+                'voucher_code'    => $voucher,
                 'total_products'  => $cartRepo->getSubTotal(),
                 'shipping'        => $shippingFee,
                 'total'           => $total,
@@ -194,7 +200,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             $this->payPal->setCapture();
             $response = $this->payPal->capturePayment($authorization);
 
-            $this->saveNewComment('Payment has been captured');
+            $this->saveNewComment($order, 'Payment has been captured');
 
             $orderRepo = (new \App\Shop\Orders\Repositories\OrderRepository($order));
             $orderRepo->updateOrder(
