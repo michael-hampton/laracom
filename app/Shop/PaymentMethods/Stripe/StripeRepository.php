@@ -5,13 +5,13 @@ namespace App\Shop\PaymentMethods\Stripe;
 use App\Shop\Checkout\CheckoutRepository;
 use App\Shop\Orders\Order;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
+use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Channels\Channel;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\Couriers\Courier;
-use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\Customers\Customer;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\PaymentMethods\Stripe\Exceptions\StripeChargingErrorException;
@@ -23,7 +23,7 @@ use Stripe\Refund;
 use App\Traits\OrderCommentTrait;
 
 class StripeRepository {
-    
+
     use OrderCommentTrait;
 
     /**
@@ -57,7 +57,7 @@ class StripeRepository {
      * @throws StripeChargingErrorException
      */
     public function execute(
-    array $data, $total, $tax, $shipping = 0, $voucher = null, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
+    array $data, $total, $tax, $shipping = 0, $voucher = null, VoucherRepositoryInterface $voucherRepo, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
     ): Charge {
         try {
 
@@ -74,6 +74,13 @@ class StripeRepository {
                 }
             }
 
+            if (!empty($voucher))
+            {                
+                $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
+                $discountedAmount = $objVoucher->amount;
+                $totalComputed -= $discountedAmount;
+            }
+
             $checkoutRepo = new CheckoutRepository;
             $order = $checkoutRepo->buildCheckoutItems([
                 'reference'       => Uuid::uuid4()->toString(),
@@ -84,8 +91,9 @@ class StripeRepository {
                 'payment'         => strtolower(config('stripe.name')),
                 'delivery_method' => !empty($delivery) ? $delivery : null,
                 'channel'         => !empty($channel) ? $channel : null,
-                'discounts'       => request()->session()->has('discount_amount') ? request()->session()->get('discount_amount', 1) : 0,
-                'voucher_id'      => $voucher,
+                'discounts'       => $discountedAmount,
+                'voucher_id'      => request()->session()->get('voucherCode', 1),
+                'voucher_code'    => $voucher,
                 'total_products'  => $total,
                 'total'           => $totalComputed,
                 'total_paid'      => $totalComputed,
@@ -143,7 +151,7 @@ class StripeRepository {
                     //'transaction_id'   => $response->getId()
                     ]
             );
-            
+
             $this->saveNewComment($order, 'Payment has been captured');
         } catch (Exception $ex) {
             return false;
@@ -157,11 +165,6 @@ class StripeRepository {
      * @param Order $order
      */
     public function doRefund(Order $order, $refundAmount) {
-
-        if ($refundAmount > $order->total_paid)
-        {
-            $refundAmount = $order->total_paid;
-        }
 
         $refundAmount = $refundAmount * 100;
 

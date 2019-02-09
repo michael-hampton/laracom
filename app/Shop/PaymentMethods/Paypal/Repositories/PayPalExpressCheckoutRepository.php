@@ -229,12 +229,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
     public function doRefund(Order $order, $refundAmount) {
 
         try {
-
-            if ($refundAmount > $order->total_paid)
-            {
-                $refundAmount = $order->total_paid;
-            }
-
+            
             $this->payPal->setAmount($refundAmount);
 
             // Replace $captureId with any static Id you might already have. 

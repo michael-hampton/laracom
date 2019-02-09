@@ -204,12 +204,12 @@ class CheckoutController extends Controller {
 
         $voucher = null;
         $shippingFee = 0;
-        
+
         $objVoucherCodeRepository = new VoucherCodeRepository(new VoucherCode);
 
         if (request()->session()->has('voucherCode'))
         {
-            
+
             $voucher = $objVoucherCodeRepository->getByVoucherCode(request()->session()->get('voucherCode', 1));
         }
 
@@ -271,16 +271,17 @@ class CheckoutController extends Controller {
             $courier = (new CourierRepository(new Courier))->findCourierById($request->courier);
 
             $voucher = null;
+            $objVoucherCodeRepository = new VoucherCodeRepository(new VoucherCode);
 
             if (request()->session()->has('voucherCode'))
             {
-                $voucher = $this->voucherRepo->findVoucherById(request()->session()->get('voucherCode', 1));
+                $voucher = $objVoucherCodeRepository->getByVoucherCode(request()->session()->get('voucherCode', 1));
             }
 
             $customer = $this->customerRepo->findCustomerById(auth()->id());
             $stripeRepo = new StripeRepository($customer);
             $stripeRepo->execute(
-                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherCodeRepository(new VoucherCode), $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
+                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherRepository(new Voucher), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
             );
             return redirect()->route('checkout.success')->with('message', 'Stripe payment successful!');
         } catch (StripeChargingErrorException $e) {
