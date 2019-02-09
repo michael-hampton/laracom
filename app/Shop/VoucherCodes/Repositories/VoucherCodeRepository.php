@@ -77,7 +77,22 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
      *
      */
     public function deleteVoucherCode() {
+        
+        if($this->checkVoucherCodeIsUsed()) {
+            return false;
+        }
+        
         return $this->model->delete();
+    }
+    
+    public function checkVoucherCodeIsUsed() {
+        $check = DB::table('orders')->where('voucher_code', $this->model->id)->first();
+        
+        if(!empty($check)){
+            return true;
+        }
+        
+        return false;
     }
 
     /**
