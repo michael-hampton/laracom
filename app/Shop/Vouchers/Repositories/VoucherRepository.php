@@ -61,7 +61,29 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
      *
      */
     public function deleteVoucher() {
+        
+        if($this->checkIfVoucherUsed()) {
+            
+            return false;
+        }
+        
         return $this->model->delete();
+    }
+    
+    private function checkIfVoucherUsed() {
+        //public function getUsedVoucherCodes(Voucher $voucher) {
+        
+        $result = $this-model
+                ->join('vouchers', 'vouchers.id', '=', 'voucher_codes.voucher_id')
+                ->join('orders', 'orders.voucher_code','=', 'voucher_codes.id')
+                ->where('voucher_codes.use_count', 0)
+                ->where('vouchers.id', $this->model->id)
+                ->get();
+        if(!empty($result)) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**
