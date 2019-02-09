@@ -20,8 +20,11 @@ use Ramsey\Uuid\Uuid;
 use Stripe\Charge;
 use Stripe\Stripe;
 use Stripe\Refund;
+use App\Traits\OrderCommentTrait;
 
 class StripeRepository {
+    
+    use OrderCommentTrait;
 
     /**
      * @var Customer
@@ -140,6 +143,8 @@ class StripeRepository {
                     //'transaction_id'   => $response->getId()
                     ]
             );
+            
+            $this->saveNewComment('Payment has been captured');
         } catch (Exception $ex) {
             return false;
         }

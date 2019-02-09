@@ -21,8 +21,11 @@ use PayPal\Exception\PayPalConnectionException;
 use PayPal\Api\Payment as PayPalPayment;
 use PayPal\Api\Authorization as PayPalAuthorization;
 use Ramsey\Uuid\Uuid;
+use App\Traits\OrderCommentTrait;
 
 class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepositoryInterface {
+    
+    use OrderCommentTrait;
 
     /**
      * @var mixed
@@ -83,24 +86,24 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 $total = $cartRepo->getTotal(2, $shippingFee, $voucher);
             }
         }
-        
+
         if (request()->session()->has('discount_amount'))
         {
             $discountedAmount = request()->session()->get('discount_amount', 1);
             $items->first()->price -= $discountedAmount;
         }
-        
+
         $this->payPal->setPayer();
         $this->payPal->setItems($items);
         //$this->payPal->setOtherFees(
-                //$cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
+        //$cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
         //);
 
         $this->payPal->setOtherFees($subtotal, 0, $shippingFee);
         $this->payPal->setAmount($total);
         $this->payPal->setTransactions();
         $this->payPal->setBillingAddress($billingAddress);
-        
+
         if ($request->has('shipping_address'))
         {
             $shippingAddress = $addressRepository->findAddressById($request->input('shipping_address'));
@@ -190,6 +193,8 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             $this->payPal->setAmount($order->total);
             $this->payPal->setCapture();
             $response = $this->payPal->capturePayment($authorization);
+
+            $this->saveNewComment('Payment has been captured');
 
             $orderRepo = (new \App\Shop\Orders\Repositories\OrderRepository($order));
             $orderRepo->updateOrder(

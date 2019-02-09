@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin\Refunds;
 
 use App\Shop\Refunds\Refund;
 use App\Shop\Refunds\Repositories\RefundRepository;
-use App\Shop\Comments\OrderCommentRepository;
+use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
+use App\Shop\VoucherCodes\VoucherCode;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
+use App\Shop\Vouchers\Voucher;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Customer;
 use App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository;
@@ -148,15 +151,42 @@ class RefundController extends Controller {
             return response()->json(['error' => 'failed to update order lines'], 404); // Status code here
         }
 
-        $refundAmount += $order->total_shipping;
+        if (!empty($order->voucher_code))
+        {
 
+            try {
+                $objVoucherCode = (new VoucherCodeRepository(new VoucherCode))->findVoucherCodeById($order->voucher_code);
+                $voucher_id = $objVoucherCode->voucher_id;
+                $objVoucher = (new VoucherRepository(new Voucher))->findVoucherById($voucher_id);
+                $voucherAmount = $objVoucher->amount;
+
+                if (!empty($voucherAmount) && $voucherAmount > 0)
+                {
+
+                    $refundAmount -= $voucherAmount;
+                }
+            } catch (Exception $ex) {
+                $strMessage = "Order was refunded but we failed to calculate voucher totals";
+                $arrFailures[$request->order_id][] = $strMessage;
+                $this->saveNewComment($order, $strMessage);
+                return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
+            }
+        }
+
+        $refundAmount += $order->total_shipping;
 
         //$totalPaid = $order->total_paid - $refundAmount;
         $totalRefunded = $order->amount_refunded + $refundAmount;
 
         try {
 
-            if (!$this->authorizePayment($order, $refundAmount, $customer))
+            if ($customer->customer_type == 'credit')
+            {
+
+                $objCustomerRepository->addCredit($customer->id, 10);
+                $this->saveNewComment($order, 'customer has been credited for refund');
+            }
+            elseif (!$this->authorizePayment($order, $refundAmount, $customer))
             {
 
                 $strMessage = "Order was refunded but we failed to authorize payment";
@@ -182,15 +212,13 @@ class RefundController extends Controller {
         }
 
 
-        if ($customer->customer_type == 'credit')
-        {
-
-            $objCustomerRepository->addCredit($customer->id, 10);
-            $this->saveNewComment($order, 'customer has been credited for refund');
-        }
-
-        $http_code = $blError === true ? 400 : 200;
-        return response()->json(['http_code' => $http_code, 'SUCCESS' => $arrSuccesses, 'FAILURES' => $arrFailures]);
+        return response()->json(
+                        [
+                            'http_code' => 200,
+                            'SUCCESS'   => $arrSuccesses,
+                            'FAILURES'  => $arrFailures
+                        ]
+        );
     }
 
     /**
