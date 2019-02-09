@@ -151,27 +151,8 @@ class RefundController extends Controller {
             return response()->json(['error' => 'failed to update order lines'], 404); // Status code here
         }
 
-        if (!empty($order->voucher_code))
-        {
-
-            try {
-                $objVoucherCode = (new VoucherCodeRepository(new VoucherCode))->findVoucherCodeById($order->voucher_code);
-                $voucher_id = $objVoucherCode->voucher_id;
-                $objVoucher = (new VoucherRepository(new Voucher))->findVoucherById($voucher_id);
-                $voucherAmount = $objVoucher->amount;
-
-                if (!empty($voucherAmount) && $voucherAmount > 0)
-                {
-
-                    $refundAmount -= $voucherAmount;
-                }
-            } catch (Exception $ex) {
-                $strMessage = "Order was refunded but we failed to calculate voucher totals";
-                $arrFailures[$request->order_id][] = $strMessage;
-                $this->saveNewComment($order, $strMessage);
-                return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
-            }
-        }
+        // voucher calculation
+        
 
         $refundAmount += $order->total_shipping;
 
@@ -219,6 +200,30 @@ class RefundController extends Controller {
                             'FAILURES'  => $arrFailures
                         ]
         );
+    }
+    
+    private function calculateVoucherTotals(Order $order) {
+        if (!empty($order->voucher_code))
+        {
+
+            try {
+                $objVoucherCode = (new VoucherCodeRepository(new VoucherCode))->findVoucherCodeById($order->voucher_code);
+                $voucher_id = $objVoucherCode->voucher_id;
+                $objVoucher = (new VoucherRepository(new Voucher))->findVoucherById($voucher_id);
+                $voucherAmount = $objVoucher->amount;
+
+                if (!empty($voucherAmount) && $voucherAmount > 0)
+                {
+
+                    $refundAmount -= $voucherAmount;
+                }
+            } catch (Exception $ex) {
+                $strMessage = "Order was refunded but we failed to calculate voucher totals";
+                $arrFailures[$request->order_id][] = $strMessage;
+                $this->saveNewComment($order, $strMessage);
+                return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
+            }
+        }
     }
 
     /**
