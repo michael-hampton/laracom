@@ -1,35 +1,32 @@
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" type="text/css" rel="stylesheet">
 
 <?php
 $arrAllUsedCodes = [];
 
 $strUsedCodes = '';
 $strUnusedCodes = '';
+
 foreach ($used as $usedCodes)
 {
-    $arrAllUsedCodes[] = $usedCodes->voucher_code;
-    $strUsedCodes .= '<li>' . $usedCodes->voucher_code . '</li>';
+    $arrAllUsedCodes[] = trim($usedCodes->voucher_code);
+    $strUsedCodes .= "<li class='list-group-item'>{$usedCodes->voucher_code}</li>";
 }
 
 foreach ($codes as $unusedCode)
 {
 
-    if (!in_array($unusedCode->voucher_code, $arrAllUsedCodes))
+    if (!in_array(trim($unusedCode->voucher_code), $arrAllUsedCodes))
     {
-        $strUnusedCodes .= '<li>' . $unusedCode->voucher_code . ''
-                . '<a href="#" class="deletebtn" code-id="' . $unusedCode->id . '">x</a>'
+        $strUnusedCodes .= '<li class="list-group-item">' . $unusedCode->voucher_code . ''
+                . '<a href="#" class="deletebtn" code-id="' . $unusedCode->id . '"><i style="font-size: 16px;" class="fa fa-times-circle"></i></a>'
                 . '</li>';
     }
 }
 ?>
 
-
-@include('layouts.errors-and-messages')
-
 <!--    <a href="{{ route('admin.voucher-codes.batch', $voucher->id) }}" class="btn btn-default btn-sm">Show Codes</a>-->
 
-<div class="col-lg-12">
+<div class="col-lg-6">
     <div class="box">
 
         <form action="{{ route('admin.vouchers.destroy', $voucher->id) }}" method="post" class="form-horizontal">
@@ -148,33 +145,36 @@ foreach ($codes as $unusedCode)
     </div>
 </div>
 
-<div class="col-lg-12">
+<div class="row">
+    <div class="col-lg-3">
 
-    <div class="box">
-        <div class="box-body">
-            <h2>Used Codes</h2>
+        <div class="box">
+            <div class="box-body">
+                <h2>Used Codes</h2>
 
-            <ul>
-                {{$strUsedCodes}}
-            </ul>
+                <ul class="list-group clear-list">
+                    <?= $strUsedCodes ?>
+                </ul>
+            </div>
         </div>
+
+
     </div>
 
+    <div class="col-lg-3">
+        <div class="box">
+            <div class="box-body">
+                <h2>Unused Codes</h2>
 
-</div>
-
-<div class="col-lg-12">
-    <div class="box">
-        <div class="box-body">
-            <h2>Unused Codes</h2>
-
-            <a href="{{ route('admin.voucher-codes.add', $voucher->id) }}" class="btn btn-default btn-sm AddVoucherCode">Add Codes</a>
+                <a href="{{ route('admin.voucher-codes.add', $voucher->id) }}" class="btn btn-default btn-sm AddVoucherCode">Add Codes</a>
 
 
-            <ul class="unused-ul">
-                <?= $strUnusedCodes ?>
-            </ul>
+                <ul class="unused-ul list-group clear-list">
+                    <?= $strUnusedCodes ?>
+                </ul>
+            </div>
         </div>
+
     </div>
 
 </div>
@@ -343,7 +343,7 @@ foreach ($codes as $unusedCode)
                             type: "GET",
                             url: href,
                             success: function (response) {
-                                $('#voucherCodeModal').find('.modal-body').html(response);
+                                $('#voucherCodeModal').html(response);
                                 $('#voucherCodeModal').modal('show');
                             }
                         });

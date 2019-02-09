@@ -6,10 +6,10 @@ use App\Shop\Vouchers\Voucher;
 use App\Shop\Brands\Repositories\BrandRepository;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Shop\Vouchers\VoucherGenerator;
+use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
-use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\VoucherCodes\VoucherCode;
 use Illuminate\Http\UploadedFile;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
@@ -355,9 +355,10 @@ class VoucherController extends Controller {
 
         $voucher = $this->voucherRepo->findVoucherById($id);
         $channel = $voucher->channel;
+        $objVoucherCodeRepository = new VoucherCodeRepository(new VoucherCode);
 
-        $voucherCodes = (new \App\Shop\VoucherCodes\Repositories\VoucherCodeRepository(new \App\Shop\VoucherCodes\VoucherCode))->listVoucherCode()->where('voucher_id', $id);
-        $usedVoucherCodes = $this->voucherRepo->getUsedVoucherCodes($voucher);
+        $voucherCodes = $objVoucherCodeRepository->listVoucherCode()->where('voucher_id', $id);
+        $usedVoucherCodes = $objVoucherCodeRepository->getUsedVoucherCodes($voucher);
 
         if (!empty($channel))
         {

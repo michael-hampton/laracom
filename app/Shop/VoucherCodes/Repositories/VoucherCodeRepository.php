@@ -3,6 +3,7 @@
 namespace App\Shop\VoucherCodes\Repositories;
 
 use App\Shop\VoucherCodes\VoucherCode;
+use App\Shop\Vouchers\Voucher;
 use App\Shop\VoucherCodes\Exceptions\VoucherCodeInvalidArgumentException;
 use App\Shop\VoucherCodes\Exceptions\VoucherCodeNotFoundException;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
@@ -77,21 +78,23 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
      *
      */
     public function deleteVoucherCode() {
-        
-        if($this->checkVoucherCodeIsUsed()) {
+
+        if ($this->checkVoucherCodeIsUsed())
+        {
             return false;
         }
-        
+
         return $this->model->delete();
     }
-    
+
     public function checkVoucherCodeIsUsed() {
         $check = DB::table('orders')->where('voucher_code', $this->model->id)->first();
-        
-        if(!empty($check)){
+
+        if (!empty($check))
+        {
             return true;
         }
-        
+
         return false;
     }
 
@@ -127,9 +130,9 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
      */
     public function searchVoucherCode(string $text): Collection {
         return $this->model->search($text, [
-                    'use_count' => 10,
+                    'use_count'    => 10,
                     'voucher_code' => 10,
-                    'voucher_id' => 10
+                    'voucher_id'   => 10
                 ])->get();
     }
 
@@ -170,11 +173,12 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
                                             AND v.status = 1 
                                             AND channel = :channel"), [
                     'channel' => $channel->id,
-                    'code' => $voucherCode
+                    'code'    => $voucherCode
                         ]
         );
 
-        if (empty($results)) {
+        if (empty($results))
+        {
             $this->validationFailures[] = 'unable to find voucher code';
             return false;
         }
@@ -182,7 +186,8 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
         try {
             $objVoucherCode = $this->findVoucherCodeById($results[0]->code_id);
 
-            if (!$voucherRepo->validateVoucher($objVoucherCode->voucher_id, $cartProducts)) {
+            if (!$voucherRepo->validateVoucher($objVoucherCode->voucher_id, $cartProducts))
+            {
                 $this->validationFailures[] = 'unable to validate voucher';
                 return false;
             }
@@ -193,6 +198,23 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
         request()->session()->put('voucherCode', $objVoucherCode->voucher_code);
 
         return $objVoucherCode;
+    }
+
+    /**
+     * 
+     * @param Channel $channel
+     * @return type
+     */
+    public function getUsedVoucherCodes(Voucher $voucher) {
+
+        $result = $this->model
+                ->select('voucher_codes.*')
+                ->join('orders', 'orders.voucher_code', '=', 'voucher_codes.id')
+                ->where('voucher_codes.voucher_id', $voucher->id)
+                ->groupBy('voucher_codes.id')
+                ->get();
+
+        return $result;
     }
 
     /**

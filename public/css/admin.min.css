@@ -32,6 +32,13 @@
     z-index: 9999;
 }
 
+@media screen and (min-width: 768px) {
+    .modal-dialog {
+        left: 0% !important;
+    }
+}
+
+
 .middle-box {
     max-width: 400px;
     z-index: 100;
