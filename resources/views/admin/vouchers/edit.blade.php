@@ -6,14 +6,17 @@ $arrAllUsedCodes = [];
 
 $strUsedCodes = '';
 $strUnusedCodes = '';
-foreach ($used as $usedCodes) {
+foreach ($used as $usedCodes)
+{
     $arrAllUsedCodes[] = $usedCodes->voucher_code;
     $strUsedCodes .= '<li>' . $usedCodes->voucher_code . '</li>';
 }
 
-foreach ($codes as $unusedCode) {
+foreach ($codes as $unusedCode)
+{
 
-    if (!in_array($unusedCode->voucher_code, $arrAllUsedCodes)) {
+    if (!in_array($unusedCode->voucher_code, $arrAllUsedCodes))
+    {
         $strUnusedCodes .= '<li>' . $unusedCode->voucher_code . ''
                 . '<a href="#" class="deletebtn" code-id="' . $unusedCode->id . '">x</a>'
                 . '</li>';
@@ -34,7 +37,7 @@ foreach ($codes as $unusedCode) {
             <input type="hidden" name="_method" value="delete">
 
             <div class="btn-group">
-                <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Delete</button>
+                <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm DeleteVoucher"><i class="fa fa-times"></i> Delete</button>
             </div>
         </form>
 
@@ -183,6 +186,34 @@ foreach ($codes as $unusedCode) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript">
                     $(document).ready(function () {
+
+                        $(".DeleteVoucher").click(function (ev) {
+
+                            ev.preventDefault();
+
+                            var href = $(this).parent().parent().attr('action');
+                            var formdata = $(this).parent().parent().serialize();
+
+                            $.ajax({
+                                type: 'DELETE',
+                                url: href,
+                                dataType: 'json',
+                                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                                data: formdata,
+
+                                success: function (response) {
+
+                                    if (response.http_code == 200) {
+                                        location.reload();
+                                    } else {
+                                        alert(response.errors);
+                                    }
+                                },
+                                error: function (data) {
+                                    alert(data);
+                                }
+                            });
+                        });
 
                         $(".deletebtn").click(function (ev) {
                             let id = $(this).attr("code-id");

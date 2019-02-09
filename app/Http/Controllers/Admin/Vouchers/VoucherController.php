@@ -8,7 +8,6 @@ use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Shop\Vouchers\VoucherGenerator;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
-use App\Shop\Brands\Repositories\Interfaces\BrandRepositoryInteface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\VoucherCodes\VoucherCode;
@@ -20,7 +19,6 @@ use App\Shop\Vouchers\Requests\UpdateVoucherRequest;
 use App\Shop\Vouchers\Transformations\VoucherTransformable;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use App\Shop\Tools\CsvTrait;
 use Illuminate\Support\Facades\Validator;
 
@@ -89,7 +87,7 @@ class VoucherController extends Controller {
      */
     public function index() {
 
-        $list = $this->voucherRepo->listVoucher('expiry_date', 'desc');
+        $list = $this->voucherRepo->listVoucher('id', 'desc');
 
         if (request()->has('q'))
         {
@@ -310,7 +308,7 @@ class VoucherController extends Controller {
         $voucher = $this->voucherRepo->findVoucherById($id);
 
         $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
-        
+
         // Validate the input and return correct response
         if ($validator->fails())
         {
@@ -413,7 +411,11 @@ class VoucherController extends Controller {
     public function destroy($id) {
         $voucher = $this->voucherRepo->findVoucherById($id);
         $delete = new VoucherRepository($voucher);
-        $delete->deleteVoucher();
+
+        if (!$delete->deleteVoucher())
+        {
+            return response()->json(['http_code' => 400, 'errors' => ['The voucher is assigned to order and cannot be deleted']]);
+        }
 
         request()->session()->flash('message', 'Delete successful');
         return redirect()->route('admin.vouchers.index');
