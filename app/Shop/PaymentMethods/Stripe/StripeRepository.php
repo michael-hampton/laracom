@@ -78,7 +78,16 @@ class StripeRepository {
             {                
                 $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
                 $discountedAmount = $objVoucher->amount;
-                $totalComputed -= $discountedAmount;
+                
+                switch($objVoucher->type) {
+                    case 'percent':
+                        $totalComputed = round($totalComputed * ((100 - $discountedAmount) / 100), 2);
+                        break;
+                    
+                    case 'fixed':
+                        $totalComputed -= $discountedAmount;
+                        break;
+                }
             }
 
             $checkoutRepo = new CheckoutRepository;
