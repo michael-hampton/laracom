@@ -351,20 +351,42 @@ class OrderController extends Controller {
         }
 
         $orderTotal += $shippingCost;
-
         $voucherAmount = 0;
 
         if (!empty($request->voucher_code))
         {
-            $voucherCode = $this->voucherCodeRepo->getByVoucherCode($request->voucher_code);
+            $arrProducts = $this->validateProducts($request->products);
 
+            if (!$arrProducts)
+            {
+                $request->session()->flash('Unable to validate products', 'danger');
+                return redirect()->route('admin.orders.index');
+            }
+
+            $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $request->voucher_code, $arrProducts, $this->voucherRepo);
+
+            if (!$voucherCode)
+            {                
+                $request->session()->flash('Unable to validate voucher code', 'error');
+                return redirect()->route('admin.orders.create');
+            }
+         
             $voucher_id = $voucherCode->voucher_id;
             $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
 
             $voucherAmount = $objVoucher->amount;
-        }
 
-        $orderTotal -= $voucherAmount;
+            switch ($objVoucher->amount_type)
+            {
+                case 'percentage':
+                    $orderTotal = $orderTotal - ($orderTotal * ($objVoucher->amount / 100));
+                    break;
+
+                case 'fixed':
+                    $orderTotal -= $voucherAmount;
+                    break;
+            }
+        }
 
         $arrData = [
             'reference'       => md5(uniqid(mt_rand(), true) . microtime(true)),
@@ -379,7 +401,7 @@ class OrderController extends Controller {
             'discounts'       => $voucherAmount,
             'total_shipping'  => $shippingCost,
             'total_products'  => count($request->products),
-            'total'           => $orderTotal,
+            'total'           => round($orderTotal, 2),
             'total_paid'      => 0,
             'channel'         => $channel,
             'tax'             => 0,
@@ -392,6 +414,34 @@ class OrderController extends Controller {
 
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.orders.index');
+    }
+
+    /**
+     * 
+     * @param type $products
+     * @return boolean
+     */
+    private function validateProducts($products) {
+
+        $arrProducts = [];
+        $arrAllProducts = $this->productRepo->listProducts()->keyBy('id');
+
+
+        try {
+            foreach ($products as $count => $product)
+            {
+                if (!isset($arrAllProducts[$product['id']]))
+                {
+
+                    return false;
+                }
+                $arrProducts[] = $arrAllProducts[$product['id']];
+            }
+        } catch (Exception $ex) {
+            return false;
+        }
+
+        return $arrProducts;
     }
 
     /**

@@ -188,9 +188,11 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
 
             if (!$voucherRepo->validateVoucher($objVoucherCode->voucher_id, $cartProducts))
             {
+                
                 $this->validationFailures[] = 'unable to validate voucher';
                 return false;
             }
+                        
         } catch (\Exception $e) {
             $this->validationFailures[] = $e->getMessage();
         }

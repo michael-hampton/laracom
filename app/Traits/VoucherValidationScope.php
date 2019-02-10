@@ -28,19 +28,33 @@ trait VoucherValidationScope {
 
         $scopeType = $objVoucher->scope_type;
 
-        foreach ($cartProducts as $cartProduct) {
+        foreach ($cartProducts as $cartProduct)
+        {
 
-            switch ($scopeType) {
+            if (is_object($cartProduct->product))
+            {
+
+                $objProduct = $cartProduct->product;
+            }
+            else
+            {
+                $objProduct = $cartProduct;
+            }
+
+            switch ($scopeType)
+            {
 
                 case 'Brand':
-                    if (empty($cartProduct->product->brand_id)) {
+                    if (empty($objProduct->brand_id))
+                    {
 
                         return false;
                     }
 
                     $scopeValue = (int) $objVoucher->scope_value;
 
-                    if ((int) $cartProduct->product->brand_id !== $scopeValue) {
+                    if ((int) $objProduct->brand_id !== $scopeValue)
+                    {
 
                         return false;
                     }
@@ -49,17 +63,20 @@ trait VoucherValidationScope {
 
                 case 'Product':
 
-                    if (empty($cartProduct->product->id)) {
+                    if (empty($objProduct->id))
+                    {
 
                         return false;
                     }
-
+                                        
                     $scopeValues = explode(',', $objVoucher->scope_value);
                     $blFound = false;
 
-                    foreach ($scopeValues as $scopeValue) {
+                    foreach ($scopeValues as $scopeValue)
+                    {
 
-                        if ($cartProduct->product->id !== (int) $scopeValue) {
+                        if ($objProduct->id !== (int) $scopeValue)
+                        {
 
                             continue;
                         }
@@ -73,11 +90,12 @@ trait VoucherValidationScope {
 
                 case 'Category':
 
-                    $categoryIds = $cartProduct->product->categories()->pluck('category_id')->all();
+                    $categoryIds = $objProduct->categories()->pluck('category_id')->all();
 
                     $scopeValue = (int) $objVoucher->scope_value;
 
-                    if (!in_array($scopeValue, $categoryIds)) {
+                    if (!in_array($scopeValue, $categoryIds))
+                    {
 
                         return false;
                     }
