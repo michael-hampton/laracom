@@ -159,8 +159,7 @@ class CourierRateController extends Controller {
                         )->errors();
             
             if ($csv_errors->any()) {
-                echo json_encode(['http_code' => 400, 'errors' => $csv_errors]);
-                die;
+                return response()->json(['http_code' => 400, 'errors' => $csv_errors]);
             }
             
             $courierRate = $this->courierRateRepo->findCourierRateById($rateId);
@@ -169,8 +168,7 @@ class CourierRateController extends Controller {
             $courierRepo->updateCourierRate($rate);
         }
         
-
-        echo json_encode(['http_code' => 200]);
+        return response()->json(['http_code' => 200]);
     }
 
     /**
