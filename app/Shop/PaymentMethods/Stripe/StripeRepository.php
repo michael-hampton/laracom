@@ -79,7 +79,7 @@ class StripeRepository {
                 $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
                 $discountedAmount = $objVoucher->amount;
                 
-                switch($objVoucher->type) {
+                switch($objVoucher->amount_type) {
                     case 'percent':
                         $totalComputed = round($totalComputed * ((100 - $discountedAmount) / 100), 2);
                         break;
