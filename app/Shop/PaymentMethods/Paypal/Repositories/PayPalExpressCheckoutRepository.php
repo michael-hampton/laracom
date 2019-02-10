@@ -92,19 +92,17 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
         {
             $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
             $products = $items;
+            $discountedAmount = $objVoucher->amount;
             
             switch($objVoucher->type) {
                 case 'percent':
-                    $discountedAmount = $price * ($amount / 100);
+                    $products->first()->price = round($products->first()->price * ((100 - $discountedAmount) / 100), 2);
                     break;
                     
                 case 'fixed':
-                    
+                    $products->first()->price -= $discountedAmount;
                     break;
             }
-            
-            $discountedAmount = $objVoucher->amount;
-            $products->first()->price -= $discountedAmount;
         }
 
         $this->payPal->setPayer();
