@@ -13,7 +13,7 @@ use App\Shop\CourierRates\CourierRate;
 use App\Shop\Couriers\Courier;
 use App\Shop\Channels\Channel;
 use App\Shop\CourierRates\Transformations\CourierRateTransformable;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class CourierRateRepository extends BaseRepository implements CourierRateRepositoryInterface {
 
@@ -120,21 +120,22 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
                         ->groupBy('courier')
                         ->get();
     }
-    
+
     /**
      * 
      * @param \App\Shop\CourierRates\Repositories\Request $request
      * @return type
      */
     public function checkMethodExists(Request $request) {
+        
         return $this->model->where('channel', '=', $request->channel)
-                        ->where('country', '=', $request->country)
-                        ->where(function ($query) use ($request) {
-                            $query->where('range_from', '<=', $request->range_from);
-                            $query->where('range_to', '>=', $request->range_to);
-                        })
-                        ->where('courier', $request->courier)
-                        ->get();
+                ->where('country', '=', $request->country)
+                ->where(function ($query) use ($request) {
+                    $query->where('range_from', '<=', $request->range_from);
+                    $query->where('range_to', '>=', $request->range_to);
+                })
+                ->where('courier', $request->courier)
+                ->get();
     }
 
     /**

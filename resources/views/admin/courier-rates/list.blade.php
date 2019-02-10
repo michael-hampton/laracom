@@ -140,15 +140,15 @@
                 url: href,
                 data: formdata,
                 success: function (response) {
-                    if (response.http_code === 400) {
 
-                        $('.content').prepend("<div class='alert alert-danger'>Unable to save shipping rate</div>");
-
-
+                    if (response.http_code == 400) {
+                        $('.content').prepend("<div class='alert alert-danger'></div>");
+                        $.each(response.errors, function (key, value) {
+                            $('.content .alert-danger').append("<p>" + value + "</p>");
+                        });
                     } else {
-                        $('.content').prepend("<div class='alert alert-success'>Shipping rate saved successfully</div>");
+                        $('.content').prepend("<div class='alert alert-success'>Shipoing Rate has been added successfully</div>");
                         $('.Search').click();
-
                     }
                 }
             });

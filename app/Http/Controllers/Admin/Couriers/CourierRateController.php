@@ -46,7 +46,7 @@ class CourierRateController extends Controller {
         $this->courierRepo = $courierRepository;
         $this->courierRateRepo = $courierRateRepository;
         $this->channelRepo = $channelRepository;
-        
+
         $this->middleware(['permission:create-courier-rate, guard:admin'], ['only' => ['create', 'store']]);
         $this->middleware(['permission:update-courier-rate, guard:admin'], ['only' => ['edit', 'update']]);
         $this->middleware(['permission:delete-courier-rate, guard:admin'], ['only' => ['destroy']]);
@@ -68,10 +68,10 @@ class CourierRateController extends Controller {
 
 
         return view('admin.courier-rates.list', [
-            'couriers' => $couriers,
+            'couriers'      => $couriers,
             'courier_rates' => $courier_rates,
-            'countries' => $countries,
-            'channels' => $this->channelRepo->listChannels()
+            'countries'     => $countries,
+            'channels'      => $this->channelRepo->listChannels()
                 ]
         );
     }
@@ -84,10 +84,10 @@ class CourierRateController extends Controller {
         $countries = (new CountryRepository(new Country))->listCountries();
 
         return view('admin.courier-rates.search', [
-            'couriers' => $couriers,
+            'couriers'      => $couriers,
             'courier_rates' => $courier_rates,
-            'countries' => $countries,
-            'channels' => $this->channelRepo->listChannels()
+            'countries'     => $countries,
+            'channels'      => $this->channelRepo->listChannels()
                 ]
         );
     }
@@ -102,8 +102,8 @@ class CourierRateController extends Controller {
         $countries = $countryRepo->listCountries();
         return view('admin.courier-rates.create', [
             'countries' => $countries,
-            'couriers' => $this->courierRepo->listCouriers('name', 'asc'),
-            'channels' => $this->channelRepo->listChannels()
+            'couriers'  => $this->courierRepo->listCouriers('name', 'asc'),
+            'channels'  => $this->channelRepo->listChannels()
                 ]
         );
     }
@@ -114,20 +114,25 @@ class CourierRateController extends Controller {
      * @param  CreateCourierRateRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateCourierRateRequest $request) {
+    public function store(Request $request) {
 
-        $csv_errors = Validator::make(
-                                $rate, (new CreateCourierRateRequest())->rules()
-                        )->errors();
-            
-            if ($csv_errors->any()) {
-                return response()->json(['http_code' => 400, 'errors' => $csv_errors]);
-            }
-        
-        if(!empty($this->courierRateRepo->checkMethodExists($request))) {
-            return response()->json(['http_code' => 400, 'errors' => ['rate already exists]]);
+        $data = $request->except('_token', '_method', 'uploadedProductCodes');
+
+        $validator = Validator::make($data, (new CreateCourierRateRequest())->rules());
+
+        // Validate the input and return correct response
+        if ($validator->fails())
+        {
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
         }
-       
+        
+        $existingRates = $this->courierRateRepo->checkMethodExists($request);
+
+        if (!$existingRates->isEmpty())
+        {
+            return response()->json(['http_code' => 400, 'errors' => [0 => ['rate already exists']]]);
+        }
+
         $this->courierRateRepo->createCourierRate($request->all());
         return response()->json(['http_code' => 200]);
     }
@@ -142,10 +147,10 @@ class CourierRateController extends Controller {
         $countryRepo = new CountryRepository(new Country);
         $countries = $countryRepo->listCountries();
         return view('admin.courier-rates.edit', [
-            'courier' => $this->courierRateRepo->findCourierRateById($id),
+            'courier'   => $this->courierRateRepo->findCourierRateById($id),
             'countries' => $countries,
-            'couriers' => $this->courierRepo->listCouriers('name', 'asc'),
-            'channels' => $this->channelRepo->listChannels()
+            'couriers'  => $this->courierRepo->listCouriers('name', 'asc'),
+            'channels'  => $this->channelRepo->listChannels()
                 ]
         );
     }
@@ -159,22 +164,24 @@ class CourierRateController extends Controller {
      */
     public function update(Request $request) {
 
-        foreach($request->rates as $rateId => $rate) {
-           
+        foreach ($request->rates as $rateId => $rate)
+        {
+
             $csv_errors = Validator::make(
-                                $rate, (new UpdateCourierRateRequest())->rules()
-                        )->errors();
-            
-            if ($csv_errors->any()) {
+                            $rate, (new UpdateCourierRateRequest())->rules()
+                    )->errors();
+
+            if ($csv_errors->any())
+            {
                 return response()->json(['http_code' => 400, 'errors' => $csv_errors]);
             }
-            
+
             $courierRate = $this->courierRateRepo->findCourierRateById($rateId);
             $courierRepo = new CourierRateRepository($courierRate);
-            
+
             $courierRepo->updateCourierRate($rate);
         }
-        
+
         return response()->json(['http_code' => 200]);
     }
 
