@@ -66,6 +66,7 @@ class StripeRepository {
             $cartRepo = new CartRepository(new ShoppingCart());
             $subtotal = $cartRepo->getProductTotal(2);
             $total = $cartRepo->getProductTotal(2);
+            $discountedAmount = 0;
             
             if (!empty($voucher))
             {
@@ -140,6 +141,7 @@ class StripeRepository {
                 );
 
                 Cart::destroy();
+                request()->session()->forget('voucherCode');
             }
 
 

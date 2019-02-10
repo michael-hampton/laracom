@@ -74,15 +74,15 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
         $cartRepo = new CartRepository(new ShoppingCart());
         $items = $cartRepo->getCartItemsTransformed();
         $subtotal = $cartRepo->getProductTotal(2);
+        $products = $items;
+        $discountedAmount = 0;
 
         $total = 0;
 
         if (!empty($voucher))
         {
             $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
-            $products = $items;
-
-
+  
             switch ($objVoucher->amount_type)
             {
                 case 'percentage':
@@ -206,6 +206,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             );
         }
         $cartRepo->clearCart();
+        request()->session()->forget('voucherCode');
     }
 
     /**

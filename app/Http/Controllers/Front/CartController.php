@@ -162,7 +162,8 @@ class CartController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $this->cartRepo->removeToCart($id);
+        $this->cartRepo->removeToCart($id);        
+        request()->session()->forget('voucherCode');
         request()->session()->flash('message', 'Removed to cart successful');
         return redirect()->route('cart.index');
     }

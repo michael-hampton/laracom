@@ -130,13 +130,16 @@ class PaypalExpress {
             $items[] = $item;
         }
 
-        $item = new Item();
-        $item->setName('Discount')
-                ->setDescription($voucherCode)
-                ->setQuantity(1)
-                ->setCurrency(!empty(ShoppingCart::$defaultCurrency) ? ShoppingCart::$defaultCurrency : 'GBP')
-                ->setPrice('-'.$discountedAmount);
-        $items[] = $item;
+        if(!empty($voucherCode) && !empty($discountedAmount)) {
+             $item = new Item();
+            $item->setName('Discount')
+                    ->setDescription($voucherCode)
+                    ->setQuantity(1)
+                    ->setCurrency(!empty(ShoppingCart::$defaultCurrency) ? ShoppingCart::$defaultCurrency : 'GBP')
+                    ->setPrice('-' . $discountedAmount);
+            $items[] = $item;
+        }
+       
        
         $itemList = new ItemList();
         $itemList->setItems($items);
