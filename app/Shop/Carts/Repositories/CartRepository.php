@@ -84,6 +84,11 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
         return $this->model->subtotal($decimals, '.', '');
     }
 
+    public function getProductTotal(int $decimals = 2) {
+
+        return $this->model->getProductTotal($decimals, '.', '');
+    }
+
     /**
      * Get the final total of all the items in the cart minus tax
      * @param int $decimals
@@ -94,15 +99,16 @@ class CartRepository extends BaseRepository implements CartRepositoryInterface {
     public function getTotal(int $decimals = 2, $shipping = 0.00, VoucherCode $voucher = null) {
 
         $objVoucher = null;
-        
-        if($voucher !== null) {
-             $voucherRepo = new VoucherRepository(new Voucher);
+
+        if ($voucher !== null)
+        {
+            $voucherRepo = new VoucherRepository(new Voucher);
 
             $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
 
             $this->voucherAmount = $objVoucher->amount;
         }
-       
+
         return $this->model->total($decimals, '.', '', $shipping, $objVoucher);
     }
 

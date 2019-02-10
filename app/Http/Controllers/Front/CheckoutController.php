@@ -114,7 +114,7 @@ class CheckoutController extends Controller {
      */
     private function getShippingFee($voucher) {
 
-        $total = $this->cartRepo->getTotal(2, 0.00, $voucher);
+        $total = $this->cartRepo->getTotal(2, 0.00);
 
         $courier = $this->courierRepo->findCourierById(1);
         $customer = $this->customerRepo->findCustomerById(auth()->id());
@@ -137,6 +137,7 @@ class CheckoutController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request) {
+ 
         $products = $this->cartRepo->getCartItems();
         $customer = $request->user();
 

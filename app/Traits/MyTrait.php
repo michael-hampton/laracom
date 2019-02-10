@@ -125,7 +125,7 @@ trait MyTrait {
             $objVoucher = $voucherRepo->findVoucherById($this->objVoucherCode->voucher_id);
             
             switch($objVoucher->amount_type) {
-                    case 'percent':
+                    case 'percentage':
                         $total = round($total * ((100 - $objVoucher->amount) / 100), 2);
                         break;
                     

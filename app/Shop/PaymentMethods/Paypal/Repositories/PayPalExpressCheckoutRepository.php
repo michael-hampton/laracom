@@ -73,7 +73,36 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
 
         $cartRepo = new CartRepository(new ShoppingCart());
         $items = $cartRepo->getCartItemsTransformed();
-        $subtotal = $cartRepo->getTotal(2, $shippingFee, $voucher);
+        $subtotal = $cartRepo->getProductTotal(2);
+
+        $total = 0;
+
+        if (!empty($voucher))
+        {
+            $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
+            $products = $items;
+            $discountedAmount = $objVoucher->amount;
+
+            switch ($objVoucher->amount_type)
+            {
+                case 'percentage':
+
+                    $discountedAmount = round($subtotal * ($objVoucher->amount / 100), 2);
+
+                    $total = $subtotal - ($subtotal * ($objVoucher->amount / 100));
+
+                    //$products->first()->price = round($products->first()->price * ((100 - $discountedAmount) / 100), 2);
+                    break;
+
+                case 'fixed':
+                    $total = $subtotal - $discountedAmount;
+                    //$products->first()->price -= $discountedAmount;
+                    break;
+            }
+            
+            $subtotal -= $discountedAmount;
+
+        }
 
         if ($shippingFee === 0)
         {
@@ -83,36 +112,17 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
 
             if (!empty($delivery))
             {
-                $shippingFee = $delivery->cost;
-                $total = $cartRepo->getTotal(2, $shippingFee, $voucher);
-            }
-        }
 
-        if (!empty($voucher))
-        {
-            $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
-            $products = $items;
-            $discountedAmount = $objVoucher->amount;
-            
-            switch($objVoucher->type) {
-                case 'percent':
-                    $products->first()->price = round($products->first()->price * ((100 - $discountedAmount) / 100), 2);
-                    break;
-                    
-                case 'fixed':
-                    $products->first()->price -= $discountedAmount;
-                    break;
+                $shippingFee = $delivery->cost;
+                $total += $shippingFee;
             }
         }
 
         $this->payPal->setPayer();
-        $this->payPal->setItems($products);
-        //$this->payPal->setOtherFees(
-        //$cartRepo->getSubTotal(), $cartRepo->getTax(), $shippingFee
-        //);
+        $this->payPal->setItems($products, request()->session()->get('voucherCode', 1), $discountedAmount);
 
         $this->payPal->setOtherFees($subtotal, 0, $shippingFee);
-        $this->payPal->setAmount($total);
+        $this->payPal->setAmount(round($total, 2));
         $this->payPal->setTransactions();
         $this->payPal->setBillingAddress($billingAddress);
 
@@ -238,7 +248,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
     public function doRefund(Order $order, $refundAmount) {
 
         try {
-            
+
             $this->payPal->setAmount($refundAmount);
 
             // Replace $captureId with any static Id you might already have. 

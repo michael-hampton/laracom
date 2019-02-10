@@ -111,9 +111,12 @@ class PaypalExpress {
     }
 
     /**
+     * 
      * @param Collection $products
+     * @param type $voucherCode
+     * @param type $discountedAmount
      */
-    public function setItems(Collection $products) {
+    public function setItems(Collection $products, $voucherCode = null, $discountedAmount = null) {
 
         $items = [];
         foreach ($products as $product)
@@ -126,6 +129,15 @@ class PaypalExpress {
                     ->setPrice($product->price);
             $items[] = $item;
         }
+
+        $item = new Item();
+        $item->setName('Discount')
+                ->setDescription($voucherCode)
+                ->setQuantity(1)
+                ->setCurrency(!empty(ShoppingCart::$defaultCurrency) ? ShoppingCart::$defaultCurrency : 'GBP')
+                ->setPrice('-'.$discountedAmount);
+        $items[] = $item;
+       
         $itemList = new ItemList();
         $itemList->setItems($items);
         $this->itemList = $itemList;

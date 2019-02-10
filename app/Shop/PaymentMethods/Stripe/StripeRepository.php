@@ -13,6 +13,8 @@ use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
 use App\Shop\Couriers\Courier;
 use App\Shop\Customers\Customer;
+use App\Shop\Carts\Repositories\CartRepository;
+use App\Shop\Carts\ShoppingCart;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\PaymentMethods\Stripe\Exceptions\StripeChargingErrorException;
 use Gloudemans\Shoppingcart\Facades\Cart;
@@ -61,6 +63,28 @@ class StripeRepository {
     ): Charge {
         try {
 
+            $cartRepo = new CartRepository(new ShoppingCart());
+            $total = $cartRepo->getProductTotal(2);
+            
+            if (!empty($voucher))
+            {
+                $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
+                $discountedAmount = $objVoucher->amount;
+
+                switch ($objVoucher->amount_type)
+                {
+                    case 'percentage':
+                        $discountedAmount = round($total * ($objVoucher->amount / 100), 2);
+
+                        $total = $total - ($total * ($objVoucher->amount / 100));
+                        break;
+
+                    case 'fixed':
+                        $total -= $discountedAmount;
+                        break;
+                }
+            }
+
             $billingAddress = $addressRepository->findAddressById($data['billing_address']);
 
             if ($shipping === 0)
@@ -70,25 +94,11 @@ class StripeRepository {
                 if (!empty($delivery))
                 {
                     $shipping = $delivery->cost;
-                    $totalComputed = $total + $shipping;
+                    $total += $shipping;
                 }
             }
-
-            if (!empty($voucher))
-            {                
-                $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
-                $discountedAmount = $objVoucher->amount;
-                
-                switch($objVoucher->amount_type) {
-                    case 'percent':
-                        $totalComputed = round($totalComputed * ((100 - $discountedAmount) / 100), 2);
-                        break;
-                    
-                    case 'fixed':
-                        $totalComputed -= $discountedAmount;
-                        break;
-                }
-            }
+            
+            $totalComputed = round($total, 2);
 
             $checkoutRepo = new CheckoutRepository;
             $order = $checkoutRepo->buildCheckoutItems([

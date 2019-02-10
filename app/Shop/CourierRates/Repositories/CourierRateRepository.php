@@ -121,10 +121,15 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
                         ->get();
     }
     
+    /**
+     * 
+     * @param \App\Shop\CourierRates\Repositories\Request $request
+     * @return type
+     */
     public function checkMethodExists(Request $request) {
         return $this->model->where('channel', '=', $request->channel)
                         ->where('country', '=', $request->country)
-                        ->where(function ($query) use ($request->range_from, $request->range_to) {
+                        ->where(function ($query) use ($request) {
                             $query->where('range_from', '<=', $request->range_from);
                             $query->where('range_to', '>=', $request->range_to);
                         })

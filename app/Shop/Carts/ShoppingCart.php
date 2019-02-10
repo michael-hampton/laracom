@@ -43,7 +43,7 @@ class ShoppingCart extends Cart {
         $total = $content->reduce(function ($total, CartItem $cartItem) {
             return $total + ($cartItem->qty * $cartItem->priceTax);
         }, 0);
-
+        
         $grandTotal = $total + $shipping;
 
         if (!is_null($voucher)) {
@@ -55,6 +55,24 @@ class ShoppingCart extends Cart {
         }
 
         return number_format($grandTotal, $decimals, $decimalPoint, $thousandSeparator);
+    }
+    
+    /**
+     * 
+     * @param type $decimals
+     * @param type $decimalPoint
+     * @param type $thousandSeparator
+     * @return type
+     */
+    public function getProductTotal($decimals = null, $decimalPoint = null, $thousandSeparator = null) {
+        
+        $content = $this->getContent();
+                
+         $total = $content->reduce(function ($total, CartItem $cartItem) {
+            return $total + ($cartItem->qty * $cartItem->priceTax);
+        }, 0);
+        
+         return number_format($total, $decimals, $decimalPoint, $thousandSeparator);
     }
 
     /**
@@ -74,6 +92,13 @@ class ShoppingCart extends Cart {
         if (strtolower($voucher->amount_type) === 'percentage') {
 
             $newprice = $grandTotal - ($grandTotal * ($voucher->amount / 100));
+            
+//            echo $grandTotal;
+//            die;
+            
+//            echo 'mike ' . $newprice . ' end';
+//            die;
+            
             $reducedAmount = $grandTotal - $newprice;
             request()->session()->put('discount_amount', number_format($reducedAmount, 2));
         } else {
