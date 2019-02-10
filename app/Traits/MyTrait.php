@@ -8,6 +8,8 @@ use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 
 trait MyTrait {
+    
+    private $objVoucherCode;
 
     /**
      * 
@@ -72,7 +74,7 @@ trait MyTrait {
         }
         
         try {
-            $voucherRepo->findVoucherCodeById($voucherCode);
+             $this->objVoucherCode = $voucherRepo->findVoucherCodeById($voucherCode);
             
         } catch (\Exception $e) {
             $this->validationFailures[] = 'Invalid voucher code used';
@@ -108,7 +110,7 @@ trait MyTrait {
      * @param type $cartItems
      * @return boolean
      */
-    private function validateTotal($data, $cartItems, $voucher = null) {
+    private function validateTotal($data, $cartItems) {
         $productTotal = 0;
 
         foreach ($cartItems as $cartItem) {
@@ -118,7 +120,10 @@ trait MyTrait {
 
         $total = $productTotal + $data['total_shipping'] + $data['tax'];
 
-        if (!empty($voucher)) {
+        if (!empty($voucher) && !empty($this->objVoucherCode)) {
+                    
+            $objVoucher = $voucherRepo->findVoucherById($this->objVoucherCode->voucher_id);
+            
             switch($objVoucher->amount_type) {
                     case 'percent':
                         $total = round($total * ((100 - $objVoucher->amount) / 100), 2);
