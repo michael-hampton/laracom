@@ -108,7 +108,7 @@ trait MyTrait {
      * @param type $cartItems
      * @return boolean
      */
-    private function validateTotal($data, $cartItems) {
+    private function validateTotal($data, $cartItems, $voucher = null) {
         $productTotal = 0;
 
         foreach ($cartItems as $cartItem) {
@@ -118,11 +118,20 @@ trait MyTrait {
 
         $total = $productTotal + $data['total_shipping'] + $data['tax'];
 
-        if (!empty($data['discounts']) && $data['discounts'] > 0) {
-            $total -= $data['discounts'];
+        if (!empty($voucher)) {
+            switch($objVoucher->amount_type) {
+                    case 'percent':
+                        $total = round($total * ((100 - $objVoucher->amount) / 100), 2);
+                        break;
+                    
+                    case 'fixed':
+                        $total -= $objVoucher->amount;
+                        break;
+                }
+            //$total -= $data['discounts'];
         }
 
-        if (round($total, 2) !== round($data['total'], 2)) {
+        if (round($total, 2) !== round($data['total'], 2) || $total < 0) {
             $this->validationFailures[] = 'Invalid totals';
             return false;
         }
