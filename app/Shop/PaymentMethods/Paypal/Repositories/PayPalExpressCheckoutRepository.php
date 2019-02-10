@@ -81,27 +81,26 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
         {
             $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
             $products = $items;
-            $discountedAmount = $objVoucher->amount;
+
 
             switch ($objVoucher->amount_type)
             {
                 case 'percentage':
 
                     $discountedAmount = round($subtotal * ($objVoucher->amount / 100), 2);
-
                     $total = $subtotal - ($subtotal * ($objVoucher->amount / 100));
-
-                    //$products->first()->price = round($products->first()->price * ((100 - $discountedAmount) / 100), 2);
                     break;
 
                 case 'fixed':
+                    $discountedAmount = $objVoucher->amount;
                     $total = $subtotal - $discountedAmount;
-                    //$products->first()->price -= $discountedAmount;
                     break;
             }
-            
-            $subtotal -= $discountedAmount;
+        }
 
+        if (empty($total))
+        {
+            $total = $subtotal;
         }
 
         if ($shippingFee === 0)
@@ -109,13 +108,17 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             $country_id = $billingAddress->country_id;
 
             $delivery = $courierRateRepository->findShippingMethod($subtotal, $courier, $channel, $country_id);
-
+            
             if (!empty($delivery))
             {
 
                 $shippingFee = $delivery->cost;
                 $total += $shippingFee;
             }
+        }
+        
+        if(!empty($discountedAmount) && $discountedAmount > 0) {
+            $subtotal -= $discountedAmount;
         }
 
         $this->payPal->setPayer();

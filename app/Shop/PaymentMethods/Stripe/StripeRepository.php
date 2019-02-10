@@ -64,6 +64,7 @@ class StripeRepository {
         try {
 
             $cartRepo = new CartRepository(new ShoppingCart());
+            $subtotal = $cartRepo->getProductTotal(2);
             $total = $cartRepo->getProductTotal(2);
             
             if (!empty($voucher))
@@ -90,7 +91,7 @@ class StripeRepository {
             if ($shipping === 0)
             {
                 $country_id = $billingAddress->country_id;
-                $delivery = $courierRateRepository->findShippingMethod($total, $courier, $channel, $country_id);
+                $delivery = $courierRateRepository->findShippingMethod($subtotal, $courier, $channel, $country_id);
                 if (!empty($delivery))
                 {
                     $shipping = $delivery->cost;
