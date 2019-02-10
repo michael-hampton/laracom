@@ -116,6 +116,11 @@ class CourierRateController extends Controller {
      */
     public function store(CreateCourierRateRequest $request) {
 
+        if(!empty($this->courierRateRepo->checkMethodExists($request))) {
+            
+        }
+        
+        
         $this->courierRateRepo->createCourierRate($request->all());
         return response()->json(['http_code' => 200]);
     }
