@@ -175,13 +175,12 @@
                 url: '/admin/courier-rates/update',
                 data: formdata,
                 success: function (response) {
-                    var obj = jQuery.parseJSON(response);
 
-                    if (obj.http_code == 400) {
+                    if (response.http_code == 400) {
 
                         $('.search-results').prepend("<div class='alert alert-danger'></div>");
 
-                        $.each(obj.errors, function (key, value) {
+                        $.each(response.errors, function (key, value) {
 
                             $('.search-results .alert-danger').append("<p>" + value + "</p>");
                         });
