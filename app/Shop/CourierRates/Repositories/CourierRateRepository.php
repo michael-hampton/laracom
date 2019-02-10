@@ -110,16 +110,22 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
      * @param int $country_id
      * @return type
      */
-    public function getShippingMethods($total, Channel $channel, int $country_id) {
+    public function getShippingMethods($total, Channel $channel, int $country_id, $courier = null) {
 
-        return $this->model->where('channel', '=', $channel->id)
+        $query = $this->model->where('channel', '=', $channel->id)
                         ->where('country', '=', $country_id)
                         ->where(function ($query) use ($total) {
                             $query->where('range_from', '<=', $total);
                             $query->where('range_to', '>=', $total);
                         })
-                        ->groupBy('courier')
+            
+            if($courier !== null) {
+                $query->where('courier', '=', $courier);
+            }
+                        $query->groupBy('courier')
                         ->get();
+        
+        return $query;
     }
 
     /**
