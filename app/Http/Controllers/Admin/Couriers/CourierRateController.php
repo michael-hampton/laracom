@@ -116,11 +116,18 @@ class CourierRateController extends Controller {
      */
     public function store(CreateCourierRateRequest $request) {
 
-        if(!empty($this->courierRateRepo->checkMethodExists($request))) {
+        $csv_errors = Validator::make(
+                                $rate, (new CreateCourierRateRequest())->rules()
+                        )->errors();
             
+            if ($csv_errors->any()) {
+                return response()->json(['http_code' => 400, 'errors' => $csv_errors]);
+            }
+        
+        if(!empty($this->courierRateRepo->checkMethodExists($request))) {
+            return response()->json(['http_code' => 400, 'errors' => ['rate already exists]]);
         }
-        
-        
+       
         $this->courierRateRepo->createCourierRate($request->all());
         return response()->json(['http_code' => 200]);
     }
