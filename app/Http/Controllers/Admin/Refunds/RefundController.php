@@ -126,23 +126,28 @@ class RefundController extends Controller {
      */
     public function doRefund(Request $request) {
 
-        $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
-        $orderProducts = (new OrderProductRepository(new OrderProduct))->listOrderProducts()->where('order_id', $request->order_id);
-        $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
         $blError = false;
         $arrSuccesses = [];
         $arrFailures = [];
-
+        
+        try {
+            $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
+            $orderProducts = (new OrderProductRepository(new OrderProduct))->listOrderProducts()->where('order_id', $request->order_id);
+            $channel = (new ChannelRepository(new Channel))->findChannelById($order->channel);
+            $objCustomerRepository = new CustomerRepository(new Customer);
+            $customer = $objCustomerRepository->findCustomerById($order->customer_id);
+        } catch (\Exception $e) {
+            $strMessage = "Unable to refund order {$e->getMessage()}";
+            $arrFailures[$request->order_id][] = $e->getMessage();
+            $this->saveNewComment($order, $strMessage);
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
+        }
 
         if ($order->total_paid <= 0)
         {
             $arrFailures[$request->order_id][] = 'The order has not yet been paid';
             return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
         }
-
-        $objCustomerRepository = new CustomerRepository(new Customer);
-
-        $customer = $objCustomerRepository->findCustomerById($order->customer_id);
 
         $refundAmount = $this->refundRepo->calculateRefundAmount($request, $order, $channel, $orderProducts);
 
@@ -183,6 +188,13 @@ class RefundController extends Controller {
                 $this->saveNewComment($order, $strMessage);
                 return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
             }
+            
+            if(!$this->refundOrderLines($orderProducts, $request, $channel)) {
+                $strMessage = "Order was refunded but we failed to update order lines";
+                $arrFailures[$request->order_id][] = $strMessage;
+                //$this->saveNewComment($order, $strMessage);
+                return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
+            }
 
             $orderRepo = new OrderRepository($order);
 
@@ -219,8 +231,15 @@ class RefundController extends Controller {
                 continue;
             }
             
-            $orderProductRepo = new OrderProductRepository($orderProduct);
-            $orderProductRepo->updateStatus($order, $channel, 8);
+            try {
+                $orderProductRepo = new OrderProductRepository($orderProduct);
+                $orderProductRepo->updateStatus($order, $channel, 8);
+            } catch (\Exception $e) {
+            $strMessage = "Unable to refund order {$e->getMessage()}";
+            //$arrFailures[$request->order_id][] = $e->getMessage();
+            $this->saveNewComment($order, $strMessage);
+            return false;
+            }
         }
        
     }
