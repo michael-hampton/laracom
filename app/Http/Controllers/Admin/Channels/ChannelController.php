@@ -341,8 +341,22 @@ class ChannelController extends Controller {
      * @param Request $request
      * @return type
      */
-    public function update(Request $request) {
+    public function update(Request $request, $id) {
+        $channel = $this->channelRepo->findChannelById($id);
+        $channelRepo = new ChannelRepository($channel);
+        $data = $request->except('_token', '_method', 'id');
         
+        $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
+
+        // Validate the input and return correct response
+        if ($validator->fails())
+        {
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
+        }
+
+        $channelRepo->updateChannel($data);
+
+        return response()->json(['http_code' => 200, 'message' => 'Channel has been updated successfully']);p
     }
 
     /**
