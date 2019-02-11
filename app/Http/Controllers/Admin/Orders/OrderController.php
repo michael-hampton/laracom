@@ -212,8 +212,6 @@ class OrderController extends Controller {
 
         if (!empty($order->voucher_code))
         {
-
-
             $voucher = $this->voucherCodeRepo->findVoucherCodeById($order->voucher_code);
         }
 
@@ -346,7 +344,6 @@ class OrderController extends Controller {
 
         if (!empty($shipping))
         {
-
             $shippingCost = $shipping->cost;
         }
 
@@ -424,9 +421,8 @@ class OrderController extends Controller {
         $arrProducts = [];
         $arrAllProducts = $this->productRepo->listProducts()->keyBy('id');
 
-
         try {
-            foreach ($products as $count => $product)
+            foreach ($products as $product)
             {
                 if (!isset($arrAllProducts[$product['id']]))
                 {
