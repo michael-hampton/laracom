@@ -163,7 +163,6 @@ class RefundController extends Controller {
 
             if ($customer->customer_type == 'credit')
             {
-
                 $objCustomerRepository->addCredit($customer->id, 10);
                 $this->saveNewComment($order, 'customer has been credited for refund');
             }
@@ -214,7 +213,6 @@ class RefundController extends Controller {
     }
 
     private function refundOrderLines($orderProducts, Request $request, Channel $channel, Order $order) {
-        echo 'good';
 
         foreach ($orderProducts as $orderProduct)
         {
@@ -293,8 +291,6 @@ class RefundController extends Controller {
      * @return boolean
      */
     private function authorizePayment(Order $order, $refundAmount, Customer $customer) {
-
-        return true;
 
         switch ($order->payment)
         {
