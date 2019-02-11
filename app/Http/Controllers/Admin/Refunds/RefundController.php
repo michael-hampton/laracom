@@ -213,6 +213,10 @@ class RefundController extends Controller {
     {
         foreach($orderProducts as $orderProduct, Request $request) {
              
+            if($orderProduct->status === 8) {
+                continue;
+            }
+            
             if(!in_array($orderProduct->id, $request->lineIds)){
                 
                 continue;
