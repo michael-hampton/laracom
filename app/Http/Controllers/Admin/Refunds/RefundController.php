@@ -144,7 +144,7 @@ class RefundController extends Controller {
 
         $customer = $objCustomerRepository->findCustomerById($order->customer_id);
 
-        $refundAmount = $this->refundRepo->refundLinesForOrder($request, $order, $channel, $orderProducts);
+        $refundAmount = $this->refundRepo->calculateRefundAmount($request, $order, $channel, $orderProducts);
 
         if (!$refundAmount)
         {
@@ -208,6 +208,21 @@ class RefundController extends Controller {
                             'FAILURES'  => $arrFailures
                         ]
         );
+    }
+    
+    private function refundOrderLines($orderProducts, Request $request, Channel $channel)
+    {
+        foreach($orderProducts as $orderProduct, Request $request) {
+             
+            if(!in_array($orderProduct->id, $request->lineIds)){
+                
+                continue;
+            }
+            
+            $orderProductRepo = new OrderProductRepository($orderProduct);
+            $orderProductRepo->updateStatus($order, $channel, 8);
+        }
+       
     }
 
     /**
