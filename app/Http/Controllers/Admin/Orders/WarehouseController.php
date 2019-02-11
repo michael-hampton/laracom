@@ -144,10 +144,15 @@ class WarehouseController extends Controller {
      */
     public function pickOrder(WarehouseRequest $request) {
         $order = $this->orderRepo->findOrderById($request->orderId);
-
+        $channel = $this->channelRepo->findChannelById($order->channel);p
         $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
         $newStatus = $this->orderStatusRepo->findByName('Picking');
 
+        if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, 16) > 1 && $channel->partial_shipment === 0) {
+            $arrErrors[$request->orderId][] = 'order lines are at different statuses';
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
+        }
+        
         $arrErrors = [];
         $arrSuccesses = [];
 
@@ -194,8 +199,15 @@ class WarehouseController extends Controller {
 
         try {
             $order = $this->orderRepo->findOrderById($request->orderId);
+            $channel = $this->channelRepo->findChannelById($order->channel);
             $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
             $newStatus = $this->orderStatusRepo->findByName('Packing');
+            
+            if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, 16) > 1 && $channel->partial_shipment === 0) {
+                $arrErrors[$request->orderId][] = 'order lines are at different statuses';
+                return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
+            }
+            
             $objOrderLineRepo = new OrderProductRepository($objLine);
             $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
         } catch (Exception $ex) {
@@ -223,8 +235,15 @@ class WarehouseController extends Controller {
 
         try {
             $order = $this->orderRepo->findOrderById($request->orderId);
+            $channel = $this->channelRepo->findChannelById($order->channel);
             $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
             $newStatus = $this->orderStatusRepo->findByName('Dispatch');
+            
+            if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, 16) > 1 && $channel->partial_shipment === 0) {
+                $arrErrors[$request->orderId][] = 'order lines are at different statuses';
+                return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
+            }
+            
             $completeStatus = $this->orderStatusRepo->findByName('Order Completed');
             $productRepo = new ProductRepository(new Product);
             $objProduct = $productRepo->findProductById($objLine->product_id);
