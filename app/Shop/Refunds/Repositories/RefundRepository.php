@@ -173,6 +173,18 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
 
             $this->arrLineIds[] = $orderProduct->id;
         }
+        
+        if (!empty($order->voucher_code) && $order->discounts > 0)
+        {
+            $refundAmount -= $order->discounts;
+        }
+        
+        $refundAmount += $order->total_shipping;
+        
+        if ($refundAmount > $order->total_paid)
+        {
+            $refundAmount = $order->total_paid;
+        }
 
         //event(new RefundsCreateEvent($order));
 
