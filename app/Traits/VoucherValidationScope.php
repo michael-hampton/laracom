@@ -31,15 +31,7 @@ trait VoucherValidationScope {
         foreach ($cartProducts as $cartProduct)
         {
 
-            if (is_object($cartProduct->product))
-            {
-
-                $objProduct = $cartProduct->product;
-            }
-            else
-            {
-                $objProduct = $cartProduct;
-            }
+            $objProduct = is_object($cartProduct->product) ? $cartProduct->product : $cartProduct;
 
             switch ($scopeType)
             {
