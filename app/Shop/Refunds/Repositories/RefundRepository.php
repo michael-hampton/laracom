@@ -194,10 +194,10 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
         }
         
         
-        if ($refundAmount > $order->total_paid)
+        /*if ($refundAmount > $order->total_paid)
         {
             $refundAmount = $order->total_paid;
-        }
+        }*/
 
         //event(new RefundsCreateEvent($order));
 
