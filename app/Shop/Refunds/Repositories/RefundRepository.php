@@ -145,6 +145,10 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
     public function calculateRefundAmount(Request $request, Order $order, Channel $channel = null, Collection $orderLines) {
 
         $refundAmount = 0;
+        
+        if($order->amount_refunded >= $order->total_paid) {
+            return false;
+        }
 
         foreach ($orderLines as $orderProduct) {
             
