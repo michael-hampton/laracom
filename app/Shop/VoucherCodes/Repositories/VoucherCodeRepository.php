@@ -158,7 +158,7 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
      * @param VoucherRepository $voucherRepo
      * @return boolean
      */
-    public function validateVoucherCode(Channel $channel, string $voucherCode, $cartProducts, VoucherRepository $voucherRepo) {
+    public function validateVoucherCode(Channel $channel, string $voucherCode, $cartProducts = null, VoucherRepository $voucherRepo, $doValidation = true) {
 
         $results = DB::select(DB::raw("SELECT *, 
                                             vc.id AS code_id 
@@ -186,13 +186,17 @@ class VoucherCodeRepository extends BaseRepository implements VoucherCodeReposit
         try {
             $objVoucherCode = $this->findVoucherCodeById($results[0]->code_id);
 
+            if ($doValidation === false)
+            {
+                return $objVoucherCode;
+            }
+
             if (!$voucherRepo->validateVoucher($objVoucherCode->voucher_id, $cartProducts))
             {
-                
+
                 $this->validationFailures[] = 'unable to validate voucher';
                 return false;
             }
-                        
         } catch (\Exception $e) {
             $this->validationFailures[] = $e->getMessage();
         }

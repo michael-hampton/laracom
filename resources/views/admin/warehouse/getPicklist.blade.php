@@ -40,17 +40,17 @@
                     <td>{{ $item->status }}</td>
 
                     <td>
-                        @if($item->status === 5):
+                        @if($status === 5):
                         <button class="pick" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
                             Pick
                         </button>
 
-                        @elseif($item->status === 16):
+                        @elseif($status === 16):
                         <button class="dispatch" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
                             Dispatch
                         </button>
 
-                        @elseif($item->status === 15):
+                        @elseif($status === 15):
                         <button class="pack" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
                             Pack
                         </button>

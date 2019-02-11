@@ -113,22 +113,21 @@ trait MyTrait {
      * @return boolean
      */
     private function validateTotal($data, $cartItems) {
-        $productTotal = 0;
+        $subtotal = 0;
 
         foreach ($cartItems as $cartItem) {
 
-            $productTotal += $cartItem->price;
+            $subtotal += $cartItem->price;
         }
-
-        $total = $productTotal + $data['total_shipping'] + $data['tax'];
-
+        
         if (!empty($this->objVoucherCode)) {
-                    
+                                
             $objVoucher = (new VoucherRepository(new Voucher))->findVoucherById($this->objVoucherCode->voucher_id);
             
             switch($objVoucher->amount_type) {
                     case 'percentage':
-                        $total = round($total * ((100 - $objVoucher->amount) / 100), 2);
+                        $discountedAmount = round($subtotal * ($objVoucher->amount / 100), 2);
+                        $subtotal = round($subtotal * ((100 - $objVoucher->amount) / 100), 2);
                         break;
                     
                     case 'fixed':
@@ -137,6 +136,8 @@ trait MyTrait {
                 }
             //$total -= $data['discounts'];
         }
+                
+        $total = $subtotal += $data['total_shipping'];
 
         if (round($total, 2) !== round($data['total'], 2) || $total < 0) {
             $this->validationFailures[] = 'Invalid totals';

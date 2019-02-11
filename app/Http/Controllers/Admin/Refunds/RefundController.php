@@ -129,7 +129,7 @@ class RefundController extends Controller {
         $blError = false;
         $arrSuccesses = [];
         $arrFailures = [];
-        
+
         try {
             $order = (new OrderRepository(new Order))->findOrderById($request->order_id);
             $orderProducts = (new OrderProductRepository(new OrderProduct))->listOrderProducts()->where('order_id', $request->order_id);
@@ -175,8 +175,9 @@ class RefundController extends Controller {
                 $this->saveNewComment($order, $strMessage);
                 return response()->json(['http_code' => 400, 'FAILURES' => $arrFailures]);
             }
-            
-            if(!$this->refundOrderLines($orderProducts, $request, $channel)) {
+
+            if (!$this->refundOrderLines($orderProducts, $request, $channel, $order))
+            {
                 $strMessage = "Order was refunded but we failed to update order lines";
                 $arrFailures[$request->order_id][] = $strMessage;
                 //$this->saveNewComment($order, $strMessage);
@@ -185,8 +186,11 @@ class RefundController extends Controller {
 
             $orderRepo = new OrderRepository($order);
 
+            $status = $this->orderProductRepo->chekIfAllLineStatusesAreEqual($order, 8) === 0 ? 8 : $order->order_status_id;
+
             $orderRepo->updateOrder(
                     [
+                        'order_status_id' => $status,
                         //'total_paid'      => $totalPaid,
                         'amount_refunded' => $totalRefunded]
             );
@@ -208,31 +212,36 @@ class RefundController extends Controller {
                         ]
         );
     }
-    
-    private function refundOrderLines($orderProducts, Request $request, Channel $channel)
-    {
-        foreach($orderProducts as $orderProduct, Request $request) {
-             
-            if($orderProduct->status === 8) {
+
+    private function refundOrderLines($orderProducts, Request $request, Channel $channel, Order $order) {
+        echo 'good';
+
+        foreach ($orderProducts as $orderProduct)
+        {
+
+            if ($orderProduct->status === 8)
+            {
                 continue;
             }
-            
-            if(!in_array($orderProduct->id, $request->lineIds)){
-                
+
+            if (!in_array($orderProduct->id, $request->lineIds))
+            {
+
                 continue;
             }
-            
+
             try {
                 $orderProductRepo = new OrderProductRepository($orderProduct);
                 $orderProductRepo->updateStatus($order, $channel, 8);
             } catch (\Exception $e) {
-            $strMessage = "Unable to refund order {$e->getMessage()}";
-            //$arrFailures[$request->order_id][] = $e->getMessage();
-            $this->saveNewComment($order, $strMessage);
-            return false;
+                $strMessage = "Unable to refund order {$e->getMessage()}";
+                //$arrFailures[$request->order_id][] = $e->getMessage();
+                $this->saveNewComment($order, $strMessage);
+                return false;
             }
         }
-       
+
+        return true;
     }
 
     /**
@@ -284,6 +293,8 @@ class RefundController extends Controller {
      * @return boolean
      */
     private function authorizePayment(Order $order, $refundAmount, Customer $customer) {
+
+        return true;
 
         switch ($order->payment)
         {

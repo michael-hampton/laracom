@@ -759,3 +759,7 @@ button.dim:active:before {
 .product-images {
     margin: 0 20px;
 }
+
+.modal-lg {
+    min-width: 900px !important;
+}

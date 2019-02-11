@@ -101,9 +101,8 @@ class CheckoutController extends Controller {
         $this->voucherCodeRepo = $voucherCodeRepository;
 
 
-//        $order = $this->orderRepo->findOrderById(122);
-//        $customer = $this->customerRepo->findCustomerById($order->customer->id);
-//        (new StripeRepository($customer))->capturePayment($order);
+//        $order = $this->orderRepo->findOrderById(146);
+//        (new PayPalExpressCheckoutRepository())->capturePayment($order);
 //        die('Here');
     }
 

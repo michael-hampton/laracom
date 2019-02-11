@@ -97,17 +97,17 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $params['channel'] = $params['channel']->id;
             }
 
+            if (isset($params['voucher_code']) && !empty($params['voucher_code']))
+            {
+
+                $this->validateVoucherCode($voucherCodeRepository, $params['voucher_code']);
+            }
+
             if ($blManualOrder === false && $params['total'] > 0)
             {
                 $items = Cart::content();
 
                 $this->validateTotal($params, $items);
-            }
-
-            if (isset($params['voucher_code']) && !empty($params['voucher_code']))
-            {
-
-                $this->validateVoucherCode($voucherCodeRepository, $params['voucher_code']);
             }
 
             $this->validateCustomer($customerRepository, $params['customer_id']);

@@ -88,7 +88,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
         Route::post('warehouse/pickOrder/', 'Orders\WarehouseController@pickOrder')->name('warehouse.pickOrder');
         Route::post('warehouse/packOrder/', 'Orders\WarehouseController@packOrder')->name('warehouse.packOrder');
         Route::get('warehouse/index/', 'Orders\WarehouseController@index')->name('warehouse.index');
-        Route::get('warehouse/getPicklist/{picklist}', 'Orders\WarehouseController@getPicklist')->name('warehouse.index');
+        Route::get('warehouse/getPicklist/{picklist}/{status}', 'Orders\WarehouseController@getPicklist')->name('warehouse.index');
         Route::post('warehouse/dispatchOrder/', 'Orders\WarehouseController@dispatchOrder')->name('warehouse.getPicklist');
         Route::get('warehouse/generateDispatchNote/{orderId}', 'Orders\WarehouseController@generateDispatchNote')->name('warehouse.generateDispatchNote');
         Route::get('warehouse/generatePicklist/{picklistRef}', 'Orders\WarehouseController@generatePicklist')->name('warehouse.generatePicklist');

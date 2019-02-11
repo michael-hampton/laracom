@@ -344,8 +344,15 @@ class ChannelController extends Controller {
     public function update(Request $request, $id) {
         $channel = $this->channelRepo->findChannelById($id);
         $channelRepo = new ChannelRepository($channel);
+
         $data = $request->except('_token', '_method', 'id');
-        
+
+        if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile)
+        {
+
+            $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
+        }
+
         $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
 
         // Validate the input and return correct response
@@ -356,7 +363,7 @@ class ChannelController extends Controller {
 
         $channelRepo->updateChannel($data);
 
-        return response()->json(['http_code' => 200, 'message' => 'Channel has been updated successfully']);p
+        return response()->json(['http_code' => 200, 'message' => 'Channel has been updated successfully']);
     }
 
     /**
@@ -367,17 +374,6 @@ class ChannelController extends Controller {
     public function updateChannel(Request $request) {
 
         $id = $request->id;
-
-        $channel = $this->channelRepo->findChannelById($id);
-        $channelRepo = new ChannelRepository($channel);
-
-        $data = $request->except('_token', '_method', 'id');
-
-        if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile)
-        {
-            $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
-            $request->cover = $data['cover'];
-        }
 
         $this->update($request, $id);
     }

@@ -163,7 +163,7 @@
                     @foreach($arrLines['pending']['picklists'] as $key => $picklists):
                     <div class='panel panel-default'>
                         <div class='panel-heading'>
-                            <a href="#" class="open-picklist" picklist="{{$key}}">
+                            <a href="#" class="open-picklist" status="5" picklist="{{$key}}">
                                 <h5 class='panel-title'>
                                     {{$key}} ({{ count($arrLines['pending']['picklists'][$key]['data']) }})
                                 </h5>
@@ -185,7 +185,7 @@
                     @foreach($arrLines['picking']['picklists'] as $key => $picklists):
                     <div class='panel panel-default'>
                         <div class='panel-heading'>
-                            <a href="#" class="open-picklist" picklist="{{$key}}">
+                            <a href="#" class="open-picklist" status="15" picklist="{{$key}}">
                                 <h5 class='panel-title'>
                                     {{$key}} ({{ count($arrLines['picking']['picklists'][$key]['data']) }})
                                 </h5>
@@ -208,7 +208,7 @@
                     @foreach($arrLines['packing']['picklists'] as $key => $picklists):
                     <div class='panel panel-default'>
                         <div class='panel-heading'>
-                            <a href="#" class="open-picklist" picklist="{{$key}}">
+                            <a href="#" class="open-picklist" status="16" picklist="{{$key}}">
                                 <h5 class='panel-title'>
                                      {{$key}} ({{ count($arrLines['packing']['picklists'][$key]['data']) }})
                                 </h5>
@@ -253,10 +253,11 @@
         $('.open-picklist').on('click', function () {
 
             var picklist = $(this).attr('picklist');
+            var status = $(this).attr('status');
 
             $.ajax({
                 type: "GET",
-                url: '/admin/warehouse/getPicklist/' + picklist,
+                url: '/admin/warehouse/getPicklist/' + picklist + '/' + parseInt(status),
                 success: function (response) {
                     $('.modal-body').html(response);
                     $('#myModal5').modal('show');

@@ -149,7 +149,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
         if($order->amount_refunded >= $order->total_paid) {
             return false;
         }
-        
+                
         $arrCurrentRefunds = $this->listRefund()->where('order_id', $order->id)->keyBy('line_id');
 
         foreach ($orderLines as $orderProduct) {
@@ -158,7 +158,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
                 
                 continue;
             }
-
+            
             //$orderProduct = (new OrderProductRepository(new OrderProduct))->findOrderProductById($lineId);
 
             $refundAmount += $orderProduct->product_price;
@@ -185,7 +185,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
         
         $totalRefunded = $order->amount_refunded + $refundAmount;
         
-        if($totalRefunded >= $order->total_paid) {
+        if($totalRefunded > $order->total_paid) {
             $difference = $totalRefunded - $order->total_paid;
             
             if($difference <= 0) {
@@ -194,7 +194,6 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             
             $refundAmount = $difference;
         }
-        
         
         /*if ($refundAmount > $order->total_paid)
         {
