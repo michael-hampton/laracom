@@ -199,10 +199,10 @@ class OrderImport extends BaseImport {
             $this->validateCourier($order['courier']);
             $this->validateCustomer($order['customer']);
             $this->validateCustomerAddress();
-            $this->validateVoucher($order['voucher_code']);
             $this->validateProduct($order['product']);
             $this->buildOrderProduct($order);
             $this->setOrderTotal($order);
+            $this->validateVoucher($order['voucher_code']);
             $this->calculateShippingCost();
 
             $this->lineCount++;
