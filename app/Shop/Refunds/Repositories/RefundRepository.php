@@ -181,6 +181,19 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
         
         $refundAmount += $order->total_shipping;
         
+        $totalRefunded = $order->amount_refunded + $refundAmount;
+        
+        if($totalRefunded >= $order->total_paid) {
+            $difference = $totalRefunded - $order->total_paid;
+            
+            if($difference <= 0) {
+                return false;
+            }
+            
+            $refundAmount = $difference;
+        }
+        
+        
         if ($refundAmount > $order->total_paid)
         {
             $refundAmount = $order->total_paid;
