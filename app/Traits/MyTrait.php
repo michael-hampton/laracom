@@ -6,6 +6,8 @@ use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
+use App\Shop\Vouchers\Voucher;
+use App\Shop\Vouchers\Repositories\VoucherRepository;
 
 trait MyTrait {
     
@@ -110,7 +112,7 @@ trait MyTrait {
      * @param type $cartItems
      * @return boolean
      */
-    private function validateTotal($data, $cartItems, $voucherRepo) {
+    private function validateTotal($data, $cartItems) {
         $productTotal = 0;
 
         foreach ($cartItems as $cartItem) {
@@ -122,7 +124,7 @@ trait MyTrait {
 
         if (!empty($this->objVoucherCode)) {
                     
-            $objVoucher = $voucherRepo->findVoucherById($this->objVoucherCode->voucher_id);
+            $objVoucher = (new VoucherRepository(new Voucher))->findVoucherById($this->objVoucherCode->voucher_id);
             
             switch($objVoucher->amount_type) {
                     case 'percentage':
