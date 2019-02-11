@@ -359,16 +359,14 @@ class OrderController extends Controller {
 
             if (!$arrProducts)
             {
-                $request->session()->flash('Unable to validate products', 'danger');
-                return redirect()->route('admin.orders.index');
+                return redirect()->back()->with('message', 'Unable to validate products');
             }
 
             $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $request->voucher_code, $arrProducts, $this->voucherRepo);
 
             if (!$voucherCode)
             {                
-                $request->session()->flash('Unable to validate voucher code', 'error');
-                return redirect()->route('admin.orders.create');
+                return redirect()->back()->with('message', 'Unable to validate voucher code');
             }
          
             $voucher_id = $voucherCode->voucher_id;
