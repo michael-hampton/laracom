@@ -417,9 +417,22 @@ class OrderImport extends BaseImport {
             $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
             return false;
         }
-
-        $this->voucherAmount = $this->arrVouchers[$voucherId]->amount;
+        
         $this->objVoucher = $this->arrVoucherCodes[$voucherCodeId];
+        
+        $voucherAmount = $this->objVoucher->amount;
+        switch ($this->objVoucher->amount_type)
+        {
+            case 'percentage':
+                $this->orderTotal = $orderTotal - ($orderTotal * ($objVoucher->amount / 100));
+                break;
+            case 'fixed':
+                $this->orderTotal -= $voucherAmount;
+                break;
+            }
+
+        //$this->voucherAmount = $this->arrVouchers[$voucherId]->amount;
+        
 
         return true;
     }
