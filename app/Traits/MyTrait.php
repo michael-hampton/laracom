@@ -110,7 +110,7 @@ trait MyTrait {
      * @param type $cartItems
      * @return boolean
      */
-    private function validateTotal($data, $cartItems) {
+    private function validateTotal($data, $cartItems, $voucherRepo) {
         $productTotal = 0;
 
         foreach ($cartItems as $cartItem) {
@@ -120,7 +120,7 @@ trait MyTrait {
 
         $total = $productTotal + $data['total_shipping'] + $data['tax'];
 
-        if (!empty($voucher) && !empty($this->objVoucherCode)) {
+        if (!empty($this->objVoucherCode)) {
                     
             $objVoucher = $voucherRepo->findVoucherById($this->objVoucherCode->voucher_id);
             
