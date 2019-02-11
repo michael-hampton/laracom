@@ -156,19 +156,6 @@ class RefundController extends Controller {
             return response()->json(['error' => 'failed to update order lines'], 404); // Status code here
         }
 
-        // voucher calculation
-        if (!empty($order->voucher_code) && $order->discounts > 0)
-        {
-            $refundAmount -= $order->discounts;
-        }
-
-        $refundAmount += $order->total_shipping;
-
-        if ($refundAmount > $order->total_paid)
-        {
-            $refundAmount = $order->total_paid;
-        }
-
         //$totalPaid = $order->total_paid - $refundAmount;
         $totalRefunded = $order->amount_refunded + $refundAmount;
 
