@@ -149,10 +149,12 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
         if($order->amount_refunded >= $order->total_paid) {
             return false;
         }
+        
+        $arrCurrentRefunds = $this->listRefund()->where('order_id', $order->id)->keyBy('line_id');
 
         foreach ($orderLines as $orderProduct) {
             
-            if(!in_array($orderProduct->id, $request->lineIds)){
+            if(!in_array($orderProduct->id, $request->lineIds) || isset($arrCurrentRefunds[$orderProduct->id])){
                 
                 continue;
             }
