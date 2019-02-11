@@ -157,8 +157,6 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
 
             $refundAmount += $orderProduct->product_price;
 
-            $orderProductRepo = new OrderProductRepository($orderProduct);
-
             $data = [];
             $data['date_refunded'] = date('Y-m-d'); //add request
             $data['quantity'] = $orderProduct->quantity;
@@ -169,12 +167,8 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
 
             $this->createRefund($data);
 
-            $orderProductRepo->updateStatus($order, $channel, 8);
             $this->arrLineIds[] = $orderProduct->id;
         }
-       
-        
-        
 
         //event(new RefundsCreateEvent($order));
 
