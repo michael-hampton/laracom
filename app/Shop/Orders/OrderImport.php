@@ -214,9 +214,6 @@ class OrderImport extends BaseImport {
             $this->validateVoucher($order['voucher_code'], $order['order_id']);
             $this->calculateShippingCost();
 
-            echo $this->orderTotal;
-            die;
-
             $this->lineCount++;
 
             if (!empty($this->arrErrors))
