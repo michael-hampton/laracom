@@ -376,19 +376,10 @@ class ChannelController extends Controller {
         if ($request->hasFile('cover') && $request->file('cover') instanceof UploadedFile)
         {
             $data['cover'] = $channelRepo->saveCoverImage($request->file('cover'));
+            $request->cover = $data['cover'];
         }
 
-        $validator = Validator::make($data, (new UpdateChannelRequest())->rules());
-
-        // Validate the input and return correct response
-        if ($validator->fails())
-        {
-            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
-        }
-
-        $channelRepo->updateChannel($data);
-
-        return response()->json(['http_code' => 200, 'message' => 'Channel has been updated successfully']);
+        $this->update($request, $id);
     }
 
     /**
