@@ -101,6 +101,8 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $arrChannels = [];
+    
+    private $arrOrderVouchers = [];
 
     /**
      *
@@ -202,7 +204,7 @@ class OrderImport extends BaseImport {
             $this->validateProduct($order['product']);
             $this->buildOrderProduct($order);
             $this->setOrderTotal($order);
-            $this->validateVoucher($order['voucher_code']);
+            $this->validateVoucher($order['voucher_code'], $order['order_id']);
             $this->calculateShippingCost();
 
             $this->lineCount++;
@@ -398,10 +400,15 @@ class OrderImport extends BaseImport {
      * @param type $categories
      * @return type
      */
-    private function validateVoucher($voucherCode) {
-
+    private function validateVoucher($voucherCode, $orderId) {
+        
         $voucherCode = trim(strtolower($voucherCode));
 
+        if(empty($voucherCode) || in_array($voucherCode, $this->arrOrderVouchers[$orderId])) {
+            
+            return true;
+        }
+        
         $arrVoucherCodes = array_change_key_case($this->arrVoucherCodes->keyBy('voucher_code')->toArray(), CASE_LOWER);
 
         if (!isset($arrVoucherCodes[$voucherCode])) {
@@ -432,7 +439,7 @@ class OrderImport extends BaseImport {
             }
 
         //$this->voucherAmount = $this->arrVouchers[$voucherId]->amount;
-        
+        $this->arrOrderVouchers[$orderId][] = $voucherCode;
 
         return true;
     }
