@@ -474,43 +474,28 @@ class OrderLineController extends Controller {
                     $blError = true;
                     
                     //backorder all lines
-                    if($intCantMove > 1 && $channel->partial_shipment === 0) {
-                        
-                    }
 
                     // if partial shipping allowed and more than 1 line backordered then move single line
+                    
+                    return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
                 }
-                elseif ($intCantMove === 0 && $backorderCount > 1)
-                {
+               
 
                     foreach ($arrProducts as $objLine2)
                     {
+                        
+                         if ($objProductLine->status !== $os->id) {
+                            continue;   
+                         }
 
                         if (!$this->reserveStock($objLine2, $order))
                         {
                             $arrFailed[$lineId][] = 'failed to allocate stock';
+                            $blError = true;
                         }
+                        
+                        $arrDone[$lineId] = "Order {$orderId} Line {$lineId} was updated successfully";
                     }
-                }
-                elseif (($backorderCount === $total && $backorderCount === 1) || $channel->partial_shipment === 1)
-                {
-                    
-                    $objLine2 = $this->orderLineRepo->findOrderProductById($lineId);
-
-                    $updateOrder = null;
-
-                    if ($total === 1 && $backorderCount === 1)
-                    {                        
-                        $updateOrder = $order;
-                    }
-                    
-                    if (!$this->reserveStock($objLine2, $updateOrder))
-                    {
-                        $arrFailed[$lineId][] = 'failed to allocate stock';
-                    }
-                }
-
-                $arrDone[$lineId] = "Order {$orderId} Line {$lineId} was updated successfully";
             }
         }
 
