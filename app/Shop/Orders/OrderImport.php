@@ -197,6 +197,7 @@ class OrderImport extends BaseImport {
         while (($data = $this->fgetcsv($handle)) !== false)
         {
 
+            $this->orderTotal = 0;
             $order = array_map('trim', $this->mapData($data));
 
             foreach ($order as $key => $params)
