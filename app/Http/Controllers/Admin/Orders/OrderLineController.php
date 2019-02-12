@@ -464,14 +464,16 @@ class OrderLineController extends Controller {
                         $backorderCount++;
                     }
                 }
-
-
-                if ($total > $backorderCount && $channel->partial_shipment === 0)
+                
+                if (($intCantMove > 1 && $channel->partial_shipment === 0) ||
+                    ($total > $backorderCount && $channel->partial_shipment === 0))
                 {
 
                     // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
                     $arrFailed[$lineId][] = 'Unable to move';
                     $blError = true;
+                    
+                    //backorder all lines
 
                     // if partial shipping allowed and more than 1 line backordered then move single line
                 }
