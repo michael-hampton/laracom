@@ -474,6 +474,9 @@ class OrderLineController extends Controller {
                     $blError = true;
                     
                     //backorder all lines
+                    if($intCantMove > 1 && $channel->partial_shipment === 0) {
+                        
+                    }
 
                     // if partial shipping allowed and more than 1 line backordered then move single line
                 }
