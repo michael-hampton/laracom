@@ -248,7 +248,12 @@ class OrderLineController extends Controller {
                 $channel = $this->channelRepo->findChannelById($order->channel);
                 $statusCount = $this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, $os->id);
                 $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id);
-
+                
+                if($statusCount > 0 && $channel->partial_shipment === 0) {
+                    $arrFailed[$lineId][] = 'no lines to allocate';
+                    return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
+                }
+                
                 if ($statusCount === 0)
                 {
 
