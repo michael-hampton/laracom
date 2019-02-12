@@ -166,7 +166,7 @@ class RefundController extends Controller {
                 $objCustomerRepository->addCredit($customer->id, 10);
                 $this->saveNewComment($order, 'customer has been credited for refund');
             }
-            elseif (!$this->authorizePayment($order, $refundAmount, $customer))
+            elseif ($this->refundRepo->blDoUpdate === true && !$this->authorizePayment($order, $refundAmount, $customer))
             {
 
                 $strMessage = "Order was refunded but we failed to authorize payment";

@@ -21,8 +21,14 @@ use Illuminate\Support\Collection;
 class RefundRepository extends BaseRepository implements RefundRepositoryInterface {
 
     use RefundTransformable;
-    
+
     private $arrLineIds = [];
+    
+    /**
+     *
+     * @var type 
+     */
+    public $blDoUpdate = true;
 
     /**
      * RefundRepository constructor.
@@ -51,7 +57,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             throw new RefundInvalidArgumentException('Refund creation error', 500, $e);
         }
     }
-    
+
     /**
      * 
      * @return type
@@ -91,7 +97,8 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
     public function getRefundsForOrderByLineId(\App\Shop\Orders\Order $order) {
         $arrAllRefunds = $this->listRefund('line_id', 'asc')->where('order_id', $order->id);
 
-        if (empty($arrAllRefunds)) {
+        if (empty($arrAllRefunds))
+        {
 
             return [];
         }
@@ -99,7 +106,8 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
 
         $arrRefunds = [];
 
-        foreach ($arrAllRefunds as $objRefund) {
+        foreach ($arrAllRefunds as $objRefund)
+        {
 
             $arrRefunds[$objRefund->line_id] = $objRefund;
         }
@@ -130,7 +138,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
     public function searchRefund(string $text): Collection {
         return $this->model->search($text, [
                     'coupon_code' => 10,
-                    'amount' => 5,
+                    'amount'      => 5,
                     'amount_type' => 10
                 ])->get();
     }
@@ -145,20 +153,18 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
     public function calculateRefundAmount(Request $request, Order $order, Channel $channel = null, Collection $orderLines) {
 
         $refundAmount = 0;
-        
-        if($order->amount_refunded >= $order->total_paid) {
+
+        if ($order->amount_refunded >= $order->total_paid)
+        {
             return false;
         }
-                
+
         $arrCurrentRefunds = $this->listRefund()->where('order_id', $order->id)->keyBy('line_id');
 
-        foreach ($orderLines as $orderProduct) {
-            
-            if(!in_array($orderProduct->id, $request->lineIds) || isset($arrCurrentRefunds[$orderProduct->id])){
-                
-                continue;
-            }
-            
+        foreach ($orderLines as $orderProduct)
+        {
+
+
             //$orderProduct = (new OrderProductRepository(new OrderProduct))->findOrderProductById($lineId);
 
             $refundAmount += $orderProduct->product_price * $orderProduct->quantity;
@@ -171,36 +177,42 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             $data['status'] = 1;
             $data['amount'] = $orderProduct->product_price;
 
-            $this->createRefund($data);
+            if (!isset($arrCurrentRefunds[$orderProduct->id]))
+            {
+
+                $this->createRefund($data);
+            }
 
             $this->arrLineIds[] = $orderProduct->id;
         }
-        
+
+        $totalRefunded = $order->amount_refunded + $refundAmount;
+
         if (!empty($order->voucher_code) && $order->discounts > 0)
         {
             $refundAmount -= $order->discounts;
         }
-        
-        if(empty($order->amount_refunded)) {
+
+        if (empty($order->amount_refunded))
+        {
             $refundAmount += $order->total_shipping;
         }
-        
-        $totalRefunded = $order->amount_refunded + $refundAmount;
-        
-        if($totalRefunded > $order->total_paid) {
-            $difference = $totalRefunded - $order->total_paid;
+
+        if ($totalRefunded > $order->total_paid)
+        {
             
-            if($difference <= 0) {
+            $this->blDoUpdate = false;
+
+            $difference = $order->total_paid - $order->amount_refunded;
+
+            if ($difference <= 0)
+            {
                 return false;
             }
             
-            $refundAmount = $difference;
+
+            return $difference;
         }
-        
-        /*if ($refundAmount > $order->total_paid)
-        {
-            $refundAmount = $order->total_paid;
-        }*/
 
         //event(new RefundsCreateEvent($order));
 
