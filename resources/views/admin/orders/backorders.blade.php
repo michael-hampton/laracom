@@ -177,6 +177,7 @@
 
             $(this).prop('disabled', true);
             $(this).text('Processing');
+            var $this = $(this);
 
             if ($('.cb:checked').length == 0)
             {
@@ -227,8 +228,8 @@
 
                     }
 
-                    $(this).prop('disabled', false);
-                    $(this).text('Allocate');
+                    $this.prop('disabled', false);
+                    $this.text('Allocate');
                 }
             });
             return false;

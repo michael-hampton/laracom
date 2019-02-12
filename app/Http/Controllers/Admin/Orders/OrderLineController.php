@@ -248,12 +248,13 @@ class OrderLineController extends Controller {
                 $channel = $this->channelRepo->findChannelById($order->channel);
                 $statusCount = $this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, $os->id);
                 $arrProducts = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id);
-                
-                if($statusCount > 0 && $channel->partial_shipment === 0) {
+
+                if ($statusCount > 0 && $channel->partial_shipment === 0)
+                {
                     $arrFailed[$lineId][] = 'no lines to allocate';
                     return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
                 }
-                
+
                 if ($statusCount === 0)
                 {
 
@@ -356,10 +357,10 @@ class OrderLineController extends Controller {
             {
                 return false;
             }
-            
+
             $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
             $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
-            
+
             $objProductRepo = new ProductRepository($objProduct);
             $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
 
@@ -464,42 +465,43 @@ class OrderLineController extends Controller {
                         $backorderCount++;
                     }
                 }
-                
+
                 if (($intCantMove > 1 && $channel->partial_shipment === 0) ||
-                    ($total > $backorderCount && $channel->partial_shipment === 0))
+                        ($total > $backorderCount && $channel->partial_shipment === 0))
                 {
 
                     // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
                     $arrFailed[$lineId][] = 'Unable to move';
                     $blError = true;
-                    
-                    //backorder all lines
 
+                    //backorder all lines
                     // if partial shipping allowed and more than 1 line backordered then move single line
-                    
+
                     return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
                 }
-               
 
-                    foreach ($arrProducts as $objLine2)
+
+                foreach ($arrProducts as $objLine2)
+                {
+
+                    if ($objProductLine->status !== $os->id)
                     {
-                        
-                         if ($objProductLine->status !== $os->id) {
-                            continue;   
-                         }
-
-                        if (!$this->reserveStock($objLine2, $order))
-                        {
-                            $arrFailed[$lineId][] = 'failed to allocate stock';
-                            $blError = true;
-                        }
-                        
-                        $arrDone[$lineId] = "Order {$orderId} Line {$lineId} was updated successfully";
+                        continue;
                     }
+
+                    if (!$this->reserveStock($objLine2, $order))
+                    {
+                        $arrFailed[$lineId][] = 'failed to allocate stock';
+                        $blError = true;
+                    }
+
+                    $arrDone[$lineId] = "Order {$orderId} Line {$lineId} was updated successfully";
+                }
             }
         }
 
         $http_code = $blError === true ? 400 : 200;
         return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
     }
+
 }
