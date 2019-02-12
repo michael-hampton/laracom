@@ -163,8 +163,8 @@
         });
 
         $(document).on('click', '.uncheck', function () {
-            var checkboxes = $('.cb');
-            $('.cb').prop('checked', !checkboxes.prop('checked'));
+            var checkboxes = $('.cb:not(:disabled)');
+            $('.cb:not(:disabled)').prop('checked', !checkboxes.prop('checked'));
         });
 
         $(document).on('change', '.cb', function () {
