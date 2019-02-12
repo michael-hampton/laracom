@@ -13,10 +13,12 @@ use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Shop\CourierRates\Repositories\CourierRateRepository;
 use App\RabbitMq\Worker;
 use App\Traits\OrderImportValidation;
+use App\Traits\VoucherValidationScope;
 
 class OrderImport extends BaseImport {
-    
-    use OrderImportValidation;
+
+    use OrderImportValidation,
+        VoucherValidationScope;
 
     /**
      *
@@ -104,6 +106,11 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $arrChannels = [];
+    
+    /**
+     *
+     * @var type 
+     */
     private $arrOrderVouchers = [];
 
     /**
@@ -141,8 +148,23 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $shipping;
+    
+    /**
+     *
+     * @var type 
+     */
     private $lineCount = 1;
+    
+    /**
+     *
+     * @var type 
+     */
     private $voucherCodeRepo;
+    
+    /**
+     *
+     * @var type 
+     */
     private $voucherRepo;
 
     /**
@@ -166,8 +188,7 @@ class OrderImport extends BaseImport {
         $this->arrChannels = $channelRepo->listChannels()->keyBy('id');
         $this->objCustomer = $customerRepo->listCustomers()->keyBy('id');
         $this->arrCustomers = array_change_key_case($this->objCustomer->keyBy('name')->toArray(), CASE_LOWER);
-        $this->arrVoucherCodes = $voucherCodeRepo->listVoucherCode()->keyBy('id');
-        $this->arrExistingProducts = array_change_key_case($productRepo->listProducts()->keyBy('name')->toArray(), CASE_LOWER);
+        $this->arrExistingProducts = $productRepo->listProducts()->keyBy('name');
         $this->objCourierRate = $courierRateRepo;
         $this->arrStatuses = $orderStatusRepo->listOrderStatuses()->keyBy('name');
         $this->arrVouchers = $voucherRepo->listVoucher()->keyBy('id');
@@ -215,7 +236,7 @@ class OrderImport extends BaseImport {
             $this->validateProduct($order['product']);
             $this->buildOrderProduct($order);
             $this->setOrderTotal($order);
-            $this->validateVoucher($order['voucher_code'], $order['order_id']);
+            $this->validateVoucher($order);
             $this->calculateShippingCost();
 
             $this->lineCount++;
@@ -265,44 +286,6 @@ class OrderImport extends BaseImport {
 
     /**
      * 
-     * @param type $courier
-     * @return boolean
-     */
-    private function validateCourier($courier) {
-        $courier = trim(strtolower($courier));
-
-        $arrCouriers = array_change_key_case($this->arrCouriers->keyBy('name')->toArray(), CASE_LOWER);
-
-        if (!isset($arrCouriers[$courier]))
-        {
-            $this->arrErrors[$this->lineCount]['courier'] = "Courier is invalid.";
-            return false;
-        }
-
-        $courierId = $arrCouriers[$courier]['id'];
-
-        $this->courier = $this->arrCouriers[$courierId];
-    }
-
-    /**
-     * 
-     * @param type $customer
-     * @return boolean
-     */
-    private function validateCustomer($customer) {
-        $customer = trim(strtolower($customer));
-
-        if (!isset($this->arrCustomers[$customer]))
-        {
-            $this->arrErrors[$this->lineCount]['customer'] = "Customer is invalid.";
-            return false;
-        }
-
-        $this->customer = $this->arrCustomers[$customer];
-    }
-
-    /**
-     * 
      * @param type $order
      * @return boolean
      */
@@ -339,28 +322,6 @@ class OrderImport extends BaseImport {
         );
 
         return true;
-    }
-
-    /**
-     * 
-     * @return boolean
-     */
-    private function validateCustomerAddress() {
-
-        $customerId = $this->customer['id'];
-
-        if (empty($customerId))
-        {
-
-            $this->arrErrors[$this->lineCount]['customer'] = 'Invalid customer';
-            return false;
-        }
-
-        $objCustomer = $this->objCustomer[$customerId];
-
-        $this->deliveryAddress = $objCustomer->addresses->first();
-
-        return !empty($this->deliveryAddress);
     }
 
     /**
@@ -412,136 +373,6 @@ class OrderImport extends BaseImport {
 
         $this->arrOrders[$order['order_id']]['products'] = $this->arrProducts[$order['order_id']];
 
-        return true;
-    }
-
-    /**
-     * 
-     * @param type $categories
-     * @return type
-     */
-    private function validateVoucher($voucherCode, $orderId) {
-
-        $voucherCode = trim(strtolower($voucherCode));
-
-        if (empty($voucherCode) || (isset($this->arrOrderVouchers[$orderId]) && in_array($voucherCode, $this->arrOrderVouchers[$orderId])))
-        {
-
-            return true;
-        }
-
-        $arrVoucherCodes = array_change_key_case($this->arrVoucherCodes->keyBy('voucher_code')->toArray(), CASE_LOWER);
-
-        if (!isset($arrVoucherCodes[$voucherCode]))
-        {
-            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
-            return false;
-        }
-
-        $voucherId = $arrVoucherCodes[$voucherCode]['voucher_id'];
-        $voucherCodeId = $arrVoucherCodes[$voucherCode]['id'];
-
-        if (!isset($this->arrVouchers[$voucherId]))
-        {
-
-            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
-            return false;
-        }
-
-        //$this->objVoucher = $this->arrVoucherCodes[$voucherCodeId];
-        $voucher = $this->arrVouchers[$voucherId];
-        $voucherAmount = $voucher->amount;
-
-        $this->objVoucher = $this->voucherCodeRepo->validateVoucherCode($this->channel, $voucherCode, null, $this->voucherRepo, false);
-
-
-        if (!$this->objVoucher)
-        {
-            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
-            return false;
-        }
-
-        switch ($voucher->amount_type)
-        {
-            case 'percentage':
-                $this->orderTotal = $this->orderTotal - ($this->orderTotal * ($voucherAmount / 100));
-                break;
-            case 'fixed':
-                $this->orderTotal -= $voucherAmount;
-                break;
-        }
-
-        $this->orderTotal = round($this->orderTotal, 2);
-
-        //$this->voucherAmount = $this->arrVouchers[$voucherId]->amount;
-        $this->arrOrderVouchers[$orderId][] = $voucherCode;
-
-        return true;
-    }
-
-    /**
-     * 
-     * @param type $brand
-     * @return boolean
-     */
-    private function validateProduct($product) {
-        $product = trim(strtolower($product));
-
-        if (!isset($this->arrExistingProducts[$product]))
-        {
-
-            $this->arrErrors[$this->lineCount]['product'] = "Product is invalid.";
-            return false;
-        }
-
-        $this->product = $this->arrExistingProducts[$product];
-    }
-
-    /**
-     * 
-     * @return boolean
-     */
-    private function calculateShippingCost() {
-
-        if (empty($this->courier))
-        {
-            $this->arrErrors[$this->lineCount]['courier'] = 'invalid courier';
-            return false;
-        }
-
-        $this->shipping = $this->objCourierRate->findShippingMethod($this->orderTotal, $this->courier, $this->channel, $this->deliveryAddress->country_id);
-
-        $this->shippingCost = 0;
-
-        if (!empty($this->shipping))
-        {
-            $this->shippingCost = $this->shipping->cost;
-        }
-
-        $this->orderTotal += $this->shippingCost;
-
-        return true;
-    }
-
-    /**
-     * 
-     * @param type $channel
-     * @return boolean
-     */
-    private function validateChannel($channel) {
-        $channel = trim($channel);
-
-        $arrChannels = array_change_key_case($this->arrChannels->keyBy('name')->toArray(), CASE_LOWER);
-
-        if (!isset($arrChannels[$channel]))
-        {
-            $this->arrErrors[$this->lineCount]['channel'] = "Channel is invalid.";
-            return false;
-        }
-
-        $channelId = $arrChannels[$channel]['id'];
-
-        $this->channel = $this->arrChannels[$channelId];
         return true;
     }
 

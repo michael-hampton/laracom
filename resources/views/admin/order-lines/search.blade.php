@@ -66,12 +66,13 @@
                                 {{ $item->product_name }}
 
                             </td>
-    <?php
-    $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
-    $reservedStock = $products[$item->product_id]['reserved_stock'];
-    $checked = $item->status === 14 || $quantityAvailiable > 0 ? 'checked="checked"' : '';
-    $disabled = $item->status !== 14 && $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
-    ?>
+                            <?php
+                            $quantityAvailiable = $products[$item->product_id]['quantity'] - $products[$item->product_id]['reserved_stock'];
+                            $reservedStock = $products[$item->product_id]['reserved_stock'];
+                            $checked = $item->status !== 14 && $quantityAvailiable > 0 ? 'checked="checked"' : '';
+                            $checked = $item->status === 14 ? 'checked="checked"' : $checked;
+                            $disabled = $item->status !== 14 && $quantityAvailiable == 0 ? 'disabled="disabled"' : '';
+                            ?>
 
                             <td>{{ $item->quantity }}
                                 <br>Free Stock {{$quantityAvailiable}}
@@ -86,10 +87,10 @@
                                 @endif
                             </td>
                         </tr>
-    <?php
-    $customerRef = $arrOrder['customer_ref'];
-}
-?>
+                        <?php
+                        $customerRef = $arrOrder['customer_ref'];
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>

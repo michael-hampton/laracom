@@ -1,13 +1,17 @@
 <?php
+
 namespace App\Traits;
+
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Vouchers\Voucher;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
+
 trait OrderImportValidation {
-   /**
+
+    /**
      * 
      * @param type $courier
      * @return boolean
@@ -27,8 +31,8 @@ trait OrderImportValidation {
 
         $this->courier = $this->arrCouriers[$courierId];
     }
-  
-     /**
+
+    /**
      * 
      * @param type $customer
      * @return boolean
@@ -44,7 +48,7 @@ trait OrderImportValidation {
 
         $this->customer = $this->arrCustomers[$customer];
     }
-  
+
     /**
      * 
      * @return boolean
@@ -66,35 +70,49 @@ trait OrderImportValidation {
 
         return !empty($this->deliveryAddress);
     }
-  
-    protected function validateVoucher($voucherCode, $orderId) {
-        $voucherCode = trim(strtolower($voucherCode));
+
+    protected function validateVoucher($order) {
+        $voucherCode = trim(strtolower($order['voucher_code']));
+        $orderId = trim($order['order_id']);
+        $product = trim($order['product']);
+        
         if (empty($voucherCode) || (isset($this->arrOrderVouchers[$orderId]) && in_array($voucherCode, $this->arrOrderVouchers[$orderId])))
         {
             return true;
         }
-        $arrVoucherCodes = array_change_key_case($this->arrVoucherCodes->keyBy('voucher_code')->toArray(), CASE_LOWER);
-        if (!isset($arrVoucherCodes[$voucherCode]))
-        {
-            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
-            return false;
-        }
-        $voucherId = $arrVoucherCodes[$voucherCode]['voucher_id'];
-        $voucherCodeId = $arrVoucherCodes[$voucherCode]['id'];
+
+        $this->objVoucher = $this->voucherCodeRepo->validateVoucherCode($this->channel, $voucherCode, null, $this->voucherRepo, false);
+
+        $voucherId = $this->objVoucher['voucher_id'];
+
         if (!isset($this->arrVouchers[$voucherId]))
         {
             $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
             return false;
         }
-        //$this->objVoucher = $this->arrVoucherCodes[$voucherCodeId];
+
         $voucher = $this->arrVouchers[$voucherId];
         $voucherAmount = $voucher->amount;
         $this->objVoucher = $this->voucherCodeRepo->validateVoucherCode($this->channel, $voucherCode, null, $this->voucherRepo, false);
+
         if (!$this->objVoucher)
         {
             $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
             return false;
         }
+        
+        if(!isset($this->arrExistingProducts[$product])) {
+            
+            return false;
+        }
+        
+        $product = array('product' => $this->arrExistingProducts[$product]);
+
+        if(!$this->validateVoucherScopes($voucher, $product)) {
+            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
+            return false;
+        }
+        
         switch ($voucher->amount_type)
         {
             case 'percentage':
@@ -104,11 +122,13 @@ trait OrderImportValidation {
                 $this->orderTotal -= $voucherAmount;
                 break;
         }
+
         $this->orderTotal = round($this->orderTotal, 2);
         //$this->voucherAmount = $this->arrVouchers[$voucherId]->amount;
         $this->arrOrderVouchers[$orderId][] = $voucherCode;
         return true;
     }
+
     /**
      * 
      * @param type $brand
@@ -116,13 +136,17 @@ trait OrderImportValidation {
      */
     protected function validateProduct($product) {
         $product = trim(strtolower($product));
-        if (!isset($this->arrExistingProducts[$product]))
+
+        $arrExistingProducts = array_change_key_case($this->arrExistingProducts->toArray(), CASE_LOWER);
+
+        if (!isset($arrExistingProducts[$product]))
         {
             $this->arrErrors[$this->lineCount]['product'] = "Product is invalid.";
             return false;
         }
-        $this->product = $this->arrExistingProducts[$product];
+        $this->product = $arrExistingProducts[$product];
     }
+
     /**
      * 
      * @return boolean
@@ -142,6 +166,7 @@ trait OrderImportValidation {
         $this->orderTotal += $this->shippingCost;
         return true;
     }
+
     /**
      * 
      * @param type $channel
@@ -159,4 +184,5 @@ trait OrderImportValidation {
         $this->channel = $this->arrChannels[$channelId];
         return true;
     }
+
 }

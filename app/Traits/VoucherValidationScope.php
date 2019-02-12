@@ -54,7 +54,7 @@ trait VoucherValidationScope {
                     break;
 
                 case 'Product':
-
+                    
                     if (empty($objProduct->id))
                     {
 
@@ -62,6 +62,7 @@ trait VoucherValidationScope {
                     }
                                         
                     $scopeValues = explode(',', $objVoucher->scope_value);
+                    
                     $blFound = false;
 
                     foreach ($scopeValues as $scopeValue)
