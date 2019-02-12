@@ -12,8 +12,11 @@ use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Shop\CourierRates\Repositories\CourierRateRepository;
 use App\RabbitMq\Worker;
+use App\Traits\OrderImportValidation;
 
 class OrderImport extends BaseImport {
+    
+    use OrderImportValidation;
 
     /**
      *
