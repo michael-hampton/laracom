@@ -255,9 +255,6 @@ class OrderLineController extends Controller {
                     return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
                 }
 
-                if ($statusCount === 0)
-                {
-
                     foreach ($arrProducts as $objLine)
                     {
 
@@ -284,27 +281,7 @@ class OrderLineController extends Controller {
                         }
                     }
                 }
-                elseif ($channel->partial_shipment === 1)
-                {
-
-                    $objLine = $this->orderLineRepo->findOrderProductById($lineId);
-
-                    if ($channel->allocate_on_order === 1 || $order->payment === 'import')
-                    {
-
-                        //$quantity = $objProduct->quantity - $objLine2->quantity;
-
-                        if (!$this->increaseReservedStock($objLine))
-                        {
-                            $arrFailed[$lineId][] = 'failed to update stock';
-                        }
-                    }
-
-                    if (!$this->addToPicklist($lineId, $picklistRef))
-                    {
-                        $arrFailed[$lineId][] = 'Unable to add picklist';
-                    }
-                }
+                
 
                 $arrDone[$lineId] = "Order {$orderId} Line Id {$lineId} was updated successfully";
             }
