@@ -262,10 +262,10 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             $response = $this->payPal->doRefund($captureId);
             return $response;
         } catch (PayPalConnectionException $e) {
-            echo $e->getMessage();
-            echo $e->getCode();
-            echo $e->getData();
-            die($e);
+            //echo $e->getMessage();
+            //echo $e->getCode();
+            //echo $e->getData();
+            //die($e);
         }
     }
 
