@@ -8,6 +8,7 @@ use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Vouchers\Voucher;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
+use App\Shop\Addresses\Address;
 
 trait MyTrait {
     
@@ -25,7 +26,6 @@ trait MyTrait {
             $address = $addressRepo->findAddressById($id);
             
             if(!$this->validatePostcode($address)) {
-                $this->validationFailures[] = 'Invalid postcode used';
                 return false;
             }
             
@@ -170,9 +170,10 @@ trait MyTrait {
 "BE"=>"^[1-9]{1}[0-9]{3}$"
 );
  
-if ($ZIPREG[$address->country]) {
+if ($ZIPREG[$address->country_id]) {
  
-if (!preg_match("/".$ZIPREG[$address->country]."/i",$zip_postal)){
+if (!preg_match("/".$ZIPREG[$address->country_id]."/i",$zip_postal)){
+    $this->validationFailures[] = 'Invalid postcode used';
     return false;
     //Validation failed, provided zip/postal code is not valid.
 }
