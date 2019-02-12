@@ -22,7 +22,13 @@ trait MyTrait {
     public function validateAddress(AddressRepositoryInterface $addressRepo, $id) {
 
         try {
-            $addressRepo->findAddressById($id);
+            $address = $addressRepo->findAddressById($id);
+            
+            if(!$this->validatePostcode($address)) {
+                $this->validationFailures[] = 'Invalid postcode used';
+                return false;
+            }
+            
         } catch (\Exception $e) {
             $this->validationFailures[] = 'Invalid address used';
             return false;
@@ -147,11 +153,11 @@ trait MyTrait {
         return true;
     }
     
-    public function validatePostcode($postcode)
+    public function validatePostcode(Address $address)
     {
         $ZIPREG=array(
 "US"=>"^\d{5}([\-]?\d{4})?$",
-"UK"=>"^(GIR|[A-Z]\d[A-Z\d]??|[A-Z]{2}\d[A-Z\d]??)[ ]??(\d[A-Z]{2})$",
+225 =>"^(GIR|[A-Z]\d[A-Z\d]??|[A-Z]{2}\d[A-Z\d]??)[ ]??(\d[A-Z]{2})$",
 "DE"=>"\b((?:0[1-46-9]\d{3})|(?:[1-357-9]\d{4})|(?:[4][0-24-9]\d{3})|(?:[6][013-9]\d{3}))\b",
 "CA"=>"^([ABCEGHJKLMNPRSTVXY]\d[ABCEGHJKLMNPRSTVWXYZ])\ {0,1}(\d[ABCEGHJKLMNPRSTVWXYZ]\d)$",
 "FR"=>"^(F-)?((2[A|B])|[0-9]{2})[0-9]{3}$",
@@ -164,9 +170,9 @@ trait MyTrait {
 "BE"=>"^[1-9]{1}[0-9]{3}$"
 );
  
-if ($ZIPREG[$country_code]) {
+if ($ZIPREG[$address->country]) {
  
-if (!preg_match("/".$ZIPREG[$country_code]."/i",$zip_postal)){
+if (!preg_match("/".$ZIPREG[$address->country]."/i",$zip_postal)){
     return false;
     //Validation failed, provided zip/postal code is not valid.
 }
