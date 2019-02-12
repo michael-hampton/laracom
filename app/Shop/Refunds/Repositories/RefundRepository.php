@@ -161,7 +161,7 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             
             //$orderProduct = (new OrderProductRepository(new OrderProduct))->findOrderProductById($lineId);
 
-            $refundAmount += $orderProduct->product_price;
+            $refundAmount += $orderProduct->product_price * $orderProduct->quantity;
 
             $data = [];
             $data['date_refunded'] = date('Y-m-d'); //add request
@@ -181,7 +181,9 @@ class RefundRepository extends BaseRepository implements RefundRepositoryInterfa
             $refundAmount -= $order->discounts;
         }
         
-        $refundAmount += $order->total_shipping;
+        if(empty($order->amount_refunded)) {
+            $refundAmount += $order->total_shipping;
+        }
         
         $totalRefunded = $order->amount_refunded + $refundAmount;
         
