@@ -198,9 +198,9 @@ class WarehouseController extends Controller {
         $blFailAllLines = false;
         $arrData['status'] = $newStatus->id;
         
-        if($request->requested_quantity != $objLine->quantity) {
+        if($request->picked_quantity != $objLine->quantity) {
             
-            $intNewQuantity = (int)$objLine->quantity - (int)$request->requested_quantity;
+            $intNewQuantity = (int)$objLine->quantity - (int)$request->picked_quantity;
             
             switch($channel->partial_shipment) {
                 case 1:
@@ -218,7 +218,15 @@ class WarehouseController extends Controller {
                     if($blFailAllLines === true) {
                         foreach($arrLines as $arrLine) {
                             // set to pick failed
+                            $objOrderLineRepo = new OrderProductRepository($arrLine);
+                            // change here
+                            $objOrderLineRepo->updateOrderProduct(['status' => 19);
                         }
+                        
+                        //$postRepo = new OrderCommentRepository($order);
+                        //$postRepo->createComment($data);
+                        $arrErrors[$request->orderId][] = 'updated line to picklist failed';
+                        return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
                     }
 
         try {
