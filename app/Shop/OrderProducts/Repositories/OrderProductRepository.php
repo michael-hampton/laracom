@@ -104,6 +104,27 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
     public function listOrderProducts(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection {
         return $this->all($columns, $order, $sort);
     }
+    
+    private function doClone($line) {
+       
+        $data = [
+                'order_id' => $orderId,
+                'product_id' => $line->product_id,
+                'quantity' => $line->quantity,
+                'product_name' => $line->product_name,
+                'product_sku' => $line->product_sku,
+                'product_description' => $line->product_description,
+                'product_price' => $line->product_price,
+                'status' => 9
+            ];
+
+            if (!$this->createOrderProduct($data)) {
+
+                return false;
+            }
+        
+        return true;
+    }
 
     /**
      * 
@@ -130,19 +151,8 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
 
                 continue;
             }
-
-            $data = [
-                'order_id' => $orderId,
-                'product_id' => $line->product_id,
-                'quantity' => $line->quantity,
-                'product_name' => $line->product_name,
-                'product_sku' => $line->product_sku,
-                'product_description' => $line->product_description,
-                'product_price' => $line->product_price,
-                'status' => 9
-            ];
-
-            if (!$this->createOrderProduct($data)) {
+            
+            if (!$this->doClone($line)) {
 
                 return false;
             }
