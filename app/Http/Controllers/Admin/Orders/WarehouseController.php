@@ -196,6 +196,7 @@ class WarehouseController extends Controller {
         }
         
         $blFailAllLines = false;
+        $arrData['status'] = $newStatus->id;
         
         if($request->requested_quantity != $objLine->quantity) {
             
@@ -205,7 +206,7 @@ class WarehouseController extends Controller {
                 case 1:
                     $objLine->quantity = $intNewQuantity;
                     $objOrderLineRepo->doClone($objLine);
-                    $objOrderLineRepo->updateOrderProduct(['quantity' => $request->picked_quantity]);
+                    $arrData['quantity'] = $request->picked_quantity;
                     break;
                     
                 case 0:
@@ -222,7 +223,7 @@ class WarehouseController extends Controller {
 
         try {
             $objOrderLineRepo = new OrderProductRepository($objLine);
-            $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+            $objOrderLineRepo->updateOrderProduct($arrData);
         } catch (Exception $ex) {
             $arrErrors[$request->orderId][] = $ex->getMessage();
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
