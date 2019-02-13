@@ -473,7 +473,8 @@ class OrderLineController extends Controller {
                     //backorder all lines
                     // if partial shipping allowed and more than 1 line backordered then move single line
 
-                    return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
+                    continue;
+                    //return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
                 }
 
 
