@@ -474,7 +474,7 @@ class OrderLineController extends Controller {
                 {
                     
                     // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
-                    $comment =  'unable to do backorder not enough stock for all lines';
+                    $comment =  'all lines set to backorder because we were unable to allocate some lines';
                     $this->saveNewComment($order, $comment);
                     $arrFailed[$lineId][] = 'Unable to move';
                     $this->backorderAllLines($arrProducts);
