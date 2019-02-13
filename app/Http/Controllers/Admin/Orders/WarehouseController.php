@@ -195,7 +195,7 @@ class WarehouseController extends Controller {
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
         
-        //if($request->requested_quantity != $objLine->quantity) {
+        //if($channel->partial_shipment === 1 && $request->requested_quantity != $objLine->quantity) {
             //$difference = $objLine->quantity - $request->requested_quantity;
         //}
 
