@@ -144,6 +144,24 @@ class WarehouseController extends Controller {
                 ]
         );
     }
+    
+    public function removeOrderFromPicklist(WarehouseRequest $request) {
+        $order = $this->orderRepo->findOrderById($request->orderId);
+        //$channel = $this->channelRepo->findChannelById($order->channel);
+        $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
+        $newStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
+        
+        try {
+            $objOrderLineRepo = new OrderProductRepository($objLine);
+            $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+        } catch (Exception $ex) {
+            $arrErrors[$request->orderId][] = $ex->getMessage();
+            return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
+        }
+        
+        $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
+        return response()->json(['http_code' => 200, 'SUCCESS' => $arrSuccesses]);
+    }
 
     /**
      * 
@@ -155,14 +173,14 @@ class WarehouseController extends Controller {
         $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
         $newStatus = $this->orderStatusRepo->findByName('Picking');
 
+        $arrErrors = [];
+        $arrSuccesses = [];
+        
         if ($this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, 16) > 1 && $channel->partial_shipment === 0)
         {
             $arrErrors[$request->orderId][] = 'order lines are at different statuses';
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
-
-        $arrErrors = [];
-        $arrSuccesses = [];
 
         if ($order->total_paid <= 0 || empty($order->payment))
         {
@@ -176,6 +194,10 @@ class WarehouseController extends Controller {
             $arrErrors[$request->orderId][] = $message;
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
+        
+        //if($request->requested_quantity != $objLine->quantity) {
+            //$difference = $objLine->quantity - $request->requested_quantity;
+        //}
 
         try {
             $objOrderLineRepo = new OrderProductRepository($objLine);
