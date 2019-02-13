@@ -203,7 +203,8 @@ class WarehouseController extends Controller {
             
             switch($channel->partial_shipment) {
                 case 1:
-                    $objOrderLineRepo->doClone();
+                    $objLine->quantity = $intNewQuantity;
+                    $objOrderLineRepo->doClone($objLine);
                     $objOrderLineRepo->updateOrderProduct(['quantity' => $request->picked_quantity]);
                     break;
                     
