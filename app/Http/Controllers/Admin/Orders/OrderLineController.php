@@ -514,7 +514,7 @@ class OrderLineController extends Controller {
                         continue;
                     }
 
-                    if (!$this->reserveStock($objLine2, $order))
+                    if (!$this->reserveStock($objLine2, $channel, $order))
                     {
                         $comment =  'unable to do backorder stock could not be reserved';
                         $this->saveNewComment($order, $comment);
