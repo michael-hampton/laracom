@@ -298,27 +298,23 @@ class VoucherController extends Controller {
         return ['duplicates' => $arrDuplicates, 'added' => $intAdded];
     }
 
-    public function updateVoucher(Request $request) {
-        $data = $request->except('_token', '_method');
-        $data['expiry_date'] = date('Y-m-d', strtotime($request->expiry_date));
-        $data['start_date'] = date('Y-m-d', strtotime($request->start_date));
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function uploadCodes(Request $request) {
 
-        $id = $request->id;
+        $voucher = $this->voucherRepo->findVoucherById($request->id);
 
-        $voucher = $this->voucherRepo->findVoucherById($id);
+        $arrImportResult = $this->importVoucherCodes($request, $voucher);
 
-        $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
-
-        // Validate the input and return correct response
-        if ($validator->fails())
-        {
-            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
-        }
-
-        $update = new VoucherRepository($voucher);
-        $update->updateVoucher($data);
-
-        return response()->json(['http_code' => 200]);
+        return response()->json(
+                        [
+                            'http_code'     => 200,
+                            'import_result' => $arrImportResult,
+                        ]
+        );
     }
 
     /**
@@ -400,7 +396,26 @@ class VoucherController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-        
+        $data = $request->except('_token', '_method');
+        $data['expiry_date'] = date('Y-m-d', strtotime($request->expiry_date));
+        $data['start_date'] = date('Y-m-d', strtotime($request->start_date));
+
+        $id = $request->id;
+
+        $voucher = $this->voucherRepo->findVoucherById($id);
+
+        $validator = Validator::make($data, (new UpdateVoucherRequest())->rules());
+
+        // Validate the input and return correct response
+        if ($validator->fails())
+        {
+            return response()->json(['http_code' => 400, 'errors' => $validator->getMessageBag()->toArray()]);
+        }
+
+        $update = new VoucherRepository($voucher);
+        $update->updateVoucher($data);
+
+        return response()->json(['http_code' => 200]);
     }
 
     /**

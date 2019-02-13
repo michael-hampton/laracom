@@ -39,11 +39,11 @@ foreach ($codes as $unusedCode)
         </form>
 
 
-        <form id="UpdateVoucherForm" action="{{ route('admin.vouchers.updateVoucher') }}" method="post" class="form" enctype="multipart/form-data">
+        <form id="UpdateVoucherForm" action="{{ route('admin.vouchers.update', $voucher->id) }}" method="post" class="form" enctype="multipart/form-data">
             <div class="box-body">
                 {{ csrf_field() }}
 
-                <!-- <input type="hidden" name="_method" value="put">-->
+                <input type="hidden" name="_method" value="put">
                 <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
                 <input type="hidden" name="id" id="id" value="{{ $voucher->id }}">
                 <input type="hidden" name="scope_value" id="scope_value" value="{{ $voucher->scope_value ?: old('scope_value') }}">
@@ -75,11 +75,6 @@ foreach ($codes as $unusedCode)
                 <div class="form-group">
                     <label for="expiry_date">Expiry Date </label>
                     <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ date('m-d-Y', strtotime($voucher->expiry_date)) ?: old('expiry_date') }}">
-                </div>
-
-                <div class="form-group">
-                    <label for="cover">Codes</label>
-                    <input type="file" name="csv_file" id="csv_file" class="form-control">
                 </div>
 
                 @if(!empty($scopes))
@@ -142,6 +137,25 @@ foreach ($codes as $unusedCode)
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+<div class="col-lg-3">
+    <div class="box">
+        <div class="box-body">
+            <form id="uploadCodesForm" action="{{ route('admin.vouchers.uploadCodes') }}" method="post" class="form" enctype="multipart/form-data">
+                {{ csrf_field() }}
+                <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
+                <input type="hidden" name="id" id="id" value="{{ $voucher->id }}">
+                <div class="form-group">
+                    <label for="cover">Upload Codes</label>
+                    <input type="file" name="csv_file" id="csv_file" class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="uploadCodes">Upload</button>
+            </form>
+
+        </div>
     </div>
 </div>
 
@@ -238,10 +252,34 @@ foreach ($codes as $unusedCode)
                             e.preventDefault();
 
                             $('.content .alert-danger').remove();
-                            //var formdata = $('#UpdateVoucherForm').serialize();
                             //var formdata = new FormData($('#UpdateVoucherForm')[0]);
-                           var formdata = $('#UpdateVoucherForm').serialize();
-                           var href = $('#UpdateVoucherForm').attr('action');
+                            var formdata = $('#UpdateVoucherForm').serialize();
+                            var href = $('#UpdateVoucherForm').attr('action');
+
+                            $.ajax({
+                                type: "POST",
+                                url: href,
+                                data: formdata,
+                                success: function (response) {
+                                    if (response.http_code == 400) {
+                                        $('.content').prepend("<div class='alert alert-danger'></div>");
+                                        $.each(response.errors, function (key, value) {
+                                            $('.content .alert-danger').append("<p>" + value + "</p>");
+                                        });
+                                    } else {
+                                        $('.content').prepend("<div class='alert alert-success'>Voucher has been updated successfully</div>");
+                                    }
+                                }
+                            });
+                        });
+
+                        $('#uploadCodesForm').on('submit', function (e) {
+
+                            e.preventDefault();
+
+                            $('.content .alert-danger').remove();
+                            var formdata = new FormData($(this)[0]);
+                            var href = $(this).attr('action');
 
                             $.ajax({
                                 type: "POST",
