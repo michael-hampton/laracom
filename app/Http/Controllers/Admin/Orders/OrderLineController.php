@@ -251,6 +251,8 @@ class OrderLineController extends Controller {
 
                 if ($statusCount > 0 && $channel->partial_shipment === 0)
                 {
+                    $comment = 'unable to do allocation some order lines at incorrect status';
+                    $this->saveNewComment($order, $comment);
                     $arrFailed[$lineId][] = 'no lines to allocate';
                     return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
                 }
@@ -271,12 +273,17 @@ class OrderLineController extends Controller {
 
                             if (!$this->increaseReservedStock($objLine, false))
                             {
+                                 
+                                $comment =  'unable to do allocation stock could not be updated';
+                                $this->saveNewComment($order, $comment);
                                 $arrFailed[$lineId][] = 'failed to update stock';
                             }
                         }
 
                         if (!$this->addToPicklist($lineId, $picklistRef, $order))
                         {
+                            $comment =  'unable to do allocation order line could not be allocated to picklist';
+                            $this->saveNewComment($order, $comment);
                             $arrFailed[$lineId][] = 'Unable to add picklist';
                         }
                     }
@@ -467,6 +474,8 @@ class OrderLineController extends Controller {
                 {
                     
                     // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
+                    $comment =  'unable to do backorder not enough stock for all lines';
+                    $this->saveNewComment($order, $comment);
                     $arrFailed[$lineId][] = 'Unable to move';
                     $this->backorderAllLines($arrProducts);
 
@@ -488,6 +497,8 @@ class OrderLineController extends Controller {
 
                     if (!$this->reserveStock($objLine2, $order))
                     {
+                        $comment =  'unable to do backorder stock could not be reserved';
+                        $this->saveNewComment($order, $comment);
                         $arrFailed[$lineId][] = 'failed to allocate stock';
                         $blError = true;
                     }
