@@ -342,22 +342,27 @@ class OrderLineController extends Controller {
                 return false;
             }
             
-            if($availiableQty === $objLine->quantity) {
+            $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
             
+            if($availiableQty === $objLine->quantity) {
+                $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
+                $arrData = ['status' => $objNewStatus->id];
             }
             
             if($availiableQty > 0) {
                 $intNewQuantity = (int)$objLine->quantity - (int)$availiableQty;
+                $objLine->quantity = $intNewQuantity;
+                // do clone
+                
+                $reserved_stock = $objProduct->reserved_stock + $availiableQty;
+                $arrData = ['status' => $objNewStatus->id, 'quantity' => $availiableQty];
             }
-
-            $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
-            $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
-
+           
             $objProductRepo = new ProductRepository($objProduct);
             $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
 
             $orderLineRepo = new OrderProductRepository($objLine);
-            $orderLineRepo->updateOrderProduct(['status' => $objNewStatus->id]);
+            $orderLineRepo->updateOrderProduct($arrData);
 
             if ($order !== null)
             {
