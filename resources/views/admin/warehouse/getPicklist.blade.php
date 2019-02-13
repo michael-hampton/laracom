@@ -41,17 +41,21 @@
 
                     <td>
                         @if($status === 5):
-                        <button class="pick" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
+                        <button class="pick btn btn-primary btn-sm" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
                             Pick
                         </button>
 
+                        <button class="removeFromPicklist btn btn-danger btn-sm" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
+                            Remove From Picklist
+                        </button>
+
                         @elseif($status === 16):
-                        <button class="dispatch" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
+                        <button class="dispatch btn btn-primary btn-sm" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
                             Dispatch
                         </button>
 
                         @elseif($status === 15):
-                        <button class="pack" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
+                        <button class="pack btn btn-primary btn-sm" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
                             Pack
                         </button>
                         @endif;
@@ -68,6 +72,53 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $('.removeFromPicklist').off();
+        $('.removeFromPicklist').on('click', function () {
+            var $this = $(this);
+
+            var orderId = $(this).attr('order-id');
+            var lineId = $(this).attr('line-id');
+            $('.content .alert-danger').remove();
+            $('.content .alert-success').remove();
+
+            $.ajax({
+                type: "POST",
+                url: '/admin/warehouse/removeOrderFromPicklist',
+                data: {
+                    orderId: orderId,
+                    lineId: lineId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    
+                    alert(response);
+
+                    if (response.http_code === 400) {
+
+                        $('.content').prepend("<div class='alert alert-danger'></div>");
+
+                        $.each(response.FAILURES, function (lineId, val) {
+
+                            $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
+
+                        });
+                    } else {
+                        $('.modal-body').prepend("<div class='alert alert-success'></div>");
+
+                        $.each(response.SUCCESS, function (lineId, val) {
+
+                            $('.modal-body .alert-success').append("<p>" + val + "</p>");
+
+                        });
+
+                        $this.replaceWith('<button class="pack" order-id="' + orderId + '" line-id="' + lineId + '">Pack</button>');
+                    }
+                }
+            });
+
+            return false;
+        });
 
         $(document).off('.pick');
         $(document).on("click", ".pick", function () {
@@ -94,7 +145,7 @@
                         $('.content').prepend("<div class='alert alert-danger'></div>");
 
                         $.each(response.FAILURES, function (lineId, val) {
-                            
+
                             $('.content .alert-danger').append("<p> Line Id: " + lineId + " " + val + "</p>");
 
                         });

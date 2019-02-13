@@ -144,21 +144,26 @@ class WarehouseController extends Controller {
                 ]
         );
     }
-    
+
+    /**
+     * 
+     * @param WarehouseRequest $request
+     * @return type
+     */
     public function removeOrderFromPicklist(WarehouseRequest $request) {
-        $order = $this->orderRepo->findOrderById($request->orderId);
-        //$channel = $this->channelRepo->findChannelById($order->channel);
-        $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
-        $newStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
-        
+
         try {
+            $order = $this->orderRepo->findOrderById($request->orderId);
+            //$channel = $this->channelRepo->findChannelById($order->channel);
+            $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
+            $newStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
             $objOrderLineRepo = new OrderProductRepository($objLine);
-            $objOrderLineRepo->updateOrderProduct(['status' => $newStatus->id]);
+            $objOrderLineRepo->updateOrderProduct(['picklist_ref' => null, 'status' => $newStatus->id]);
         } catch (Exception $ex) {
             $arrErrors[$request->orderId][] = $ex->getMessage();
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
-        
+
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
         return response()->json(['http_code' => 200, 'SUCCESS' => $arrSuccesses]);
     }
@@ -175,7 +180,7 @@ class WarehouseController extends Controller {
 
         $arrErrors = [];
         $arrSuccesses = [];
-        
+
         if ($this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, 16) > 1 && $channel->partial_shipment === 0)
         {
             $arrErrors[$request->orderId][] = 'order lines are at different statuses';
@@ -194,45 +199,49 @@ class WarehouseController extends Controller {
             $arrErrors[$request->orderId][] = $message;
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
-        
+
         $blFailAllLines = false;
         $arrData['status'] = $newStatus->id;
-        
-        if($request->picked_quantity != $objLine->quantity) {
-            
-            $intNewQuantity = (int)$objLine->quantity - (int)$request->picked_quantity;
-            
-            switch($channel->partial_shipment) {
+
+        if ($request->picked_quantity != $objLine->quantity)
+        {
+
+            $intNewQuantity = (int) $objLine->quantity - (int) $request->picked_quantity;
+
+            switch ($channel->partial_shipment)
+            {
                 case 1:
                     $objLine->quantity = $intNewQuantity;
                     $objOrderLineRepo->doClone($objLine);
                     $arrData['quantity'] = $request->picked_quantity;
                     break;
-                    
+
                 case 0:
                     $blFailAllLines = true;
                     break;
-       
+            }
+
+            if ($blFailAllLines === true)
+            {
+                foreach ($arrLines as $arrLine)
+                {
+                    // set to pick failed
+                    $objOrderLineRepo = new OrderProductRepository($arrLine);
+                    // change here
+                    $objOrderLineRepo->updateOrderProduct(['status' => 19]);
+                }
+
+
+                $data = [
+                    'content' => 'order line updated to picklist failed',
+                    'user_id' => auth()->guard('admin')->user()->id
+                ];
+                //$postRepo = new OrderCommentRepository($order);
+                //$postRepo->createComment($data);
+                $arrErrors[$request->orderId][] = 'updated line to picklist failed';
+                return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
+            }
         }
-                    
-                    if($blFailAllLines === true) {
-                        foreach($arrLines as $arrLine) {
-                            // set to pick failed
-                            $objOrderLineRepo = new OrderProductRepository($arrLine);
-                            // change here
-                            $objOrderLineRepo->updateOrderProduct(['status' => 19);
-                        }
-                                   
-                                                                   
-             $data = [
-                'content' => 'order line updated to picklist failed',
-                'user_id' => auth()->guard('admin')->user()->id
-            ];
-                        //$postRepo = new OrderCommentRepository($order);
-                        //$postRepo->createComment($data);
-                        $arrErrors[$request->orderId][] = 'updated line to picklist failed';
-                        return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
-                    }
 
         try {
             $objOrderLineRepo = new OrderProductRepository($objLine);
