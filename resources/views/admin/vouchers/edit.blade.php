@@ -239,8 +239,9 @@ foreach ($codes as $unusedCode)
 
                             $('.content .alert-danger').remove();
                             //var formdata = $('#UpdateVoucherForm').serialize();
-                            var formdata = new FormData($('#UpdateVoucherForm')[0]);
-                            var href = $('#UpdateVoucherForm').attr('action');
+                            //var formdata = new FormData($('#UpdateVoucherForm')[0]);
+                           var formdata = $('#UpdateVoucherForm').serialize();
+                           var href = $('#UpdateVoucherForm').attr('action');
 
                             $.ajax({
                                 type: "POST",
