@@ -222,7 +222,12 @@ class WarehouseController extends Controller {
                             // change here
                             $objOrderLineRepo->updateOrderProduct(['status' => 19);
                         }
-                        
+                                   
+                                                                   
+             $data = [
+                'content' => 'order line updated to picklist failed',
+                'user_id' => auth()->guard('admin')->user()->id
+            ];
                         //$postRepo = new OrderCommentRepository($order);
                         //$postRepo->createComment($data);
                         $arrErrors[$request->orderId][] = 'updated line to picklist failed';
