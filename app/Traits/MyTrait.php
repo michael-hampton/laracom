@@ -132,7 +132,6 @@ trait MyTrait {
             
             switch($objVoucher->amount_type) {
                     case 'percentage':
-                        $discountedAmount = round($subtotal * ($objVoucher->amount / 100), 2);
                         $subtotal = round($subtotal * ((100 - $objVoucher->amount) / 100), 2);
                         break;
                     
