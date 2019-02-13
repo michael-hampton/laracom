@@ -195,9 +195,29 @@ class WarehouseController extends Controller {
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
         
-        //if($channel->partial_shipment === 1 && $request->requested_quantity != $objLine->quantity) {
-            //$difference = $objLine->quantity - $request->requested_quantity;
-        //}
+        $blFailAllLines = false;
+        
+        if($request->requested_quantity != $objLine->quantity) {
+            
+            $intNewQuantity = (int)$objLine->quantity - (int)$request->requested_quantity;
+            
+            switch($channel->partial_shipment) {
+                case 1:
+                    $objOrderLineRepo->doClone();
+                    $objOrderLineRepo->updateOrderProduct(['quantity' => $request->picked_quantity]);
+                    break;
+                    
+                case 0:
+                    $blFailAllLines = true;
+                    break;
+       
+        }
+                    
+                    if($blFailAllLines === true) {
+                        foreach($arrLines as $arrLine) {
+                            // set to pick failed
+                        }
+                    }
 
         try {
             $objOrderLineRepo = new OrderProductRepository($objLine);
