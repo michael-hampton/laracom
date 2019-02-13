@@ -105,7 +105,7 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
         return $this->all($columns, $order, $sort);
     }
     
-    private function doClone($line) {
+    public function doClone($line) {
        
         $data = [
                 'order_id' => $orderId,
@@ -115,7 +115,7 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
                 'product_sku' => $line->product_sku,
                 'product_description' => $line->product_description,
                 'product_price' => $line->product_price,
-                'status' => 9
+                'status' => $line->status
             ];
 
             if (!$this->createOrderProduct($data)) {
@@ -151,6 +151,8 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
 
                 continue;
             }
+            
+            $line->status = 9;
             
             if (!$this->doClone($line)) {
 
