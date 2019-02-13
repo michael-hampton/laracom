@@ -337,9 +337,17 @@ class OrderLineController extends Controller {
 
             $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
 
-            if ($availiableQty < $objLine->quantity)
+            if ($availiableQty === 0 || ($availiableQty < $objLine->quantity && $channel->partial_shipping === 0))
             {
                 return false;
+            }
+            
+            if($availiableQty === $objLine->quantity) {
+            
+            }
+            
+            if($availiableQty > 0) {
+                $intNewQuantity = (int)$objLine->quantity - (int)$availiableQty;
             }
 
             $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
