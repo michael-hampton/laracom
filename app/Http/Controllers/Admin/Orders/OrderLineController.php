@@ -217,7 +217,7 @@ class OrderLineController extends Controller {
             $pin .= mt_rand(0, 9);
             $i++;
         }
-        return $pin;
+        return $pin;y
     }
 
     /**
@@ -331,7 +331,7 @@ class OrderLineController extends Controller {
      * @param type $order
      * @return boolean
      */
-    private function reserveStock($objLine, $order = null) {
+    private function reserveStock($objLine, Channel $channel, $order = null) {
         try {
             $objProduct = $this->productRepo->findProductById($objLine->product_id);
 
@@ -339,17 +339,23 @@ class OrderLineController extends Controller {
 
             if ($availiableQty === 0 || ($availiableQty < $objLine->quantity && $channel->partial_shipping === 0))
             {
+                $comment = 'unable to allocate any order lines no stock availiable';
+                    $this->saveNewComment($order, $comment);
                 return false;
             }
             
             $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
             
             if($availiableQty === $objLine->quantity) {
+                $comment = 'all order lines were allocated';
+                $this->saveNewComment($order, $comment);
                 $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
                 $arrData = ['status' => $objNewStatus->id];
             }
             
             if($availiableQty > 0) {
+                $comment = 'partial allocation  line was split';
+                    $this->saveNewComment($order, $comment);
                 $intNewQuantity = (int)$objLine->quantity - (int)$availiableQty;
                 $objLine->quantity = $intNewQuantity;
                 // do clone
