@@ -340,7 +340,7 @@ class OrderLineController extends Controller {
             if ($availiableQty === 0 || ($availiableQty < $objLine->quantity && $channel->partial_shipping === 0))
             {
                 $comment = 'unable to allocate any order lines no stock availiable';
-                    $this->saveNewComment($order, $comment);
+                $this->saveNewComment($order, $comment);
                 return false;
             }
             
@@ -355,11 +355,12 @@ class OrderLineController extends Controller {
             
             if($availiableQty > 0) {
                 $comment = 'partial allocation  line was split';
-                    $this->saveNewComment($order, $comment);
+                $this->saveNewComment($order, $comment);
                 $intNewQuantity = (int)$objLine->quantity - (int)$availiableQty;
                 $objLine->quantity = $intNewQuantity;
                 // do clone
-                
+                $objProductRepo = new ProductRepository($objProduct);
+                $objProductRepo->doClone($objLine);
                 $reserved_stock = $objProduct->reserved_stock + $availiableQty;
                 $arrData = ['status' => $objNewStatus->id, 'quantity' => $availiableQty];
             }
