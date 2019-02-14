@@ -9,6 +9,7 @@ use App\Shop\Shipping\ShippingInterface;
 use Illuminate\Support\Collection;
 use Shippo;
 use Shippo_Shipment;
+use Shippo_Transaction;
 
 class ShippoShipmentRepository implements ShippingInterface {
 
@@ -104,8 +105,35 @@ class ShippoShipmentRepository implements ShippingInterface {
                     'async' => false
                         )
         );
+        
+        $this->createShippingLabel($shipment);
 
         return $shipment;
+    }
+    
+    public function createShippingLabel($rate) {
+                        
+// Get the first rate in the rates results.
+// Customize this based on your business logic.
+$rate = $shipment["rates"][0];
+
+// Purchase the desired rate.
+$transaction = Shippo_Transaction::create(
+    array( 
+    'rate' => $rate["object_id"], 
+    'label_file_type' => "PDF", 
+    'async' => false
+) 
+);
+
+// Retrieve label url and tracking number or error message
+if ($transaction["status"] == "SUCCESS"){
+    echo( $transaction["label_url"] );
+    echo("\n");
+    echo( $transaction["tracking_number"] );
+}else {
+    echo( $transaction["messages"] );
+}
     }
 
     /**
