@@ -224,7 +224,8 @@
 
                         });
 
-                        $('.toBeRemoved').remove();
+                        $('.Search').click();
+                        //$('.toBeRemoved').remove();
 
                     }
 
