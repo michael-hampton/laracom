@@ -217,7 +217,7 @@ class OrderLineController extends Controller {
             $pin .= mt_rand(0, 9);
             $i++;
         }
-        return $pin;y
+        return $pin;
     }
 
     /**
@@ -364,7 +364,10 @@ class OrderLineController extends Controller {
                 $objLine->quantity = $intNewQuantity;
                 // do clone
                 $objProductRepo = new ProductRepository($objProduct);
-                $objProductRepo->doClone($objLine);
+                if(!$objProductRepo->doClone($objLine)) {
+                    return false;
+                }
+                
                 $reserved_stock = $objProduct->reserved_stock + $availiableQty;
                 
                 $arrData['quantity'] = $availiableQty;
