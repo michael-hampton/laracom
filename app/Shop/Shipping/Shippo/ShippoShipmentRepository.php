@@ -3,6 +3,8 @@
 namespace App\Shop\Shipping\Shippo;
 
 use App\Shop\Addresses\Address;
+use App\Shop\Orders\Order;
+use App\Shop\Orders\Repositories\OrderRepository;
 use App\Shop\Customers\Customer;
 use App\Shop\Products\Product;
 use App\Shop\Shipping\ShippingInterface;
@@ -111,9 +113,9 @@ class ShippoShipmentRepository implements ShippingInterface {
         return $this->shipment;
     }
     
-    public function createShippingLabel($order) {
+    public function createShippingLabel(Order $order) {
                    
-        if(empty($shipment)) {
+        if(empty($this->shipment)) {
             return false;
         }
 
@@ -143,6 +145,8 @@ if ($transaction["status"] == "SUCCESS"){
     
     private function saveLabel($url, $trackingNo, Order $order) {
         file_get_contents($url);
+        $orderRepo = new OrderRepository($order);
+        $orderRepo->updateOrder(['tracking_url' => $trackingNo]);
     }
 
     /**
