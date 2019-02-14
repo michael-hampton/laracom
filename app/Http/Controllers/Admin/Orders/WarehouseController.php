@@ -24,10 +24,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Shop\Orders\Requests\WarehouseRequest;
 use App\Shop\Addresses\Transformations\AddressTransformable;
+use App\Traits\OrderCommentTrait;
 
 class WarehouseController extends Controller {
 
-    use AddressTransformable;
+    use AddressTransformable,
+    OrderCommentTrait;
 
     /**
      * @var OrderRepositoryInterface
