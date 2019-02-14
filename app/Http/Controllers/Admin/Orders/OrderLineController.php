@@ -331,7 +331,7 @@ class OrderLineController extends Controller {
      * @param type $order
      * @return boolean
      */
-    private function reserveStock($objLine, Channel $channel, $order = null) {
+    private function reserveStock($objLine, Channel $channel, $order = null, $blUpdateStatus = true) {
         try {
             $objProduct = $this->productRepo->findProductById($objLine->product_id);
 
@@ -345,12 +345,16 @@ class OrderLineController extends Controller {
             }
             
             $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
+            $arrData = [];
+            
+            if($blUpdateStatus === true) {
+                $arrData['status'] = $objNewStatus->id;
+            }
             
             if($availiableQty === $objLine->quantity) {
                 $comment = 'all order lines were allocated';
                 $this->saveNewComment($order, $comment);
                 $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
-                $arrData = ['status' => $objNewStatus->id];
             }
             
             if($availiableQty > 0) {
@@ -362,7 +366,8 @@ class OrderLineController extends Controller {
                 $objProductRepo = new ProductRepository($objProduct);
                 $objProductRepo->doClone($objLine);
                 $reserved_stock = $objProduct->reserved_stock + $availiableQty;
-                $arrData = ['status' => $objNewStatus->id, 'quantity' => $availiableQty];
+                
+                $arrData['quantity'] = $availiableQty;
             }
            
             $objProductRepo = new ProductRepository($objProduct);
