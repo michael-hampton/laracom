@@ -271,7 +271,7 @@ class OrderLineController extends Controller {
                             // check enough quantity to fulfil line if not reject
                             // update stock
 
-                            if (!$this->reserveStock($objLine, $channel, null, false))
+                            if (!$this->reserveStock($objLine, $channel, $order, false))
                             {
                                  
                                 $comment =  'unable to do allocation stock could not be updated';
