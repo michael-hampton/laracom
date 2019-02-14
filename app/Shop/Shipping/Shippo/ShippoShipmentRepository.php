@@ -129,11 +129,16 @@ $transaction = Shippo_Transaction::create(
 // Retrieve label url and tracking number or error message
 if ($transaction["status"] == "SUCCESS"){
     echo( $transaction["label_url"] );
+    $this->saveLabel($transaction["label_url"], $transaction["tracking_number"]);
     echo("\n");
     echo( $transaction["tracking_number"] );
 }else {
     echo( $transaction["messages"] );
 }
+    }
+    
+    private function saveLabel($url, $trackingNo) {
+        file_get_contents($url);
     }
 
     /**
