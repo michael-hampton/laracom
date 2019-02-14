@@ -59,7 +59,7 @@ class StripeRepository {
      * @throws StripeChargingErrorException
      */
     public function execute(
-    array $data, $total, $tax, $shipping = 0, $voucher = null, VoucherRepositoryInterface $voucherRepo, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
+    array $data, $total, $tax, $shipping = 0, $voucher = null, VoucherRepositoryInterface $voucherRepo, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel, $shipmentObj = null
     ): Charge {
         try {
 
@@ -120,7 +120,7 @@ class StripeRepository {
                 'total_paid'      => $totalComputed,
                 'tax'             => $tax,
                 'shipping'        => $shipping
-                    ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository);
+                    ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository, $shipmentObj);
 
             $customerRepo = new CustomerRepository($this->customer);
             $options['source'] = $data['stripeToken'];
