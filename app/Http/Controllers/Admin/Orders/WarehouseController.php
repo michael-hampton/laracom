@@ -158,7 +158,7 @@ class WarehouseController extends Controller {
     public function removeOrderFromPicklist(WarehouseRequest $request) {
 
         try {
-            $order = $this->orderRepo->findOrderById($request->orderId);
+            //$order = $this->orderRepo->findOrderById($request->orderId);
             //$channel = $this->channelRepo->findChannelById($order->channel);
             $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
             $newStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
