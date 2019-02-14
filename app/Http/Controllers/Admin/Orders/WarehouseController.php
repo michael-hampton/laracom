@@ -131,11 +131,14 @@ class WarehouseController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Backorder');
         $items = $this->orderLineRepo->listOrderProducts()->where('picklist_ref', $picklistRef);
+        
         $items = $items->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
                     return $order;
                 })->all();
+        
         $items = $this->orderLineRepo->paginateArrayResults($items, 10);
         $channels = $this->channelRepo->listChannels();
+        
         return view('admin.warehouse.getPicklist', [
             'items'        => $items,
             'status'       => $status,
@@ -190,12 +193,7 @@ class WarehouseController extends Controller {
         if ($order->total_paid <= 0 || empty($order->payment))
         {
             $message = 'Failed to pick order as payment information is incorrect or missing';
-            $data = [
-                'content' => $message,
-                'user_id' => auth()->guard('admin')->user()->id
-            ];
-            $postRepo = new OrderCommentRepository($order);
-            $postRepo->createComment($data);
+            $this->saveNewComment($order, $message);
             $arrErrors[$request->orderId][] = $message;
             return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
         }
@@ -205,7 +203,6 @@ class WarehouseController extends Controller {
 
         if ($request->picked_quantity != $objLine->quantity)
         {
-
             $intNewQuantity = (int) $objLine->quantity - (int) $request->picked_quantity;
 
             switch ($channel->partial_shipment)
@@ -230,14 +227,9 @@ class WarehouseController extends Controller {
                     // change here
                     $objOrderLineRepo->updateOrderProduct(['status' => 19]);
                 }
-
-
-                $data = [
-                    'content' => 'order line updated to picklist failed',
-                    'user_id' => auth()->guard('admin')->user()->id
-                ];
-                //$postRepo = new OrderCommentRepository($order);
-                //$postRepo->createComment($data);
+                   
+                $comment = 'order line updated to picklist failed';
+                $this->saveNewComment($order, $comment);
                 $arrErrors[$request->orderId][] = 'updated line to picklist failed';
                 return response()->json(['http_code' => 400, 'FAILURES' => $arrErrors]);
             }
@@ -252,7 +244,6 @@ class WarehouseController extends Controller {
         }
 
         $arrSuccesses[$request->orderId][] = 'Order has been updated successfully';
-
 
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0)
         {
