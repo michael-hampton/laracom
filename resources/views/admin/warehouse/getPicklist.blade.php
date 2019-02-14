@@ -91,8 +91,6 @@
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (response) {
-                    
-                    alert(response);
 
                     if (response.http_code === 400) {
 
@@ -112,7 +110,7 @@
 
                         });
 
-                        $this.replaceWith('<button class="pack" order-id="' + orderId + '" line-id="' + lineId + '">Pack</button>');
+                        $this.parent().parent().remove();
                     }
                 }
             });
