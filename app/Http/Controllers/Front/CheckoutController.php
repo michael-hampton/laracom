@@ -228,7 +228,7 @@ class CheckoutController extends Controller {
                 }
                 
                 return $this->payPal->process(
-                                $shippingFee, $voucher, $request, (new VoucherRepository(new Voucher)), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'), $shipment)
+                                $shippingFee, $voucher, $request, (new VoucherRepository(new Voucher)), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'), $this->shippingRepo)
                 );
                 break;
             case 'stripe':
@@ -299,7 +299,7 @@ class CheckoutController extends Controller {
             }
             
             $stripeRepo->execute(
-                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherRepository(new Voucher), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'), $shipment)
+                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherRepository(new Voucher), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'), $this->shippingRepo)
             );
             return redirect()->route('checkout.success')->with('message', 'Stripe payment successful!');
         } catch (StripeChargingErrorException $e) {
