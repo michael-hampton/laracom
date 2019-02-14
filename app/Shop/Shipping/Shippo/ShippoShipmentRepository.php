@@ -98,7 +98,7 @@ class ShippoShipmentRepository implements ShippingInterface {
      * @return \Shippo_Shipment
      */
     public function readyShipment() {
-        $shipment = Shippo_Shipment::create(array(
+        $this->shipment = Shippo_Shipment::create(array(
                     'address_from' => $this->warehouseAddress,
                     'address_to' => $this->deliveryAddress,
                     'parcels' => $this->parcel,
@@ -106,16 +106,16 @@ class ShippoShipmentRepository implements ShippingInterface {
                         )
         );
         
-        $this->createShippingLabel($shipment);
+        $this->createShippingLabel();
 
-        return $shipment;
+        return $this->shipment;
     }
     
-    public function createShippingLabel($rate) {
+    public function createShippingLabel() {
                         
 // Get the first rate in the rates results.
 // Customize this based on your business logic.
-$rate = $shipment["rates"][0];
+$rate = $this->shipment["rates"][0];
 
 // Purchase the desired rate.
 $transaction = Shippo_Transaction::create(
