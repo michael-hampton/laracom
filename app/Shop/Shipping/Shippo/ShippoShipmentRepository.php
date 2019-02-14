@@ -106,30 +106,34 @@ class ShippoShipmentRepository implements ShippingInterface {
                         )
         );
         
-        $this->createShippingLabel();
+        //$this->createShippingLabel();
 
         return $this->shipment;
     }
     
-    public function createShippingLabel() {
-                        
-// Get the first rate in the rates results.
-// Customize this based on your business logic.
-$rate = $this->shipment["rates"][0];
+    public function createShippingLabel($order) {
+                   
+        if(empty($shipment)) {
+            return false;
+        }
 
-// Purchase the desired rate.
-$transaction = Shippo_Transaction::create(
-    array( 
-    'rate' => $rate["object_id"], 
-    'label_file_type' => "PDF", 
-    'async' => false
-) 
-);
+        // Get the first rate in the rates results.
+        // Customize this based on your business logic.
+        $rate = $this->shipment["rates"][0];
+
+        // Purchase the desired rate.
+        $transaction = Shippo_Transaction::create(
+            array( 
+                'rate' => $rate["object_id"], 
+                'label_file_type' => "PDF", 
+                'async' => false
+           ) 
+       );
 
 // Retrieve label url and tracking number or error message
 if ($transaction["status"] == "SUCCESS"){
     echo( $transaction["label_url"] );
-    $this->saveLabel($transaction["label_url"], $transaction["tracking_number"]);
+    $this->saveLabel($transaction["label_url"], $transaction["tracking_number"], $order);
     echo("\n");
     echo( $transaction["tracking_number"] );
 }else {
@@ -137,7 +141,7 @@ if ($transaction["status"] == "SUCCESS"){
 }
     }
     
-    private function saveLabel($url, $trackingNo) {
+    private function saveLabel($url, $trackingNo, Order $order) {
         file_get_contents($url);
     }
 
