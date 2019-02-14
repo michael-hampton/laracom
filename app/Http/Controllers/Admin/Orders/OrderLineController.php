@@ -331,7 +331,7 @@ class OrderLineController extends Controller {
      * @param type $order
      * @return boolean
      */
-    private function reserveStock($objLine, Channel $channel, $order = null, $blUpdateStatus = true) {
+    private function reserveStock($objLine, Channel $channel, Order $order, $blUpdateStatus = true) {
         try {
             $objProduct = $this->productRepo->findProductById($objLine->product_id);
 
@@ -364,7 +364,7 @@ class OrderLineController extends Controller {
                 $objLine->quantity = $intNewQuantity;
                 // do clone
                 $objProductRepo = new ProductRepository($objProduct);
-                if(!$objProductRepo->doClone($objLine)) {
+                if(!$objProductRepo->doClone($objLine, $order)) {
                     return false;
                 }
                 
