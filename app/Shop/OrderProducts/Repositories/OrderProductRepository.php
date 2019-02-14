@@ -105,10 +105,10 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
         return $this->all($columns, $order, $sort);
     }
     
-    public function doClone($line) {
+    public function doClone($line, Order $order) {
        
         $data = [
-                'order_id' => $orderId,
+                'order_id' => $order->id,
                 'product_id' => $line->product_id,
                 'quantity' => $line->quantity,
                 'product_name' => $line->product_name,
@@ -143,8 +143,6 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
             return [];
         }
 
-        $orderId = $newOrder->id;
-
         foreach ($lines as $line) {
 
             if (!empty($lineIds) && !in_array($line->id, $lineIds)) {
@@ -154,7 +152,7 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
             
             $line->status = 9;
             
-            if (!$this->doClone($line)) {
+            if (!$this->doClone($line, $newOrder)) {
 
                 return false;
             }
