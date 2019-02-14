@@ -331,7 +331,7 @@ class OrderLineController extends Controller {
      * @param type $order
      * @return boolean
      */
-    private function reserveStock($objLine, Channel $channel, Order $order, $blUpdateStatus = true) {
+    private function reserveStock($objLine, Channel $channel, Order $order, $blUpdateStatus = true, $blUpdateOrder = false) {
         try {
             $objProduct = $this->productRepo->findProductById($objLine->product_id);
 
@@ -379,7 +379,7 @@ class OrderLineController extends Controller {
             $orderLineRepo = new OrderProductRepository($objLine);
             $orderLineRepo->updateOrderProduct($arrData);
 
-            if ($order !== null)
+            if ($blUpdateOrder === true)
             {
                 $order->order_status_id = $objNewStatus->id;
                 $order->save();
