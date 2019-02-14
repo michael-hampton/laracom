@@ -22,7 +22,7 @@ class CheckoutRepository {
      * @param \App\Shop\Checkout\AddressRepositoryInterface $addressRepository
      * @return Order
      */
-    public function buildCheckoutItems(array $data, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository): Order {
+    public function buildCheckoutItems(array $data, VoucherCodeRepositoryInterface $voucherCodeRepository, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, $shipmentObj = null): Order {
         $orderRepo = new OrderRepository(new Order);
         $cartRepo = new CartRepository(new ShoppingCart);
 
@@ -47,6 +47,11 @@ class CheckoutRepository {
         );
         $orderRepo = new OrderRepository($order);
         $orderRepo->buildOrderDetails($cartRepo->getCartItems(), $order, $data['channel']);
+        
+        if($shipmentObj !== null) {
+            
+        }
+        
         return $order;
     }
 
