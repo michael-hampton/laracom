@@ -66,7 +66,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * @throws PaypalRequestError
      */
     public function process(
-    $shippingFee = 0, $voucher = null, Request $request, VoucherRepositoryInterface $voucherRepo, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel
+    $shippingFee = 0, $voucher = null, Request $request, VoucherRepositoryInterface $voucherRepo, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel, $shipmentObj = null
     ) {
 
         $billingAddress = $addressRepository->findAddressById($request->input('billing_address'));
@@ -157,7 +157,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 'total_paid'      => 0,
                 'order_status_id' => 2,
                 'tax'             => $cartRepo->getTax()
-                    ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository);
+                    ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository, $shipmentObj);
         } catch (Exception $ex) {
             throw new Exception('Unable to create order');
         }
