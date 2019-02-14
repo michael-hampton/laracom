@@ -211,7 +211,7 @@ class WarehouseController extends Controller {
             {
                 case 1:
                     $objLine->quantity = $intNewQuantity;
-                    $objOrderLineRepo->doClone($objLine);
+                    $objOrderLineRepo->doClone($objLine, $order);
                     $arrData['quantity'] = $request->picked_quantity;
                     break;
 
