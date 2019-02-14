@@ -41,6 +41,8 @@
 
                     <td>
                         @if($status === 5):
+                        
+                        <input type="text" class="form-control" id="picked_quantity" line-id="{{ $item->id }}" value="{{ $item->quantity }}">
                         <button class="pick btn btn-primary btn-sm" order-id="{{ $item->order_id }}" line-id="{{ $item->id }}">
                             Pick
                         </button>
@@ -125,6 +127,7 @@
 
             var orderId = $(this).attr('order-id');
             var lineId = $(this).attr('line-id');
+            var picked_quantity = $('#picked_quantity[line-id='+lineId+']').val();
             $('.content .alert-danger').remove();
             $('.content .alert-success').remove();
 
@@ -133,6 +136,7 @@
                 url: '/admin/warehouse/pickOrder',
                 data: {
                     orderId: orderId,
+                    picked_quantity:picked_quantity,
                     lineId: lineId,
                     _token: '{{ csrf_token() }}'
                 },
