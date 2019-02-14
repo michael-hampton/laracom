@@ -218,6 +218,15 @@ class CheckoutController extends Controller {
         switch ($request->input('payment'))
         {
             case 'paypal':
+                
+                $products = $this->cartRepo->getCartItems();
+                $customer = $request->user();
+                $shipment = $this->createShippingProcess($customer, $products);
+            
+                if(empty($shipment)) {
+                
+                }
+                
                 return $this->payPal->process(
                                 $shippingFee, $voucher, $request, (new VoucherRepository(new Voucher)), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
                 );
@@ -280,8 +289,17 @@ class CheckoutController extends Controller {
 
             $customer = $this->customerRepo->findCustomerById(auth()->id());
             $stripeRepo = new StripeRepository($customer);
+            
+            $products = $this->cartRepo->getCartItems();
+            $customer = $request->user();
+            $shipment = $this->createShippingProcess($customer, $products);
+            
+            if(empty($shipment)) {
+                
+            }
+            
             $stripeRepo->execute(
-                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherRepository(new Voucher), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'))
+                    $request->all(), Cart::total(), Cart::tax(), 0, $voucher, new VoucherRepository(new Voucher), $objVoucherCodeRepository, $courier, $this->courierRepo, $this->customerRepo, $this->addressRepo, new CourierRateRepository(new CourierRate), (new ChannelRepository(new Channel))->findByName(env('CHANNEL'), $shipment)
             );
             return redirect()->route('checkout.success')->with('message', 'Stripe payment successful!');
         } catch (StripeChargingErrorException $e) {
@@ -316,6 +334,7 @@ class CheckoutController extends Controller {
      * @return mixed
      */
     private function createShippingProcess(Customer $customer, Collection $products) {
+
         $customerRepo = new CustomerRepository($customer);
         if ($customerRepo->findAddresses()->count() > 0 && $products->count() > 0)
         {
