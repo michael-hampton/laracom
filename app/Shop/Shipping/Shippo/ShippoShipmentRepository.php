@@ -10,6 +10,7 @@ use App\Shop\Products\Product;
 use App\Shop\Shipping\ShippingInterface;
 use Illuminate\Support\Collection;
 use Shippo;
+use App\Shop\Orders\OrderDocument;
 use Shippo_Shipment;
 use Shippo_Transaction;
 
@@ -116,14 +117,14 @@ class ShippoShipmentRepository implements ShippingInterface {
 
     public function createShippingLabel(Order $order) {
 
-        if (empty($this->shipment) || empty($this->shipment['rates'][0]))
+        if (empty($this->shipment) || empty($this->shipment['rates'][2]))
         {
             return true;
         }
 
         // Get the first rate in the rates results.
         // Customize this based on your business logic.
-        $rate = $this->shipment["rates"][0];
+        $rate = $this->shipment["rates"][2];
 
         // Purchase the desired rate.
         $transaction = Shippo_Transaction::create(
@@ -134,34 +135,46 @@ class ShippoShipmentRepository implements ShippingInterface {
                         )
         );
 
-        echo '<pre>';
-        print_r($transaction);
-        die;
-
 // Retrieve label url and tracking number or error message
         if ($transaction["status"] == "SUCCESS")
         {
-            echo( $transaction["label_url"] );
             $this->saveLabel($transaction["label_url"], $transaction["tracking_number"], $order);
-            echo("\n");
-            echo( $transaction["tracking_number"] );
         }
-        else
-        {
-            echo( $transaction["messages"] );
-        }
+        return false;
     }
 
+    /**
+     * 
+     * @param type $url
+     * @param type $trackingNo
+     * @param Order $order
+     * @return boolean
+     */
     private function saveLabel($url, $trackingNo, Order $order) {
-        $fileContent = file_get_contents($url);
-        $orderRepo = new OrderRepository($order);
-        $orderRepo->updateOrder(
-                [
-                    'tracking_number' => $trackingNo,
-                    'label_url'       => $url,
-                //'label_file_contents' => $fileContent
-                ]
-        );
+
+        try {
+            $fileContent = file_get_contents($url);
+            $orderRepo = new OrderRepository($order);
+
+
+            $orderDocument = new OrderDocument(
+                    [
+                'order_id'     => $order->id,
+                'file_content' => $fileContent
+                    ]
+            );
+
+            $orderDocument->save();
+
+            $orderRepo->updateOrder(
+                    [
+                        'tracking_number' => $trackingNo,
+                        'label_url'       => $url
+                    ]
+            );
+        } catch (Exception $ex) {
+            return false;
+        }
     }
 
     /**

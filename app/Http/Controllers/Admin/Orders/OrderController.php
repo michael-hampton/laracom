@@ -362,10 +362,10 @@ class OrderController extends Controller {
             $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $request->voucher_code, $arrProducts, $this->voucherRepo);
 
             if (!$voucherCode)
-            {                
+            {
                 return redirect()->back()->with('message', 'Unable to validate voucher code');
             }
-         
+
             $voucher_id = $voucherCode->voucher_id;
             $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
 
@@ -673,6 +673,24 @@ class OrderController extends Controller {
                 })->all();
 
         return response()->json($arrOrders);
+    }
+
+    /**
+     * 
+     * @param type $orderId
+     */
+    public function printLabel($order_id) {
+
+
+        $pdf = \App\Shop\Orders\OrderDocument::where('order_id', $order_id)->first();
+
+        header('Content-type: application/pdf');
+        header("Cache-Control: no-cache");
+        header("Pragma: no-cache");
+        header("Content-Disposition: inline;filename=myfile.pdf'");
+        header("Content-length: " . strlen($pdf['file_content']));
+
+        echo $pdf['file_content'];
     }
 
 }
