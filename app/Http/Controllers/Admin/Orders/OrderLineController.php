@@ -497,7 +497,7 @@ class OrderLineController extends Controller {
                     }
                 }
 
-                if (($intCantMove > 1 && $channel->partial_shipment === 0) ||
+                if (($intCantMove > 0 && $channel->partial_shipment === 0) ||
                         ($total > $backorderCount && $channel->partial_shipment === 0))
                 {
                     
