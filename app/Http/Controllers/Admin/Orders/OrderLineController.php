@@ -328,7 +328,10 @@ class OrderLineController extends Controller {
     /**
      * 
      * @param type $objLine
-     * @param type $order
+     * @param Channel $channel
+     * @param Order $order
+     * @param type $blUpdateStatus
+     * @param type $blUpdateOrder
      * @return boolean
      */
     private function reserveStock($objLine, Channel $channel, Order $order, $blUpdateStatus = true, $blUpdateOrder = false) {
@@ -343,7 +346,7 @@ class OrderLineController extends Controller {
                 $this->saveNewComment($order, $comment);
                 return false;
             }
-
+            
             $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
             $arrData = [];
 
@@ -352,16 +355,15 @@ class OrderLineController extends Controller {
                 $arrData['status'] = $objNewStatus->id;
             }
 
-            if ($availiableQty === $objLine->quantity)
+            if ((int) $availiableQty >= (int) $objLine->quantity)
             {
                 $comment = 'all order lines were allocated';
                 $this->saveNewComment($order, $comment);
                 $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
             }
-
-            if ($availiableQty > 0)
+            
+            if ($availiableQty < $objLine->quantity && $availiableQty > 0)
             {
-
                 $intNewQuantity = (int) $objLine->quantity - (int) $availiableQty;
 
                 $objLine->quantity = $intNewQuantity;
@@ -398,33 +400,6 @@ class OrderLineController extends Controller {
             }
         } catch (\Exception $e) {
 
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * 
-     * @param type $objLine
-     * @param type $blAllowPartial
-     * @return boolean
-     */
-    private function increaseReservedStock($objLine, $blAllowPartial = true) {
-        try {
-            $objProduct = $this->productRepo->findProductById($objLine->product_id);
-
-            $quantity = $objProduct->quantity - $objProduct->reserved_stock;
-
-            if ($blAllowPartial === false && $objLine->quantity < $quantity)
-            {
-                return false;
-            }
-
-            $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
-            $objProductRepo = new ProductRepository($objProduct);
-            $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-        } catch (\Exception $e) {
             return false;
         }
 
