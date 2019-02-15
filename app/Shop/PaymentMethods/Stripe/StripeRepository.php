@@ -67,7 +67,7 @@ class StripeRepository {
             $subtotal = $cartRepo->getProductTotal(2);
             $total = $cartRepo->getProductTotal(2);
             $discountedAmount = 0;
-            
+
             if (!empty($voucher))
             {
                 $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
@@ -99,7 +99,7 @@ class StripeRepository {
                     $total += $shipping;
                 }
             }
-            
+
             $totalComputed = round($total, 2);
 
             $checkoutRepo = new CheckoutRepository;
@@ -122,6 +122,11 @@ class StripeRepository {
                 'shipping'        => $shipping
                     ], $voucherCodeRepository, $courierRepository, $customerRepository, $addressRepository, $shipmentObj);
 
+            if ($shipmentObj !== null)
+            {
+                $shipmentObj->createShippingLabel($order);
+            }
+            
             $customerRepo = new CustomerRepository($this->customer);
             $options['source'] = $data['stripeToken'];
             $options['currency'] = config('cart.currency');
@@ -139,11 +144,7 @@ class StripeRepository {
                             'transaction_id' => $charge->id
                         ]
                 );
-                
-                if($shipmentObj !== null) {
-                    $shipmentObj->createShippingLabel($order);
-                }
-                
+
                 Cart::destroy();
                 request()->session()->forget('voucherCode');
             }

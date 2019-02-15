@@ -64,14 +64,14 @@ class ShippoShipmentRepository implements ShippingInterface {
      */
     public function setPickupAddress() {
         $warehouse = [
-            'name' => config('app.name'),
+            'name'    => config('app.name'),
             'street1' => config('shop.warehouse.address_1'),
-            'city' => config('shop.warehouse.city'),
-            'state' => config('shop.warehouse.state'),
-            'zip' => config('shop.warehouse.zip'),
+            'city'    => config('shop.warehouse.city'),
+            'state'   => config('shop.warehouse.state'),
+            'zip'     => config('shop.warehouse.zip'),
             'country' => config('shop.warehouse.country'),
-            'phone' => config('shop.phone'),
-            'email' => config('shop.email')
+            'phone'   => config('shop.phone'),
+            'email'   => config('shop.email')
         ];
 
         $this->warehouseAddress = $warehouse;
@@ -83,14 +83,14 @@ class ShippoShipmentRepository implements ShippingInterface {
     public function setDeliveryAddress(Address $address) {
 
         $delivery = [
-            'name' => $address->alias,
+            'name'    => $address->alias,
             'street1' => $address->address_1,
-            'city' => $address->city,
-            'state' => $address->state_code,
-            'zip' => $address->zip,
+            'city'    => $address->city,
+            'state'   => $address->state_code,
+            'zip'     => $address->zip,
             'country' => $address->country->iso,
-            'phone' => '',
-            'email' => $this->customer->email
+            'phone'   => '',
+            'email'   => $this->customer->email
         ];
 
         $this->deliveryAddress = $delivery;
@@ -100,23 +100,25 @@ class ShippoShipmentRepository implements ShippingInterface {
      * @return \Shippo_Shipment
      */
     public function readyShipment() {
+
         $this->shipment = Shippo_Shipment::create(array(
                     'address_from' => $this->warehouseAddress,
-                    'address_to' => $this->deliveryAddress,
-                    'parcels' => $this->parcel,
-                    'async' => false
+                    'address_to'   => $this->deliveryAddress,
+                    'parcels'      => $this->parcel,
+                    'async'        => false
                         )
         );
-        
+
         //$this->createShippingLabel();
 
         return $this->shipment;
     }
-    
+
     public function createShippingLabel(Order $order) {
-                   
-        if(empty($this->shipment)) {
-            return false;
+
+        if (empty($this->shipment) || empty($this->shipment['rates'][0]))
+        {
+            return true;
         }
 
         // Get the first rate in the rates results.
@@ -125,33 +127,40 @@ class ShippoShipmentRepository implements ShippingInterface {
 
         // Purchase the desired rate.
         $transaction = Shippo_Transaction::create(
-            array( 
-                'rate' => $rate["object_id"], 
-                'label_file_type' => "PDF", 
-                'async' => false
-           ) 
-       );
+                        array(
+                            'rate'            => $rate["object_id"],
+                            'label_file_type' => "PDF",
+                            'async'           => false
+                        )
+        );
+
+        echo '<pre>';
+        print_r($transaction);
+        die;
 
 // Retrieve label url and tracking number or error message
-if ($transaction["status"] == "SUCCESS"){
-    echo( $transaction["label_url"] );
-    $this->saveLabel($transaction["label_url"], $transaction["tracking_number"], $order);
-    echo("\n");
-    echo( $transaction["tracking_number"] );
-}else {
-    echo( $transaction["messages"] );
-}
+        if ($transaction["status"] == "SUCCESS")
+        {
+            echo( $transaction["label_url"] );
+            $this->saveLabel($transaction["label_url"], $transaction["tracking_number"], $order);
+            echo("\n");
+            echo( $transaction["tracking_number"] );
+        }
+        else
+        {
+            echo( $transaction["messages"] );
+        }
     }
-    
+
     private function saveLabel($url, $trackingNo, Order $order) {
         $fileContent = file_get_contents($url);
         $orderRepo = new OrderRepository($order);
         $orderRepo->updateOrder(
-            [
-                'tracking_number' => $trackingNo,
-                'label_url' => $url,
+                [
+                    'tracking_number' => $trackingNo,
+                    'label_url'       => $url,
                 //'label_file_contents' => $fileContent
-            ]
+                ]
         );
     }
 
@@ -175,7 +184,7 @@ if ($transaction["status"] == "SUCCESS"){
         $weight = $collection->map(function ($item) {
 
                     return [
-                        'weight' => $item->product->weight * $item->qty,
+                        'weight'    => $item->product->weight * $item->qty,
                         'mass_unit' => $item->product->mass_unit
                     ];
                 })->map(function ($item) {
@@ -183,7 +192,8 @@ if ($transaction["status"] == "SUCCESS"){
 
                     $mass_unit = (new Product())->MASS_UNIT;
 
-                    switch ($item['mass_unit']) {
+                    switch ($item['mass_unit'])
+                    {
                         case $mass_unit['OUNCES'] :
                             $oz = $item['weight'] / 16;
                             $total += $oz;
@@ -201,12 +211,12 @@ if ($transaction["status"] == "SUCCESS"){
                 })->sum('weight');
 
         $parcel = array(
-            'length' => '5',
-            'width' => '5',
-            'height' => '5',
+            'length'        => '5',
+            'width'         => '5',
+            'height'        => '5',
             'distance_unit' => 'in',
-            'weight' => $weight,
-            'mass_unit' => 'lb',
+            'weight'        => $weight,
+            'mass_unit'     => 'lb',
         );
 
         $this->parcel = $parcel;

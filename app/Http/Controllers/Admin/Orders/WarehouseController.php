@@ -29,7 +29,7 @@ use App\Traits\OrderCommentTrait;
 class WarehouseController extends Controller {
 
     use AddressTransformable,
-    OrderCommentTrait;
+        OrderCommentTrait;
 
     /**
      * @var OrderRepositoryInterface
@@ -133,14 +133,14 @@ class WarehouseController extends Controller {
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Backorder');
         $items = $this->orderLineRepo->listOrderProducts()->where('picklist_ref', $picklistRef);
-        
+
         $items = $items->transform(function (\App\Shop\OrderProducts\OrderProduct $order) {
                     return $order;
                 })->all();
-        
+
         $items = $this->orderLineRepo->paginateArrayResults($items, 10);
         $channels = $this->channelRepo->listChannels();
-        
+
         return view('admin.warehouse.getPicklist', [
             'items'        => $items,
             'status'       => $status,
@@ -158,8 +158,6 @@ class WarehouseController extends Controller {
     public function removeOrderFromPicklist(WarehouseRequest $request) {
 
         try {
-            //$order = $this->orderRepo->findOrderById($request->orderId);
-            //$channel = $this->channelRepo->findChannelById($order->channel);
             $objLine = $this->orderLineRepo->findOrderProductById($request->lineId);
             $newStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
             $objOrderLineRepo = new OrderProductRepository($objLine);
@@ -211,7 +209,7 @@ class WarehouseController extends Controller {
             {
                 case 1:
                     $objLine->quantity = $intNewQuantity;
-                    $objOrderLineRepo->doClone($objLine, $order);
+                    $this->orderLineRepo->doClone($objLine, $order);
                     $arrData['quantity'] = $request->picked_quantity;
                     break;
 
@@ -222,14 +220,22 @@ class WarehouseController extends Controller {
 
             if ($blFailAllLines === true)
             {
+                $arrLines = $this->orderLineRepo->listOrderProducts()->where('order_id', $order->id);
+
                 foreach ($arrLines as $arrLine)
                 {
                     // set to pick failed
                     $objOrderLineRepo = new OrderProductRepository($arrLine);
-                    // change here
-                    $objOrderLineRepo->updateOrderProduct(['status' => 19]);
+                    $objOrderLineRepo->updateOrderProduct(['status' => 21]);
                 }
-                   
+
+                $statusCount = $this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, 21);
+
+                if ($statusCount === 0)
+                {
+                    (new OrderRepository($order))->updateOrder(['order_status_id' => 21]);
+                }
+
                 $comment = 'order line updated to picklist failed';
                 $this->saveNewComment($order, $comment);
                 $arrErrors[$request->orderId][] = 'updated line to picklist failed';

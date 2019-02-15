@@ -105,6 +105,12 @@ class OrderProductRepository extends BaseRepository implements OrderProductRepos
         return $this->all($columns, $order, $sort);
     }
     
+    /**
+     * 
+     * @param type $line
+     * @param Order $order
+     * @return boolean
+     */
     public function doClone($line, Order $order) {
        
         $data = [
