@@ -146,7 +146,12 @@ if ($transaction["status"] == "SUCCESS"){
     private function saveLabel($url, $trackingNo, Order $order) {
         file_get_contents($url);
         $orderRepo = new OrderRepository($order);
-        $orderRepo->updateOrder(['tracking_url' => $trackingNo]);
+        $orderRepo->updateOrder(
+            [
+                'tracking_number' => $trackingNo,
+                'label_url' => $url
+            ]
+        );
     }
 
     /**
