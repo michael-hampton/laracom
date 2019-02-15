@@ -139,7 +139,11 @@ class StripeRepository {
                             'transaction_id' => $charge->id
                         ]
                 );
-
+                
+                if($shipmentObj !== null) {
+                    $shipmentObj->createShippingLabel($order);
+                }
+                
                 Cart::destroy();
                 request()->session()->forget('voucherCode');
             }
