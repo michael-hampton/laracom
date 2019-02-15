@@ -28,6 +28,18 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         UploadableTrait;
 
     /**
+     *
+     * @var type 
+     */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $blValid = false;
+
+    /**
      * ProductRepository constructor.
      * @param Product $product
      */
@@ -58,10 +70,39 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      */
     public function createProduct(array $data): Product {
         try {
-            return $this->create($data);
+            $this->validate($data);
+            return $this->model->create($data);
         } catch (QueryException $e) {
             throw new ProductCreateErrorException($e);
         }
+    }
+
+    /**
+     * 
+     * @return boolean
+     */
+    public function isValid(): bool {
+
+        return $this->blValid;
+    }
+
+    /**
+     * 
+     * @param type $data
+     * @return boolean
+     */
+    private function validate($data) {
+        $this->model->fill($data);
+
+        $this->blValid = $this->model->isValid();
+
+        if (!$this->blValid)
+        {
+            $this->validationFailures = $this->model->getErrors()->all();
+            return false;
+        }
+        
+        return true;
     }
 
     /**
@@ -361,8 +402,8 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             $query->join('channel_product', 'products.id', '=', 'channel_product.product_id');
             $query->where('channel_product.channel_id', $channel->id);
         }
-        
-          if ($request->has('category'))
+
+        if ($request->has('category'))
         {
             $query->join('category_product', 'products.id', '=', 'category_product.product_id');
             $query->where('category_product.category_id', $request->category);
@@ -374,7 +415,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         }
 
         if ($request->has('in_stock') && $request->in_stock === 'true')
-        {      
+        {
             $query->whereRaw('products.quantity - products.reserved_stock > 0');
         }
 
@@ -390,6 +431,14 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         $result = $query->paginate(20);
 
         return $result;
+    }
+
+    /**
+     * 
+     * @return array
+     */
+    public function getValidationFailures(): array {
+        return $this->validationFailures;
     }
 
 }

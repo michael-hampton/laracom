@@ -11,24 +11,42 @@ use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nicolaslopezj\Searchable\SearchableTrait;
+use Watson\Validating\ValidatingTrait;
 
 class Product extends Model implements Buyable {
 
-    use SearchableTrait;
+    use SearchableTrait,
+        ValidatingTrait;
 
+    /**
+     *
+     * @var type 
+     */
+    protected $rules = [
+        'sku'      => 'required|min:4',
+        'name'     => 'required',
+        'quantity' => 'required', 'numeric',
+        'price'    => 'required',
+        'cover'    => 'required'
+    ];
     public $MASS_UNIT = [
         'OUNCES' => 'oz',
-        'GRAMS' => 'gms',
+        'GRAMS'  => 'gms',
         'POUNDS' => 'lbs'
     ];
     public $DISTANCE_UNIT = [
         'CENTIMETER' => 'cm',
-        'METER' => 'mtr',
-        'INCH' => 'in',
-        'MILIMETER' => 'mm',
-        'FOOT' => 'ft',
-        'YARD' => 'yd'
+        'METER'      => 'mtr',
+        'INCH'       => 'in',
+        'MILIMETER'  => 'mm',
+        'FOOT'       => 'ft',
+        'YARD'       => 'yd'
     ];
+//    protected $rules = [
+//        'title' => 'required',
+//        'slug'  => 'required|unique:posts,slug',
+//        'test'  => 'required'
+//    ];
 
     /**
      * Searchable rules.
@@ -37,7 +55,7 @@ class Product extends Model implements Buyable {
      */
     protected $searchable = [
         'columns' => [
-            'products.name' => 10,
+            'products.name'        => 10,
             'products.description' => 5
         ]
     ];

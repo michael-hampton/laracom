@@ -186,6 +186,13 @@ class ProductController extends Controller {
         }
 
         $product = $this->productRepo->createProduct($data);
+        
+        if(!$this->productRepo->isValid()) {
+                        
+            $arrErrors = $this->productRepo->getValidationFailures();
+  
+        }
+        
         $productRepo = new ProductRepository($product);
 
         // image
@@ -467,7 +474,7 @@ class ProductController extends Controller {
         {
             $productRepo->detachChannels();
         }
-
+        
         $productRepo->updateProduct($data);
         return response()->json(['http_code' => 200]);
     }

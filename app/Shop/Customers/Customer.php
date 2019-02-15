@@ -9,13 +9,25 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Cashier\Billable;
 use Nicolaslopezj\Searchable\SearchableTrait;
+use Watson\Validating\ValidatingTrait;
 
 class Customer extends Authenticatable {
 
     use Notifiable,
         SoftDeletes,
         SearchableTrait,
-        Billable;
+        Billable,
+        ValidatingTrait;
+
+    /**
+     *
+     * @var type 
+     */
+    protected $rules = [
+        'name'     => 'required',
+        'email'    => 'required', 'email', 'unique:customers',
+        'password' => 'required', 'min:8'
+    ];
 
     /**
      * The attributes that are mass assignable.

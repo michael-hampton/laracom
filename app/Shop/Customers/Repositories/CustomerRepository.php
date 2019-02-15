@@ -18,6 +18,18 @@ use Illuminate\Support\Collection as Support;
 class CustomerRepository extends BaseRepository implements CustomerRepositoryInterface {
 
     /**
+     *
+     * @var type 
+     */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $blValid = false;
+
+    /**
      * CustomerRepository constructor.
      * @param Customer $customer
      */
@@ -49,14 +61,48 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
         try {
             $data = collect($params)->except('password')->all();
             $customer = new Customer($data);
-            if (isset($params['password'])) {
+            if (isset($params['password']))
+            {
                 $customer->password = bcrypt($params['password']);
             }
-            $customer->save();
+
+            if ($this->validate($params))
+            {
+                $customer->save();
+            }
+
             return $customer;
         } catch (QueryException $e) {
             throw new CreateCustomerInvalidArgumentException($e->getMessage(), 500, $e);
         }
+    }
+
+    /**
+     * 
+     * @return boolean
+     */
+    public function isValid(): bool {
+
+        return $this->blValid;
+    }
+
+    /**
+     * 
+     * @param type $data
+     * @return boolean
+     */
+    private function validate($data) {
+        $this->model->fill($data);
+
+        $this->blValid = $this->model->isValid();
+
+        if (!$this->blValid)
+        {
+            $this->validationFailures = $this->model->getErrors()->all();
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -150,14 +196,14 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
             throw new CustomerPaymentChargingErrorException($e);
         }
     }
-    
+
     public function addCredit($customer_id, $amount) {
-        
+
         Customer::find($customer_id)->increment('credit', $amount);
     }
-    
+
     public function removeCredit($customer_id, $amount) {
-        
+
         Customer::find($customer_id)->decrement('credit', $amount);
     }
 
