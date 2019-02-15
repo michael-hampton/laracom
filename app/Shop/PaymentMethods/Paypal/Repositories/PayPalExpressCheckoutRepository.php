@@ -161,7 +161,10 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
         } catch (Exception $ex) {
             throw new Exception('Unable to create order');
         }
-
+        
+        if($shipmentObj !== null) {
+            $shipmentObj->createShippingLabel($order);
+        }
         try {
             $this->payPal->setOrderId($order->id);
             $response = $this->payPal->createPayment(
