@@ -7,13 +7,13 @@ use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterfac
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Products\Repositories\ProductRepository;
 use App\Shop\Products\Product;
+use App\Shop\Channels\Channel;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderProducts\OrderProduct;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
 use App\Shop\OrderProducts\Requests\UpdateOrderProductRequest;
-use App\Shop\Comments\OrderCommentRepository;
 use App\Search\OrderProductSearch;
 use App\Shop\Customers\Repositories\CustomerRepository;
 use App\Shop\Customers\Customer;
@@ -254,45 +254,45 @@ class OrderLineController extends Controller {
                     $comment = 'unable to do allocation some order lines at incorrect status';
                     $this->saveNewComment($order, $comment);
                     $arrFailed[$lineId][] = 'no lines to allocate';
-                    return response()->json(['http_code' => 400, 'FAILURES' => $arrFailed]);
+                    continue;
                 }
 
-                    foreach ($arrProducts as $objLine)
+                foreach ($arrProducts as $objLine)
+                {
+
+                    if ($objLine->status !== $os->id)
                     {
 
-                        if ($objLine->status !== $os->id)
+                        continue;
+                    }
+
+                    if ($channel->allocate_on_order === 0 || $order->payment === 'import')
+                    {
+                        // check enough quantity to fulfil line if not reject
+                        // update stock
+
+                        if (!$this->reserveStock($objLine, $channel, $order, false))
                         {
 
-                            continue;
-                        }
-
-                        if ($channel->allocate_on_order === 0 || $order->payment === 'import')
-                        {
-                            // check enough quantity to fulfil line if not reject
-                            // update stock
-
-                            if (!$this->reserveStock($objLine, $channel, $order, false))
-                            {
-                                 
-                                $comment =  'unable to do allocation stock could not be updated';
-                                $this->saveNewComment($order, $comment);
-                                $arrFailed[$lineId][] = 'failed to update stock';
-                            }
-                        }
-
-                        if (!$this->addToPicklist($lineId, $picklistRef, $order))
-                        {
-                            $comment =  'unable to do allocation order line could not be allocated to picklist';
+                            $comment = 'unable to do allocation stock could not be updated';
                             $this->saveNewComment($order, $comment);
-                            $arrFailed[$lineId][] = 'Unable to add picklist';
+                            $arrFailed[$lineId][] = 'failed to update stock';
                         }
                     }
-                }
-                
 
-                $arrDone[$lineId] = "Order {$orderId} Line Id {$lineId} was updated successfully";
+                    if (!$this->addToPicklist($lineId, $picklistRef, $order))
+                    {
+                        $comment = 'unable to do allocation order line could not be allocated to picklist';
+                        $this->saveNewComment($order, $comment);
+                        $arrFailed[$lineId][] = 'Unable to add picklist';
+                    }
+                }
             }
+
+
+            $arrDone[$lineId] = "Order {$orderId} Line Id {$lineId} was updated successfully";
         }
+
 
         $http_code = $blError === true ? 400 : 200;
         return response()->json(['http_code' => $http_code, 'FAILURES' => $arrFailed, 'SUCCESS' => $arrDone]);
@@ -343,43 +343,55 @@ class OrderLineController extends Controller {
                 $this->saveNewComment($order, $comment);
                 return false;
             }
-            
+
             $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
             $arrData = [];
-            
-            if($blUpdateStatus === true) {
+
+            if ($blUpdateStatus === true)
+            {
                 $arrData['status'] = $objNewStatus->id;
             }
-            
-            if($availiableQty === $objLine->quantity) {
+
+            if ($availiableQty === $objLine->quantity)
+            {
                 $comment = 'all order lines were allocated';
                 $this->saveNewComment($order, $comment);
                 $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
             }
-            
-            if($availiableQty > 0) {
-                $comment = 'partial allocation  line was split';
-                $this->saveNewComment($order, $comment);
-                $intNewQuantity = (int)$objLine->quantity - (int)$availiableQty;
+
+            if ($availiableQty > 0)
+            {
+
+                $intNewQuantity = (int) $objLine->quantity - (int) $availiableQty;
+
                 $objLine->quantity = $intNewQuantity;
+                $objLine->status = 11;
+
                 // do clone
                 $objProductRepo = new ProductRepository($objProduct);
-                if(!$objProductRepo->doClone($objLine, $order)) {
+
+                if (!$this->orderLineRepo->doClone($objLine, $order))
+                {
                     return false;
                 }
-                
+
                 $reserved_stock = $objProduct->reserved_stock + $availiableQty;
-                
+
                 $arrData['quantity'] = $availiableQty;
+
+                $comment = 'partial allocation  line was split';
+                $this->saveNewComment($order, $comment);
             }
-           
+
+            $statusCount = $this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, $objNewStatus->id);
+
             $objProductRepo = new ProductRepository($objProduct);
             $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
 
             $orderLineRepo = new OrderProductRepository($objLine);
             $orderLineRepo->updateOrderProduct($arrData);
 
-            if ($blUpdateOrder === true)
+            if ($blUpdateOrder === true || $statusCount === 0)
             {
                 $order->order_status_id = $objNewStatus->id;
                 $order->save();
@@ -418,23 +430,24 @@ class OrderLineController extends Controller {
 
         return true;
     }
-    
+
     /**
      * 
      * @param type $arrProducts
      * @return boolean
      */
     public function backorderAllLines($arrProducts) {
-        foreach ($arrProducts as $objLine) {
-            
+        foreach ($arrProducts as $objLine)
+        {
+
             try {
-                 $orderLineRepo = new OrderProductRepository($objLine);
+                $orderLineRepo = new OrderProductRepository($objLine);
                 $orderLineRepo->updateOrderProduct(['status' => 11]);
             } catch (Exception $ex) {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -500,9 +513,9 @@ class OrderLineController extends Controller {
                 if (($intCantMove > 0 && $channel->partial_shipment === 0) ||
                         ($total > $backorderCount && $channel->partial_shipment === 0))
                 {
-                    
+
                     // cant complete because there are more than 1 line that are backordered and no partial shipping allowed
-                    $comment =  'all lines set to backorder because we were unable to allocate some lines';
+                    $comment = 'all lines set to backorder because we were unable to allocate some lines';
                     $this->saveNewComment($order, $comment);
                     $arrFailed[$lineId][] = 'Unable to move';
                     $this->backorderAllLines($arrProducts);
@@ -525,7 +538,7 @@ class OrderLineController extends Controller {
 
                     if (!$this->reserveStock($objLine2, $channel, $order))
                     {
-                        $comment =  'unable to do backorder stock could not be reserved';
+                        $comment = 'unable to do backorder stock could not be reserved';
                         $this->saveNewComment($order, $comment);
                         $arrFailed[$lineId][] = 'failed to allocate stock';
                         $blError = true;
