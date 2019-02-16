@@ -85,14 +85,20 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
      * @param Channel $channel
      * @return type
      */
-    public function findShippingMethod($total, Courier $courier, Channel $channel, int $country_id) {
+    public function findShippingMethod($total, Courier $courier = null, Channel $channel, int $country_id) {
 
-        $rates = $this->model
-                ->whereRaw('? between range_from and range_to', [$total])
-                ->where('courier', '=', $courier->id)
-                ->where('channel', '=', $channel->id)
-                ->where('country', '=', $country_id)
-                ->get();
+        $query = $this->model
+                ->whereRaw('? between range_from and range_to', [$total]);
+
+        if (!empty($courier))
+        {
+            $query->where('courier', '=', $courier->id);
+        }
+
+        $query->where('channel', '=', $channel->id)
+                ->where('country', '=', $country_id);
+
+        $rates = $query->get();
 
         if (isset($rates[0]))
         {
@@ -127,15 +133,15 @@ class CourierRateRepository extends BaseRepository implements CourierRateReposit
      * @return type
      */
     public function checkMethodExists(Request $request) {
-        
+
         return $this->model->where('channel', '=', $request->channel)
-                ->where('country', '=', $request->country)
-                ->where(function ($query) use ($request) {
-                    $query->where('range_from', '<=', $request->range_from);
-                    $query->where('range_to', '>=', $request->range_to);
-                })
-                ->where('courier', $request->courier)
-                ->get();
+                        ->where('country', '=', $request->country)
+                        ->where(function ($query) use ($request) {
+                            $query->where('range_from', '<=', $request->range_from);
+                            $query->where('range_to', '>=', $request->range_to);
+                        })
+                        ->where('courier', $request->courier)
+                        ->get();
     }
 
     /**

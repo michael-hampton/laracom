@@ -90,6 +90,10 @@ class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInt
      */
     public function updateEmployee(array $params): bool {
 
+        if(isset($params['password'])) {
+            $params['password'] = bcrypt($params['password']);
+        }
+        
         $this->model->fill($params);
 
         if (!$this->model->validate(true))
@@ -99,8 +103,10 @@ class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInt
             $this->validationFailures = $this->model->getValidationFailures();
             return false;
         }
-
-        return $this->model->update($params);
+        
+        $blValid = $this->model->update($params);
+        
+        return $blValid;
     }
 
     /**

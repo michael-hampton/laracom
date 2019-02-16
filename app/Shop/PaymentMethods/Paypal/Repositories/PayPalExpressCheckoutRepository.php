@@ -66,7 +66,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * @throws PaypalRequestError
      */
     public function process(
-    $shippingFee = 0, $voucher = null, Request $request, VoucherRepositoryInterface $voucherRepo, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel, $shipmentObj = null
+    $shippingFee = 0, $voucher = null, Request $request, VoucherRepositoryInterface $voucherRepo, VoucherCodeRepositoryInterface $voucherCodeRepository, Courier $courier = null, CourierRepositoryInterface $courierRepository, CustomerRepositoryInterface $customerRepository, AddressRepositoryInterface $addressRepository, CourierRateRepositoryInterface $courierRateRepository, Channel $channel, $shipmentObj = null
     ) {
 
         $billingAddress = $addressRepository->findAddressById($request->input('billing_address'));

@@ -120,11 +120,7 @@ class EmployeeController extends Controller {
         $isCurrentUser = $this->employeeRepo->isAuthUser($employee);
         $empRepo = new EmployeeRepository($employee);
 
-        $empRepo->updateEmployee($request->except('_token', '_method', 'password'));
-
-        if ($request->has('password')) {
-            $empRepo->updateEmployee(['password' => bcrypt($request->input('password'))]);
-        }
+        $empRepo->updateEmployee($request->except('_token', '_method'));
 
         if ($request->has('roles')) {
             $employee->roles()->sync($request->input('roles'));
