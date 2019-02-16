@@ -617,15 +617,26 @@
             <div class="box-body">
                 <h4> <i class="fa fa-gift"></i> Audit</h4>
 
-                @foreach($audits as $audit)
-                <div class="row">
-                    {{ json_encode($audit->old_values) }}
-                </div>
+                <ul class="list-group clear-list">
+                    @forelse ($audits as $audit)
+                    <li class="list-group-item" style="margin-bottom: 12px;">
+                        @lang('article.updated.metadata', $audit->getMetadata())
 
-                <div class="row col-lg-12">
-                    {{ json_encode($audit->new_values) }}
-                </div>
+                        @foreach ($audit->getModified() as $attribute => $modified)
+                        
+                        <ul>
+                            <li>@lang('article.'.$audit->event.'.modified.'.$attribute, $modified)</li>
+                            <li class="success">{{ $modified['new'] }}</li>
+                        </ul>
+
+                    </li>
+                </ul>
                 @endforeach
+                </li>
+                @empty
+                <p>@lang('article.unavailable_audits')</p>
+                @endforelse
+                </ul>
             </div>
             @endif
         </div>
