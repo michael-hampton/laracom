@@ -620,7 +620,6 @@
                 <ul class="list-group clear-list">
                     @forelse ($audits as $audit)
                     <li class="list-group-item" style="margin-bottom: 12px;">
-                        @lang('article.updated.metadata', $audit->getMetadata())
 
                         @foreach ($audit->getModified() as $attribute => $modified)
                         
