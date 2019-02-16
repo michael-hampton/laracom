@@ -22,12 +22,29 @@ class Product extends Model implements Buyable {
      *
      * @var type 
      */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
     protected $rules = [
-        'sku'      => 'required|min:4',
-        'name'     => 'required',
-        'quantity' => 'required', 'numeric',
-        'price'    => 'required',
-        'cover'    => 'required'
+        'create' => [
+            'sku'        => ['required', 'string'],
+            'name'       => ['required', 'unique:products'],
+            'quantity'   => ['required', 'numeric'],
+            'price'      => ['required'],
+            'cost_price' => ['required'],
+            'brand_id' => ['required'],
+        ],
+        'update' => [
+            'sku'        => ['required', 'string'],
+            'name'       => ['required', 'string'],
+            'quantity'   => ['required', 'numeric'],
+            'price'      => ['required'],
+            'cost_price' => ['required'],
+            'brand_id' => ['required'],
+        ]
     ];
     public $MASS_UNIT = [
         'OUNCES' => 'oz',
@@ -42,11 +59,6 @@ class Product extends Model implements Buyable {
         'FOOT'       => 'ft',
         'YARD'       => 'yd'
     ];
-//    protected $rules = [
-//        'title' => 'required',
-//        'slug'  => 'required|unique:posts,slug',
-//        'test'  => 'required'
-//    ];
 
     /**
      * Searchable rules.
@@ -160,6 +172,35 @@ class Product extends Model implements Buyable {
      */
     public function brand() {
         return $this->belongsTo(Brand::class);
+    }
+
+    /**
+     * 
+     * @param type $blUpdate
+     * @return boolean
+     */
+    public function validate($blUpdate = false) {
+
+        $rules = $blUpdate === false ? $this->rules['create'] : $this->rules['update'];
+        $this->setRules($rules);
+        $blValid = $this->isValid();
+                
+        if (!$blValid)
+        {
+            $this->validationFailures = $this->getErrors()->all();
+
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * 
+     * @return type
+     */
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

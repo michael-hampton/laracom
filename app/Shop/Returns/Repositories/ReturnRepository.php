@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Shop\Returns\Repositories;
+
 use App\Shop\Returns\Returns;
 use App\Events\ReturnsCreateEvent;
 use App\Shop\Orders\Order;
@@ -15,8 +17,23 @@ use App\Shop\Base\BaseRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+
 class ReturnRepository extends BaseRepository implements ReturnRepositoryInterface {
+
     use ReturnTransformable;
+
+    /**
+     *
+     * @var type 
+     */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $blValid = true;
+
     /**
      * ReturnRepository constructor.
      * @param Return $return
@@ -25,6 +42,7 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
         parent::__construct($return);
         $this->model = $return;
     }
+
     /**
      * Create the return
      *
@@ -34,19 +52,46 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
     public function createReturn(array $params): Returns {
         try {
             $return = new Returns($params);
+
+            if (!$return->validate())
+            {
+                $this->validationFailures = $return->getValidationFailures();
+                $this->blValid = false;
+
+                return $return;
+            }
+
+
             $return->save();
             return $return;
         } catch (QueryException $e) {
             throw new ReturnInvalidArgumentException('Refund creation error', 500, $e);
         }
     }
+
     /**
      * @param array $update
      * @return bool
      */
     public function updateReturn(array $update): bool {
-        return $this->model->update($update);
+
+        try {
+            $this->model->fill($update);
+
+            if (!$this->model->validate(true))
+            {
+
+                $this->blValid = false;
+                $this->validationFailures = $this->model->getValidationFailures();
+                return false;
+            }
+
+            return $this->model->update($update);
+        } catch (Exception $ex) {
+            throw new Exception($e);
+        }
     }
+
     /**
      * Soft delete the return
      *
@@ -54,6 +99,7 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
     public function deleteReturn() {
         return $this->model->delete();
     }
+
     /**
      * List all the return
      *
@@ -65,7 +111,7 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
     public function listReturn(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection {
         return $this->all($columns, $order, $sort);
     }
-    
+
     /**
      * Return the return
      *
@@ -79,6 +125,7 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
             throw new ReturnNotFoundException($e->getMessage());
         }
     }
+
     /**
      * @param string $text
      * @return mixed
@@ -86,8 +133,13 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
     public function searchReturn(string $text): Collection {
         return $this->model->search($text, [
                     'coupon_code' => 10,
-                    'amount' => 5,
+                    'amount'      => 5,
                     'amount_type' => 10
                 ])->get();
     }
+
+    public function getValidationFailures() {
+        return $this->validationFailures;
+    }
+
 }

@@ -14,6 +14,18 @@ use Illuminate\Support\Facades\Auth;
 class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInterface {
 
     /**
+     *
+     * @var type 
+     */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $blValid = true;
+
+    /**
      * EmployeeRepository constructor.
      * @param Employee $employee
      */
@@ -43,6 +55,15 @@ class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInt
         $collection = collect($params);
         $employee = new Employee(($collection->except('password'))->all());
         $employee->password = bcrypt($collection->only('password'));
+
+        if (!$employee->validate())
+        {
+            $this->validationFailures = $employee->getValidationFailures();
+            $this->blValid = false;
+
+            return $employee;
+        }
+
         $employee->save();
         return $employee;
     }
@@ -68,6 +89,17 @@ class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInt
      * @return bool
      */
     public function updateEmployee(array $params): bool {
+
+        $this->model->fill($params);
+
+        if (!$this->model->validate(true))
+        {
+
+            $this->blValid = false;
+            $this->validationFailures = $this->model->getValidationFailures();
+            return false;
+        }
+
         return $this->model->update($params);
     }
 
@@ -103,7 +135,8 @@ class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInt
      */
     public function isAuthUser(Employee $employee): bool {
         $isAuthUser = false;
-        if (Auth::guard('admin')->user()->id == $employee->id) {
+        if (Auth::guard('admin')->user()->id == $employee->id)
+        {
             $isAuthUser = true;
         }
         return $isAuthUser;
@@ -141,6 +174,10 @@ class EmployeeRepository extends BaseRepository implements EmployeeRepositoryInt
      */
     public function employeesWithoutChannel(): Collection {
         return $this->model->doesntHave('channels')->paginate(15)->get();
+    }
+
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

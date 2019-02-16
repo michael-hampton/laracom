@@ -7,10 +7,28 @@ use App\Shop\Products\Product;
 use App\Shop\Employees\Employee;
 use Illuminate\Support\Collection;
 use Nicolaslopezj\Searchable\SearchableTrait;
+use Watson\Validating\ValidatingTrait;
 
 class Channel extends Model {
 
-    use SearchableTrait;
+    use SearchableTrait,
+        ValidatingTrait;
+
+    /**
+     *
+     * @var type 
+     */
+    protected $rules = [
+        'create' => [
+            'name'               => ['required', 'unique:channels'],
+            'allocate_on_order'  => ['required'],
+            'backorders_enabled' => ['required'],
+            'has_priority'       => ['required']
+        ],
+        'update' => [
+            'name' => ['required']
+        ]
+    ];
 
     /**
      * Searchable rules.
@@ -19,7 +37,7 @@ class Channel extends Model {
      */
     protected $searchable = [
         'columns' => [
-            'channels.name' => 10,
+            'channels.name'        => 10,
             'channels.description' => 5
         ]
     ];
@@ -71,6 +89,35 @@ class Channel extends Model {
      */
     public function searchChannel(string $term): Collection {
         return self::search($term)->get();
+    }
+
+    /**
+     * 
+     * @param type $blUpdate
+     * @return boolean
+     */
+    public function validate($blUpdate = false) {
+
+        $rules = $blUpdate === false ? $this->rules['create'] : $this->rules['update'];
+        $this->setRules($rules);
+        $blValid = $this->isValid();
+
+        if (!$blValid)
+        {
+            $this->validationFailures = $this->getErrors()->all();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 
+     * @return type
+     */
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

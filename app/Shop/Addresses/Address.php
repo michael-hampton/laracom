@@ -10,11 +10,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Shop\Cities\City;
 use App\Shop\Countries\Country;
 use Sofa\Eloquence\Eloquence;
+use Watson\Validating\ValidatingTrait;
 
 class Address extends Model {
 
     use SoftDeletes,
-        Eloquence;
+        Eloquence,
+        ValidatingTrait;
+
+    /**
+     *
+     * @var type 
+     */
+    protected $rules = [
+        'create' => [
+            'alias'     => ['required'],
+            'address_1' => ['required']
+        ],
+        'update' => [
+            'alias'     => ['required'],
+            'address_1' => ['required']
+        ]
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -66,6 +83,35 @@ class Address extends Model {
 
     public function orders() {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * 
+     * @param type $blUpdate
+     * @return boolean
+     */
+    public function validate($blUpdate = false) {
+
+        $rules = $blUpdate === false ? $this->rules['create'] : $this->rules['update'];
+        $this->setRules($rules);
+        $blValid = $this->isValid();
+
+        if (!$blValid)
+        {
+            $this->validationFailures = $this->getErrors()->all();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 
+     * @return type
+     */
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

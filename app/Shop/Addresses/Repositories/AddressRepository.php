@@ -17,16 +17,27 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 
-class AddressRepository extends BaseRepository implements AddressRepositoryInterface
-{
+class AddressRepository extends BaseRepository implements AddressRepositoryInterface {
+
     use AddressTransformable;
+
+    /**
+     *
+     * @var type 
+     */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $blValid = true;
 
     /**
      * AddressRepository constructor.
      * @param Address $address
      */
-    public function __construct(Address $address)
-    {
+    public function __construct(Address $address) {
         parent::__construct($address);
         $this->model = $address;
     }
@@ -37,13 +48,22 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      * @param array $params
      * @return Address
      */
-    public function createAddress(array $params) : Address
-    {
+    public function createAddress(array $params): Address {
         try {
             $address = new Address($params);
-            if (isset($params['customer'])) {
+            if (isset($params['customer']))
+            {
                 $address->customer()->associate($params['customer']);
             }
+
+            if (!$address->validate())
+            {
+                $this->validationFailures = $address->getValidationFailures();
+                $this->blValid = false;
+
+                return $address;
+            }
+
             $address->save();
 
             return $address;
@@ -58,8 +78,7 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      * @param Address $address
      * @param Customer $customer
      */
-    public function attachToCustomer(Address $address, Customer $customer)
-    {
+    public function attachToCustomer(Address $address, Customer $customer) {
         $customer->addresses()->save($address);
     }
 
@@ -67,8 +86,18 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      * @param array $update
      * @return bool
      */
-    public function updateAddress(array $update): bool
-    {
+    public function updateAddress(array $update): bool {
+
+        $this->model->fill($update);
+
+        if (!$this->model->validate(true))
+        {
+
+            $this->blValid = false;
+            $this->validationFailures = $this->model->getValidationFailures();
+            return false;
+        }
+
         return $this->model->update($update);
     }
 
@@ -76,8 +105,7 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      * Soft delete the address
      *
      */
-    public function deleteAddress()
-    {
+    public function deleteAddress() {
         $this->model->customer()->dissociate();
         return $this->model->delete();
     }
@@ -90,8 +118,7 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      * @param array $columns
      * @return array|Collection
      */
-    public function listAddress(string $order = 'id', string $sort = 'desc', array $columns = ['*']) : Collection
-    {
+    public function listAddress(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection {
         return $this->all($columns, $order, $sort);
     }
 
@@ -101,8 +128,7 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      * @param int $id
      * @return Address
      */
-    public function findAddressById(int $id) : Address
-    {
+    public function findAddressById(int $id): Address {
         try {
             return $this->findOneOrFail($id);
         } catch (ModelNotFoundException $e) {
@@ -115,8 +141,7 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      *
      * @return Customer
      */
-    public function findCustomer() : Customer
-    {
+    public function findCustomer(): Customer {
         return $this->model->customer;
     }
 
@@ -124,43 +149,43 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      * @param string $text
      * @return mixed
      */
-    public function searchAddress(string $text) : Collection
-    {
+    public function searchAddress(string $text): Collection {
         return $this->model->search($text, [
-            'address_1' => 10,
-            'address_2' => 5,
-            'province.name' => 5,
-            'city.name' => 5,
-            'country.name' => 5
-        ])->get();
+                    'address_1'     => 10,
+                    'address_2'     => 5,
+                    'province.name' => 5,
+                    'city.name'     => 5,
+                    'country.name'  => 5
+                ])->get();
     }
 
     /**
      * @return Country
      */
-    public function findCountry() : Country
-    {
+    public function findCountry(): Country {
         return $this->model->country;
     }
 
     /**
      * @return Province
      */
-    public function findProvince() : Province
-    {
+    public function findProvince(): Province {
         return $this->model->province;
     }
 
-    public function findCity() : City
-    {
+    public function findCity(): City {
         return $this->model->city;
     }
 
     /**
      * @return Collection
      */
-    public function findOrders() : Collection
-    {
+    public function findOrders(): Collection {
         return $this->model->orders()->get();
     }
+
+    public function getValidationFailures() {
+        return $this->validationFailures;
+    }
+
 }

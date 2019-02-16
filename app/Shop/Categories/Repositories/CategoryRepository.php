@@ -22,6 +22,18 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
         ProductTransformable;
 
     /**
+     *
+     * @var type 
+     */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $blValid = true;
+
+    /**
      * CategoryRepository constructor.
      * @param Category $category
      */
@@ -69,18 +81,30 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
     public function createCategory(array $params): Category {
         try {
             $collection = collect($params);
-            if (isset($params['name'])) {
+            if (isset($params['name']))
+            {
                 $slug = str_slug($params['name']);
             }
-            if (isset($params['cover']) && ($params['cover'] instanceof UploadedFile)) {
+            if (isset($params['cover']) && ($params['cover'] instanceof UploadedFile))
+            {
                 $cover = $this->uploadOne($params['cover'], 'categories');
             }
             $merge = $collection->merge(compact('slug', 'cover'));
             $category = new Category($merge->all());
-            if (isset($params['parent'])) {
+            if (isset($params['parent']))
+            {
                 $parent = $this->findCategoryById($params['parent']);
                 $category->parent()->associate($parent);
             }
+
+            if (!$category->validate())
+            {
+                $this->validationFailures = $category->getValidationFailures();
+                $this->blValid = false;
+
+                return $category;
+            }
+
             $category->save();
             return $category;
         } catch (QueryException $e) {
@@ -100,7 +124,8 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
         $category = $this->findCategoryById($this->model->id);
         $collection = collect($params)->except('_token');
         $slug = str_slug($collection->get('name'));
-        if (isset($params['cover']) && ($params['cover'] instanceof UploadedFile)) {
+        if (isset($params['cover']) && ($params['cover'] instanceof UploadedFile))
+        {
             $cover = $this->uploadOne($params['cover'], 'categories');
         }
         $merge = $collection->merge(compact('slug', 'cover'));
@@ -110,12 +135,26 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
         // just make current category as root
         // else we need to find the parent
         // and associate it as child
-        if ((int) $params['parent'] == 0) {
+        if ((int) $params['parent'] == 0)
+        {
             $category->saveAsRoot();
-        } else {
+        }
+        else
+        {
             $parent = $this->findCategoryById($params['parent']);
             $category->parent()->associate($parent);
         }
+
+        $category->fill($merge->all());
+
+        if (!$category->validate(true))
+        {
+
+            $this->blValid = false;
+            $this->validationFailures = $category->getValidationFailures();
+            return false;
+        }
+
         $category->update($merge->all());
 
         return $category;
@@ -216,8 +255,8 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
     public function findChildren() {
         return $this->model->children;
     }
-    
-       /**
+
+    /**
      * 
      * @param type $name
      * @return type
@@ -227,6 +266,10 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
         $query->whereRaw('LOWER(`name`) = ? ', [trim(strtolower($name))]);
         $result = $query->get();
         return Category::hydrate($result->toArray())[0];
+    }
+
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

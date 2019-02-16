@@ -19,6 +19,18 @@ class ChannelRepository extends BaseRepository implements ChannelRepositoryInter
     use ChannelTransformable;
 
     /**
+     *
+     * @var type 
+     */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $blValid = true;
+
+    /**
      * ChannelRepository constructor.
      * @param Channel $channel
      */
@@ -49,6 +61,15 @@ class ChannelRepository extends BaseRepository implements ChannelRepositoryInter
 
         try {
             $channel = new Channel($params);
+
+            if (!$channel->validate())
+            {
+                $this->validationFailures = $channel->getValidationFailures();
+                $this->blValid = false;
+
+                return $channel;
+            }
+
             $channel->save();
             return $channel;
         } catch (QueryException $e) {
@@ -66,9 +87,18 @@ class ChannelRepository extends BaseRepository implements ChannelRepositoryInter
      */
     public function updateChannel(array $data): bool {
         try {
-            
-           return $this->model->where('id', $this->model->id)->update($data);
-            
+
+            $this->model->fill($data);
+
+            if (!$this->model->validate(true))
+            {
+
+                $this->blValid = false;
+                $this->validationFailures = $this->model->getValidationFailures();
+                return false;
+            }
+
+            return $this->model->where('id', $this->model->id)->update($data);
         } catch (QueryException $e) {
             throw new ChannelInvalidArgumentException($e);
         }
@@ -204,6 +234,10 @@ class ChannelRepository extends BaseRepository implements ChannelRepositoryInter
      */
     public function findByName(string $name) {
         return $this->model->where('name', $name)->first();
+    }
+
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

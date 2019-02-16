@@ -37,7 +37,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      *
      * @var type 
      */
-    private $blValid = false;
+    private $blValid = true;
 
     /**
      * ProductRepository constructor.
@@ -70,8 +70,19 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      */
     public function createProduct(array $data): Product {
         try {
-            $this->validate($data);
-            return $this->model->create($data);
+
+            $product = new Product($data);
+
+            if (!$product->validate())
+            {
+                $this->validationFailures = $product->getValidationFailures();
+                $this->blValid = false;
+
+                return $product;
+            }
+
+            $product->save();
+            return $product;
         } catch (QueryException $e) {
             throw new ProductCreateErrorException($e);
         }
@@ -87,25 +98,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     }
 
     /**
-     * 
-     * @param type $data
-     * @return boolean
-     */
-    private function validate($data) {
-        $this->model->fill($data);
-
-        $this->blValid = $this->model->isValid();
-
-        if (!$this->blValid)
-        {
-            $this->validationFailures = $this->model->getErrors()->all();
-            return false;
-        }
-        
-        return true;
-    }
-
-    /**
      * Update the product
      *
      * @param array $data
@@ -115,6 +107,19 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      */
     public function updateProduct(array $data): bool {
         $filtered = collect($data)->except('image')->all();
+        
+        $filtered['cost_price'] = !empty($filtered['cost_price']) ? $filtered['cost_price'] : $filtered['price'];
+        
+        $this->model->fill($filtered);
+
+        if (!$this->model->validate(true))
+        {
+
+            $this->blValid = false;
+            $this->validationFailures = $this->model->getValidationFailures();
+            return false;
+        }
+
         try {
             return $this->model->where('id', $this->model->id)->update($filtered);
         } catch (QueryException $e) {

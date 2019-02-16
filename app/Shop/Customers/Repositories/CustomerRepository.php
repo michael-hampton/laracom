@@ -27,7 +27,7 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
      *
      * @var type 
      */
-    private $blValid = false;
+    private $blValid = true;
 
     /**
      * CustomerRepository constructor.
@@ -60,17 +60,23 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
     public function createCustomer(array $params): Customer {
         try {
             $data = collect($params)->except('password')->all();
-            $customer = new Customer($data);
+
             if (isset($params['password']))
             {
-                $customer->password = bcrypt($params['password']);
+                $data['password'] = bcrypt($params['password']);
             }
 
-            if ($this->validate($params))
+            $customer = new Customer($data);
+
+            if (!$customer->validate())
             {
-                $customer->save();
+                $this->validationFailures = $customer->getValidationFailures();
+                $this->blValid = false;
+
+                return $customer;
             }
 
+            $customer->save();
             return $customer;
         } catch (QueryException $e) {
             throw new CreateCustomerInvalidArgumentException($e->getMessage(), 500, $e);
@@ -87,25 +93,6 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
     }
 
     /**
-     * 
-     * @param type $data
-     * @return boolean
-     */
-    private function validate($data) {
-        $this->model->fill($data);
-
-        $this->blValid = $this->model->isValid();
-
-        if (!$this->blValid)
-        {
-            $this->validationFailures = $this->model->getErrors()->all();
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Update the customer
      *
      * @param array $params
@@ -115,6 +102,16 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
      */
     public function updateCustomer(array $params): bool {
         try {
+            $this->model->fill($params);
+
+            if (!$this->model->validate(true))
+            {
+
+                $this->blValid = false;
+                $this->validationFailures = $this->model->getValidationFailures();
+                return false;
+            }
+
             return $this->model->update($params);
         } catch (QueryException $e) {
             throw new UpdateCustomerInvalidArgumentException($e);
@@ -197,14 +194,28 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
         }
     }
 
+    /**
+     * 
+     * @param type $customer_id
+     * @param type $amount
+     */
     public function addCredit($customer_id, $amount) {
 
         Customer::find($customer_id)->increment('credit', $amount);
     }
 
+    /**
+     * 
+     * @param type $customer_id
+     * @param type $amount
+     */
     public function removeCredit($customer_id, $amount) {
 
         Customer::find($customer_id)->decrement('credit', $amount);
+    }
+
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

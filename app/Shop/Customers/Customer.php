@@ -24,10 +24,22 @@ class Customer extends Authenticatable {
      * @var type 
      */
     protected $rules = [
-        'name'     => 'required',
-        'email'    => 'required', 'email', 'unique:customers',
-        'password' => 'required', 'min:8'
+        'create' => [
+            'name'     => 'required',
+            'email'    => 'required', 'email', 'unique:customers',
+            'password' => ['required', 'min:8']
+        ],
+        'update' => [
+            'name'  => ['required'],
+            'email' => ['required', 'email']
+        ]
     ];
+
+    /**
+     *
+     * @var type 
+     */
+    protected $validationFailures = [];
 
     /**
      * The attributes that are mass assignable.
@@ -87,6 +99,35 @@ class Customer extends Authenticatable {
      */
     public function searchCustomer($term) {
         return self::search($term);
+    }
+
+    /**
+     * 
+     * @param type $blUpdate
+     * @return boolean
+     */
+    public function validate($blUpdate = false) {
+
+        $rules = $blUpdate === false ? $this->rules['create'] : $this->rules['update'];
+        $this->setRules($rules);
+        $blValid = $this->isValid();
+        
+        if (!$blValid)
+        {
+            $this->validationFailures = $this->getErrors()->all();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 
+     * @return type
+     */
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

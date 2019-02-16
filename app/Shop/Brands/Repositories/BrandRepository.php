@@ -19,6 +19,18 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
     use UploadableTrait;
 
     /**
+     *
+     * @var type 
+     */
+    private $validationFailures = [];
+
+    /**
+     *
+     * @var type 
+     */
+    private $blValid = true;
+
+    /**
      * BrandRepository constructor.
      *
      * @param Brand $brand
@@ -45,6 +57,14 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
 
             $merge = $collection->merge(compact('cover'));
             $brand = new Brand($merge->all());
+
+            if (!$brand->validate())
+            {
+                $this->validationFailures = $brand->getValidationFailures();
+                $this->blValid = false;
+
+                return $brand;
+            }
 
             $brand->save();
             return $brand;
@@ -87,6 +107,16 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
             }
 
             $merge = $collection->merge(compact('cover'));
+
+            $brand->fill($merge->all());
+
+            if (!$brand->validate(true))
+            {
+
+                $this->blValid = false;
+                $this->validationFailures = $brand->getValidationFailures();
+                return false;
+            }
 
             $brand->update($merge->all());
 
@@ -170,6 +200,10 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
 
     public function getBrandsForGivenIds(array $arrIds) {
         return $this->model->whereIn('id', $arrIds)->get();
+    }
+
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }

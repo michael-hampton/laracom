@@ -8,12 +8,30 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laratrust\Traits\LaratrustUserTrait;
+use Watson\Validating\ValidatingTrait;
 
 class Employee extends Authenticatable {
 
     use Notifiable,
         SoftDeletes,
-        LaratrustUserTrait;
+        LaratrustUserTrait,
+        ValidatingTrait;
+
+    /**
+     *
+     * @var type 
+     */
+    protected $rules = [
+        'create' => [
+            'name'     => ['required'],
+            'email'    => ['required', 'email', 'unique:employees'],
+            'password' => ['required', 'min:8']
+        ],
+        'update' => [
+            'name'  => ['required'],
+            'email' => ['required', 'email']
+        ]
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -44,6 +62,36 @@ class Employee extends Authenticatable {
 
     public function roles() {
         return $this->belongsToMany(Role::class);
+    }
+
+    /**
+     * 
+     * @param type $blUpdate
+     * @return boolean
+     */
+    public function validate($blUpdate = false) {
+        
+        $rules = $blUpdate === false ? $this->rules['create'] : $this->rules['update'];
+        
+        $this->setRules($rules);
+        $blValid = $this->isValid();
+
+        if (!$blValid)
+        {
+            $this->validationFailures = $this->getErrors()->all();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 
+     * @return type
+     */
+    public function getValidationFailures() {
+        return $this->validationFailures;
     }
 
 }
