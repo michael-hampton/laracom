@@ -10,6 +10,21 @@ use App\Shop\ChannelPrices\Repositories\ChannelPriceRepository;
 
 class ChannelPriceImport extends BaseImport {
 
+    /**
+     *
+     * @var type 
+     */
+    protected $expectedHeaders = array(
+        'product',
+        'channel',
+        'price',
+        'warehouse'
+    );
+    
+    /**
+     *
+     * @var type 
+     */
     protected $requiredFields = array(
         'product',
         'channel',
@@ -217,11 +232,11 @@ class ChannelPriceImport extends BaseImport {
     private function addProductToChannel($product) {
 
         $this->arrChannelProducts[] = [
-            'product_id'   => $this->objProduct['id'],
+            'product_id'  => $this->objProduct['id'],
             'description' => $this->objProduct['description'],
-            'price'     => $product['price'],
-            'warehouse' => $this->objWarehouse['id'],
-            'channel_id'   => $this->objChannel['id']
+            'price'       => $product['price'],
+            'warehouse'   => $this->objWarehouse['id'],
+            'channel_id'  => $this->objChannel['id']
         ];
 
         return true;

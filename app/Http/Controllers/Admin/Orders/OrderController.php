@@ -405,7 +405,6 @@ class OrderController extends Controller {
 
 
         (new \App\RabbitMq\Worker('order_import'))->execute(json_encode($arrData));
-        //(new \App\RabbitMq\Receiver('order_import', 'importOrder'))->listen();
 
         $request->session()->flash('message', 'Creation successful');
         return redirect()->route('admin.orders.index');
@@ -647,7 +646,6 @@ class OrderController extends Controller {
 
         if (!$objOrderImport->isValid($file_path))
         {
-
             $arrErrors = $objOrderImport->getErrors();
             return response()->json(['http_code' => '400', 'arrErrors' => $arrErrors]);
         }
@@ -691,6 +689,16 @@ class OrderController extends Controller {
         header("Content-length: " . strlen($pdf['file_content']));
 
         echo $pdf['file_content'];
+    }
+
+    /**
+     * 
+     * @param type $queue
+     */
+    public function runQueue($queue) {
+
+        $function = $queue == 'importOrder' ? 'bulk_import' : 'order_import';
+        (new \App\RabbitMq\Receiver($function, $queue))->listen();
     }
 
 }

@@ -1,7 +1,26 @@
-<form id="importForm" action="/admin/orders/saveImport" method="post"enctype="multipart/form-data">
-    {{ csrf_field() }}
-    <input type="file" id="csv_file" name="csv_file">
-</form>
+<div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Order Import</h4>
+            </div>
+
+            <div class="modal-body">
+                <form id="importForm" action="/admin/orders/saveImport" method="post"enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                    <input type="file" id="csv_file" name="csv_file">
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary SaveImport">Import</button>
+            </div>
+        </div>
+    </div>
+
+
+
 
 <script>
     $('.SaveImport').off();

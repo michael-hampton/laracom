@@ -98,7 +98,7 @@
         </div>
     </div>
     <div class="col-lg-9 search-results">
-        <img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>
+        <div id="loading" ></div>
 
     </div>
 </section>
@@ -106,23 +106,7 @@
 @endsection
 
 <div class="modal inmodal" id="importModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content animated bounceInRight">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Order Import</h4>
-            </div>
-
-            <div class="modal-body">
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary SaveImport">Import</button>
-            </div>
-        </div>
-    </div>
+    
 </div>
 
 
@@ -141,7 +125,7 @@
                 type: "GET",
                 url: href,
                 success: function (response) {
-                    $('#importModal').find('.modal-body').html(response);
+                    $('#importModal').html(response);
                     $('#importModal').modal('show');
                 }
             });
@@ -165,7 +149,7 @@
         $('.Search').off();
         $('.Search').on('click', function (e) {
             href = $('#admin-search').attr('action');
-            $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
+            $('.search-results').html('<div id="loading" ></div>');
 
             $('.Search').text('Loading...');
             $('.Search').prop('disabled', true);

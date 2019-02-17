@@ -92,7 +92,7 @@
     
     <div class="col-lg-9 search-results">
 
-        <img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>
+        <div id="loading"></div>
 
     </div>
 
@@ -131,7 +131,7 @@
             $('.Search').text('Loading...');
             $('.Search').prop('disabled', true);
 
-            $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
+            $('.search-results').html('<div id="loading" ></div>');
             var formdata = $('#admin-search').serialize();
             $.ajax({
                 type: "POST",
@@ -163,6 +163,8 @@
 
             $(this).prop('disabled', true);
             $(this).text('Processing');
+            
+            var $this = $(this);
 
             if ($('.cb:checked').length == 0)
             {
@@ -210,12 +212,12 @@
 
                         });
 
-                        $('.toBeRemoved').remove();
+                        $('.Search').click();
 
                     }
 
-                    $(this).prop('disabled', false);
-                    $(this).text('Allocate');
+                    $this.prop('disabled', false);
+                    $this.text('Allocate');
 
                 }
             });

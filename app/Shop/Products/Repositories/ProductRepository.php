@@ -107,9 +107,9 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      */
     public function updateProduct(array $data): bool {
         $filtered = collect($data)->except('image')->all();
-        
+
         $filtered['cost_price'] = !empty($filtered['cost_price']) ? $filtered['cost_price'] : $filtered['price'];
-        
+
         $this->model->fill($filtered);
 
         if (!$this->model->validate(true))
@@ -125,6 +125,15 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         } catch (QueryException $e) {
             throw new ProductUpdateErrorException($e);
         }
+    }
+
+    /**
+     * 
+     * @param array $data
+     * @return bool
+     */
+    public function updateStock(array $data): bool {
+        return $this->model->where('id', $this->model->id)->update($data);
     }
 
     /**

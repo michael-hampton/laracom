@@ -78,6 +78,7 @@ class Receiver extends Queue {
                 1, #prefetch count - prefetch window in terms of whole messages
                 null    #global - global=null to mean that the QoS settings should apply per-consumer, global=true to mean that the QoS settings should apply per-channel
         );
+                
         return true;
     }
 
@@ -108,6 +109,7 @@ class Receiver extends Queue {
      * @return boolean
      */
     public function process(AMQPMessage $msg) {
+                
         $this->{$this->method}($msg);
         /**
          * If a consumer dies without sending an acknowledgement the AMQP broker 
@@ -125,9 +127,9 @@ class Receiver extends Queue {
      * @return WorkerReceiver
      */
     private function importOrder(AMQPMessage $msg) {
-
+        
         $arrOrder = json_decode($msg->body, true);
-
+        
         $objSaveImport = new SaveImport();
         $objSaveImport->saveBulkImport(
                 new ChannelRepository(new Channel), new OrderRepository(new Order), new VoucherCodeRepository(new VoucherCode), new CourierRepository(new Courier), new CustomerRepository(new Customer), new AddressRepository(new Address), $arrOrder

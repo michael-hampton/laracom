@@ -90,7 +90,7 @@
         </div>
     </div>
     <div class="col-lg-9 search-results">
-        <img class="loader" src="{{url('/images/loading.gif')}}" alt="Loading"/>
+        <div id="loading" ></div>
 
     </div>
 
@@ -138,7 +138,7 @@
 
             href = $('#admin-search').attr('action');
             var formdata = $('#admin-search').serialize();
-            $('.search-results').html('<img class="loader" src="{{url(' / images / loading.gif')}}" alt="Loading"/>');
+            $('.search-results').html('<div id="loading" ></div>');
             $.ajax({
                 type: "POST",
                 url: href,

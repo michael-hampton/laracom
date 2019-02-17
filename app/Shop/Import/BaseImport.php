@@ -30,6 +30,12 @@ class BaseImport {
      * @var array
      */
     protected $requiredFields = [];
+    
+    /**
+     *
+     * @var type 
+     */
+    protected $expectedHeaders = [];
 
     /**
      * Delimiter character
@@ -204,7 +210,7 @@ class BaseImport {
      */
     protected function checkRequiredFields(array $row) {
 
-        $required = $this->requiredFields;
+        $required = $this->expectedHeaders;
 
         // Fields that must all be present
         $and = array_filter($required, 'is_string');

@@ -109,7 +109,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
                 $this->validateTotal($params, $items);
             }
-
+            
             $this->validateCustomer($customerRepository, $params['customer_id']);
             $this->validateAddress($addressRepository, $params['address_id']);
             $this->validateCourier($courierRepository, $params['courier_id']);

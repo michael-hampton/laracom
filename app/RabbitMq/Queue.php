@@ -77,7 +77,7 @@ class Queue {
      * @return boolean
      */
     protected function declareQueue() {
-
+        
         $this->channel = $this->connection->channel();
 
         $this->channel->queue_declare(

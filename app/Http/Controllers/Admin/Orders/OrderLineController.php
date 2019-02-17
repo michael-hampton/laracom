@@ -51,6 +51,7 @@ class OrderLineController extends Controller {
      * @var ChannelRepositoryInterface
      */
     private $channelRepo;
+    private $picklistRef = '';
 
     /**
      * @var OrderStatusRepositoryInterface
@@ -227,7 +228,7 @@ class OrderLineController extends Controller {
     public function doAllocation(Request $request) {
 
         $os = $this->orderStatusRepo->findByName('Waiting Allocation');
-        $picklistRef = $this->generatePIN();
+        $this->picklistRef = $this->generatePIN();
 
         $arrDone = [];
         $arrFailed = [];
@@ -277,10 +278,13 @@ class OrderLineController extends Controller {
                             $comment = 'unable to do allocation stock could not be updated';
                             $this->saveNewComment($order, $comment);
                             $arrFailed[$lineId][] = 'failed to update stock';
+                            continue;
                         }
                     }
 
-                    if (!$this->addToPicklist($lineId, $picklistRef, $order))
+                    echo 'here';
+
+                    if (!$this->addToPicklist($lineId, $order))
                     {
                         $comment = 'unable to do allocation order line could not be allocated to picklist';
                         $this->saveNewComment($order, $comment);
@@ -301,17 +305,16 @@ class OrderLineController extends Controller {
     /**
      * 
      * @param type $lineId
-     * @param type $picklistRef
      * @param type $order
      * @return boolean
      */
-    private function addToPicklist($lineId, $picklistRef, $order = null) {
+    private function addToPicklist($lineId, $order = null) {
         try {
 
             $objNewStatus = $this->orderStatusRepo->findByName('ordered');
             // update line status
             $orderLineRepo = new OrderProductRepository(new OrderProduct);
-            $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $picklistRef], $lineId);
+            $orderLineRepo->update(['status' => $objNewStatus->id, 'picklist_ref' => $this->picklistRef], $lineId);
 
             if ($order !== null)
             {
@@ -340,13 +343,15 @@ class OrderLineController extends Controller {
 
             $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
 
+            $availiableQty = 1;
+
             if ($availiableQty === 0 || ($availiableQty < $objLine->quantity && $channel->partial_shipping === 0))
             {
                 $comment = 'unable to allocate any order lines no stock availiable';
                 $this->saveNewComment($order, $comment);
                 return false;
             }
-            
+
             $objNewStatus = $this->orderStatusRepo->findByName('Waiting Allocation');
             $arrData = [];
 
@@ -361,7 +366,7 @@ class OrderLineController extends Controller {
                 $this->saveNewComment($order, $comment);
                 $reserved_stock = $objProduct->reserved_stock + $objLine->quantity;
             }
-            
+
             if ($availiableQty < $objLine->quantity && $availiableQty > 0)
             {
                 $intNewQuantity = (int) $objLine->quantity - (int) $availiableQty;
@@ -380,16 +385,18 @@ class OrderLineController extends Controller {
                 $reserved_stock = $objProduct->reserved_stock + $availiableQty;
 
                 $arrData['quantity'] = $availiableQty;
+                $arrData['picklist_ref'] = $this->picklistRef;
+                $arrData['status'] = 5;
 
                 $comment = 'partial allocation  line was split';
                 $this->saveNewComment($order, $comment);
             }
 
             $statusCount = $this->orderLineRepo->chekIfAllLineStatusesAreEqual($order, $objNewStatus->id);
-
+            
             $objProductRepo = new ProductRepository($objProduct);
-            $objProductRepo->updateProduct(['reserved_stock' => $reserved_stock]);
-
+            $objProductRepo->updateStock(['reserved_stock' => $reserved_stock]);
+            
             $orderLineRepo = new OrderProductRepository($objLine);
             $orderLineRepo->updateOrderProduct($arrData);
 
@@ -400,6 +407,8 @@ class OrderLineController extends Controller {
             }
         } catch (\Exception $e) {
 
+            die($e->getMessage());
+            die;
             return false;
         }
 

@@ -24,12 +24,26 @@ class OrderImport extends BaseImport {
      *
      * @var type 
      */
-    protected $requiredFields = array(
+    protected $expectedHeaders = array(
         'order_id',
         'channel',
         'customer',
         'courier',
         'voucher_code',
+        'product',
+        'quantity',
+        'price'
+    );
+
+    /**
+     *
+     * @var type 
+     */
+    protected $requiredFields = array(
+        'order_id',
+        'channel',
+        'customer',
+        'courier',
         'product',
         'quantity',
         'price'
@@ -106,7 +120,7 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $arrChannels = [];
-    
+
     /**
      *
      * @var type 
@@ -148,19 +162,19 @@ class OrderImport extends BaseImport {
      * @var type 
      */
     private $shipping;
-    
+
     /**
      *
      * @var type 
      */
     private $lineCount = 1;
-    
+
     /**
      *
      * @var type 
      */
     private $voucherCodeRepo;
-    
+
     /**
      *
      * @var type 
@@ -382,7 +396,10 @@ class OrderImport extends BaseImport {
      */
     private function sendToQueue() {
 
-        $this->objWorker->execute(json_encode($this->arrOrders));
+        foreach ($this->arrOrders as $arrOrder)
+        {
+            $this->objWorker->execute(json_encode($arrOrder));
+        }
 
         return true;
     }
