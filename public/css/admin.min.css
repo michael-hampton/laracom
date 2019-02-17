@@ -763,3 +763,10 @@ button.dim:active:before {
 .modal-lg {
     min-width: 900px !important;
 }
+
+#loading
+{
+    text-align:center; 
+    background: url('/images/loader.gif') no-repeat center; 
+    height: 150px;
+}

@@ -48,12 +48,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'as' => 'admin.'], f
             Route::get('remove-image-category', 'CategoryController@removeImage')->name('category.remove.image');
         });
         Route::namespace('Orders')->group(function () {
+            Route::get('orders/runQueue/{queue}', 'OrderController@runQueue')->name('orders.runQueue');
             Route::post('export', 'OrderController@export')->name('orders.export');
             Route::resource('orders', 'OrderController');
             Route::post('orderLine/updateLineStatus', 'OrderLineController@updateLineStatus')->name('orders.updateLineStatus');
             Route::post('orderLine/update', 'OrderLineController@update')->name('orderLine.update');
             Route::resource('order-statuses', 'OrderStatusController');
             Route::get('orders/{id}/invoice', 'OrderController@generateInvoice')->name('orders.invoice.generate');
+            Route::get('orders/printLabel/{order_id}', 'OrderController@printLabel')->name('orders.printLabel');
             Route::get('orders/importCsv/get', 'OrderController@importCsv')->name('orders.importCsv');
             Route::post('orders/saveImport', 'OrderController@saveImport')->name('orders.saveImport');
         });
