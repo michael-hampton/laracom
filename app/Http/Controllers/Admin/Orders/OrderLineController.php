@@ -343,10 +343,8 @@ class OrderLineController extends Controller {
 
             $availiableQty = $objProduct->quantity - $objProduct->reserved_stock;
 
-            $availiableQty = 1;
-
-            if ($availiableQty === 0 || ($availiableQty < $objLine->quantity && $channel->partial_shipping === 0))
-            {
+            if ($availiableQty <= 0 || ($availiableQty < $objLine->quantity && $channel->partial_shipping === 0))
+            {                
                 $comment = 'unable to allocate any order lines no stock availiable';
                 $this->saveNewComment($order, $comment);
                 return false;
@@ -359,7 +357,7 @@ class OrderLineController extends Controller {
             {
                 $arrData['status'] = $objNewStatus->id;
             }
-
+                       
             if ((int) $availiableQty >= (int) $objLine->quantity)
             {
                 $comment = 'all order lines were allocated';
@@ -368,7 +366,7 @@ class OrderLineController extends Controller {
             }
 
             if ($availiableQty < $objLine->quantity && $availiableQty > 0)
-            {
+            {                
                 $intNewQuantity = (int) $objLine->quantity - (int) $availiableQty;
 
                 $objLine->quantity = $intNewQuantity;
@@ -396,7 +394,7 @@ class OrderLineController extends Controller {
             
             $objProductRepo = new ProductRepository($objProduct);
             $objProductRepo->updateStock(['reserved_stock' => $reserved_stock]);
-            
+
             $orderLineRepo = new OrderProductRepository($objLine);
             $orderLineRepo->updateOrderProduct($arrData);
 
@@ -407,8 +405,6 @@ class OrderLineController extends Controller {
             }
         } catch (\Exception $e) {
 
-            die($e->getMessage());
-            die;
             return false;
         }
 
