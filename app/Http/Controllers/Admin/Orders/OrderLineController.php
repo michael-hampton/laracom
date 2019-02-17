@@ -282,8 +282,6 @@ class OrderLineController extends Controller {
                         }
                     }
 
-                    echo 'here';
-
                     if (!$this->addToPicklist($lineId, $order))
                     {
                         $comment = 'unable to do allocation order line could not be allocated to picklist';
