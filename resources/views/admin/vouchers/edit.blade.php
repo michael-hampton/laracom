@@ -26,7 +26,7 @@ foreach ($codes as $unusedCode)
 
 <!--    <a href="{{ route('admin.voucher-codes.batch', $voucher->id) }}" class="btn btn-default btn-sm">Show Codes</a>-->
 
-<div class="col-lg-6">
+<div class="col-lg-4">
     <div class="box">
 
         <form action="{{ route('admin.vouchers.destroy', $voucher->id) }}" method="post" class="form-horizontal">
@@ -47,6 +47,11 @@ foreach ($codes as $unusedCode)
                 <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
                 <input type="hidden" name="id" id="id" value="{{ $voucher->id }}">
                 <input type="hidden" name="scope_value" id="scope_value" value="{{ $voucher->scope_value ?: old('scope_value') }}">
+
+                <div class="form-group">
+                    <label for="description">Description </label>
+                    <input type="text" name="description" id="description" placeholder="Description" class="form-control" value="{{ $voucher->description ?: old('description') }}">
+                </div>
 
                 <div class="form-group">
                     <label for="amount_type">Amount Type </label>

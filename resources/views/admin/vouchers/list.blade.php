@@ -10,7 +10,7 @@
 
 
     <div class="col-lg-12">
-        <div class="col-lg-6">
+        <div class="col-lg-8">
 
             @if($vouchers)
             <div class="box">
@@ -22,6 +22,7 @@
                     <table class="table">
                         <thead>
                             <tr>
+                                 <td class="col-md-2">Description</td>
                                 <td class="col-md-2">Start Date</td>
                                 <td class="col-md-2">Expiry Date</td>
                                 <td class="col-md-1">Status</td>
@@ -31,6 +32,7 @@
                         <tbody>
                             @foreach ($vouchers as $voucher)
                             <tr class='clickable-row' data-href="{{ route('admin.vouchers.edit', $voucher->id) }}">
+                                  <td>{{ $voucher->description }}</td>
                                 <td>{{ date('d-m-Y', strtotime($voucher->start_date)) }}</td>
                                 <td>{{ date('d-m-Y', strtotime($voucher->expiry_date)) }}</td>
                                 <td>@include('layouts.status', ['status' => $voucher->status])</td>
@@ -131,87 +133,7 @@ $(document).ready(function () {
         });
     });
 
-    $('.saveNewVoucher').on('click', function (e) {
-
-        e.preventDefault();
-        $('.modal-body .alert-danger').remove();
-        $('.saveNewVoucher').prop('disabled', true);
-
-        if ($('.uploaded-product').length > 0) {
-            var uploadedProductCodes = $(".uploaded-product").map(function () {
-                return $(this).html();
-            }).get().join(', ');
-
-            $('#uploadedProductCodes').val(uploadedProductCodes);
-        }
-
-        //var formdata = $('#NewVoucherForm').serialize();
-        var formdata = new FormData($('#NewVoucherForm')[0]);
-        var href = $('#NewVoucherForm').attr('action');
-
-        $.ajax({
-            type: "POST",
-            url: href,
-            processData: false,
-            contentType: false,
-            data: formdata,
-            success: function (response) {
-                if (response.http_code == 400) {
-                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
-                    $.each(response.errors, function (key, value) {
-                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
-                    });
-                } else {
-
-                    $('.modal-body').prepend("<div class='alert alert-success'>Voucher has been created successfully</div>");
-
-                    $('.modal-body .alert-success').append('<a href="' + response.filename + '">Download</a>');
-
-                    if (response.import_result != undefined) {
-
-                        $('.modal-body .alert-success').append('<p>' + response.import_result.added + ' voucher codes were imported</p>');
-                        if (response.import_result.duplicates != undefined) {
-
-                            $('.modal-body .alert-success').append('<p>The following voucher codes were duplicates and could not be added</p><ul>');
-                            $.each(response.import_result.duplicates, function (key, value) {
-
-                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
-                            });
-
-                            $('.modal-body .alert-success').append('</ul>');
-                        }
-                    }
-
-                    if (response.product_result != undefined) {
-
-                        if (response.product_result.not_found != undefined) {
-                            $('.modal-body .alert-success').append('<p>The following product codes could not be found</p><ul>');
-
-                            $.each(response.product_result.not_found, function (key, value) {
-
-                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
-                            });
-                        }
-
-                        if (response.product_result.product_ids != undefined) {
-
-                            $('.modal-body .alert-success').append('<p>The following product codes have been added</p><ul>');
-
-                            $.each(response.product_result.product_ids, function (key, value) {
-
-                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
-                            });
-                        }
-                    }
-
-
-
-                }
-
-                $('.saveNewVoucher').prop('disabled', false);
-            }
-        });
-    });
+    
 
     $(".clickable-row").click(function () {
 

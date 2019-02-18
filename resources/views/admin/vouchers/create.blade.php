@@ -1,5 +1,5 @@
 <style>
-    input[type=text] {
+    input[type=text], select {
         width:100% !important;
     }
 </style> 
@@ -11,36 +11,33 @@
             <h4 class="modal-title">Add New Voucher</h4>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body no-padding">
             <!-- Main content -->
             <form id="NewVoucherForm" action="{{ route('admin.vouchers.store') }}" method="post" class="form" enctype="multipart/form-data">
                 <div class="box-body">
                     {{ csrf_field() }}
                     <input type="hidden" id="uploadedProductCodes" name="uploadedProductCodes">
 
-                    @if(empty($selectedChannel) && !$channels->isEmpty())
-                    <div class="form-group">
-                        <label for="channel">Channel</label>
-                        <select name="channel" id="channel" class="form-control select2">
-                            <option value="">--Select--</option>
-                            @foreach($channels as $channel)
-                            <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @else;
-                    <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
-                    @endif;
-
                     <input type="hidden" name="scope_value" id="scope_value">
-                    
+
                     <div class="form-inline pull-left" style='margin-bottom:12px;'>
-                        <div class="form-group col-lg-6" style="margin-right: 4px;">
-                            <label for="name">Name<span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="name" placeholder="Name" class="form-control" value="{{ old('name') }}">
+
+                        @if(empty($selectedChannel) && !$channels->isEmpty())
+                        <div class="form-group col-lg-5">
+                            <label for="channel">Channel</label>
+                            <select name="channel" id="channel" class="form-control select2">
+                                <option value="">--Select--</option>
+                                @foreach($channels as $channel)
+                                <option @if(old('channel') == $channel->id) selected="selected" @endif value="{{ $channel->id }}">{{ $channel->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="form-group col-lg-6" style="margin-right: 4px;">
-                            <label for="description">Description <span class="text-danger">*</span></label>
+                        @else
+                        <input type="hidden" name="channel" id="channel" value="{{ $selectedChannel }}">
+                        @endif
+
+                        <div class="form-group col-lg-6">
+                            <label for="name">Description<span class="text-danger">*</span></label>
                             <input type="text" name="description" id="description" placeholder="Description" class="form-control" value="{{ old('description') }}">
                         </div>
                     </div>
@@ -49,14 +46,14 @@
                     <div class="form-inline pull-left" style='margin-bottom:12px;'>
                         <div class="form-group col-lg-3" style="margin-right: 4px;">
                             <label for="alias">Qty to create<span class="text-danger">*</span></label>
-                            <input type="text" name="quantity" id="alias" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
+                            <input type="text" name="quantity" id="quantity" placeholder="Quantity" class="form-control" value="{{ old('quantity') }}">
                         </div>
-                        <div class="form-group col-lg-3" style="margin-right: 4px;">
+                        <div class="form-group col-lg-4" style="margin-right: 4px;">
                             <label for="address_1">Value <span class="text-danger">*</span></label>
                             <input type="text" name="amount" id="amount" placeholder="Value" class="form-control" value="{{ old('amount') }}">
                         </div>
 
-                        <div class="form-group col-lg-3" style="margin-right: 4px;">
+                        <div class="form-group col-lg-4" style="margin-right: 4px;">
                             <label for="alias">Use Count<span class="text-danger">*</span></label>
                             <input type="text" name="use_count" id="alias" placeholder="Use Count" class="form-control" value="{{ old('use_count') }}">
                         </div>
@@ -72,21 +69,21 @@
                             </select>
                         </div>
 
-                        <div class="form-group col-lg-3" style="margin-right: 10px;">
+                        <div class="form-group col-lg-4" style="margin-right: 10px;">
                             <label for="address_2">Start Date </label>
                             <input type="text" name="start_date" id="start_date" placeholder="Start Date" class="form-control" value="{{ old('start_date') }}">
                         </div>
 
-                        <div class="form-group col-lg-3" style="margin-right: 10px;">
+                        <div class="form-group col-lg-4" style="margin-right: 10px;">
                             <label for="address_2">Expiry Date </label>
                             <input type="text" name="expiry_date" id="expiry_date" placeholder="Expiry Date" class="form-control" value="{{ old('expiry_date') }}">
                         </div>
                     </div>
 
-                    <div class="form-inline pull-left" style='margin-bottom:12px;'>
+                    <div class="form-inline pull-left col-lg-12 no-padding" style='margin-bottom:12px;'>
 
                         @if(!empty($scopes))
-                        <div class="form-group col-lg-6" style='margin-right:10px;'>
+                        <div class="form-group col-lg-5 no-padding" style='margin-right:10px;'>
                             <label for="channel">Scope</label>
                             <select name="scope_type" id="scope_type" class="form-control select2 scope">
                                 <option value="order">Order</option>
@@ -99,7 +96,7 @@
 
 
 
-                        <div class="form-group col-lg-6">
+                        <div class="form-group col-lg-5">
                             <label for="status">Status </label>
                             <select name="status" id="status" class="form-control">
                                 <option value="0">Disable</option>
@@ -115,7 +112,7 @@
                     <div class="form-inline">
 
                         <div class="form-group">
-                            <label for="cover">Cover </label>
+                            <label for="cover">Upload Voucher Codes </label>
                             <input type="file" name="csv_file" id="csv_file" class="form-control">
 
 
@@ -189,23 +186,26 @@
 
                 var reader = new FileReader();
                 reader.onload = function (e) {
-                    var customers = new Array();
+                    var products = new Array();
                     var rows = e.target.result.split("\r\n");
 
+                    var firstLine = null;
+
                     for (var i = 0; i < rows.length; i++) {
-                        var cells = rows[i].split(",");
 
-                        $('.uploaded-products').append('<li class="uploaded-product label label-success">' + cells[0] + '</li>');
+                        if (firstLine === null) {
+                            firstLine = true;
+                            continue;
+                        }
 
+                        var product = rows[i].split(",")[0];
+                        products.push($.trim(product));
 
-//                            if (cells.length > 1) {
-//                                var customer = {};
-//                                customer.Id = cells[0];
-//                                customer.Name = cells[1];
-//                                customer.Country = cells[2];
-//                                customers.push(customer);
-//                            }
+                        $('.uploaded-products').append('<li product-code="' + product + '" style="margin:8px;" class="uploaded-product label label-success">' + product + '<a class="removeProductCode">X</a></li>');
                     }
+                    var products = products.join(',');
+                    $('#uploadedProductCodes').val(products);
+                    console.log(products);
                 }
                 reader.readAsText($("#fileUpload")[0].files[0]);
             } else {
@@ -215,6 +215,103 @@
             alert("Please upload a valid CSV file.");
         }
     });
+
+    $('.saveNewVoucher').on('click', function (e) {
+
+        e.preventDefault();
+        $('.modal-body .alert-danger').remove();
+        $('.saveNewVoucher').prop('disabled', true);
+
+        //var formdata = $('#NewVoucherForm').serialize();
+        var formdata = new FormData($('#NewVoucherForm')[0]);
+        var href = $('#NewVoucherForm').attr('action');
+
+        $.ajax({
+            type: "POST",
+            url: href,
+            processData: false,
+            contentType: false,
+            data: formdata,
+            success: function (response) {
+                if (response.http_code == 400) {
+                    $('.modal-body').prepend("<div class='alert alert-danger'></div>");
+                    $.each(response.errors, function (key, value) {
+                        $('.modal-body .alert-danger').append("<p>" + value + "</p>");
+                    });
+                } else {
+
+                    $('.modal-body').prepend("<div class='alert alert-success'>Voucher has been created successfully</div>");
+
+                    $('.modal-body .alert-success').append('<a href="' + response.filename + '">Download</a>');
+
+                    if (response.import_result != undefined) {
+
+                        $('.modal-body .alert-success').append('<p>' + response.import_result.added + ' voucher codes were imported</p>');
+                        if (response.import_result.duplicates != undefined) {
+
+                            $('.modal-body .alert-success').append('<p>The following voucher codes were duplicates and could not be added</p><ul>');
+                            $.each(response.import_result.duplicates, function (key, value) {
+
+                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
+                            });
+
+                            $('.modal-body .alert-success').append('</ul>');
+                        }
+                    }
+
+                    if (response.product_result != undefined) {
+
+                        if (response.product_result.not_found != undefined) {
+                            $('.modal-body .alert-success').append('<p>The following product codes could not be found</p><ul>');
+
+                            $.each(response.product_result.not_found, function (key, value) {
+
+                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
+                            });
+                        }
+
+                        if (response.product_result.product_ids != undefined) {
+
+                            $('.modal-body .alert-success').append('<p>The following product codes have been added</p><ul>');
+
+                            $.each(response.product_result.product_ids, function (key, value) {
+
+                                $('.modal-body .alert-success').append('<li>' + value + '</li>');
+                            });
+                        }
+                    }
+
+
+
+                }
+
+                $('.saveNewVoucher').prop('disabled', false);
+            }
+        });
+    });
+
+    $('#csv_file').on('change', function () {
+        $('#quantity').prop('disabled', true);
+    });
+
+    $(document).off('.removeProductCode');
+    $(document).on("click", ".removeProductCode", function () {
+
+        $(this).parent().remove();
+
+        var products = new Array();
+
+        $('.uploaded-product').each(function () {
+            products.push($.trim($(this).attr('product-code')));
+        });
+
+        $('#uploadedProductCodes').val(products.join(','));
+
+
+
+
+    });
+
 
     $('.scope').on('change', function () {
 
