@@ -88,7 +88,7 @@ class ReturnRepository extends BaseRepository implements ReturnRepositoryInterfa
 
             return $this->model->update($update);
         } catch (Exception $ex) {
-            throw new Exception($e);
+            throw new Exception($ex);
         }
     }
 
