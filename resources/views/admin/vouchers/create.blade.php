@@ -33,7 +33,17 @@
                     @endif;
 
                     <input type="hidden" name="scope_value" id="scope_value">
-
+                    
+                    <div class="form-inline pull-left" style='margin-bottom:12px;'>
+                        <div class="form-group col-lg-6" style="margin-right: 4px;">
+                            <label for="name">Name<span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="name" placeholder="Name" class="form-control" value="{{ old('name') }}">
+                        </div>
+                        <div class="form-group col-lg-6" style="margin-right: 4px;">
+                            <label for="description">Description <span class="text-danger">*</span></label>
+                            <input type="text" name="description" id="description" placeholder="Description" class="form-control" value="{{ old('description') }}">
+                        </div>
+                    </div>
 
 
                     <div class="form-inline pull-left" style='margin-bottom:12px;'>
