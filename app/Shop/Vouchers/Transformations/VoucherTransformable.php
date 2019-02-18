@@ -28,7 +28,8 @@ trait VoucherTransformable {
         $obj->coupon_code = $voucher->coupon_code;
         $obj->amount = $voucher->amount;
         $obj->amount_type = $voucher->amount_type;
-               
+        $obj->name = $voucher->name;
+        $obj->description = $voucher->description;
         $obj->expiry_date = $voucher->expiry_date;
         $obj->start_date = $voucher->start_date;
         $obj->status = $voucher->status;
