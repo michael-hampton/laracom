@@ -32,13 +32,21 @@ class StripeRepository {
      * @var Customer
      */
     private $customer;
+    
+    /**
+     *
+     * @var type 
+     */
+    private $api_key;
 
     /**
-     * StripeRepository constructor.
+     * 
      * @param Customer $customer
+     * @param type $channelPaymentDetails
      */
-    public function __construct(Customer $customer) {
+    public function __construct(Customer $customer, $channelPaymentDetails) {
         $this->customer = $customer;
+        $this->api_key = env('STRIPE_SECRET');
     }
 
     /**
@@ -164,7 +172,7 @@ class StripeRepository {
     public function capturePayment(Order $order) {
 
         try {
-            Stripe::setApiKey(env('STRIPE_SECRET'));
+            Stripe::setApiKey($this->api_key);
             $charge_id = $order->transaction_id;
             $charge = Charge::retrieve($charge_id);
 
@@ -196,7 +204,7 @@ class StripeRepository {
         $refundAmount = $refundAmount * 100;
 
         try {
-            Stripe::setApiKey(env('STRIPE_SECRET'));
+            Stripe::setApiKey($this->api_key);
             $charge_id = $order->transaction_id;
 
             $refund = Refund::create([

@@ -310,7 +310,7 @@ class RefundController extends Controller {
 
                 $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer->id);
 
-                if (!(new StripeRepository($customer))->doRefund($order, $refundAmount))
+                if (!(new StripeRepository($customer, $objChannelPaymentDetails))->doRefund($order, $refundAmount))
                 {
                     return response()->json(['error' => 'failed to authorize'], 404); // Status code here
                 }

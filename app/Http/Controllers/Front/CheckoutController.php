@@ -289,7 +289,10 @@ class CheckoutController extends Controller {
             }
 
             $customer = $this->customerRepo->findCustomerById(auth()->id());
-            $stripeRepo = new StripeRepository($customer);
+          
+            $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
+            $objChannelPaymentDetails = (new \App\Shop\Channels\ChannelPaymentDetails)->get('channel_id', $channel->id);
+            $stripeRepo = new StripeRepository($customer, $channel);
 
             $products = $this->cartRepo->getCartItems();
             $customer = $request->user();

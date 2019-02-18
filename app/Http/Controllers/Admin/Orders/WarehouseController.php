@@ -376,7 +376,7 @@ class WarehouseController extends Controller {
 
                 $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer->id);
 
-                if (!(new \App\Shop\PaymentMethods\Stripe\StripeRepository($customer))->capturePayment($order))
+                if (!(new \App\Shop\PaymentMethods\Stripe\StripeRepository($customer, $objChannelPaymentDetails))->capturePayment($order))
                 {
                     return false;
                 }
