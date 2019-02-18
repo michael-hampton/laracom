@@ -13,7 +13,7 @@ class UpdateVoucherRequest extends BaseFormRequest {
      */
     public function rules() {
         return [
-            'name' => ['required'],
+            'description' => ['required'],
             'amount' => ['required'],
             'amount_type' => ['required'],
             'start_date' => ['required', 'date'],

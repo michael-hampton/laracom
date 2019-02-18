@@ -13,7 +13,7 @@ class CreateVoucherRequest extends BaseFormRequest {
      */
     public function rules() {
         return [
-            'name' => ['required'],
+            'description' => ['required'],
             'amount' => ['required'],
             'amount_type' => ['required'],
             'expiry_date' => ['required', 'date'],

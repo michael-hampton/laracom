@@ -250,7 +250,7 @@ class VoucherController extends Controller {
         return response()->json(
                         [
                             'http_code'      => 200,
-                            'import_result'  => $arrImportResult,
+                            'import_result'  =>  isset($arrImportResult) ? $arrImportResult : [],
                             'product_result' => $arrProductIds,
                             'filename'       => asset("/uploads/voucher_codes/{$file}")
                         ]

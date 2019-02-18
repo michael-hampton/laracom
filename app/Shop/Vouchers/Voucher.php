@@ -18,7 +18,6 @@ class Voucher extends Model {
      * @var array
      */
     public $fillable = [
-        'name',
         'description',
         'coupon_code',
         'amount',
