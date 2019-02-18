@@ -6,6 +6,7 @@ use App\Shop\Orders\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterface;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
+use App\Shop\Channels\Channel;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
@@ -340,7 +341,7 @@ class WarehouseController extends Controller {
         (new \App\RabbitMq\Worker('dispatch'))->execute($request->lineId);
         if ($objOrderLineRepo->chekIfAllLineStatusesAreEqual($order, $newStatus->id) === 0)
         {
-            $this->capturePayment($order);
+            $this->capturePayment($order, $channel);
             $order->order_status_id = $completeStatus->id;
             $order->save();
             //complete order
@@ -353,16 +354,18 @@ class WarehouseController extends Controller {
     /**
      * 
      * @param Order $order
+     * @param Channel $channel
      * @return boolean
      */
-    private function capturePayment(Order $order) {
+    private function capturePayment(Order $order, Channel $channel) {
 
+        $objChannelPaymentDetails = (new \App\Shop\Channels\ChannelPaymentDetails)->get('channel_id', $channel->id);
 
         switch ($order->payment)
         {
             case 'paypal':
 
-                if (!(new \App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository())->capturePayment($order))
+                if (!(new \App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository($objChannelPaymentDetails))->capturePayment($order))
                 {
 
                     return response()->json(['error' => 'failed to authorize'], 404); // Status code here

@@ -96,7 +96,12 @@ class CheckoutController extends Controller {
         $this->customerRepo = $customerRepository;
         $this->productRepo = $productRepository;
         $this->orderRepo = $orderRepository;
-        $this->payPal = new PayPalExpressCheckoutRepository;
+        
+        $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
+        
+        $objChannelPaymentDetails = (new \App\Shop\Channels\ChannelPaymentDetails)->get()->where('channel_id', $channel->id);
+        
+        $this->payPal = new PayPalExpressCheckoutRepository($objChannelPaymentDetails);
         $this->shippingRepo = $shipping;
         $this->voucherCodeRepo = $voucherCodeRepository;
 

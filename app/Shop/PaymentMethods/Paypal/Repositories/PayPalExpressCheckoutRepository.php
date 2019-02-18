@@ -6,6 +6,7 @@ use App\Shop\Orders\Order;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Shop\Channels\Channel;
+use App\Shop\Channels\ChannelPaymentDetails;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\CourierRates\Repositories\Interfaces\CourierRateRepositoryInterface;
@@ -32,12 +33,19 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * @var mixed
      */
     private $payPal;
-
+    
     /**
-     * PayPalExpressCheckoutRepository constructor.
+     *
+     * @var type 
      */
-    public function __construct() {
+    private $objChannelPaymentDetails;
 
+   /**
+    * 
+    * @param type $channelPaymentDetails
+    */
+    public function __construct($channelPaymentDetails) {
+        
         $payment = new Payment(new PaypalExpress(
                 config('paypal.client_id'), config('paypal.client_secret'), config('paypal.mode'), config('paypal.api_url')
         ));

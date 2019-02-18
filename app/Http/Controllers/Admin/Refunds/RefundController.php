@@ -166,7 +166,7 @@ class RefundController extends Controller {
                 $objCustomerRepository->addCredit($customer->id, 10);
                 $this->saveNewComment($order, 'customer has been credited for refund');
             }
-            elseif (!$this->authorizePayment($order, $refundAmount, $customer))
+            elseif (!$this->authorizePayment($order, $refundAmount, $customer, $channel))
             {
 
                 $strMessage = "Order was refunded but we failed to authorize payment";
@@ -288,15 +288,18 @@ class RefundController extends Controller {
      * @param Order $order
      * @param type $refundAmount
      * @param Customer $customer
+     * @param Channel $channel
      * @return boolean
      */
-    private function authorizePayment(Order $order, $refundAmount, Customer $customer) {
+    private function authorizePayment(Order $order, $refundAmount, Customer $customer, Channel $channel) {
+
+        $objChannelPaymentDetails = (new \App\Shop\Channels\ChannelPaymentDetails)->get('channel_id', $channel->id);
 
         switch ($order->payment)
         {
             case 'paypal':
 
-                if (!(new PayPalExpressCheckoutRepository())->doRefund($order, $refundAmount))
+                if (!(new PayPalExpressCheckoutRepository($objChannelPaymentDetails))->doRefund($order, $refundAmount))
                 {
 
                     return response()->json(['error' => 'failed to authorize'], 404); // Status code here
