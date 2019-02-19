@@ -6,6 +6,7 @@
  */
 namespace App\Shop\Channels\Repositories;
 use App\Shop\Channels\Channel;
+use App\Shop\Channels\PaymentProvider;
 use App\Shop\Base\BaseRepository;
 /**
  * Description of ChannelPaymentDetailsRepository
@@ -26,7 +27,10 @@ class ChannelPaymentDetailsRepository extends BaseRepository {
      * 
      * @param Channel $channel
      */
-    public function getPaymentDetailsForChannel(Channel $channel) {
-        return $this->model->where('channel_id', $channel->id)->get();
+    public function getPaymentDetailsForChannel(Channel $channel, PaymentProvider $paymentProvider) {
+        return $this->model
+            ->where('channel_id', $channel->id)
+            ->where('payment_provider_id', $paymentProvider->id)
+            ->get();
     }
 }
