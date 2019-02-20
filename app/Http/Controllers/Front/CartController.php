@@ -186,7 +186,7 @@ class CartController extends Controller {
         $voucherRepo = new VoucherRepository(new Voucher);
 
 
-        $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts, $voucherRepo, $this->cartRepo);
+        $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $voucherCode, $cartProducts, $voucherRepo, true, $this->cartRepo);
 
         if (!$voucherCode) {
 
