@@ -9,6 +9,7 @@
 namespace App\Traits;
 
 use App\Shop\Vouchers\Voucher;
+use App\Shop\Carts\Repositories\CartRepository;
 
 /**
  * Description of VoucherValidationScope
@@ -24,7 +25,7 @@ trait VoucherValidationScope {
      * @param type $cartProducts
      * @return boolean
      */
-    protected function validateVoucherScopes(Voucher $objVoucher, $cartProducts) {
+    protected function validateVoucherScopes(Voucher $objVoucher, $cartProducts, CartRepository $objCartRepository = null) {
 
         $scopeType = $objVoucher->scope_type;
 
@@ -92,6 +93,20 @@ trait VoucherValidationScope {
 
                         return false;
                     }
+                    break;
+                    
+                case 'Order':
+                    if(empty($objCartRepository)) {
+                        return false;
+                    }
+                    
+                    $scopeValue = $objVoucher->scope_value;
+                    $cartTotal = $objCartRepository->getProductTotal();
+                    
+                    if($cartTotal < $scopeValue) {
+                        return false;
+                    }
+                    break;
             }
         }
 
