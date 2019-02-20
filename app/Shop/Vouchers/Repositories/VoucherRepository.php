@@ -3,6 +3,7 @@
 namespace App\Shop\Vouchers\Repositories;
 
 use App\Shop\Vouchers\Voucher;
+use App\Shop\Carts\Repositories\CartRepository;
 use App\Shop\Vouchers\Exceptions\VoucherInvalidArgumentException;
 use App\Shop\Vouchers\Exceptions\VoucherNotFoundException;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
@@ -130,11 +131,11 @@ class VoucherRepository extends BaseRepository implements VoucherRepositoryInter
      * @param type $cartProducts
      * @return boolean
      */
-    public function validateVoucher(int $id, $cartProducts) {
+    public function validateVoucher(int $id, $cartProducts, CartRepository $objCartRepository = null) {
 
         $objVoucher = $this->findVoucherById($id);
 
-        if (!$this->validateVoucherScopes($objVoucher, $cartProducts))
+        if (!$this->validateVoucherScopes($objVoucher, $cartProducts, $objCartRepository))
         {
             $this->validationFailures[] = 'unable to validate voucher code';
             return false;
