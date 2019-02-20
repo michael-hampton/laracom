@@ -25,7 +25,7 @@ trait VoucherValidationScope {
      * @param type $cartProducts
      * @return boolean
      */
-    protected function validateVoucherScopes(Voucher $objVoucher, $cartProducts, CartRepository $objCartRepository = null) {
+    protected function validateVoucherScopes(Voucher $objVoucher, $cartProducts, CartRepository $objCartRepository = null, $orderTotal = null) {
 
         $scopeType = $objVoucher->scope_type;
 
@@ -96,16 +96,20 @@ trait VoucherValidationScope {
                     break;
                     
                 case 'Order':
-                    if(empty($objCartRepository)) {
+                    if(!empty($objCartRepository)) {
+                        $orderTotal = $objCartRepository->getProductTotal();
+                    }
+                    
+                    if(empty($orderTotal)) {
                         return false;
                     }
                     
                     $scopeValue = $objVoucher->scope_value;
-                    $cartTotal = $objCartRepository->getProductTotal();
                     
-                    if($cartTotal < $scopeValue) {
+                    if($orderTotal < $scopeValue) {
                         return false;
                     }
+                    
                     break;
             }
         }
