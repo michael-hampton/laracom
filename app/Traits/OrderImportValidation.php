@@ -108,7 +108,7 @@ trait OrderImportValidation {
         
         $product = array('product' => $this->arrExistingProducts[$product]);
 
-        if(!$this->validateVoucherScopes($voucher, $product)) {
+        if(!$this->validateVoucherScopes($voucher, $product, null, $this->orderTotal)) {
             $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
             return false;
         }
