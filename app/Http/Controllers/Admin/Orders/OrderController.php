@@ -359,7 +359,7 @@ class OrderController extends Controller {
                 return redirect()->back()->with('message', 'Unable to validate products');
             }
 
-            $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $request->voucher_code, $arrProducts, $this->voucherRepo);
+            $voucherCode = $this->voucherCodeRepo->validateVoucherCode($channel, $request->voucher_code, $arrProducts, $this->voucherRepo, false);
 
             if (!$voucherCode)
             {
@@ -368,6 +368,10 @@ class OrderController extends Controller {
 
             $voucher_id = $voucherCode->voucher_id;
             $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
+            
+            if(!$this->validateVoucherScopes($objVoucher, $arrProducts, null, $request->total)) {
+                return redirect()->back()->with('message', 'Voucher Code is invalid.');
+            }
 
             $voucherAmount = $objVoucher->amount;
 
