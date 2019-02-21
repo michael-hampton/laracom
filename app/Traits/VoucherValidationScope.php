@@ -55,15 +55,15 @@ trait VoucherValidationScope {
                     break;
 
                 case 'Product':
-                    
+
                     if (empty($objProduct->id))
                     {
 
                         return false;
                     }
-                                        
+
                     $scopeValues = explode(',', $objVoucher->scope_value);
-                    
+
                     $blFound = false;
 
                     foreach ($scopeValues as $scopeValue)
@@ -94,22 +94,25 @@ trait VoucherValidationScope {
                         return false;
                     }
                     break;
-                    
+
                 case 'Order':
-                    if(!empty($objCartRepository)) {
+                    if (!empty($objCartRepository))
+                    {
                         $orderTotal = $objCartRepository->getProductTotal();
                     }
-                    
-                    if(empty($orderTotal)) {
+
+                    if (empty($orderTotal))
+                    {
                         return false;
                     }
-                    
+
                     $scopeValue = $objVoucher->scope_value;
-                    
-                    if($orderTotal < $scopeValue) {
+
+                    if ($orderTotal < $scopeValue)
+                    {
                         return false;
                     }
-                    
+
                     break;
             }
         }

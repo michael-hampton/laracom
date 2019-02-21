@@ -41,13 +41,15 @@ use App\Shop\Comments\OrderCommentRepository;
 use Illuminate\Support\Collection;
 use App\Search\OrderSearch;
 use App\Traits\OrderCommentTrait;
+use App\Traits\VoucherValidationScope;
 
 class OrderController extends Controller {
 
     use AddressTransformable,
         CommentTransformer,
         OrderCsvTransformable,
-        OrderCommentTrait;
+        OrderCommentTrait,
+        VoucherValidationScope;
 
     /**
      * @var OrderRepositoryInterface
@@ -368,10 +370,14 @@ class OrderController extends Controller {
 
             $voucher_id = $voucherCode->voucher_id;
             $objVoucher = $this->voucherRepo->findVoucherById($voucher_id);
-            
-            if(!$this->validateVoucherScopes($objVoucher, $arrProducts, null, $request->total)) {
+
+            if (!$this->validateVoucherScopes($objVoucher, $arrProducts, null, $request->total))
+            {
                 return redirect()->back()->with('message', 'Voucher Code is invalid.');
             }
+
+            $voucherCode->use_count = $voucherCode->use_count - 1;
+            $voucherCode->save();
 
             $voucherAmount = $objVoucher->amount;
 

@@ -75,14 +75,20 @@ trait OrderImportValidation {
         $voucherCode = trim(strtolower($order['voucher_code']));
         $orderId = trim($order['order_id']);
         $product = trim($order['product']);
-        
+
         if (empty($voucherCode) || (isset($this->arrOrderVouchers[$orderId]) && in_array($voucherCode, $this->arrOrderVouchers[$orderId])))
         {
             return true;
         }
 
         $this->objVoucher = $this->voucherCodeRepo->validateVoucherCode($this->channel, $voucherCode, null, $this->voucherRepo, false);
-
+        
+        if (!$this->objVoucher)
+        {
+            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
+            return false;
+        }
+        
         $voucherId = $this->objVoucher['voucher_id'];
 
         if (!isset($this->arrVouchers[$voucherId]))
@@ -93,26 +99,21 @@ trait OrderImportValidation {
 
         $voucher = $this->arrVouchers[$voucherId];
         $voucherAmount = $voucher->amount;
-        $this->objVoucher = $this->voucherCodeRepo->validateVoucherCode($this->channel, $voucherCode, null, $this->voucherRepo, false);
 
-        if (!$this->objVoucher)
+        if (!isset($this->arrExistingProducts[$product]))
+        {
+
+            return false;
+        }
+
+        $product = array('product' => $this->arrExistingProducts[$product]);
+
+        if (!$this->validateVoucherScopes($voucher, $product, null, $this->orderTotal))
         {
             $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
             return false;
         }
-        
-        if(!isset($this->arrExistingProducts[$product])) {
-            
-            return false;
-        }
-        
-        $product = array('product' => $this->arrExistingProducts[$product]);
 
-        if(!$this->validateVoucherScopes($voucher, $product, null, $this->orderTotal)) {
-            $this->arrErrors[$this->lineCount]['voucher_code'] = "Voucher Code is invalid.";
-            return false;
-        }
-        
         switch ($voucher->amount_type)
         {
             case 'percentage':
