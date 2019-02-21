@@ -6,6 +6,10 @@ use App\Shop\Refunds\Refund;
 use App\Shop\Refunds\Repositories\RefundRepository;
 use App\Shop\VoucherCodes\Repositories\VoucherCodeRepository;
 use App\Shop\VoucherCodes\VoucherCode;
+use App\Shop\Channels\PaymentProvider;
+use App\Shop\Channels\Repositories\PaymentProviderRepository;
+use App\Shop\Channels\Repositories\ChannelPaymentDetailsRepository;
+use App\Shop\Channels\ChannelPaymentDetails;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Shop\Vouchers\Voucher;
 use App\Shop\Customers\Repositories\CustomerRepository;
@@ -293,11 +297,12 @@ class RefundController extends Controller {
      */
     private function authorizePayment(Order $order, $refundAmount, Customer $customer, Channel $channel) {
 
-        $objChannelPaymentDetails = (new \App\Shop\Channels\ChannelPaymentDetails)->get('channel_id', $channel->id);
-
         switch ($order->payment)
         {
             case 'paypal':
+
+                $paymentProvider = (new PaymentProviderRepository(new PaymentProvider))->findByName('paypal');
+                $objChannelPaymentDetails = (new ChannelPaymentDetailsRepository(new ChannelPaymentDetails))->getPaymentDetailsForChannel($channel, $paymentProvider);
 
                 if (!(new PayPalExpressCheckoutRepository($objChannelPaymentDetails))->doRefund($order, $refundAmount))
                 {
@@ -307,7 +312,9 @@ class RefundController extends Controller {
                 break;
 
             case 'stripe':
-
+                
+                $paymentProvider = (new PaymentProviderRepository(new PaymentProvider))->findByName('stripe');
+                $objChannelPaymentDetails = (new ChannelPaymentDetailsRepository(new ChannelPaymentDetails))->getPaymentDetailsForChannel($channel, $paymentProvider);
                 $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer->id);
 
                 if (!(new StripeRepository($customer, $objChannelPaymentDetails))->doRefund($order, $refundAmount))

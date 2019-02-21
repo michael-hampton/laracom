@@ -7,6 +7,10 @@ use App\Shop\OrderStatuses\Repositories\Interfaces\OrderStatusRepositoryInterfac
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Channels\Repositories\Interfaces\ChannelRepositoryInterface;
 use App\Shop\Channels\Channel;
+use App\Shop\Channels\PaymentProvider;
+use App\Shop\Channels\Repositories\PaymentProviderRepository;
+use App\Shop\Channels\Repositories\ChannelPaymentDetailsRepository;
+use App\Shop\Channels\ChannelPaymentDetails;
 use App\Shop\OrderProducts\Repositories\Interfaces\OrderProductRepositoryInterface;
 use App\Shop\OrderProducts\Repositories\OrderProductRepository;
 use App\Shop\OrderStatuses\Repositories\OrderStatusRepository;
@@ -359,11 +363,12 @@ class WarehouseController extends Controller {
      */
     private function capturePayment(Order $order, Channel $channel) {
 
-        $objChannelPaymentDetails = (new \App\Shop\Channels\ChannelPaymentDetails)->get('channel_id', $channel->id);
-
         switch ($order->payment)
         {
             case 'paypal':
+
+                $paymentProvider = (new PaymentProviderRepository(new PaymentProvider))->findByName('paypal');
+                $objChannelPaymentDetails = (new ChannelPaymentDetailsRepository(new ChannelPaymentDetails))->getPaymentDetailsForChannel($channel, $paymentProvider);
 
                 if (!(new \App\Shop\PaymentMethods\Paypal\Repositories\PayPalExpressCheckoutRepository($objChannelPaymentDetails))->capturePayment($order))
                 {
@@ -374,6 +379,8 @@ class WarehouseController extends Controller {
 
             case 'stripe':
 
+                $paymentProvider = (new PaymentProviderRepository(new PaymentProvider))->findByName('stripe');
+                $objChannelPaymentDetails = (new ChannelPaymentDetailsRepository(new ChannelPaymentDetails))->getPaymentDetailsForChannel($channel, $paymentProvider);
                 $customer = (new CustomerRepository(new Customer))->findCustomerById($order->customer->id);
 
                 if (!(new \App\Shop\PaymentMethods\Stripe\StripeRepository($customer, $objChannelPaymentDetails))->capturePayment($order))

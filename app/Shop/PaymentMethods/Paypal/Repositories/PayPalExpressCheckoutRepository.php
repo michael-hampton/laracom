@@ -33,21 +33,23 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
      * @var mixed
      */
     private $payPal;
-    
+
     /**
      *
      * @var type 
      */
     private $objChannelPaymentDetails;
 
-   /**
-    * 
-    * @param type $channelPaymentDetails
-    */
-    public function __construct($channelPaymentDetails) {
-        
+    /**
+     * 
+     * @param ChannelPaymentDetails $objChannelPaymentDetails
+     */
+    public function __construct(ChannelPaymentDetails $objChannelPaymentDetails) {
+
+        $arrPaymentDetails = json_decode($objChannelPaymentDetails->data, true);
+
         $payment = new Payment(new PaypalExpress(
-                config('paypal.client_id'), config('paypal.client_secret'), config('paypal.mode'), config('paypal.api_url')
+                $arrPaymentDetails['client_id'], $arrPaymentDetails['client_secret'], $arrPaymentDetails['mode'], $arrPaymentDetails['api_url']
         ));
         $this->payPal = $payment->init();
     }
@@ -90,7 +92,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
         if (!empty($voucher))
         {
             $objVoucher = $voucherRepo->findVoucherById($voucher->voucher_id);
-  
+
             switch ($objVoucher->amount_type)
             {
                 case 'percentage':
@@ -116,7 +118,7 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
             $country_id = $billingAddress->country_id;
 
             $delivery = $courierRateRepository->findShippingMethod($subtotal, $courier, $channel, $country_id);
-            
+
             if (!empty($delivery))
             {
 
@@ -124,8 +126,9 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
                 $total += $shippingFee;
             }
         }
-        
-        if(!empty($discountedAmount) && $discountedAmount > 0) {
+
+        if (!empty($discountedAmount) && $discountedAmount > 0)
+        {
             $subtotal -= $discountedAmount;
         }
 
@@ -169,8 +172,9 @@ class PayPalExpressCheckoutRepository implements PayPalExpressCheckoutRepository
         } catch (Exception $ex) {
             throw new Exception('Unable to create order');
         }
-        
-        if($shipmentObj !== null) {
+
+        if ($shipmentObj !== null)
+        {
             $shipmentObj->createShippingLabel($order);
         }
         try {

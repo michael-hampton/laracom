@@ -10,6 +10,10 @@ use App\Shop\Carts\Requests\StripeExecutionRequest;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\CourierRates\Repositories\CourierRateRepository;
 use App\Shop\Couriers\Courier;
+use App\Shop\Channels\PaymentProvider;
+use App\Shop\Channels\Repositories\PaymentProviderRepository;
+use App\Shop\Channels\Repositories\ChannelPaymentDetailsRepository;
+use App\Shop\Channels\ChannelPaymentDetails;
 use App\Shop\Couriers\Repositories\CourierRepository;
 use App\Shop\Vouchers\Repositories\VoucherRepository;
 use App\Shop\Vouchers\Voucher;
@@ -96,11 +100,11 @@ class CheckoutController extends Controller {
         $this->customerRepo = $customerRepository;
         $this->productRepo = $productRepository;
         $this->orderRepo = $orderRepository;
-        
+
         $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
-        
-        $objChannelPaymentDetails = (new \App\Shop\Channels\ChannelPaymentDetails)->get()->where('channel_id', $channel->id);
-        
+        $paymentProvider = (new PaymentProviderRepository(new PaymentProvider))->findByName('paypal');
+        $objChannelPaymentDetails = (new ChannelPaymentDetailsRepository(new ChannelPaymentDetails))->getPaymentDetailsForChannel($channel, $paymentProvider);
+
         $this->payPal = new PayPalExpressCheckoutRepository($objChannelPaymentDetails);
         $this->shippingRepo = $shipping;
         $this->voucherCodeRepo = $voucherCodeRepository;
@@ -289,10 +293,12 @@ class CheckoutController extends Controller {
             }
 
             $customer = $this->customerRepo->findCustomerById(auth()->id());
-          
+
             $channel = (new ChannelRepository(new Channel))->findByName(env('CHANNEL'));
-            $objChannelPaymentDetails = (new \App\Shop\Channels\ChannelPaymentDetails)->get('channel_id', $channel->id);
-            $stripeRepo = new StripeRepository($customer, $channel);
+            $paymentProvider = (new PaymentProviderRepository(new PaymentProvider))->findByName('stripe');
+            $objChannelPaymentDetails = (new ChannelPaymentDetailsRepository(new ChannelPaymentDetails))->getPaymentDetailsForChannel($channel, $paymentProvider);
+
+            $stripeRepo = new StripeRepository($customer, $objChannelPaymentDetails);
 
             $products = $this->cartRepo->getCartItems();
             $customer = $request->user();

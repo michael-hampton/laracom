@@ -4,6 +4,7 @@ namespace App\Shop\PaymentMethods\Stripe;
 
 use App\Shop\Checkout\CheckoutRepository;
 use App\Shop\Orders\Order;
+use App\Shop\Channels\ChannelPaymentDetails;
 use App\Shop\VoucherCodes\Repositories\Interfaces\VoucherCodeRepositoryInterface;
 use App\Shop\Vouchers\Repositories\Interfaces\VoucherRepositoryInterface;
 use App\Shop\Customers\Repositories\Interfaces\CustomerRepositoryInterface;
@@ -32,7 +33,7 @@ class StripeRepository {
      * @var Customer
      */
     private $customer;
-    
+
     /**
      *
      * @var type 
@@ -42,11 +43,13 @@ class StripeRepository {
     /**
      * 
      * @param Customer $customer
-     * @param type $channelPaymentDetails
+     * @param ChannelPaymentDetails $objChannelPaymentDetails
      */
-    public function __construct(Customer $customer, $channelPaymentDetails) {
+    public function __construct(Customer $customer, ChannelPaymentDetails $objChannelPaymentDetails) {
         $this->customer = $customer;
-        $this->api_key = env('STRIPE_SECRET');
+        $arrPaymentDetails = json_decode($objChannelPaymentDetails->data, true);
+
+        $this->api_key = $arrPaymentDetails['secret'];
     }
 
     /**
@@ -134,7 +137,7 @@ class StripeRepository {
             {
                 $shipmentObj->createShippingLabel($order);
             }
-            
+
             $customerRepo = new CustomerRepository($this->customer);
             $options['source'] = $data['stripeToken'];
             $options['currency'] = config('cart.currency');
