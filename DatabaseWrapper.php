@@ -836,7 +836,11 @@ class EasyDB
             return false;
         }
         
-        return $this->getResultsStrictTyped($stmt, $fetchStyle);
+        if(!$this->getResultsStrictTyped($stmt, $fetchStyle)) {
+            return false;
+        }
+        
+        return true;
     }
     /**
      * Fetch a single result -- useful for SELECT COUNT() queries
@@ -1107,10 +1111,17 @@ class EasyDB
      */
     protected function getResultsStrictTyped(\PDOStatement $stmt, int $fetchStyle = \PDO::FETCH_ASSOC)
     {
+        
+        try {
+            $results = $stmt->fetchAll($fetchStyle);
+        } catch (\PDOException $e) {
+            
+            return false;
+        }
         /**
          * @var array|object|bool $results
          */
-        $results = $stmt->fetchAll($fetchStyle);
+        
         if (\is_array($results)) {
             return $results;
         } elseif (\is_object($results)) {
