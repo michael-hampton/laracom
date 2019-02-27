@@ -822,11 +822,20 @@ class EasyDB
                 'Only one-dimensional arrays are allowed.'
             );
         }
-        $stmt = $this->prepare($statement);
-        $stmt->execute($params);
-        if ($returnNumAffected) {
-            return (int) $stmt->rowCount();
+        
+        try {
+            $stmt = $this->prepare($statement);
+            $stmt->execute($params);
+        
+            if ($returnNumAffected) {
+                return (int) $stmt->rowCount();
+            }
+            
+        } catch (\PDOException $e) {
+            
+            return false;
         }
+        
         return $this->getResultsStrictTyped($stmt, $fetchStyle);
     }
     /**
